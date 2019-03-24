@@ -46,6 +46,12 @@ $editRight = $resource->userIsAllowed('update');
                 <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
                 <span class="correction-date"><?php $date = $correction->created(); echo $escape($this->i18n()->dateFormat($date)); ?></span>
                 <?php if ($editRight): ?>
+                <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
+                <span class="single actions"><a href="#"
+                    class="validate o-icon-validate"
+                    data-validate-url="<?php echo $escape($correction->url('validate')); ?>"
+                    aria-label="<?php echo $escape($translate('Validate all values')); ?>"
+                    title="<?php echo $escape($translate('Validate all values')); ?>"></a></span>
                 <span class="single actions"><a href="#"
                     class="status-toggle o-icon-<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
                     data-status-toggle-url="<?php echo $escape($correction->url('toggle-status')); ?>"

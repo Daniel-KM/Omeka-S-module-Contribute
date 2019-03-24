@@ -111,14 +111,25 @@
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .correction .o-icon-equal::before,
-    .correction .o-icon-validated::before {
-        color: #00FF00;
-        content: "="; /* equal not available iin 5.0.8 */
-    }
     .correction .o-icon-validate::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
+    }
+    .correction .o-icon-validated::before {
+        color: #00FF00;
+        content: "\f359"; /* arrow left / equal not available iin 5.0.8 */
+    }
+    .correction .o-icon-validated-value::before {
+        color: #00FF00;
+        content: ""; /* check */
+    }
+    .correction .o-icon-unvalidated-value::before {
+        color: #FF0000;
+        content: ""; /* cancel */
+    }
+    .correction .o-icon-unknown-value::before {
+        color: #FFA500;
+        content: ""; /* exclamation */
     }
     .correction .o-icon-undefined::before {
         color: #FF0000;

@@ -44,10 +44,59 @@ $(document).ready(function() {
             if (!data.content) {
                 alert(Omeka.jsTranslate('Something went wrong'));
             } else {
-                status = data.content.status;
+                var content = data.content;
+                status = content.status;
                 button.data('status', status);
                 var row = button.closest('tr')
-                row.find('.status-label').text(data.content.statusLabel);
+                row.find('.status-label').text(content.statusLabel);
+            }
+        })
+        .fail(function(jqXHR, textStatus) {
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                alert(jqXHR.responseJSON.message);
+            } else {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            }
+        })
+        .always(function () {
+            button.removeClass('o-icon-transmit').addClass('o-icon-' + status);
+        });
+    });
+
+    // Validate all values of a correction.
+    $('#content').on('click', '.correction a.validate', function(e) {
+        e.preventDefault();
+
+        var button = $(this);
+        var url = button.data('validate-url');
+        var status = button.data('status');
+        $.ajax({
+            url: url,
+            beforeSend: function() {
+                button.removeClass('o-icon-' + status).addClass('o-icon-transmit');
+            }
+        })
+        .done(function(data) {
+            if (!data.content) {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            } else {
+                // Set the correction reviewed in all cases.
+                var content = data.content.reviewed;
+                status = content.status;
+                buttonReviewed = button.closest('th').find('a.status-toggle');
+                buttonReviewed.data('status', status);
+                buttonReviewed.addClass('o-icon-' + status);
+                var row = buttonReviewed.closest('tr')
+                row.find('.status-label').text(content.statusLabel);
+
+                // Update the validate button.
+                content = data.content;
+                status = content.status;
+                row.find('.status-label').text(content.statusLabel);
+
+                // Reload the page to update the default show view.
+                // TODO Dynamically update default show view after correction.
+                location.reload();
             }
         })
         .fail(function(jqXHR, textStatus) {

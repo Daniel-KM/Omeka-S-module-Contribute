@@ -1,6 +1,7 @@
 <?php
 namespace Correction\Controller\Admin;
 
+use Correction\Api\Representation\CorrectionRepresentation;
 use DateInterval;
 use DateTime;
 use Omeka\Stdlib\Message;
@@ -141,6 +142,7 @@ class CorrectionController extends AbstractActionController
 
         // Only people who can edit the resource can update the status.
         $id = $this->params('id');
+        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
         $correction = $this->api()->read('corrections', $id)->getContent();
         if (!$correction->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
@@ -164,6 +166,96 @@ class CorrectionController extends AbstractActionController
                 'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'),
             ],
         ]);
+    }
+
+    public function validateAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jsonErrorNotFound();
+        }
+
+        // Only people who can edit the resource can validate.
+        $id = $this->params('id');
+        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
+        $correction = $this->api()->read('corrections', $id)->getContent();
+        if (!$correction->resource()->userIsAllowed('update')) {
+            return $this->jsonErrorUnauthorized();
+        }
+
+        $this->validateCorrection($correction);
+
+        $data = [];
+        $data['o-module-correction:reviewed'] = true;
+        $response = $this->api()
+            ->update('corrections', $id, $data, [], ['isPartial' => true]);
+        if (!$response) {
+            return $this->jsonErrorUpdate();
+        }
+
+        return new JsonModel([
+            'status' => Response::STATUS_CODE_200,
+            // Status is updated, so inverted.
+            'content' => [
+                'status' => 'validated',
+                'statusLabel' => $this->translate('Validated'),
+                'reviewed' => [
+                    'status' => 'reviewed',
+                    'statusLabel' => $this->translate('Reviewed'),
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Replace existing values of the resource with the correction proposal.
+     *
+     * @param CorrectionRepresentation $correction
+     */
+    protected function validateCorrection(CorrectionRepresentation $correction)
+    {
+        // Right to update the resource is already checked.
+        $resource = $correction->resource();
+        $propertyDatas = $resource->values();
+        $proposal = $correction->proposal();
+        $corrigible = $this->settings()->get('correction_properties', []);
+        if ($corrigible) {
+            $proposal = array_intersect_key($proposal, array_flip($corrigible));
+        }
+
+        $data = [];
+        foreach ($propertyDatas as $term => $propertyData) {
+            $data[$term] = [];
+            /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+            foreach ($propertyData['values'] as $key => $value) {
+                // Keep all existing values.
+                // TODO How to update only one property to avoid to update unmodified terms?
+                $data[$term][$key] = $value->jsonSerialize();
+                if ($corrigible && !in_array($term, $corrigible)) {
+                    continue;
+                }
+                // TODO Manage all types of data, in particular custom vocab and value suggest.
+                if ($value->type() !== 'literal') {
+                    continue;
+                }
+                // Don't update the value if it is the same.
+                if ($correction->isApprovedValue($term, $key)) {
+                    continue;
+                }
+                $proposedValue = $correction->proposedValue($term, $key);
+                if (is_null($proposedValue)) {
+                    continue;
+                }
+                $data[$term][$key] = [
+                    'property_id' => $propertyData['property']->id(),
+                    'type' => 'literal',
+                    '@value' => $proposedValue,
+                    // '@language' => null,
+                ];
+            }
+        }
+
+        $this->api()
+            ->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
     }
 
     protected function jsonErrorUnauthorized()
