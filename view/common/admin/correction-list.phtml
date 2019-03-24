@@ -101,12 +101,26 @@ $editRight = $resource->userIsAllowed('update');
             if (!$value->isPublic()) {
                 $class[] = 'private';
             }
+            $isApprovedValue = $correction->isApprovedValue($term, $key);
             ?>
             <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($value->lang()); ?>">
                 <?php if ($language = $value->lang()): ?>
                 <span class="language"><?php echo $language; ?></span>
                 <?php endif; ?>
                 <div data-name="<?php echo $term . '[' . $key . '][@value]'; ?>"><?php echo $escape($proposedValue); ?></div>
+                <span class="single actions">
+                    <?php if ($isApprovedValue): ?>
+                    <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
+                    <?php elseif ($editRight): ?>
+                    <a href="#"
+                        class="validate-value o-icon-validate-value"
+                        data-validate-value-url="<?php echo $escape($correction->url('validate-value')); ?>"
+                        aria-label="<?php echo $escape($translate('Validate this value')); ?>"
+                        title="<?php echo $escape($translate('Validate this value')); ?>"></a>
+                    <?php else: ?>
+                    <span class="no-action o-icon-unvalidated-value" aria-label="<?php echo $escape($translate('Unvalidated')); ?>"></span>
+                    <?php endif; ?>
+                </span>
             </div>
         <?php endforeach; ?>
         </div>

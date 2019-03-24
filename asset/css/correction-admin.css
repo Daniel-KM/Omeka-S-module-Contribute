@@ -111,6 +111,7 @@
         color: #FF0000;
         content: ""; /* cancel */
     }
+    .correction .o-icon-validate-value::before,
     .correction .o-icon-validate::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
