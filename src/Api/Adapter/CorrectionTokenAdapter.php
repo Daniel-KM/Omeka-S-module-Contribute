@@ -53,7 +53,14 @@ class CorrectionTokenAdapter extends AbstractEntityAdapter
                 ->setAccessed(null);
             ;
         } elseif (Request::UPDATE === $request->getOperation()) {
-            if (isset($data['o-module-correction:accessed'])) {
+            if (array_key_exists('o-module-correction:expire', $data)) {
+                $expire = strtotime($data['o-module-correction:expire'])
+                    ? $data['o-module-correction:expire']
+                    : null;
+                $entity
+                    ->setExpire(new \DateTime($expire));
+            }
+            if (array_key_exists('o-module-correction:accessed', $data)) {
                 $accessed = strtotime($data['o-module-correction:accessed'])
                     ? $data['o-module-correction:accessed']
                     : 'now';

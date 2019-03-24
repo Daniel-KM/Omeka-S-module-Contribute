@@ -38,6 +38,7 @@ class CorrectionController extends AbstractActionController
             return $this->viewError403();
         }
 
+        /** @var \Correction\Api\Representation\CorrectionTokenRepresentation $token */
         $token = $api
             ->searchOne('correction_tokens', ['token' => $token, 'resource_id' => $resourceId])
             ->getContent();
@@ -49,10 +50,15 @@ class CorrectionController extends AbstractActionController
         $api->update(
             'correction_tokens',
             $token->id(),
-            ['o-module-correction:accessed' => true],
+            ['o-module-correction:accessed' => 'now'],
             [],
             ['isPartial' => true]
         );
+
+        // TODO Add a message for expiration.
+        if ($token->isExpired()) {
+            return $this->viewError403();
+        }
 
         $settings = $this->settings();
         $correctionName = 'correction_' . $resourceId . '_' . $token->id();

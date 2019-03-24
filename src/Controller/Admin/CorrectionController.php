@@ -1,6 +1,8 @@
 <?php
 namespace Correction\Controller\Admin;
 
+use DateInterval;
+use DateTime;
 use Omeka\Stdlib\Message;
 use Zend\Mvc\Controller\AbstractActionController;
 
@@ -82,7 +84,11 @@ class CorrectionController extends AbstractActionController
         }
 
         $email = $params['email'];
-        $expire = $params['expire'];
+        // $expire = $params['expire'];
+        $tokenDuration = $this->settings()->get('correction_token_duration');
+        $expire = $tokenDuration > 0
+            ? (new DateTime('now'))->add(new DateInterval('PT' . ($tokenDuration * 86400) . 'S'))
+            : null;
 
         // TODO Use the same token for all resource ids? When there is a user?
         $api = $this->api();
@@ -112,8 +118,11 @@ class CorrectionController extends AbstractActionController
         }
 
         $message = new Message(
-            'Created %1$s correction tokens: %2$s.', // @translate
+            'Created %1$s correction tokens (duration: %2$s): %3$s.', // @translate
             $count,
+            $tokenDuration
+                ? new Message('%d days', $tokenDuration) // @translate
+                : 'unlimited',  // @translate
             implode(', ', $urls)
         );
 

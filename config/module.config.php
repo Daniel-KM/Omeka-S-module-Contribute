@@ -116,6 +116,7 @@ return [
     'correction' => [
         'settings' => [
             'correction_properties' => [],
+            'correction_token_duration' => 90,
         ],
     ],
 ];

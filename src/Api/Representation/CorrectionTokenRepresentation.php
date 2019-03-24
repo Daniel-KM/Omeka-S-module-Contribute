@@ -80,4 +80,11 @@ class CorrectionTokenRepresentation extends AbstractEntityRepresentation
     {
         return $this->resource->getAccessed();
     }
+
+    public function isExpired()
+    {
+        $expire = $this->expire();
+        $result = $expire && $expire < new DateTime('now');
+        return $result;
+    }
 }
