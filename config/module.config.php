@@ -4,6 +4,7 @@ namespace Correction;
 return [
     'api_adapters' => [
         'invokables' => [
+            'corrections' => Api\Adapter\CorrectionAdapter::class,
             'correction_tokens' => Api\Adapter\CorrectionTokenAdapter::class,
         ],
     ],
