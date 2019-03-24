@@ -104,4 +104,41 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     {
         return $this->resource->getModified();
     }
+
+    /**
+     * Get all proposed corrections for a term.
+     *
+     * @todo Make it compatible with any type of field (resource, uri…).
+     *
+     * @param string $term
+     * @return array
+     */
+    public function proposedValues($term)
+    {
+        $result = [];
+        $data = $this->proposal();
+        if (!empty($data[$term])) {
+            foreach ($data[$term] as $value) {
+                $result[] = $value['@value'];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Get a specific proposed correction for a term.
+     *
+     * @todo Don't manage proposition of correction by key when there are multiple values.
+     *
+     * @param string $term
+     * @param int $key
+     * @return string
+     */
+    public function proposedValue($term, $key)
+    {
+        $data = $this->proposal();
+        return isset($data[$term][$key]['@value'])
+            ? $data[$term][$key]['@value']
+            : null;
+    }
 }

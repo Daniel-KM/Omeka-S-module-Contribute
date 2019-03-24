@@ -1,7 +1,8 @@
 <?php
 namespace Correction\Controller\Site;
 
-use Omeka\Form\ResourceForm;
+use Correction\Form\CorrectionForm;
+// use Omeka\Form\ResourceForm;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
@@ -61,37 +62,57 @@ class CorrectionController extends AbstractActionController
         }
 
         $settings = $this->settings();
-        $correctionName = 'correction_' . $resourceId . '_' . $token->id();
-        $correction = $settings->get($correctionName, []);
-
         $corrigible = $settings->get('correction_properties', []);
-        if ($corrigible) {
-            $correction = array_intersect_key($correction, array_flip($corrigible));
-        }
 
-        $form = $this->getForm(ResourceForm::class);
-        $form->setAttribute('action', $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true));
+        $correction = $api
+            ->searchOne('corrections', ['resource_id' => $resourceId, 'token_id' => $token->id()])
+            ->getContent();
+
+        $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
+
+        $form = $this->getForm(CorrectionForm::class);
+        $form->setAttribute('action', $currentUrl);
         $form->setAttribute('enctype', 'multipart/form-data');
-        $form->setAttribute('id', 'edit-item');
+        $form->setAttribute('id', 'edit-resource');
 
         if ($this->getRequest()->isPost()) {
             $data = $this->params()->fromPost();
-            $correction = $corrigible
-                ? array_intersect_key($data, array_flip($corrigible))
-                : $data;
-            // There is no check currently, except the csrf.
             $form->setData($data);
+            // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
+                // TODO Manage file data.
                 // $fileData = $this->getRequest()->getFiles()->toArray();
-                // $fileData = [];
-                // Resource is not updated.
-                $settings->set($correctionName, $data);
-                // $response = $this->api($form)->update('resources', $this->params('id'), $data, $fileData);
-                // if ($response) {
-                //     $this->messenger()->addSuccess('Resource successfully updated'); // @translate
-                //     return $this->redirect()->toUrl($response->getContent()->url());
-                // }
+                $proposal = $corrigible
+                    ? array_intersect_key($data, array_flip($corrigible))
+                    : array_diff_key($data, ['csrf' => null, 'correct-resource-submit' => null]);
+                $proposal = $this->cleanProposal($proposal);
+                // The resource isn’t updated, but the proposition of correction
+                // is saved for moderation.
+                $response = null;
+                if (empty($correction)) {
+                    $data = [
+                        'o:resource' => ['o:id' => $resourceId],
+                        'o-module-correction:token' => ['o:id' => $token->id()],
+                        'o:email' => $token->email(),
+                        'o-module-correction:reviewed' => false,
+                        'o-module-correction:proposal' => $proposal,
+                    ];
+                    $response = $this->api($form)->create('corrections', $data);
+                } elseif ($proposal !== $correction->proposal()) {
+                    $data = [
+                        'o-module-correction:reviewed' => false,
+                        'o-module-correction:proposal' => $proposal,
+                    ];
+                    $response = $this->api($form)->update('corrections', $correction->id(), $data, [], ['isPartial' => true]);
+                } else {
+                    $this->messenger()->addWarning('No change.'); // @translate
+                }
+                if ($response) {
+                    $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
+                    return $this->redirect()->toUrl($currentUrl);
+                }
             } else {
+                $this->messenger()->addError('An error occurred: check your input.'); // @translate
                 $this->messenger()->addFormErrors($form);
             }
         }
@@ -102,6 +123,16 @@ class CorrectionController extends AbstractActionController
         $view->setVariable('correction', $correction);
         $view->setVariable('corrigible', $corrigible);
         return $view;
+    }
+
+    protected function cleanProposal($proposal)
+    {
+        foreach ($proposal as &$values) {
+            foreach ($values as &$value) {
+                $value['@value'] = trim($value['@value']);
+            }
+        }
+        return $proposal;
     }
 
     /**

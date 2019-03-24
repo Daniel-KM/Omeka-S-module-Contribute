@@ -28,6 +28,7 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
+            Form\CorrectionForm::class => Form\CorrectionForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
     ],

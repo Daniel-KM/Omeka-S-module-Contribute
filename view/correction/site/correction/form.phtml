@@ -2,8 +2,8 @@
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
- * @var \Omeka\Api\Representation\ItemRepresentation $resource
- * @var array $correction
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var \Correction\Api\Representation\CorrectionRepresentation $correction
  * @var array $corrigible
  * @var string $action
  * @var string $submitLabel
@@ -12,7 +12,6 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $formElement = $this->plugin('formElement');
-$this->headScript()->appendFile($this->assetUrl('js/resource-form.js', 'Omeka'));
 $form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
@@ -23,17 +22,8 @@ $isDisplayable = false;
 
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 
-<?php /*
-<?php echo $this->partial('common/resource-fields.phtml', [
-    'form' => $form,
-    'resource' => $item,
-]); ?>
-*/?>
-
-<?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
-
 <?php foreach ($resource->values() as $term => $propertyData): ?>
-    <?php $isCorrigible = $corrigible && in_array($term, $corrigible); ?>
+    <?php $isCorrigible = empty($corrigible) || in_array($term, $corrigible); ?>
     <?php if (!$isCorrigible && !$isDisplayable):
         continue;
     endif;
@@ -70,7 +60,8 @@ $isDisplayable = false;
                 <span class="language"><?php echo $language; ?></span>
                 <?php endif; ?>
                 <?php if ($isCorrigible): ?>
-                <?php $val = isset($correction[$term][$key]['@value']) ? $correction[$term][$key]['@value'] : $value->asHtml(); ?>
+                <?php $proposedValue = $correction ? $correction->proposedValue($term, $key) : null; ?>
+                <?php $val = is_null($proposedValue) ? $value->asHtml() : $escape($proposedValue); ?>
                 <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $val; ?></textarea>
                 <?php else: ?>
                 <textarea disabled="disabled" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $value->asHtml(); ?></textarea>
@@ -83,10 +74,12 @@ $isDisplayable = false;
 
 <?php echo $formElement($form->get('csrf')); ?>
 
+<?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
+
 <div id="page-actions">
     <?php // echo $this->cancelButton(); ?>
     <?php echo $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'button']); ?>
-    <button type="submit" name="add-item-submit"><?php echo $escape($submitLabel); ?></button>
+    <button type="submit" name="correct-resource-submit"><?php echo $escape($submitLabel); ?></button>
 </div>
 
 <?php echo $this->form()->closeTag(); ?>

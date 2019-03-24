@@ -31,6 +31,18 @@ class Module extends AbstractModule
                 ['Correction\Controller\Site\Correction'],
                 ['edit']
             )
+
+            ->allow(
+                null,
+                [\Correction\Api\Adapter\CorrectionAdapter::class],
+                ['search', 'create', 'read', 'update']
+            )
+            ->allow(
+                null,
+                [\Correction\Entity\Correction::class],
+                ['create', 'read', 'update']
+            )
+
             ->allow(
                 null,
                 [\Correction\Api\Adapter\TokenAdapter::class],
