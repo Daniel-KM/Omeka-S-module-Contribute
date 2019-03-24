@@ -27,7 +27,6 @@ class CorrectionController extends AbstractActionController
             'resource_ids' => [],
             'query' => [],
             'batch_action' => null,
-            'correction_all' => null,
             'redirect' => null,
             'email' => null,
             'expire' => null,
@@ -64,10 +63,9 @@ class CorrectionController extends AbstractActionController
             ? (is_array($params['resource_ids']) ? $params['resource_ids'] : explode(',', $params['resource_ids']))
             : [];
         $params['resource_ids'] = $resourceIds;
-        $selectAll = $params['batch_action'] ? $params['batch_action'] === 'correction-all' : (bool) $params['correction_all'];
-        $params['batch_action'] = $selectAll ? 'correction-all' : 'correction-selected';
+        $params['batch_action'] = $params['batch_action'] === 'correction-all' ? 'correction-all' : 'correction-selected';
 
-        if ($selectAll) {
+        if ($params['batch_action'] === 'correction-all') {
             // Derive the query, removing limiting and sorting params.
             $query = json_decode($params['query'] ?: [], true);
             unset($query['submit'], $query['page'], $query['per_page'], $query['limit'],
@@ -118,15 +116,15 @@ class CorrectionController extends AbstractActionController
         }
 
         $message = new Message(
-            'Created %1$s correction tokens (duration: %2$s): %3$s.', // @translate
+            'Created %1$s correction tokens (duration: %2$s): %3$s', // @translate
             $count,
             $tokenDuration
                 ? new Message('%d days', $tokenDuration) // @translate
                 : 'unlimited',  // @translate
-            implode(', ', $urls)
+            '<ul><li>' . implode('</li><li>', $urls) . '</li></ul>'
         );
 
-        // $message->setEscapeHtml(false);
+        $message->setEscapeHtml(false);
         $this->messenger()->addSuccess($message);
         return $params['redirect']
             ? $this->redirect()->toUrl($params['redirect'])

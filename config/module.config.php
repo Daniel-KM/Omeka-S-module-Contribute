@@ -115,6 +115,11 @@ return [
             ],
         ],
     ],
+    'js_translate_strings' => [
+        'Go', // @translate
+        'Prepare tokens to correct selected', // @translate
+        'Prepare tokens to correct all', // @translate
+    ],
     'correction' => [
         'settings' => [
             'correction_properties' => [],

@@ -57,6 +57,23 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
+        // Append a bulk process to create tokens in bulk.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\Item',
+            'view.layout',
+            [$this, 'adminViewLayout']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\Media',
+            'view.layout',
+            [$this, 'adminViewLayout']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\ItemSet',
+            'view.layout',
+            [$this, 'adminViewLayout']
+        );
+
         // Display a link to create a token in the sidebar.
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\Item',
@@ -85,6 +102,12 @@ class Module extends AbstractModule
             'form.add_input_filters',
             [$this, 'handleMainSettingsFilters']
         );
+    }
+
+    public function adminViewLayout(Event $event)
+    {
+        $view = $event->getTarget();
+        $view->headScript()->appendFile($view->assetUrl('js/correction-admin.js', 'Correction'));
     }
 
     public function adminViewShowSidebar(Event $event)
