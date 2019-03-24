@@ -1,21 +1,11 @@
 <?php
 namespace Correction\Api\Representation;
 
+use DateTime;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
 class CorrectionTokenRepresentation extends AbstractEntityRepresentation
 {
-    /*
-     * Magic getter to always pull data from resource.
-     */
-    public function __call($method, $arguments)
-    {
-        $method = 'get' . ucfirst($method);
-        if (method_exists(\Correction\Entity\CorrectionToken::class, $method)) {
-            return $this->resource->$method();
-        }
-    }
-
     public function getControllerName()
     {
         return 'correction';
@@ -28,7 +18,7 @@ class CorrectionTokenRepresentation extends AbstractEntityRepresentation
 
     public function getJsonLd()
     {
-        $expire = $this->resource->getExpire();
+        $expire = $this->expire();
         if ($expire) {
             $expire = [
                 '@value' => $this->getDateTime($expire),
@@ -37,11 +27,11 @@ class CorrectionTokenRepresentation extends AbstractEntityRepresentation
         }
 
         $created = [
-            '@value' => $this->getDateTime($this->resource->getCreated()),
+            '@value' => $this->getDateTime($this->created()),
             '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
         ];
 
-        $accessed = $this->resource->getAccessed();
+        $accessed = $this->accessed();
         if ($accessed) {
             $accessed = [
                 '@value' => $this->getDateTime($accessed),
@@ -50,13 +40,44 @@ class CorrectionTokenRepresentation extends AbstractEntityRepresentation
         }
 
         return [
-            'o:id' => $this->resource->getId(),
-            'o:resource' => $this->resource->getResource()->getReference(),
-            'o-module-correction:token' => $this->resource->getToken(),
-            'o:email' => $this->resource->getEmail(),
+            'o:id' => $this->id(),
+            'o:resource' => $this->resource()->getReference(),
+            'o-module-correction:token' => $this->token(),
+            'o:email' => $this->email(),
             'o-module-correction:expire' => $expire,
             'o:created' => $created,
             'o-module-correction:accessed' => $accessed,
         ];
+    }
+
+    public function resource()
+    {
+        return $this->getAdapter('resources')
+            ->getRepresentation($this->resource->getResource());
+    }
+
+    public function token()
+    {
+        return $this->resource->getToken();
+    }
+
+    public function email()
+    {
+        return $this->resource->getEmail();
+    }
+
+    public function expire()
+    {
+        return $this->resource->getExpire();
+    }
+
+    public function created()
+    {
+        return $this->resource->getCreated();
+    }
+
+    public function accessed()
+    {
+        return $this->resource->getAccessed();
     }
 }

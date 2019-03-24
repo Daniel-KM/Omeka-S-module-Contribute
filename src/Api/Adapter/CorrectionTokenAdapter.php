@@ -1,7 +1,6 @@
 <?php
 namespace Correction\Api\Adapter;
 
-use Doctrine\Common\Inflector\Inflector;
 use Doctrine\ORM\QueryBuilder;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Request;
@@ -36,24 +35,30 @@ class CorrectionTokenAdapter extends AbstractEntityAdapter
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
     {
-        // TODO Improve hydration (don't update token, created, etc.).
         /** @var \Correction\Entity\CorrectionToken $entity */
         $data = $request->getContent();
-        foreach ($data as $key => $value) {
-            $method = 'set' . Inflector::classify($key);
-            switch ($method) {
-                case 'resource_id':
-                    $resource = $this->getAdapter('resources')->findEntity($data['resource_id']);
-                    $entity->setResource($resource);
-                    break;
-                case 'token':
-                    if (empty($value)) {
-                        $value = $this->createToken();
-                    }
-                    break;
-                case method_exists($entity, $method):
-                    $entity->$method($value);
-                    break;
+        if (Request::CREATE === $request->getOperation()) {
+            $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+            $token = empty($data['o-module-correction:token'])
+                ? $this->createToken()
+                : $data['o-module-correction:token'];
+            $email = empty($data['o:email']) ? null : $data['o:email'];
+            $expire = empty($data['o-module-correction:expire']) ? null : $data['o-module-correction:expire'];
+            $entity
+                ->setResource($resource)
+                ->setToken($token)
+                ->setEmail($email)
+                ->setExpire($expire)
+                ->setCreated(new \DateTime('now'))
+                ->setAccessed(null);
+            ;
+        } elseif (Request::UPDATE === $request->getOperation()) {
+            if (isset($data['o-module-correction:accessed'])) {
+                $accessed = strtotime($data['o-module-correction:accessed'])
+                    ? $data['o-module-correction:accessed']
+                    : 'now';
+                $entity
+                    ->setAccessed(new \DateTime($accessed));
             }
         }
     }
@@ -119,26 +124,28 @@ class CorrectionTokenAdapter extends AbstractEntityAdapter
         }
     }
 
+    /**
+     * Create a random token string.
+     *
+     * @return string
+     */
     protected function createToken()
     {
         $entityManager = $this->getEntityManager();
         $repository = $entityManager->getRepository($this->getEntityClass());
 
-        if (PHP_VERSION_ID < 70000) {
-            $tokenString = function() { return sha1(mt_rand()); };
-        } else {
-            $tokenString = function() { return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10); };
-        }
+        $tokenString = PHP_VERSION_ID < 70000
+            ? function() { return sha1(mt_rand()); }
+            : function() { return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10); };
 
         // Check if the token is unique.
-        $token = $tokenString();
-        while (true) {
+        do {
+            $token = $tokenString();
             $result = $repository->findOneBy(['token' => $token]);
             if (!$result) {
                 break;
             }
-            $token = $tokenString();
-        }
+        } while (true);
 
         return $token;
     }
