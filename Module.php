@@ -57,39 +57,49 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
-        // Append a bulk process to create tokens in bulk.
-        $sharedEventManager->attach(
+        $controllers = [
             'Omeka\Controller\Admin\Item',
-            'view.layout',
-            [$this, 'adminViewLayout']
-        );
-        $sharedEventManager->attach(
-            'Omeka\Controller\Admin\Media',
-            'view.layout',
-            [$this, 'adminViewLayout']
-        );
-        $sharedEventManager->attach(
             'Omeka\Controller\Admin\ItemSet',
-            'view.layout',
-            [$this, 'adminViewLayout']
-        );
+            'Omeka\Controller\Admin\Media',
+        ];
+        foreach ($controllers as $controller) {
+            // Append a bulk process to create tokens in bulk.
+            $sharedEventManager->attach(
+                $controller,
+                'view.browse.before',
+                [$this, 'addHeadersAdmin']
+            );
+            // Display a link to create a token in the sidebar.
+            $sharedEventManager->attach(
+                $controller,
+                'view.show.sidebar',
+                [$this, 'adminViewShowSidebar']
+            );
+            // Add a tab to the resource show admin pages.
+            $sharedEventManager->attach(
+                $controller,
+                // There is no "view.show.before".
+                'view.show.after',
+                [$this, 'addHeadersAdmin']
+            );
+            $sharedEventManager->attach(
+                $controller,
+                'view.show.section_nav',
+                [$this, 'appendTab']
+            );
+            $sharedEventManager->attach(
+                $controller,
+                'view.show.after',
+                [$this, 'displayTab']
+            );
 
-        // Display a link to create a token in the sidebar.
-        $sharedEventManager->attach(
-            'Omeka\Controller\Admin\Item',
-            'view.show.sidebar',
-            [$this, 'adminViewShowSidebar']
-        );
-        $sharedEventManager->attach(
-            'Omeka\Controller\Admin\Media',
-            'view.show.sidebar',
-            [$this, 'adminViewShowSidebar']
-        );
-        $sharedEventManager->attach(
-            'Omeka\Controller\Admin\ItemSet',
-            'view.show.sidebar',
-            [$this, 'adminViewShowSidebar']
-        );
+            // Add the details to the resource browse admin pages.
+            $sharedEventManager->attach(
+                $controller,
+                'view.details',
+                [$this, 'viewDetails']
+            );
+        }
 
         // Handle main settings.
         $sharedEventManager->attach(
@@ -104,7 +114,7 @@ class Module extends AbstractModule
         );
     }
 
-    public function adminViewLayout(Event $event)
+    public function addHeadersAdmin(Event $event)
     {
         $view = $event->getTarget();
         $view->headScript()->appendFile($view->assetUrl('js/correction-admin.js', 'Correction'));
@@ -127,6 +137,81 @@ class Module extends AbstractModule
             . '<h4>' . $translate('Correction') . '</h4>'
             . '<div class="value">' . $link . '</div>'
             . '</div>';
+    }
+
+    /**
+     * Add a tab to section navigation.
+     *
+     * @param Event $event
+     */
+    public function appendTab(Event $event)
+    {
+        $sectionNav = $event->getParam('section_nav');
+        $sectionNav['correction'] = 'Corrections'; // @translate
+        $event->setParam('section_nav', $sectionNav);
+    }
+
+    /**
+     * Display a partial for a resource.
+     *
+     * @param Event $event
+     */
+    public function displayTab(Event $event)
+    {
+        $api = $this->getServiceLocator()->get('Omeka\ApiManager');
+        $view = $event->getTarget();
+
+        $resource = $view->resource;
+        $corrections = $api
+            ->search('corrections', [
+                'resource_id' => $resource->id(),
+                'sort_by' => 'modified',
+                'sort_order' => 'DESC',
+            ])
+            ->getContent();
+
+        echo '<div id="correction" class="section">';
+        echo $view->partial('common/admin/correction-list', [
+            'resource' => $view->resource,
+            'corrections' => $corrections,
+        ]);
+        echo '</div>';
+    }
+
+    /**
+     * Display the details for a resource.
+     *
+     * @param Event $event
+     */
+    public function viewDetails(Event $event)
+    {
+        $view = $event->getTarget();
+        $translate = $view->plugin('translate');
+        $resource = $event->getParam('entity');
+        $total = $view->api()
+            ->search('corrections', [
+                'resource_id' => $resource->id(),
+            ])
+            ->getTotalResults();
+        $totalNotReviewed = $view->api()
+            ->search('corrections', [
+                'resource_id' => $resource->id(),
+                'reviewed' => '0',
+            ])
+            ->getTotalResults();
+
+        // TODO
+        echo '<div class="meta-group"><h4>'
+            . $translate('Correction') // @translate
+            . '</h4><div class="value">';
+        if ($total) {
+            echo sprintf($translate('%d corrections (%d not reviewed)'), $total, $totalNotReviewed); // @translate
+        } else {
+            echo '<em>'
+                . $translate('No correction') // @translate
+                . '</em>';
+        }
+        echo '</div></div>';
     }
 
     public function handleMainSettingsFilters(Event $event)
