@@ -25,6 +25,11 @@ return [
             'showCorrectionLink' => View\Helper\ShowCorrectionLink::class,
         ],
     ],
+    'form_elements' => [
+        'invokables' => [
+            Form\SettingsFieldset::class => Form\SettingsFieldset::class,
+        ],
+    ],
     'controllers' => [
         'invokables' => [
             'Correction\Controller\Admin\Correction' => Controller\Admin\CorrectionController::class,
@@ -109,5 +114,8 @@ return [
         ],
     ],
     'correction' => [
+        'settings' => [
+            'correction_properties' => [],
+        ],
     ],
 ];

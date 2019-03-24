@@ -54,8 +54,14 @@ class CorrectionController extends AbstractActionController
             ['isPartial' => true]
         );
 
+        $settings = $this->settings();
         $correctionName = 'correction_' . $resourceId . '_' . $token->id();
-        $correction = $this->settings()->get($correctionName, []);
+        $correction = $settings->get($correctionName, []);
+
+        $corrigible = $settings->get('correction_properties', []);
+        if ($corrigible) {
+            $correction = array_intersect_key($correction, array_flip($corrigible));
+        }
 
         $form = $this->getForm(ResourceForm::class);
         $form->setAttribute('action', $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true));
@@ -64,13 +70,16 @@ class CorrectionController extends AbstractActionController
 
         if ($this->getRequest()->isPost()) {
             $data = $this->params()->fromPost();
-            $correction = $data;
+            $correction = $corrigible
+                ? array_intersect_key($data, array_flip($corrigible))
+                : $data;
+            // There is no check currently, except the csrf.
             $form->setData($data);
             if ($form->isValid()) {
                 // $fileData = $this->getRequest()->getFiles()->toArray();
                 // $fileData = [];
                 // Resource is not updated.
-                $this->settings()->set($correctionName, $data);
+                $settings->set($correctionName, $data);
                 // $response = $this->api($form)->update('resources', $this->params('id'), $data, $fileData);
                 // if ($response) {
                 //     $this->messenger()->addSuccess('Resource successfully updated'); // @translate
@@ -85,6 +94,7 @@ class CorrectionController extends AbstractActionController
         $view->setVariable('form', $form);
         $view->setVariable('resource', $resource);
         $view->setVariable('correction', $correction);
+        $view->setVariable('corrigible', $corrigible);
         return $view;
     }
 

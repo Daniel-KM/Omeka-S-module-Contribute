@@ -4,6 +4,7 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\ItemRepresentation $resource
  * @var array $correction
+ * @var array $corrigible
  * @var string $action
  * @var string $submitLabel
  */
@@ -15,6 +16,7 @@ $this->headScript()->appendFile($this->assetUrl('js/resource-form.js', 'Omeka'))
 $form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
+$isDisplayable = false;
 ?>
 
 <?php echo $this->form()->openTag($form); ?>
@@ -31,6 +33,11 @@ $labelInfo = $this->setting('property_label_information');
 <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
 <?php foreach ($resource->values() as $term => $propertyData): ?>
+    <?php $isCorrigible = $corrigible && in_array($term, $corrigible); ?>
+    <?php if (!$isCorrigible && !$isDisplayable):
+        continue;
+    endif;
+    ?>
     <div class="property">
         <h4>
             <?php echo $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())); ?>
@@ -62,8 +69,12 @@ $labelInfo = $this->setting('property_label_information');
                 <?php if ($language = $value->lang()): ?>
                 <span class="language"><?php echo $language; ?></span>
                 <?php endif; ?>
-                <?php $val = isset($correction[$term][$key]['@value']) ? $correction[$term][$key]['@value'] : $value; ?>
-                <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $escape($val); ?></textarea>
+                <?php if ($isCorrigible): ?>
+                <?php $val = isset($correction[$term][$key]['@value']) ? $correction[$term][$key]['@value'] : $value->asHtml(); ?>
+                <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $val; ?></textarea>
+                <?php else: ?>
+                <textarea disabled="disabled" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $value->asHtml(); ?></textarea>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
         </div>

@@ -4,6 +4,7 @@
  * @var \Omeka\Api\Representation\ItemRepresentation $resource
  * @var \Omeka\Form\ResourceForm $form
  * @var array $correction
+ * @var array $corrigible
  */
 
 $translate = $this->plugin('translate');
@@ -23,6 +24,7 @@ echo $this->partial('correction/site/correction/form.phtml', [
     'form' => $form,
     'resource' => $resource,
     'correction' => $correction,
+    'corrigible' => $corrigible,
     'action' => 'edit',
     'submitLabel' => $translate('Correct'),
 ]);

@@ -61,6 +61,18 @@ class Module extends AbstractModule
             'view.show.sidebar',
             [$this, 'adminViewShowSidebar']
         );
+
+        // Handle main settings.
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_elements',
+            [$this, 'handleMainSettings']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_input_filters',
+            [$this, 'handleMainSettingsFilters']
+        );
     }
 
     public function adminViewShowSidebar(Event $event)
@@ -80,6 +92,15 @@ class Module extends AbstractModule
             . '<h4>' . $translate('Correction') . '</h4>'
             . '<div class="value">' . $link . '</div>'
             . '</div>';
+    }
+
+    public function handleMainSettingsFilters(Event $event)
+    {
+        $inputFilter = $event->getParam('inputFilter');
+        $inputFilter->get('correction')->add([
+            'name' => 'correction_properties',
+            'required' => false,
+        ]);
     }
 
     /**
