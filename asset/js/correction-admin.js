@@ -1,4 +1,5 @@
 (function($, window, document) {
+    // Browse batch actions.
     $(function() {
 
         var batchSelect = $('#batch-form .batch-actions-select');
@@ -21,4 +22,44 @@
         );
 
     });
+
 }(window.jQuery, window, document));
+
+$(document).ready(function() {
+
+    // Mark a correction reviewed/unreviewed.
+    $('#content').on('click', '.correction a.status-toggle', function(e) {
+        e.preventDefault();
+
+        var button = $(this);
+        var url = button.data('status-toggle-url');
+        var status = button.data('status');
+        $.ajax({
+            url: url,
+            beforeSend: function() {
+                button.removeClass('o-icon-' + status).addClass('o-icon-transmit');
+            }
+        })
+        .done(function(data) {
+            if (!data.content) {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            } else {
+                status = data.content.status;
+                button.data('status', status);
+                var row = button.closest('tr')
+                row.find('.status-label').text(data.content.statusLabel);
+            }
+        })
+        .fail(function(jqXHR, textStatus) {
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                alert(jqXHR.responseJSON.message);
+            } else {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            }
+        })
+        .always(function () {
+            button.removeClass('o-icon-transmit').addClass('o-icon-' + status);
+        });
+    });
+
+});

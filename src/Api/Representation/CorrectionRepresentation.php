@@ -141,4 +141,23 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             ? $data[$term][$key]['@value']
             : null;
     }
+
+    /**
+     * Check if a value is the same than the resource one.
+     *
+     * @todo Don't manage proposition of correction by key when there are multiple values.
+     *
+     * @param string $term
+     * @param int $key
+     * @return bool
+     */
+    public function isApprovedValue($term, $key)
+    {
+        $data = $this->proposal();
+        $value = isset($data[$term][$key]['@value'])
+            ? $data[$term][$key]['@value']
+            : null;
+        $values = $this->resource()->value($term, ['all' => true], []);
+        return isset($values[$key]) && $values[$key]->value() === $value;
+    }
 }

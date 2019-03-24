@@ -45,6 +45,16 @@ $editRight = $resource->userIsAllowed('update');
                 <?php endif; ?>
                 <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
                 <span class="correction-date"><?php $date = $correction->created(); echo $escape($this->i18n()->dateFormat($date)); ?></span>
+                <?php if ($editRight): ?>
+                <span class="single actions"><a href="#"
+                    class="status-toggle o-icon-<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
+                    data-status-toggle-url="<?php echo $escape($correction->url('toggle-status')); ?>"
+                    data-status="<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
+                    aria-label="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"
+                    title="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"></a></span>
+                <?php else: ?>
+                <span class="no-action o-icon-<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"></span>
+                <?php endif; ?>
             </th>
         </tr>
     </thead>

@@ -4,7 +4,9 @@ namespace Correction\Controller\Admin;
 use DateInterval;
 use DateTime;
 use Omeka\Stdlib\Message;
+use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\JsonModel;
 
 class CorrectionController extends AbstractActionController
 {
@@ -129,5 +131,67 @@ class CorrectionController extends AbstractActionController
         return $params['redirect']
             ? $this->redirect()->toUrl($params['redirect'])
             : $this->redirect()->toRoute('admin/default', ['controller' => $resourceType, 'action' => 'browse'], true);
+    }
+
+    public function toggleStatusAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jsonErrorNotFound();
+        }
+
+        // Only people who can edit the resource can update the status.
+        $id = $this->params('id');
+        $correction = $this->api()->read('corrections', $id)->getContent();
+        if (!$correction->resource()->userIsAllowed('update')) {
+            return $this->jsonErrorUnauthorized();
+        }
+
+        $isReviewed = $correction->reviewed();
+
+        $data = [];
+        $data['o-module-correction:reviewed'] = !$isReviewed;
+        $response = $this->api()
+            ->update('corrections', $id, $data, [], ['isPartial' => true]);
+        if (!$response) {
+            return $this->jsonErrorUpdate();
+        }
+
+        return new JsonModel([
+            'status' => Response::STATUS_CODE_200,
+            // Status is updated, so inverted.
+            'content' => [
+                'status' => $isReviewed ? 'unreviewed' : 'reviewed',
+                'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'),
+            ],
+        ]);
+    }
+
+    protected function jsonErrorUnauthorized()
+    {
+        return $this->returnError($this->translate('Unauthorized access.'), Response::STATUS_CODE_403); // @translate
+    }
+
+    protected function jsonErrorNotFound()
+    {
+        return $this->returnError($this->translate('Resource not found.'), Response::STATUS_CODE_404); // @translate
+    }
+
+    protected function jsonErrorUpdate()
+    {
+        return $this->returnError($this->translate('An internal error occurred.'), Response::STATUS_CODE_500); // @translate
+    }
+
+    protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)
+    {
+        $response = $this->getResponse();
+        $response->setStatusCode($statusCode);
+        $result = [
+            'status' => $statusCode,
+            'message' => $message,
+        ];
+        if (is_array($errors)) {
+            $result['errors'] = $errors;
+        }
+        return new JsonModel($result);
     }
 }

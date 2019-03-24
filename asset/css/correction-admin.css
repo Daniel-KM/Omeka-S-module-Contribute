@@ -1,0 +1,155 @@
+@media screen {
+    header nav .correction:before {
+        content:"\f044"; /* fas fa-edit */
+    }
+    .correction .no-resources:before {
+        content:"\f044"; /* far fa-edit */
+    }
+    #corrections .property {
+        display: inherit;
+    }
+    #resource-corrections .actions {
+        float: right;
+    }
+    #resource-corrections.empty,
+    #resource-corrections+.no-resources {
+        display:none;
+    }
+    #resource-corrections.empty+.no-resources {
+        display:block;
+        padding:0 24px;
+    }
+    #resource-corrections.empty+.no-resources:before {
+        content:"\f044"; /* far fa-edit */
+    }
+    #resource-corrections tr.delete {
+        background-color:#fcc;
+    }
+    .corrections .resource-details .correction-internal-id {
+        font-size: 0.7em;
+    }
+
+    .correction table .resource-name {
+        display: inline-block;
+        vertical-align: bottom;
+        margin-left: .5em;
+        opacity: .5;
+    }
+
+    .corrections .correction-public {
+        font-style: italic;
+    }
+
+    .correction .single.actions {
+        float: right;
+    }
+    .correction .single.actions a::before {
+        text-align: inherit;
+    }
+    .correction .single.actions .o-icon-transmit::before {
+        background: url('../img/waiting-mini.gif') no-repeat scroll 3px 3px transparent !important;
+    }
+    .correction .o-icon-users,
+    .correction .no-action::before {
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        vertical-align: top;
+        border: 0;
+        box-shadow: none;
+        opacity: .5;
+        text-align: inherit;
+    }
+    .correction.meta-group .single.actions,
+    .correction.meta-group .no-action::before {
+        float: right;
+    }
+
+    .correction.meta-group span,
+    .correction .meta-group span {
+        display: inline;
+        hyphens: auto;
+        word-wrap: break-word;
+    }
+
+    .correction.meta-group::before,
+    .correction .status-toggle::before,
+    .correction .resource-name::before {
+        display: inline-block;
+        font-family: "Font Awesome 5 Free";
+        padding-left: 3px;
+        padding-right: 3px;
+        width: 24px;
+    }
+    .correction .resource-name.item-set::before {
+        content: ""; /* item set */
+    }
+    .correction .resource-name.item::before {
+        content: ""; /* item */
+    }
+    .correction .resource-name.media::before {
+        content: ""; /* media */
+    }
+    .correction .o-icon-unreviewed::before {
+        color: #FF0000;
+        content: ""; /* question */
+    }
+    .correction .o-icon-reviewed::before {
+        color: #00FF00;
+        content: ""; /* check */
+    }
+    .correction .o-icon-proposed::before {
+        color: #FFA500;
+        content: ""; /* question */
+    }
+    .correction .o-icon-approve::before {
+        color: #00FF00;
+        content: ""; /* check */
+    }
+    .correction .o-icon-unvalidated::before,
+    .correction .o-icon-unapprove::before {
+        color: #FF0000;
+        content: ""; /* cancel */
+    }
+    .correction .o-icon-equal::before,
+    .correction .o-icon-validated::before {
+        color: #00FF00;
+        content: "="; /* equal not available iin 5.0.8 */
+    }
+    .correction .o-icon-validate::before {
+        color: #FFA500;
+        content: "\f359"; /* arrow left */
+    }
+    .correction .o-icon-undefined::before {
+        color: #FF0000;
+        content: ""; /* exclamation */
+    }
+    .correction .o-icon-none::before {
+        color: #FFFFFF;
+        content: "";
+    }
+    .correction .o-icon-transmit::before {
+        background: url('../img/waiting-mini.gif') no-repeat scroll 12px 3px transparent !important;
+        color: #000000;
+        content: "";
+        cursor: progress;
+    }
+
+    .correction-email,
+    .correction-date {
+        opacity: 0.8;
+    }
+    .correction-id {
+        opacity: 0.4;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    fieldset.section>#resource-corrections.empty+.no-resources {
+        display:none;
+    }
+    fieldset.section.mobile-active>#resource-corrections.empty+.no-resources {
+        display:block;
+        margin-top:48px;
+    }
+}

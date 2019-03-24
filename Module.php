@@ -25,11 +25,28 @@ class Module extends AbstractModule
     protected function addAclRules()
     {
         /** @var \Omeka\Permissions\Acl $acl */
-        $acl = $this->getServiceLocator()->get('Omeka\Acl')
+        $acl = $this->getServiceLocator()->get('Omeka\Acl');
+
+        // Users who can edit resources can update corrections.
+        // A check is done on the specific resource for some roles.
+        $roles = [
+            \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
+            \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
+            \Omeka\Permissions\Acl::ROLE_EDITOR,
+            \Omeka\Permissions\Acl::ROLE_REVIEWER,
+            \Omeka\Permissions\Acl::ROLE_AUTHOR,
+            \Omeka\Permissions\Acl::ROLE_RESEARCHER,
+        ];
+
+        $acl
             ->allow(
                 null,
                 ['Correction\Controller\Site\Correction'],
                 ['edit']
+            )
+            ->allow(
+                $roles,
+                ['Correction\Controller\Admin\Correction']
             )
 
             ->allow(
@@ -117,6 +134,7 @@ class Module extends AbstractModule
     public function addHeadersAdmin(Event $event)
     {
         $view = $event->getTarget();
+        $view->headLink()->appendStylesheet($view->assetUrl('css/correction-admin.css', 'Correction'));
         $view->headScript()->appendFile($view->assetUrl('js/correction-admin.js', 'Correction'));
     }
 
