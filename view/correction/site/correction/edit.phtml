@@ -1,0 +1,33 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\ItemRepresentation $resource
+ * @var \Omeka\Form\ResourceForm $form
+ * @var array $correction
+ */
+
+$translate = $this->plugin('translate');
+$this->htmlElement('body')->appendAttribute('class', 'edit resources');
+?>
+
+<?php /*
+<script type='text/javascript'>
+var valuesJson = <?php echo json_encode($resource->values()); ?>;
+</script>
+*/ ?>
+
+<?php echo $this->pageTitle($resource->displayTitle(), 1, $translate('Resources'), $translate('Edit')); ?>
+<?php $this->trigger('view.edit.before'); ?>
+<?php
+echo $this->partial('correction/site/correction/form.phtml', [
+    'form' => $form,
+    'resource' => $resource,
+    'correction' => $correction,
+    'action' => 'edit',
+    'submitLabel' => $translate('Correct'),
+]);
+?>
+
+<?php // echo $this->deleteConfirm($item, 'item')?>
+
+<?php $this->trigger('view.edit.after'); ?>

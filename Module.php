@@ -24,9 +24,23 @@ class Module extends AbstractModule
      */
     protected function addAclRules()
     {
-        $services = $this->getServiceLocator();
-        $acl = $services->get('Omeka\Acl');
-        $acl->allow(null, ['Correction\Controller\Site\Correction']);
+        /** @var \Omeka\Permissions\Acl $acl */
+        $acl = $this->getServiceLocator()->get('Omeka\Acl')
+            ->allow(
+                null,
+                ['Correction\Controller\Site\Correction'],
+                ['edit']
+            )
+            ->allow(
+                null,
+                [\Correction\Api\Adapter\CorrectionTokenAdapter::class],
+                ['search', 'read', 'update']
+            )
+            ->allow(
+                null,
+                [\Correction\Entity\CorrectionToken::class],
+                ['update']
+            );
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)

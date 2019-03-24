@@ -43,6 +43,7 @@ return [
                     'correction' => [
                         'type' => \Zend\Router\Http\Segment::class,
                         'options' => [
+                            // TODO Use controller delegator or override the default site route?
                             // Overrides core public site resources only for edit.
                             'route' => '/:resource/:id/edit',
                             'constraints' => [

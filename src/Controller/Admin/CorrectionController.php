@@ -55,6 +55,9 @@ class CorrectionController extends AbstractActionController
         }
 
         $resource = $resourceTypeMap[$resourceType];
+        // Normalize the resource type for controller url.
+        $resourceType = array_search($resource, $resourceTypeMap);
+
         $resourceIds = $params['resource_ids']
             ? (is_array($params['resource_ids']) ? $params['resource_ids'] : explode(',', $params['resource_ids']))
             : [];
@@ -101,8 +104,8 @@ class CorrectionController extends AbstractActionController
             $query = [];
             $query['token'] = $token->token();
             $urls[] = $urlHelper(
-                'site/correction',
-                ['site-slug' => $siteSlug, 'resource' => $resourceType, 'id' => $resourceId],
+                'site/resource-id',
+                ['site-slug' => $siteSlug, 'controller' => $resourceType, 'id' => $resourceId, 'action' => 'edit'],
                 ['query' => $query, 'force_canonical' => true]
             );
             unset($token);
