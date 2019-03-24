@@ -27,7 +27,13 @@ return [
     ],
     'controllers' => [
         'invokables' => [
+            'Correction\Controller\Admin\Correction' => Controller\Admin\CorrectionController::class,
             'Correction\Controller\Site\Correction' => Controller\Site\CorrectionController::class,
+        ],
+    ],
+    'controller_plugins' => [
+        'factories' => [
+            'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
         ],
     ],
     'router' => [
@@ -40,13 +46,50 @@ return [
                             // Overrides core public site resources only for edit.
                             'route' => '/:resource/:id/edit',
                             'constraints' => [
-                                'resource' => 'item',
+                                'resource' => 'item|media|item-set',
                                 'id' => '\d+',
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Correction\Controller\Site',
                                 'controller' => 'correction',
                                 'action' => 'edit',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'admin' => [
+                'child_routes' => [
+                    'correction' => [
+                        'type' => \Zend\Router\Http\Literal::class,
+                        'options' => [
+                            'route' => '/correction',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'Correction\Controller\Admin',
+                                'controller' => 'correction',
+                                'action' => 'browse',
+                            ],
+                        ],
+                        'may_terminate' => true,
+                        'child_routes' => [
+                            'default' => [
+                                'type' => \Zend\Router\Http\Segment::class,
+                                'options' => [
+                                    'route' => '/:action',
+                                    'constraints' => [
+                                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                    ],
+                                ],
+                            ],
+                            'id' => [
+                                'type' => \Zend\Router\Http\Segment::class,
+                                'options' => [
+                                    'route' => '/:id[/:action]',
+                                    'constraints' => [
+                                        'id' => '\d+',
+                                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
