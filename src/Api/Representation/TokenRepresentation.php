@@ -4,7 +4,7 @@ namespace Correction\Api\Representation;
 use DateTime;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
-class CorrectionTokenRepresentation extends AbstractEntityRepresentation
+class TokenRepresentation extends AbstractEntityRepresentation
 {
     public function getControllerName()
     {
@@ -50,37 +50,58 @@ class CorrectionTokenRepresentation extends AbstractEntityRepresentation
         ];
     }
 
+    /**
+     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation
+     */
     public function resource()
     {
         return $this->getAdapter('resources')
             ->getRepresentation($this->resource->getResource());
     }
 
+    /**
+     * @return string
+     */
     public function token()
     {
         return $this->resource->getToken();
     }
 
+    /**
+     * @return string
+     */
     public function email()
     {
         return $this->resource->getEmail();
     }
 
+    /**
+     * @return \DateTime
+     */
     public function expire()
     {
         return $this->resource->getExpire();
     }
 
+    /**
+     * @return \DateTime
+     */
     public function created()
     {
         return $this->resource->getCreated();
     }
 
+    /**
+     * @return \DateTime
+     */
     public function accessed()
     {
         return $this->resource->getAccessed();
     }
 
+    /**
+     * @return bool
+     */
     public function isExpired()
     {
         $expire = $this->expire();

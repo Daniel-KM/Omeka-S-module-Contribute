@@ -7,7 +7,7 @@ use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
 
-class CorrectionTokenAdapter extends AbstractEntityAdapter
+class TokenAdapter extends AbstractEntityAdapter
 {
     protected $sortFields = [
         'id' => 'id',
@@ -25,17 +25,17 @@ class CorrectionTokenAdapter extends AbstractEntityAdapter
 
     public function getRepresentationClass()
     {
-        return \Correction\Api\Representation\CorrectionTokenRepresentation::class;
+        return \Correction\Api\Representation\TokenRepresentation::class;
     }
 
     public function getEntityClass()
     {
-        return \Correction\Entity\CorrectionToken::class;
+        return \Correction\Entity\Token::class;
     }
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
     {
-        /** @var \Correction\Entity\CorrectionToken $entity */
+        /** @var \Correction\Entity\Token $entity */
         $data = $request->getContent();
         if (Request::CREATE === $request->getOperation()) {
             $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);

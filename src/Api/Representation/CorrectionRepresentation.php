@@ -47,23 +47,35 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         ];
     }
 
+    /**
+     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation
+     */
     public function resource()
     {
         return $this->getAdapter('resources')
             ->getRepresentation($this->resource->getResource());
     }
 
+    /**
+     * @return \Correction\Api\Representation\TokenRepresentation
+     */
     public function token()
     {
         return $this->getAdapter('correction_tokens')
             ->getRepresentation($this->resource->getToken());
     }
 
+    /**
+     * @return string
+     */
     public function email()
     {
         return $this->resource->getEmail();
     }
 
+    /**
+     * @return bool
+     */
     public function reviewed()
     {
         return $this->resource->getReviewed();
@@ -77,11 +89,17 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         return $this->resource->getProposal();
     }
 
+    /**
+     * @return \DateTime
+     */
     public function created()
     {
         return $this->resource->getCreated();
     }
 
+    /**
+     * @return \DateTime
+     */
     public function modified()
     {
         return $this->resource->getModified();

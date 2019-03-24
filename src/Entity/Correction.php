@@ -75,9 +75,9 @@ class Correction extends AbstractEntity
     /**
      * @todo Allow to keep history of all corrections (ManyToOne)?
      *
-     * @var \Correction\Entity\CorrectionToken
+     * @var \Correction\Entity\Token
      * @OneToOne(
-     *     targetEntity="CorrectionToken"
+     *     targetEntity="Token"
      * )
      * @JoinColumn(
      *     nullable=true,
@@ -135,7 +135,7 @@ class Correction extends AbstractEntity
         return $this->resource;
     }
 
-    public function setToken(CorrectionToken $token = null)
+    public function setToken(Token $token = null)
     {
         $this->token = $token;
         return $this;

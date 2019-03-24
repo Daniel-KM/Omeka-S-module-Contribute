@@ -38,6 +38,7 @@ use Omeka\Entity\Resource;
 /**
  * @Entity
  * @Table(
+ *     name="correction_token",
  *     indexes={
  *         @Index(
  *             name="token_idx",
@@ -50,7 +51,7 @@ use Omeka\Entity\Resource;
  *     }
  * )
  */
-class CorrectionToken extends AbstractEntity
+class Token extends AbstractEntity
 {
     /**
      * @var int

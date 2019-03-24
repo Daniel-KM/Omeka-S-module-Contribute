@@ -213,7 +213,7 @@ class Correction extends \Correction\Entity\Correction implements \Doctrine\ORM\
     /**
      * {@inheritDoc}
      */
-    public function setToken(\Correction\Entity\CorrectionToken $token = NULL)
+    public function setToken(\Correction\Entity\Token $token = NULL)
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setToken', [$token]);

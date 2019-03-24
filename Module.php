@@ -33,12 +33,12 @@ class Module extends AbstractModule
             )
             ->allow(
                 null,
-                [\Correction\Api\Adapter\CorrectionTokenAdapter::class],
+                [\Correction\Api\Adapter\TokenAdapter::class],
                 ['search', 'read', 'update']
             )
             ->allow(
                 null,
-                [\Correction\Entity\CorrectionToken::class],
+                [\Correction\Entity\Token::class],
                 ['update']
             );
     }
