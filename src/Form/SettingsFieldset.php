@@ -12,7 +12,7 @@ class SettingsFieldset extends Fieldset
     public function init()
     {
         $this->add([
-            'name' => 'correction_properties',
+            'name' => 'correction_properties_corrigible',
             'type' => PropertySelect::class,
             'options' => [
                 'label' => 'Corrigible properties', // @translate
@@ -21,9 +21,27 @@ class SettingsFieldset extends Fieldset
                 'term_as_value' => true,
             ],
             'attributes' => [
-                'id' => 'correction_properties',
+                'id' => 'correction_properties_corrigible',
                 'multiple' => true,
                 // Should be true and without filter, but simpler for user.
+                'required' => false,
+                'class' => 'chosen-select',
+                'data-placeholder' => 'Select properties…', // @translate
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'correction_properties_fillable',
+            'type' => PropertySelect::class,
+            'options' => [
+                'label' => 'Fillable properties', // @translate
+                'info' => 'Allow user to append new values for the selected properties.', // @translate
+                'empty_option' => '', // @translate
+                'term_as_value' => true,
+            ],
+            'attributes' => [
+                'id' => 'correction_properties_fillable',
+                'multiple' => true,
                 'required' => false,
                 'class' => 'chosen-select',
                 'data-placeholder' => 'Select properties…', // @translate

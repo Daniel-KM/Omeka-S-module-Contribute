@@ -116,6 +116,11 @@
         color: #FFA500;
         content: "\f359"; /* arrow left */
     }
+    .correction .o-icon-validate-value.no-right::before,
+    .correction .o-icon-validate.no-right::before {
+        color: #FFA500;
+        content: "\f359"; /* arrow left */
+    }
     .correction .o-icon-validated::before {
         color: #00FF00;
         content: "\f359"; /* arrow left / equal not available iin 5.0.8 */
@@ -128,7 +133,8 @@
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .correction .o-icon-unknown-value::before {
+    .correction .o-icon-unknown-value::before,
+    .correction .o-icon-not-validable-value::before {
         color: #FFA500;
         content: ""; /* exclamation */
     }
@@ -147,12 +153,18 @@
         cursor: progress;
     }
 
-    .correction-email,
-    .correction-date {
-        opacity: 0.8;
+    .correction .correction-email,
+    .correction .correction-date {
+        opacity: 0.6;
     }
-    .correction-id {
+    .correction .correction-id {
         opacity: 0.4;
+    }
+    .correction .original-value {
+        opacity: 0.6;
+    }
+    .correction .remove-value {
+       text-decoration: line-through;
     }
 }
 

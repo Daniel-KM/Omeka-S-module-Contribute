@@ -207,49 +207,83 @@ class CorrectionController extends AbstractActionController
     }
 
     /**
-     * Replace existing values of the resource with the correction proposal.
+     * Correct existing values of the resource with the correction proposal.
      *
      * @param CorrectionRepresentation $correction
      */
     protected function validateCorrection(CorrectionRepresentation $correction)
     {
-        // Right to update the resource is already checked.
-        $resource = $correction->resource();
-        $propertyDatas = $resource->values();
-        $proposal = $correction->proposal();
-        $corrigible = $this->settings()->get('correction_properties', []);
-        if ($corrigible) {
-            $proposal = array_intersect_key($proposal, array_flip($corrigible));
+        // Check the options in the case they were updated.
+        $settings = $this->settings();
+        $corrigible = $settings->get('correction_properties_corrigible', []);
+        $fillable = $settings->get('correction_properties_fillable', []);
+        if (empty($corrigible) && empty($fillable)) {
+            return;
         }
 
+        $api = $this->api();
+
+        // Right to update the resource is already checked.
+        $resource = $correction->resource();
+        $values = $resource->values();
+        $proposal = $correction->proposalCheck();
+
         $data = [];
-        foreach ($propertyDatas as $term => $propertyData) {
+        foreach ($values as $term => $propertyData) {
             $data[$term] = [];
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($propertyData['values'] as $key => $value) {
                 // Keep all existing values.
                 // TODO How to update only one property to avoid to update unmodified terms?
                 $data[$term][$key] = $value->jsonSerialize();
-                if ($corrigible && !in_array($term, $corrigible)) {
+                if (!isset($proposal[$term])) {
                     continue;
                 }
-                // TODO Manage all types of data, in particular custom vocab and value suggest.
+                // TODO Manage all types of value.
                 if ($value->type() !== 'literal') {
                     continue;
                 }
-                // Don't update the value if it is the same.
-                $original = $value->value();
-                if ($correction->isApprovedValue($term, $original)) {
+                // Values have no id and the order key is not saved, so the
+                // check should be redone.
+                $v = $value->value();
+                foreach ($proposal[$term] as $proposition) {
+                    if ($proposition['validated']) {
+                        continue;
+                    }
+                    if (!in_array($proposition['process'], ['remove', 'update'])) {
+                        continue;
+                    }
+                    if ($proposition['original']['@value'] === $v) {
+                        switch ($proposition['process']) {
+                            case 'remove':
+                                unset($data[$term][$key]);
+                                break;
+                            case 'update':
+                                $data[$term][$key]['@value'] = $proposition['proposed']['@value'];
+                                break;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Convert last remaining propositions into array.
+        // Only process "append" should remain.
+        foreach ($proposal as $term => $propositions) {
+            $propertyId = $api->searchOne('properties', ['term' => $term])->getContent()->id();
+            foreach ($propositions as $proposition) {
+                if ($proposition['validated']) {
                     continue;
                 }
-                $proposedValue = $correction->proposedValue($term, $original);
-                if (is_null($proposedValue)) {
+                if ($proposition['process'] !== 'append') {
                     continue;
                 }
-                $data[$term][$key] = [
-                    'property_id' => $propertyData['property']->id(),
+                $data[$term][] = [
+                    'property_id' => $propertyId,
                     'type' => 'literal',
-                    '@value' => $proposedValue,
+                    '@value' => $proposition['proposed']['@value'],
+                    // 'is_public' => true,
                     // '@language' => null,
                 ];
             }

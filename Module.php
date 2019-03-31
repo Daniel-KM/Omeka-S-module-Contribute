@@ -236,7 +236,11 @@ class Module extends AbstractModule
     {
         $inputFilter = $event->getParam('inputFilter');
         $inputFilter->get('correction')->add([
-            'name' => 'correction_properties',
+            'name' => 'correction_properties_corrigible',
+            'required' => false,
+        ]);
+        $inputFilter->get('correction')->add([
+            'name' => 'correction_properties_fillable',
             'required' => false,
         ]);
     }

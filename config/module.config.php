@@ -125,8 +125,9 @@ return [
     ],
     'correction' => [
         'settings' => [
-            'correction_properties' => [],
-            'correction_token_duration' => 90,
+            'correction_properties_corrigible' => [],
+            'correction_properties_fillable' => [],
+            'correction_token_duration' => 60,
         ],
     ],
 ];

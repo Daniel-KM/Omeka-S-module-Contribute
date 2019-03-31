@@ -74,9 +74,11 @@ class CorrectionController extends AbstractActionController
         $form->setAttribute('enctype', 'multipart/form-data');
         $form->setAttribute('id', 'edit-resource');
 
-        $corrigible = $this->fetchCorrigibleProperties();
-        if (empty($corrigible)) {
-            $this->messenger()->addError('No metadata can be corrected. Ask your administrator for more information.'); // @translate
+        $settings = $this->settings();
+        $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
+        $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
+        if (empty($corrigible) && empty($fillable)) {
+            $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
             $data = $this->params()->fromPost();
             $form->setData($data);
@@ -122,6 +124,7 @@ class CorrectionController extends AbstractActionController
         $view->setVariable('resource', $resource);
         $view->setVariable('correction', $correction);
         $view->setVariable('corrigible', $corrigible);
+        $view->setVariable('fillable', $fillable);
         return $view;
     }
 
@@ -137,10 +140,6 @@ class CorrectionController extends AbstractActionController
      */
     protected function prepareProposal(AbstractResourceEntityRepresentation $resource, $proposal)
     {
-        // Filter data.
-        $corrigible = $this->settings()->get('correction_properties', []);
-        $proposal = array_intersect_key($proposal, array_flip($corrigible));
-
         // Clean data.
         foreach ($proposal as &$values) {
             foreach ($values as &$value) {
@@ -149,12 +148,23 @@ class CorrectionController extends AbstractActionController
         }
         unset($values, $value);
 
+        // Filter data.
+        $settings = $this->settings();
+        $corrigible = $settings->get('correction_properties_corrigible', []);
+        $fillable = $settings->get('correction_properties_fillable', []);
+
+        $proposalCorrigible = array_intersect_key($proposal, array_flip($corrigible));
+
         $result = [];
         foreach ($corrigible as $term) {
             // TODO Manage all types of data, in particular custom vocab and value suggest.
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
             $values = $resource->value($term, ['type' => 'literal', 'all' => true, 'default' => []]);
-            $proposedValues = isset($proposal[$term]) ? $proposal[$term] : [];
+            $proposedValues = isset($proposalCorrigible[$term]) ? $proposalCorrigible[$term] : [];
+            // Don't save corrigible and fillable twice.
+            if (in_array($term, $fillable)) {
+                unset($fillable[array_search($term, $fillable)]);
+            }
 
             // First, save original values (literal only) and the matching corrections.
             foreach ($values as $key => $value) {
@@ -167,7 +177,7 @@ class CorrectionController extends AbstractActionController
                 ];
                 // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
                 unset($proposedValues[$key]);
-            };
+            }
 
             // Second, save remaining corrections (no more original or appended).
             foreach ($proposedValues as $proposedValue) {
@@ -179,25 +189,18 @@ class CorrectionController extends AbstractActionController
                     'proposed' => $proposedValue,
                 ];
             }
-        };
-        return $result;
+        }
 
-        // Keep relation between existing values and corrected values.
-        $result = [];
-        foreach ($resource->values() as $term => $propertyData) {
-            if ($corrigible && !in_array($term, $corrigible)) {
-                continue;
-            }
-            foreach ($propertyData['values'] as $key => $value) {
-                if (!isset($proposal[$term][$key])) {
-                    continue;
-                }
-                if ($value->type() !== 'literal') {
+        // Third, save remaining fillable properties.
+        $proposalFillable = array_intersect_key($proposal, array_flip($fillable));
+        foreach ($fillable as $term) {
+            foreach ($proposalFillable[$term] as $proposedValue) {
+                if ($proposedValue === '') {
                     continue;
                 }
                 $result[$term][] = [
-                    'original' => ['@value' => $value->value()],
-                    'proposed' => $proposal[$term][$key],
+                    'original' => ['@value' => ''],
+                    'proposed' => $proposedValue,
                 ];
             }
         }
@@ -206,19 +209,19 @@ class CorrectionController extends AbstractActionController
     }
 
     /**
-     * List all corrigible properties by term.
+     * List all selected properties by term.
      *
      * @todo Get all properties in one query.
      *
+     * @param array $terms
      * @return \Omeka\Api\Representation\\PropertyRepresentation[]
      */
-    protected function fetchCorrigibleProperties()
+    protected function fetchProperties(array $terms)
     {
         $result = [];
-        $corrigible = $this->settings()->get('correction_properties', []);
         // Normally, all properties are cached by Doctrine.
         $api = $this->api();
-        foreach ($corrigible as $term) {
+        foreach ($terms as $term) {
             // Use searchOne() to avoid issue when a vocabulary is removed.
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if ($property) {

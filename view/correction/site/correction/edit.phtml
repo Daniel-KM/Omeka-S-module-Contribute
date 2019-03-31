@@ -4,7 +4,8 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
  * @var \Correction\Api\Representation\CorrectionRepresentation $correction
- * @var \Omeka\Api\Representation\PropertyRepresentation $corrigible
+ * @var \Omeka\Api\Representation\PropertyRepresentation[] $corrigible
+ * @var \Omeka\Api\Representation\PropertyRepresentation[] $fillable
  */
 
 $translate = $this->plugin('translate');
@@ -36,6 +37,7 @@ echo $this->partial('correction/site/correction/form.phtml', [
     'resource' => $resource,
     'correction' => $correction,
     'corrigible' => $corrigible,
+    'fillable' => $fillable,
     'action' => 'edit',
     'submitLabel' => $translate('Correct'),
 ]);

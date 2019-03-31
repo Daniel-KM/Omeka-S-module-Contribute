@@ -8,9 +8,11 @@
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
+$api = $this->plugin('api');
 
 $labelInfo = $this->setting('property_label_information');
-$corrigible = $this->setting('correction_properties', []);
+
+$values = $resource->values();
 ?>
 
 <div class="corrections">
@@ -44,7 +46,7 @@ $editRight = $resource->userIsAllowed('update');
                 <span class="correction-email"><?php echo $this->hyperlink($email, 'mailto:' . $email); ?></span>
                 <?php endif; ?>
                 <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
-                <span class="correction-date"><?php $date = $correction->created(); echo $escape($this->i18n()->dateFormat($date)); ?></span>
+                <span class="correction-date"><?php echo $escape($correction->created()->format('Y-m-d H:i:s')); ?></span>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
@@ -68,11 +70,22 @@ $editRight = $resource->userIsAllowed('update');
         <tr class="correction-value">
             <td>
 
-<?php // List all corrigible values (set and different from the current values). ?>
-<?php // TODO Factorize with public form? ?>
-<?php foreach ($resource->values() as $term => $propertyData): ?>
-    <?php $isCorrigible = empty($corrigible) || in_array($term, $corrigible); ?>
-    <?php if (!$isCorrigible) continue; ?>
+<?php $proposal = $correction->proposalCheck(); ?>
+<?php foreach ($proposal as $term => $propositions):
+    if (isset($values[$term])):
+        $propertyData = $values[$term];
+    else:
+        $property = $api->searchOne('properties', ['term' => $term])->getContent();
+        // In the case the property was removed after the correction.
+        if (empty($property)) continue;
+        $propertyData = [
+            'property' => $property,
+            'alternate_label' => null,
+            'alternate_comment' => null,
+            'values' => [],
+        ];
+    endif;
+?>
     <div class="property">
         <h4>
             <?php echo $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())); ?>
@@ -83,50 +96,46 @@ $editRight = $resource->userIsAllowed('update');
             <?php endif; ?>
         </h4>
         <div class="values">
-        <?php /** @var \Omeka\Api\Representation\ValueRepresentation $value */ ?>
-        <?php foreach ($propertyData['values'] as $key => $value):
-            // TODO Manage all types of data, in particular custom vocab and value suggest.
-            if ($value->type() !== 'literal') continue;
-            // List only modified values.
-            $original = $value->value();
-            $proposedValue = $correction->proposedValue($term, $original);
-            $unknownValue = is_null($proposedValue);
+        <?php foreach ($propositions as $key => $proposition): ?>
+            <?php
+            $original = $proposition['original']['@value'];
+            $proposed = $proposition['proposed']['@value'];
+            $isValidated = $proposition['validated'];
+            $process = $proposition['process'];
 
             $class = ['value'];
-            if ('resource' == $value->type()) {
-                $class[] = 'resource';
-                $class[] = $escape($value->valueResource()->resourceName());
-            } elseif ('uri' == $value->type()) {
-                $class[] = 'uri';
-            }
-            if (!$value->isPublic()) {
-                $class[] = 'private';
-            }
-            $isApprovedValue = $correction->isApprovedValue($term, $original);
+            if ($isValidated) $class[] = 'validated-value';
+            $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
             ?>
-            <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($value->lang()); ?>">
-                <?php if ($language = $value->lang()): ?>
+            <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+                <?php if ($language): ?>
                 <span class="language"><?php echo $language; ?></span>
                 <?php endif; ?>
-                <?php if ($unknownValue): ?>
-                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="unknown-value"><?php echo $escape($proposedValue); ?></span>
+
+                <?php if ($process === 'remove'): ?>
+                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original); ?></span>
                 <?php else: ?>
-                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>"><?php echo $escape($proposedValue); ?></span>
+                <?php if ($original): ?>
+                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original); ?></span>
+                <br/>
                 <?php endif; ?>
+                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed); ?></span>
+                <?php endif; ?>
+
                 <span class="single actions">
-                    <?php if ($unknownValue): ?>
-                    <span class="no-action o-icon-unknown-value" aria-label="<?php echo $escape($translate('Original value not found or updated')); ?>"></span>
-                    <?php elseif ($isApprovedValue): ?>
+                <?php if ($isValidated): ?>
                     <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
-                    <?php elseif ($editRight): ?>
+                <?php elseif ($process === 'keep'): ?>
+                    <span class="no-action o-icon-not-validable-value" aria-label="<?php echo $escape($translate('Not validable')); ?>"></span>
+                <?php elseif (!$editRight): ?>
+                    <span class="no-action o-icon-validate-value no-right" aria-label="<?php echo $escape($translate('No right to write')); ?>"></span>
+                <?php else: ?>
                     <a href="#"
                         class="validate-value o-icon-validate-value"
-                        data-validate-value-url="<?php echo $escape($correction->url('validate-value')); ?>"
-                        aria-label="<?php echo $escape($translate('Validate this value')); ?>"
-                        title="<?php echo $escape($translate('Validate this value')); ?>"></a>
-                    <?php else: ?>
-                    <span class="no-action o-icon-unvalidated-value" aria-label="<?php echo $escape($translate('Unvalidated')); ?>"></span>
-                    <?php endif; ?>
+                        data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?key=$key"); ?>"
+                        aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
+                        title="<?php echo $txt; ?>"></a>
+                <?php endif; ?>
                 </span>
             </div>
         <?php endforeach; ?>
