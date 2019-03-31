@@ -1,8 +1,9 @@
 Correction (module for Omeka S)
 ===============================
 
-[Correction] is a module for [Omeka S] that allows visitors to correct metadata
-the resources without access to the admin board.
+[Correction] is a module for [Omeka S] that allows visitors to correct, complete
+or translate metadata of the resources without access to the admin board. Access
+to the edit page is controlled by a token, that you can send to your users.
 
 
 Installation
@@ -21,6 +22,29 @@ uncompress it in the `modules` directory.
 
 If the module was installed from the source, rename the name of the folder of
 the module to `Correction`.
+
+
+Usage
+-----
+
+- Configure the properties to correct in the config form of the module. Only
+  specified properties will be listed and corrigible or fillable.
+- Create one or more tokens for the resources you want to correct via the link
+  in the sidebar of a resource or the bulk process dropdown at the top of the
+  resource browse pages.
+- Send emails to your users with the tokens, so they can correct or complete
+  metadata of the resources.
+- Go to the resource page of the corrected items and apply changes, or decline
+  them. Corrections can be marked as reviewed.
+
+
+TODO
+----
+
+- Make the token optional (allow anybody to edit).
+- Add a js in public view to add new fillable fields.
+- Manage the fillable fields with a language, so it will simplify validation of
+  translation.
 
 
 Warning
@@ -76,6 +100,8 @@ Copyright
 
 [Correction]: https://github.com/Daniel-KM/Omeka-S-module-Correction
 [Omeka S]: https://omeka.org/s
+[`Generic`]: https://github.com/Daniel-KM/Omeka-S-module-Generic
+[`Correction.zip`]: https://github.com/Daniel-KM/Omeka-S-module-Correction/releases
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [module issues]: https://github.com/Daniel-KM/Omeka-S-module-Correction/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
