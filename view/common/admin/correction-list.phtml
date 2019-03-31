@@ -150,7 +150,7 @@ $editRight = $resource->userIsAllowed('update');
                 <?php else: ?>
                     <a href="#"
                         class="validate-value o-icon-validate-value"
-                        data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?key=$key"); ?>"
+                        data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?term=$term&key=$key"); ?>"
                         aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
                         title="<?php echo $txt; ?>"></a>
                 <?php endif; ?>

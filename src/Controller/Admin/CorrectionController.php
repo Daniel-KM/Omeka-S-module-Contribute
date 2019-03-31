@@ -255,17 +255,60 @@ class CorrectionController extends AbstractActionController
         ]);
     }
 
+    public function validateValueAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jsonErrorNotFound();
+        }
+
+        // Only people who can edit the resource can validate.
+        $id = $this->params('id');
+        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
+        $correction = $this->api()->read('corrections', $id)->getContent();
+        if (!$correction->resource()->userIsAllowed('update')) {
+            return $this->jsonErrorUnauthorized();
+        }
+
+        $term = $this->params()->fromQuery('term');
+        $key = $this->params()->fromQuery('key');
+        if (!$term || !is_numeric($key)) {
+            return $this->returnError('Mising term or key.'); // @translate
+        }
+
+        $this->validateCorrection($correction, $term, $key);
+
+        return new JsonModel([
+            'status' => Response::STATUS_CODE_200,
+            // Status is updated, so inverted.
+            'content' => [
+                'status' => 'validated-value',
+                'statusLabel' => $this->translate('Validated value'),
+            ],
+        ]);
+    }
+
     /**
      * Correct existing values of the resource with the correction proposal.
      *
      * @param CorrectionRepresentation $correction
+     * @param string $term
+     * @param int $proposedKey
      */
-    protected function validateCorrection(CorrectionRepresentation $correction)
+    protected function validateCorrection(CorrectionRepresentation $correction, $term = null, $proposedKey = null)
     {
         // Check the options in the case they were updated.
         $settings = $this->settings();
         $corrigible = $settings->get('correction_properties_corrigible', []);
         $fillable = $settings->get('correction_properties_fillable', []);
+
+        if ($term) {
+            $corrigible = in_array($term, $corrigible) ? [$term] : [];
+            $fillable = in_array($term, $fillable) ? [$term] : [];
+        } else {
+            $proposedKey = null;
+        }
+        $hasProposedKey = !is_null($proposedKey);
+
         if (empty($corrigible) && empty($fillable)) {
             return;
         }
@@ -295,7 +338,10 @@ class CorrectionController extends AbstractActionController
                 // Values have no id and the order key is not saved, so the
                 // check should be redone.
                 $v = $value->value();
-                foreach ($proposal[$term] as $proposition) {
+                foreach ($proposal[$term] as $key => $proposition) {
+                    if ($hasProposedKey && $proposedKey != $key) {
+                        continue;
+                    }
                     if ($proposition['validated']) {
                         continue;
                     }
@@ -321,7 +367,10 @@ class CorrectionController extends AbstractActionController
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {
             $propertyId = $api->searchOne('properties', ['term' => $term])->getContent()->id();
-            foreach ($propositions as $proposition) {
+            foreach ($propositions as $key => $proposition) {
+                if ($hasProposedKey && $proposedKey != $key) {
+                    continue;
+                }
                 if ($proposition['validated']) {
                     continue;
                 }
