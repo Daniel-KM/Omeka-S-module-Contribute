@@ -134,6 +134,55 @@ class CorrectionController extends AbstractActionController
             : $this->redirect()->toRoute('admin/default', ['controller' => $resourceType, 'action' => 'browse'], true);
     }
 
+    /**
+     * Expire all token of a resource.
+     */
+    public function expireTokensAction()
+    {
+        $id = $this->params('id');
+        $api = $this->api();
+        try {
+            $resource = $api->read('resources', ['id' => $id])->getContent();
+        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+            return $this->notFoundAction();
+        }
+
+        $resourceType = $resource->getControllerName();
+        $response = $api
+            ->search('correction_tokens', [
+                'resource_id' => $id,
+                'datetime' => [['field' => 'expire', 'type' => 'gte', 'value' => date('Y-m-d H:i:s')], ['joiner' => 'or', 'field' => 'expire', 'type' => 'nex']]],
+                ['returnScalar' => 'id']
+            );
+        $total = $response->getTotalResults();
+        if (empty($total)) {
+            $message = new Message(
+                'Resource #%s has no tokens to expire.', // @translate
+                sprintf(
+                    '<a href="%s">%d</a>',
+                    htmlspecialchars($this->url()->fromRoute('admin/id', ['controller' => $resourceType, 'id' => $id])),
+                    $id
+                )
+            );
+            $message->setEscapeHtml(false);
+            $this->messenger()->addNotice($message);
+            return $this->redirect()->toRoute('admin/id', ['controller' => $resourceType, 'action' => 'show'], true);
+        }
+
+        $ids = $response->getContent();
+
+        $response = $api
+            ->batchUpdate(
+                'correction_tokens',
+                $ids,
+                ['o-module-correction:expire' => 'now']
+            );
+
+        $message = 'All tokens of the resource were expired.'; // @translate
+        $this->messenger()->addSuccess($message);
+        return $this->redirect()->toRoute('admin/id', ['controller' => $resourceType, 'action' => 'show'], true);
+    }
+
     public function toggleStatusAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {

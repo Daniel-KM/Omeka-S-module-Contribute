@@ -108,27 +108,232 @@ class TokenAdapter extends AbstractEntityAdapter
             );
         }
 
-        // TODO Add time comparison (see modules AdvancedSearchPlus or Next).
-        if (isset($query['expire'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.expire',
-                $this->createNamedParameter($qb, $query['expire']))
-            );
+        $this->searchDateTime($qb, $query);
+    }
+
+    public function preprocessBatchUpdate(array $data, Request $request)
+    {
+        // Preprocess acts as a filter to keep only the specified data keys.
+
+        $rawData = $request->getContent();
+        $data = parent::preprocessBatchUpdate($data, $request);
+
+        if (isset($rawData['o-module-correction:expire'])) {
+            $data['o-module-correction:expire'] = $rawData['o-module-correction:expire'];
         }
 
-        if (isset($query['created'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.created',
-                $this->createNamedParameter($qb, $query['created']))
-            );
+        return $data;
+    }
+
+    /**
+     * Build query on date time (created/modified), partial date/time allowed.
+     *
+     * The query format is inspired by Doctrine and properties.
+     *
+     * Query format:
+     *
+     * - datetime[{index}][joiner]: "and" OR "or" joiner with previous query
+     * - datetime[{index}][field]: the field "created" or "modified"
+     * - datetime[{index}][type]: search type
+     *   - gt: greater than (after)
+     *   - gte: greater than or equal
+     *   - eq: is exactly
+     *   - neq: is not exactly
+     *   - lte: lower than or equal
+     *   - lt: lower than (before)
+     *   - ex: has any value
+     *   - nex: has no value
+     * - datetime[{index}][value]: search date time (sql format: "2017-11-07 17:21:17",
+     *   partial date/time allowed ("2018-05", etc.).
+     *
+     * From AdvancedSearchPlus module.
+     *
+     * @param QueryBuilder $qb
+     * @param array $query
+     */
+    protected function searchDateTime(QueryBuilder $qb, array $query)
+    {
+        $query = $this->normalizeDateTime($query);
+        if (empty($query['datetime'])) {
+            return;
         }
 
-        if (isset($query['accessed'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.accessed',
-                $this->createNamedParameter($qb, $query['accessed']))
-            );
+        $adapter = $this;
+
+        $where = '';
+
+        foreach ($query['datetime'] as $queryRow) {
+            $joiner = $queryRow['joiner'];
+            $field = $queryRow['field'];
+            $type = $queryRow['type'];
+            $value = $queryRow['value'];
+
+            $resourceClass = $adapter->getEntityClass();
+
+            // By default, sql replace missing time by 00:00:00, but this is not
+            // clear for the user. And it doesn't allow partial date/time.
+            switch ($type) {
+                case 'gt':
+                    if (strlen($value) < 19) {
+                        $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                    }
+                    $param = $adapter->createNamedParameter($qb, $value);
+                    $predicateExpr = $qb->expr()->gt($resourceClass . '.' . $field, $param);
+                    break;
+                case 'gte':
+                    if (strlen($value) < 19) {
+                        $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
+                    }
+                    $param = $adapter->createNamedParameter($qb, $value);
+                    $predicateExpr = $qb->expr()->gte($resourceClass . '.' . $field, $param);
+                    break;
+                case 'eq':
+                    if (strlen($value) < 19) {
+                        $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
+                        $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                        $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
+                        $paramTo = $adapter->createNamedParameter($qb, $valueTo);
+                        $predicateExpr = $qb->expr()->between($resourceClass . '.' . $field, $paramFrom, $paramTo);
+                    } else {
+                        $param = $adapter->createNamedParameter($qb, $value);
+                        $predicateExpr = $qb->expr()->eq($resourceClass . '.' . $field, $param);
+                    }
+                    break;
+                case 'neq':
+                    if (strlen($value) < 19) {
+                        $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
+                        $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                        $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
+                        $paramTo = $adapter->createNamedParameter($qb, $valueTo);
+                        $predicateExpr = $qb->expr()->not(
+                            $qb->expr()->between($resourceClass . '.' . $field, $paramFrom, $paramTo)
+                            );
+                    } else {
+                        $param = $adapter->createNamedParameter($qb, $value);
+                        $predicateExpr = $qb->expr()->neq($resourceClass . '.' . $field, $param);
+                    }
+                    break;
+                case 'lte':
+                    if (strlen($value) < 19) {
+                        $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                    }
+                    $param = $adapter->createNamedParameter($qb, $value);
+                    $predicateExpr = $qb->expr()->lte($resourceClass . '.' . $field, $param);
+                    break;
+                case 'lt':
+                    if (strlen($value) < 19) {
+                        $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
+                    }
+                    $param = $adapter->createNamedParameter($qb, $value);
+                    $predicateExpr = $qb->expr()->lt($resourceClass . '.' . $field, $param);
+                    break;
+                case 'ex':
+                    $predicateExpr = $qb->expr()->isNotNull($resourceClass . '.' . $field);
+                    break;
+                case 'nex':
+                    $predicateExpr = $qb->expr()->isNull($resourceClass . '.' . $field);
+                    break;
+                default:
+                    continue 2;
+            }
+
+            // First expression has no joiner.
+            if ($where === '') {
+                $where = '(' . $predicateExpr . ')';
+            } elseif ($joiner === 'or') {
+                $where .= ' OR (' . $predicateExpr . ')';
+            } else {
+                $where .= ' AND (' . $predicateExpr . ')';
+            }
         }
+
+        if ($where) {
+            $qb->andWhere($where);
+        }
+    }
+
+    /**
+     * Normalize the query for the datetime.
+     *
+     * From AdvancedSearchPlus module.
+     *
+     * @param array $query
+     * @return array
+     */
+    protected function normalizeDateTime(array $query)
+    {
+        if (empty($query['datetime'])) {
+            return $query;
+        }
+
+        // Manage a single date time.
+        if (!is_array($query['datetime'])) {
+            $query['datetime'] = [[
+                'joiner' => 'and',
+                'field' => 'created',
+                'type' => 'eq',
+                'value' => $query['datetime'],
+            ]];
+            return $query;
+        }
+
+        foreach ($query['datetime'] as $key => &$queryRow) {
+            if (empty($queryRow)) {
+                unset($query['datetime'][$key]);
+                continue;
+            }
+
+            // Clean query and manage default values.
+            if (is_array($queryRow)) {
+                $queryRow = array_map('strtolower', array_map('trim', $queryRow));
+                if (empty($queryRow['joiner'])) {
+                    $queryRow['joiner'] = 'and';
+                } else {
+                    if (!in_array($queryRow['joiner'], ['and', 'or'])) {
+                        unset($query['datetime'][$key]);
+                        continue;
+                    }
+                }
+
+                if (empty($queryRow['field'])) {
+                    $queryRow['field'] = 'created';
+                } else {
+                    if (!in_array($queryRow['field'], ['created', 'modified', 'expire'])) {
+                        unset($query['datetime'][$key]);
+                        continue;
+                    }
+                }
+
+                if (empty($queryRow['type'])) {
+                    $queryRow['type'] = 'eq';
+                } else {
+                    // "ex" and "nex" are useful only for the modified time.
+                    if (!in_array($queryRow['type'], ['lt', 'lte', 'eq', 'gte', 'gt', 'neq', 'ex', 'nex'])) {
+                        unset($query['datetime'][$key]);
+                        continue;
+                    }
+                }
+
+                if (in_array($queryRow['type'], ['ex', 'nex'])) {
+                    $query['datetime'][$key]['value'] = '';
+                } elseif (empty($queryRow['value'])) {
+                    unset($query['datetime'][$key]);
+                    continue;
+                } else {
+                    // Date time cannot be longer than 19 numbers.
+                    // But user can choose a year only, etc.
+                }
+            } else {
+                $queryRow = [
+                    'joiner' => 'and',
+                    'field' => 'created',
+                    'type' => 'eq',
+                    'value' => $queryRow,
+                ];
+            }
+        }
+
+        return $query;
     }
 
     /**

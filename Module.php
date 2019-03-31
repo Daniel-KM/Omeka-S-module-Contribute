@@ -34,8 +34,6 @@ class Module extends AbstractModule
             \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
             \Omeka\Permissions\Acl::ROLE_EDITOR,
             \Omeka\Permissions\Acl::ROLE_REVIEWER,
-            \Omeka\Permissions\Acl::ROLE_AUTHOR,
-            \Omeka\Permissions\Acl::ROLE_RESEARCHER,
         ];
 
         $acl

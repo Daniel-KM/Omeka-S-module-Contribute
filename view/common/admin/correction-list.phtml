@@ -14,8 +14,26 @@ $labelInfo = $this->setting('property_label_information');
 
 $values = $resource->values();
 ?>
-
 <div class="corrections">
+    <?php $totalTokens = $api->search('correction_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
+    <?php if (empty($totalTokens)): ?>
+    <div class="no-resources">
+        <p><?php echo $translate('There are no tokens for this resource.'); ?></p>
+    </div>
+    <?php else: ?>
+    <?php $totalExpiredTokens = $api
+        ->search(
+            'correction_tokens',
+            ['resource_id' => $resource->id(), 'datetime' => [['field' => 'expire', 'type' => 'lt', 'value' => date('Y-m-d H:i:s')]]]
+        )
+        ->getTotalResults(); ?>
+    <div class="correction-token">
+        <p><?php echo sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens); ?></p>
+        <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Correction\Controller\Admin\Correction', 'expire-tokens')): ?>
+        <?php echo $this->hyperlink($translate('Expire all tokens'), $this->url('admin/correction/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']); ?>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 <?php if (empty($corrections)): ?>
     <div class="no-resources">
         <p><?php echo $translate('There are no corrections for this resource.'); ?></p>
