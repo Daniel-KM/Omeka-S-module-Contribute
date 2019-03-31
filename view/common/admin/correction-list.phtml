@@ -88,8 +88,9 @@ $editRight = $resource->userIsAllowed('update');
             // TODO Manage all types of data, in particular custom vocab and value suggest.
             if ($value->type() !== 'literal') continue;
             // List only modified values.
-            $proposedValue = $correction->proposedValue($term, $key);
-            if (is_null($proposedValue)) continue;
+            $original = $value->value();
+            $proposedValue = $correction->proposedValue($term, $original);
+            $unknownValue = is_null($proposedValue);
 
             $class = ['value'];
             if ('resource' == $value->type()) {
@@ -101,15 +102,21 @@ $editRight = $resource->userIsAllowed('update');
             if (!$value->isPublic()) {
                 $class[] = 'private';
             }
-            $isApprovedValue = $correction->isApprovedValue($term, $key);
+            $isApprovedValue = $correction->isApprovedValue($term, $original);
             ?>
             <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($value->lang()); ?>">
                 <?php if ($language = $value->lang()): ?>
                 <span class="language"><?php echo $language; ?></span>
                 <?php endif; ?>
-                <div data-name="<?php echo $term . '[' . $key . '][@value]'; ?>"><?php echo $escape($proposedValue); ?></div>
+                <?php if ($unknownValue): ?>
+                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="unknown-value"><?php echo $escape($proposedValue); ?></span>
+                <?php else: ?>
+                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>"><?php echo $escape($proposedValue); ?></span>
+                <?php endif; ?>
                 <span class="single actions">
-                    <?php if ($isApprovedValue): ?>
+                    <?php if ($unknownValue): ?>
+                    <span class="no-action o-icon-unknown-value" aria-label="<?php echo $escape($translate('Original value not found or updated')); ?>"></span>
+                    <?php elseif ($isApprovedValue): ?>
                     <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
                     <?php elseif ($editRight): ?>
                     <a href="#"

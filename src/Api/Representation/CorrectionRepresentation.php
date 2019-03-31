@@ -108,56 +108,59 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     /**
      * Get all proposed corrections for a term.
      *
-     * @todo Make it compatible with any type of field (resource, uri…).
-     *
      * @param string $term
      * @return array
      */
     public function proposedValues($term)
     {
-        $result = [];
         $data = $this->proposal();
-        if (!empty($data[$term])) {
-            foreach ($data[$term] as $value) {
-                $result[] = $value['@value'];
-            }
-        }
-        return $result;
+        return empty($data[$term])
+            ? []
+            : $data[$term];
     }
 
     /**
      * Get a specific proposed correction for a term.
      *
-     * @todo Don't manage proposition of correction by key when there are multiple values.
-     *
      * @param string $term
-     * @param int $key
-     * @return string
+     * @param string $original
+     * @return string|null Empty string is used when the value is removed.
      */
-    public function proposedValue($term, $key)
+    public function proposedValue($term, $original)
     {
-        $data = $this->proposal();
-        return isset($data[$term][$key]['@value'])
-            ? $data[$term][$key]['@value']
-            : null;
+        $proposed = $this->proposedValues($term);
+        if (empty($proposed)) {
+            return null;
+        }
+        foreach ($proposed as $value) {
+            if ($value['original']['@value'] === $original) {
+                return $value['proposed']['@value'];
+            }
+        }
+        return null;
     }
 
     /**
      * Check if a value is the same than the resource one.
      *
-     * @todo Don't manage proposition of correction by key when there are multiple values.
+     * @todo Manage update of data in admin board after correction? Sync is complex.
      *
      * @param string $term
-     * @param int $key
-     * @return bool
+     * @param string $original
+     * @return bool|null Null means no value, false if corrected, true if
+     * approved.
      */
-    public function isApprovedValue($term, $key)
+    public function isApprovedValue($term, $original)
     {
-        $data = $this->proposal();
-        $value = isset($data[$term][$key]['@value'])
-            ? $data[$term][$key]['@value']
-            : null;
-        $values = $this->resource()->value($term, ['all' => true], []);
-        return isset($values[$key]) && $values[$key]->value() === $value;
+        $proposed = $this->proposedValues($term);
+        if (empty($proposed)) {
+            return null;
+        }
+        foreach ($proposed as $value) {
+            if ($value['original']['@value'] === $original) {
+                return $value['proposed']['@value'] === $value['original']['@value'];
+            }
+        }
+        return null;
     }
 }

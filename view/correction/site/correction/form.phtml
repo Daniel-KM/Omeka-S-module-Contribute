@@ -4,7 +4,7 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
  * @var \Correction\Api\Representation\CorrectionRepresentation $correction
- * @var array $corrigible
+ * @var \Omeka\Api\Representation\PropertyRepresentation $corrigible
  * @var string $action
  * @var string $submitLabel
  */
@@ -15,62 +15,85 @@ $formElement = $this->plugin('formElement');
 $form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
-$isDisplayable = false;
+
+// TODO Improve the process in the controller in order to get only one list of values (term, original, corrections).
 ?>
 
 <?php echo $this->form()->openTag($form); ?>
 
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 
-<?php foreach ($resource->values() as $term => $propertyData): ?>
-    <?php $isCorrigible = empty($corrigible) || in_array($term, $corrigible); ?>
-    <?php if (!$isCorrigible && !$isDisplayable):
-        continue;
-    endif;
-    ?>
-    <div class="property">
-        <h4>
-            <?php echo $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())); ?>
-            <?php if ('term' === $labelInfo): ?>
-            <span class="field-term">(<?php echo $escape($propertyData['property']->term()); ?>)</span>
-            <?php elseif ('vocab' === $labelInfo): ?>
-            <span class="field-term">(<?php echo $escape($propertyData['property']->vocabulary()->label()); ?>)</span>
+<?php
+// Use of values() allows to have the alternate labels and comments simply.
+$valuesData = $resource->values();
+?>
+<?php foreach ($corrigible as $term => $property): ?>
+<?php // TODO Manage all types of data, in particular custom vocab and value suggest. ?>
+<?php /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */ ?>
+<?php $values = $resource->value($term, ['type' => 'literal', 'all' => true, 'default' => []]); ?>
+<?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
+<?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
+
+<div class="property">
+    <h4>
+        <?php echo isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())); ?>
+        <?php if ($labelInfo === 'term'): ?>
+        <span class="field-term">(<?php echo $escape($property->term()); ?>)</span>
+        <?php elseif ($labelInfo === 'vocab'): ?>
+        <span class="field-term">(<?php echo $escape($property->vocabulary()->label()); ?>)</span>
+        <?php endif; ?>
+    </h4>
+    <div class="values">
+
+    <?php // First, display original values (literal only) and the matching corrections. ?>
+    <?php foreach ($values as $key => $value):
+        $original = $value->value();
+        $proposedValue = $correction ? $correction->proposedValue($term, $original) : null;
+        // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+        if (!is_null($proposedValue)):
+            foreach ($proposedValues as $kp => $v):
+                if ($v['original']['@value'] === $original):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        endif;
+
+        $val = is_null($proposedValue) ? $value->asHtml() : $escape($proposedValue);
+
+        $class = ['value'];
+        if ('resource' == $value->type()) {
+            $class[] = 'resource';
+            $class[] = $escape($value->valueResource()->resourceName());
+        } elseif ('uri' == $value->type()) {
+            $class[] = 'uri';
+        }
+        if (!$value->isPublic()) {
+            $class[] = 'private';
+        }
+        ?>
+        <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($value->lang()); ?>">
+            <?php if ($language = $value->lang()): ?>
+            <span class="language"><?php echo $language; ?></span>
             <?php endif; ?>
-        </h4>
-        <div class="values">
-        <?php /** @var \Omeka\Api\Representation\ValueRepresentation $value */ ?>
-        <?php foreach ($propertyData['values'] as $key => $value):
-            // TODO Manage all types of data, in particular custom vocab and value suggest.
-            if ($value->type() !== 'literal'):
-                continue;
-            endif;
-            $class = ['value'];
-            if ('resource' == $value->type()) {
-                $class[] = 'resource';
-                $class[] = $escape($value->valueResource()->resourceName());
-            } elseif ('uri' == $value->type()) {
-                $class[] = 'uri';
-            }
-            if (!$value->isPublic()) {
-                $class[] = 'private';
-            }
-            ?>
-            <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($value->lang()); ?>">
-                <?php if ($language = $value->lang()): ?>
-                <span class="language"><?php echo $language; ?></span>
-                <?php endif; ?>
-                <?php if ($isCorrigible): ?>
-                <?php $proposedValue = $correction ? $correction->proposedValue($term, $key) : null; ?>
-                <?php $val = is_null($proposedValue) ? $value->asHtml() : $escape($proposedValue); ?>
-                <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $val; ?></textarea>
-                <?php else: ?>
-                <textarea disabled="disabled" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $propertyData['property']->id(); ?>-label"><?php echo $value->asHtml(); ?></textarea>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
+            <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
         </div>
-    </div>
-<?php endforeach; ?>
+    <?php endforeach; ?>
+
+    <?php // Second, display remaining corrections (no more original or appended). ?>
+    <?php foreach ($proposedValues as $proposedValue):
+        ++$key;
+        if ($proposedValue['proposed']['@value'] === '') {
+            continue;
+        }
+        $val = $escape($proposedValue['proposed']['@value']);
+        ?>
+        <div class="value">
+            <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
+        </div>
+    <?php endforeach; ?>
+</div>
+<?php endforeach;?>
 
 <?php echo $formElement($form->get('csrf')); ?>
 

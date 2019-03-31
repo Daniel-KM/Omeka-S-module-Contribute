@@ -16,13 +16,14 @@ class SettingsFieldset extends Fieldset
             'type' => PropertySelect::class,
             'options' => [
                 'label' => 'Corrigible properties', // @translate
-                'info' => 'Only the selected properties will be proposed for public correction. Let empty to select all. It’s not recommended to allow to correct identifiers.', // @translate
+                'info' => 'Only the selected properties will be proposed for public correction. It’s not recommended to allow to correct identifiers.', // @translate
                 'empty_option' => '', // @translate
                 'term_as_value' => true,
             ],
             'attributes' => [
                 'id' => 'correction_properties',
                 'multiple' => true,
+                // Should be true and without filter, but simpler for user.
                 'required' => false,
                 'class' => 'chosen-select',
                 'data-placeholder' => 'Select properties…', // @translate

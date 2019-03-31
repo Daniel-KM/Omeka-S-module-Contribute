@@ -238,10 +238,11 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 // Don't update the value if it is the same.
-                if ($correction->isApprovedValue($term, $key)) {
+                $original = $value->value();
+                if ($correction->isApprovedValue($term, $original)) {
                     continue;
                 }
-                $proposedValue = $correction->proposedValue($term, $key);
+                $proposedValue = $correction->proposedValue($term, $original);
                 if (is_null($proposedValue)) {
                     continue;
                 }

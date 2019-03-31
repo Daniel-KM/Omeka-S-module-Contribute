@@ -2,6 +2,7 @@
 namespace Correction\Controller\Site;
 
 use Correction\Form\CorrectionForm;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 // use Omeka\Form\ResourceForm;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -26,6 +27,7 @@ class CorrectionController extends AbstractActionController
         $resourceName = $resourceTypeMap[$resourceType];
 
         // Allow to check if the resource is public for the user.
+        /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $api
             ->searchOne($resourceName, ['id' => $resourceId])
             ->getContent();
@@ -61,9 +63,6 @@ class CorrectionController extends AbstractActionController
             return $this->viewError403();
         }
 
-        $settings = $this->settings();
-        $corrigible = $settings->get('correction_properties', []);
-
         $correction = $api
             ->searchOne('corrections', ['resource_id' => $resourceId, 'token_id' => $token->id()])
             ->getContent();
@@ -75,17 +74,18 @@ class CorrectionController extends AbstractActionController
         $form->setAttribute('enctype', 'multipart/form-data');
         $form->setAttribute('id', 'edit-resource');
 
-        if ($this->getRequest()->isPost()) {
+        $corrigible = $this->fetchCorrigibleProperties();
+        if (empty($corrigible)) {
+            $this->messenger()->addError('No metadata can be corrected. Ask your administrator for more information.'); // @translate
+        } elseif ($this->getRequest()->isPost()) {
             $data = $this->params()->fromPost();
             $form->setData($data);
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
                 // TODO Manage file data.
                 // $fileData = $this->getRequest()->getFiles()->toArray();
-                $proposal = $corrigible
-                    ? array_intersect_key($data, array_flip($corrigible))
-                    : array_diff_key($data, ['csrf' => null, 'correct-resource-submit' => null]);
-                $proposal = $this->cleanProposal($proposal);
+                $data = array_diff_key($data, ['csrf' => null, 'correct-resource-submit' => null]);
+                $proposal = $this->prepareProposal($resource, $data);
                 // The resource isn’t updated, but the proposition of correction
                 // is saved for moderation.
                 $response = null;
@@ -125,14 +125,107 @@ class CorrectionController extends AbstractActionController
         return $view;
     }
 
-    protected function cleanProposal($proposal)
+    /**
+     * Prepare the proposal for saving.
+     *
+     * The form and this method must use the same keys.
+     *
+     * @param AbstractResourceEntityRepresentation $resource
+* @param \Omeka\Api\Representation\PropertyRepresentation[] $proposal
+     * @param array $proposal
+     * @return array
+     */
+    protected function prepareProposal(AbstractResourceEntityRepresentation $resource, $proposal)
     {
+        // Filter data.
+        $corrigible = $this->settings()->get('correction_properties', []);
+        $proposal = array_intersect_key($proposal, array_flip($corrigible));
+
+        // Clean data.
         foreach ($proposal as &$values) {
             foreach ($values as &$value) {
                 $value['@value'] = trim($value['@value']);
             }
         }
-        return $proposal;
+        unset($values, $value);
+
+        $result = [];
+        foreach ($corrigible as $term) {
+            // TODO Manage all types of data, in particular custom vocab and value suggest.
+            /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
+            $values = $resource->value($term, ['type' => 'literal', 'all' => true, 'default' => []]);
+            $proposedValues = isset($proposal[$term]) ? $proposal[$term] : [];
+
+            // First, save original values (literal only) and the matching corrections.
+            foreach ($values as $key => $value) {
+                if (!isset($proposedValues[$key])) {
+                    continue;
+                }
+                $result[$term][] = [
+                    'original' => ['@value' => $value->value()],
+                    'proposed' => $proposedValues[$key],
+                ];
+                // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+                unset($proposedValues[$key]);
+            };
+
+            // Second, save remaining corrections (no more original or appended).
+            foreach ($proposedValues as $proposedValue) {
+                if ($proposedValue === '') {
+                    continue;
+                }
+                $result[$term][] = [
+                    'original' => ['@value' => ''],
+                    'proposed' => $proposedValue,
+                ];
+            }
+        };
+        return $result;
+
+        // Keep relation between existing values and corrected values.
+        $result = [];
+        foreach ($resource->values() as $term => $propertyData) {
+            if ($corrigible && !in_array($term, $corrigible)) {
+                continue;
+            }
+            foreach ($propertyData['values'] as $key => $value) {
+                if (!isset($proposal[$term][$key])) {
+                    continue;
+                }
+                if ($value->type() !== 'literal') {
+                    continue;
+                }
+                $result[$term][] = [
+                    'original' => ['@value' => $value->value()],
+                    'proposed' => $proposal[$term][$key],
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * List all corrigible properties by term.
+     *
+     * @todo Get all properties in one query.
+     *
+     * @return \Omeka\Api\Representation\\PropertyRepresentation[]
+     */
+    protected function fetchCorrigibleProperties()
+    {
+        $result = [];
+        $corrigible = $this->settings()->get('correction_properties', []);
+        // Normally, all properties are cached by Doctrine.
+        $api = $this->api();
+        foreach ($corrigible as $term) {
+            // Use searchOne() to avoid issue when a vocabulary is removed.
+            $property = $api->searchOne('properties', ['term' => $term])->getContent();
+            if ($property) {
+                $result[$term] = $property;
+            }
+        }
+        return $result;
     }
 
     /**
