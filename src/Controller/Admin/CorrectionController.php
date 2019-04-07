@@ -84,7 +84,17 @@ class CorrectionController extends AbstractActionController
                 : $this->redirect()->toRoute('admin/default', ['controller' => $resourceType, 'action' => 'browse'], true);
         }
 
-        $email = $params['email'];
+        $email = trim($params['email']);
+        if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->messenger()->addError(new Message(
+                'You set the optional email "%s" to create a correction token, but it is not well-formed.', // @translate
+                $email
+            ));
+            return $params['redirect']
+                ? $this->redirect()->toUrl($params['redirect'])
+                : $this->redirect()->toRoute('admin/default', ['controller' => $resourceType, 'action' => 'browse'], true);
+        }
+
         // $expire = $params['expire'];
         $tokenDuration = $this->settings()->get('correction_token_duration');
         $expire = $tokenDuration > 0
@@ -119,11 +129,12 @@ class CorrectionController extends AbstractActionController
         }
 
         $message = new Message(
-            'Created %1$s correction tokens (duration: %2$s): %3$s', // @translate
+            'Created %1$s correction tokens (email: %2$s, duration: %3$s): %4$s', // @translate
             $count,
+            $email ?: new Message('none'), // @translate
             $tokenDuration
                 ? new Message('%d days', $tokenDuration) // @translate
-                : 'unlimited',  // @translate
+                : 'unlimited', // @translate
             '<ul><li>' . implode('</li><li>', $urls) . '</li></ul>'
         );
 

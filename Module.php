@@ -149,10 +149,18 @@ class Module extends AbstractModule
             $translate('Create correction token'), // @translate
             $view->url('admin/correction/default', ['action' => 'create-token'], ['query' => $query])
         );
-        echo '<div class="meta-group">'
+        $output = '<div class="meta-group create_correction">'
             . '<h4>' . $translate('Correction') . '</h4>'
-            . '<div class="value">' . $link . '</div>'
+            . '<div class="value" id="create_correction_token">' . $link . '</div>'
+            . '<div id="create_correction_token_dialog" class="modal">'
+            . '<div class="modal-content">'
+            . '<span class="close" id="create_correction_token_dialog_close">&times;</span>'
+            . '<input style="width:70%;" type="text" value="" placeholder="' . $translate('Please input optional email…') . '" id = "create_correction_token_dialog_email"/>'
+            . '<input style="width:25%;" type="button" value="' . $translate('GO') . '" id = "create_correction_token_dialog_go"/>'
+            . '</div>'
+            . '</div>'
             . '</div>';
+        echo $output;
     }
 
     /**
