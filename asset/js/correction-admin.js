@@ -1,3 +1,16 @@
+// Kept as long as pull request #1260 is not passed.
+Omeka.correctionManageSelectedActions = function() {
+    var selectedOptions = $('[value="update-selected"], [value="delete-selected"], #batch-form .batch-inputs .batch-selected');
+    if ($('.batch-edit td input[type="checkbox"]:checked').length > 0) {
+        selectedOptions.removeAttr('disabled');
+    } else {
+        selectedOptions.attr('disabled', true);
+        $('.batch-actions-select').val('default');
+        $('.batch-actions .active').removeClass('active');
+        $('.batch-actions .default').addClass('active');
+    }
+};
+
 (function($, window, document) {
     // Browse batch actions.
     $(function() {
@@ -20,6 +33,14 @@
         batchActions.append(
             $('<input type="hidden" name="resource_type">').val(resourceType)
         );
+
+        // Kept as long as pull request #1260 is not passed.
+        $('.select-all').change(function() {
+            Omeka.correctionManageSelectedActions();
+        });
+        $('.batch-edit td input[type="checkbox"]').change(function() {
+            Omeka.correctionManageSelectedActions();
+        });
 
     });
 
