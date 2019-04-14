@@ -79,8 +79,8 @@ class CorrectionAdapter extends AbstractEntityAdapter
         if (isset($query['id'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.id',
-                $this->createNamedParameter($qb, $query['id']))
-            );
+                $this->createNamedParameter($qb, $query['id'])
+            ));
         }
 
         if (isset($query['resource_id'])) {
@@ -94,8 +94,8 @@ class CorrectionAdapter extends AbstractEntityAdapter
             );
             $qb->andWhere($qb->expr()->in(
                 $resourceAlias . '.id',
-                $this->createNamedParameter($qb, $query['resource_id']))
-            );
+                $this->createNamedParameter($qb, $query['resource_id'])
+            ));
         }
 
         if (isset($query['token_id'])) {
@@ -109,37 +109,37 @@ class CorrectionAdapter extends AbstractEntityAdapter
             );
             $qb->andWhere($qb->expr()->eq(
                 $resourceAlias . '.id',
-                $this->createNamedParameter($qb, $query['token_id']))
-            );
+                $this->createNamedParameter($qb, $query['token_id'])
+            ));
         }
 
         if (isset($query['email'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.email',
-                $this->createNamedParameter($qb, $query['email']))
-            );
+                $this->createNamedParameter($qb, $query['email'])
+            ));
         }
 
         if (isset($query['reviewed']) && is_numeric($query['reviewed'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.reviewed',
-                $this->createNamedParameter($qb, (bool) $query['reviewed']))
-            );
+                $this->createNamedParameter($qb, (bool) $query['reviewed'])
+            ));
         }
 
         // TODO Add time comparison (see modules AdvancedSearchPlus or Next).
         if (isset($query['created'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.created',
-                $this->createNamedParameter($qb, $query['created']))
-            );
+                $this->createNamedParameter($qb, $query['created'])
+            ));
         }
 
         if (isset($query['modified'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.modified',
-                $this->createNamedParameter($qb, $query['modified']))
-            );
+                $this->createNamedParameter($qb, $query['modified'])
+            ));
         }
     }
 }

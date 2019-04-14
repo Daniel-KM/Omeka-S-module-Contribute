@@ -75,8 +75,8 @@ class TokenAdapter extends AbstractEntityAdapter
         if (isset($query['id'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.id',
-                $this->createNamedParameter($qb, $query['id']))
-            );
+                $this->createNamedParameter($qb, $query['id'])
+            ));
         }
 
         if (isset($query['resource_id'])) {
@@ -90,22 +90,22 @@ class TokenAdapter extends AbstractEntityAdapter
             );
             $qb->andWhere($qb->expr()->in(
                 $resourceAlias . '.id',
-                $this->createNamedParameter($qb, $query['resource_id']))
-            );
+                $this->createNamedParameter($qb, $query['resource_id'])
+            ));
         }
 
         if (isset($query['token'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.token',
-                $this->createNamedParameter($qb, $query['token']))
-            );
+                $this->createNamedParameter($qb, $query['token'])
+            ));
         }
 
         if (isset($query['email'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.email',
-                $this->createNamedParameter($qb, $query['email']))
-            );
+                $this->createNamedParameter($qb, $query['email'])
+            ));
         }
 
         $this->searchDateTime($qb, $query);
@@ -347,8 +347,12 @@ class TokenAdapter extends AbstractEntityAdapter
         $repository = $entityManager->getRepository($this->getEntityClass());
 
         $tokenString = PHP_VERSION_ID < 70000
-            ? function() { return sha1(mt_rand()); }
-            : function() { return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10); };
+            ? function () {
+                return sha1(mt_rand());
+            }
+            : function () {
+                return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10);
+            };
 
         // Check if the token is unique.
         do {

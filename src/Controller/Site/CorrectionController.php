@@ -134,7 +134,6 @@ class CorrectionController extends AbstractActionController
      * The form and this method must use the same keys.
      *
      * @param AbstractResourceEntityRepresentation $resource
-* @param \Omeka\Api\Representation\PropertyRepresentation[] $proposal
      * @param array $proposal
      * @return array
      */

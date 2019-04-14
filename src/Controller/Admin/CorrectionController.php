@@ -160,9 +160,12 @@ class CorrectionController extends AbstractActionController
 
         $resourceType = $resource->getControllerName();
         $response = $api
-            ->search('correction_tokens', [
-                'resource_id' => $id,
-                'datetime' => [['field' => 'expire', 'type' => 'gte', 'value' => date('Y-m-d H:i:s')], ['joiner' => 'or', 'field' => 'expire', 'type' => 'nex']]],
+            ->search(
+                'correction_tokens',
+                [
+                    'resource_id' => $id,
+                    'datetime' => [['field' => 'expire', 'type' => 'gte', 'value' => date('Y-m-d H:i:s')], ['joiner' => 'or', 'field' => 'expire', 'type' => 'nex']],
+                ],
                 ['returnScalar' => 'id']
             );
         $total = $response->getTotalResults();
