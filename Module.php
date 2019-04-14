@@ -145,18 +145,19 @@ class Module extends AbstractModule
         $query['resource_ids'] = [$resource->id()];
         $query['redirect'] = $this->getCurrentUrl($view);
         $translate = $view->plugin('translate');
+        $escapeAttr = $view->plugin('escapeHtmlAttr');
         $link = $view->hyperlink(
             $translate('Create correction token'), // @translate
             $view->url('admin/correction/default', ['action' => 'create-token'], ['query' => $query])
         );
-        $output = '<div class="meta-group create_correction">'
+        $output =  '<div class="meta-group create_correction">'
             . '<h4>' . $translate('Correction') . '</h4>'
             . '<div class="value" id="create_correction_token">' . $link . '</div>'
             . '<div id="create_correction_token_dialog" class="modal">'
             . '<div class="modal-content">'
             . '<span class="close" id="create_correction_token_dialog_close">&times;</span>'
-            . '<input style="width:70%;" type="text" value="" placeholder="' . $translate('Please input optional email…') . '" id = "create_correction_token_dialog_email"/>'
-            . '<input style="width:25%;" type="button" value="' . $translate('GO') . '" id = "create_correction_token_dialog_go"/>'
+            . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_correction_token_dialog_email"/>'
+            . '<input type="button" value="' . $escapeAttr($translate('Create token')) . '" id="create_correction_token_dialog_go"/>'
             . '</div>'
             . '</div>'
             . '</div>';
