@@ -133,6 +133,14 @@
         color: #FF0000;
         content: ""; /* cancel */
     }
+    .correction .o-icon-expire-token::before {
+        color: #00FF00;
+        content: ""; /* stop-watch */
+    }
+    .correction .o-icon-expired-token::before {
+        color: #FF0000;
+        content: ""; /* stop-watch */
+    }
     .correction .o-icon-unknown-value::before,
     .correction .o-icon-not-validable-value::before {
         color: #FFA500;

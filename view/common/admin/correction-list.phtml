@@ -78,6 +78,15 @@ $editRight = $resource->userIsAllowed('update');
                     data-status="<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
                     aria-label="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"
                     title="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"></a></span>
+                <?php if ($correction->token()->isExpired()): ?>
+                <span class="single actions no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
+                <?php else: ?>
+                <span class="single actions"><a href="#"
+                    class="expire-token o-icon-expire-token"
+                    data-expire-token-url="<?php echo $escape($correction->url('expire-token')); ?>"
+                    aria-label="<?php echo $escape($translate('Expire token')); ?>"
+                    title="<?php echo $escape($translate('Expire token')); ?>"></a></span>
+                <?php endif; ?>
                 <?php else: ?>
                 <span class="no-action o-icon-<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"></span>
                 <?php endif; ?>

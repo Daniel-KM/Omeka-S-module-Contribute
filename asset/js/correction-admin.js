@@ -106,8 +106,8 @@ $(document).ready(function() {
                 var content = data.content;
                 status = content.status;
                 button.data('status', status);
-                // button.attribute('title', content.statusLabel);
-                // button.attribute('aria-label', content.statusLabel);
+                button.attr('title', content.statusLabel);
+                button.attr('aria-label', content.statusLabel);
             }
         })
         .fail(function(jqXHR, textStatus) {
@@ -119,6 +119,41 @@ $(document).ready(function() {
         })
         .always(function () {
             button.removeClass('o-icon-transmit').addClass('o-icon-' + status);
+        });
+    });
+
+    // Expire a token
+    $('#content').on('click', '.correction a.expire-token', function(e) {
+        e.preventDefault();
+
+        var button = $(this);
+        var url = button.data('expire-token-url');
+        var status = 'expire';
+        $.ajax({
+            url: url,
+            beforeSend: function() {
+                button.removeClass('o-icon-expire-token').addClass('o-icon-transmit');
+            }
+        })
+        .done(function(data) {
+            if (!data.content) {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            } else {
+                var content = data.content;
+                status = 'expired';
+                button.attr('title', content.statusLabel);
+                button.attr('aria-label', content.statusLabel);
+            }
+        })
+        .fail(function(jqXHR, textStatus) {
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                alert(jqXHR.responseJSON.message);
+            } else {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            }
+        })
+        .always(function () {
+            button.removeClass('o-icon-transmit').addClass('o-icon-' + status + '-token');
         });
     });
 

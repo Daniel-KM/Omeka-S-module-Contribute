@@ -231,6 +231,38 @@ class CorrectionController extends AbstractActionController
         ]);
     }
 
+    public function expireTokenAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jsonErrorNotFound();
+        }
+
+        // Only people who can edit the resource can validate.
+        $id = $this->params('id');
+        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
+        $correction = $this->api()->read('corrections', $id)->getContent();
+        if (!$correction->resource()->userIsAllowed('update')) {
+            return $this->jsonErrorUnauthorized();
+        }
+
+        $token = $correction->token();
+        if (!$token->isExpired()) {
+            $response = $this->api()
+                ->update('correction_tokens', $token->id(), ['o-module-correction:expire' => 'now'], [], ['isPartial' => true]);
+            if (!$response) {
+                return $this->jsonErrorUpdate();
+            }
+        }
+
+        return new JsonModel([
+            'status' => Response::STATUS_CODE_200,
+            'content' => [
+                'status' => 'expired',
+                'statusLabel' => $this->translate('Expired'),
+            ],
+        ]);
+    }
+
     public function validateAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
