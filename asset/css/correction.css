@@ -1,0 +1,34 @@
+@media screen {
+    .property .values .value{
+        margin-top:15px;
+    }
+    [data-data-type="uri"] .input {
+        position: relative;
+        clear: both
+    }
+    [data-data-type="uri"] .input:first-child {
+        border-bottom: 1px solid #dfdfdf
+    }
+    [data-data-type="uri"] .input-body {
+        border: 1px solid #dfdfdf
+    }
+    [data-data-type="uri"] label {
+        padding: 6px 0 6px 6px;
+        z-index: 1;
+        font-weight: bold;
+        color: rgba(0,0,0,0.35);
+        width: auto;
+        display: flex
+    }
+    [data-data-type="uri"] .input-body input.value,
+    [data-data-type="uri"] textarea.value-label {
+        margin: -6px 0 -6px 6px;
+        height: 36px;
+        border: 0;
+        padding: 6px;
+        font-weight: normal
+    }
+    [data-data-type="uri"] textarea.value-label {
+        border-top-width: 0
+    }
+}

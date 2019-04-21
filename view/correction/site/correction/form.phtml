@@ -28,10 +28,47 @@ $labelInfo = $this->setting('property_label_information');
 // Use of values() allows to have the alternate labels and comments simply.
 $valuesData = $resource->values();
 ?>
+
+<div id="correct_value_template" class="uri" style="display:none;">
+    <div class="value" lang="">
+        <textarea data-value-key="@value" name="dcterms:title[0][@value]" class="input-value" aria-labelledby="property-1-label"></textarea>
+    </div>
+</div>
+<div id="correct_uri_template" class="uri" style="display:none;">
+    <div class="value" data-data-type="uri" role="group">
+
+<!--         <input type="hidden" class="property" name="dcterms:title[7][property_id]" value="1">
+        <input type="hidden" class="type" name="dcterms:title[7][type]" value="uri">
+ -->
+        <div class="input-body">
+            <div class="input">
+                <label class="value">
+                    URI<input type="text" class="value to-require touched" data-value-key="@id" name="dcterms:title[7][@id]">
+                </label>
+            </div>
+            <div class="input">
+                <label class="value-label">
+                    Label        <textarea class="value-label touched" rows="1" data-value-key="o:label" name="dcterms:title[7][o:label]"></textarea>
+                </label>
+            </div>
+        </div>
+        <div class="input-footer" style="display: none;">
+            <span class="restore-value">Value to be removed</span>
+            <ul class="actions">
+                <li><a class="o-icon-delete remove-value" title="Remove value" href="#" aria-label="Remove value"></a></li>
+                <li><a class="o-icon-undo restore-value" title="Restore value" href="#" aria-label="Restore value"></a></li>
+                <li>
+                    <a class="value-visibility o-icon-public" title="Make private" aria-label="Make private" href="#"></a>                <input type="hidden" class="is_public" name="dcterms:title[7][is_public]" value="1">
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <?php foreach ($corrigible as $term => $property): ?>
 <?php // TODO Manage all types of data, in particular custom vocab and value suggest. ?>
 <?php /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */ ?>
-<?php $values = $resource->value($term, ['type' => 'literal', 'all' => true, 'default' => []]); ?>
+<?php $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]); ?>
 <?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
 <?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
 
@@ -48,6 +85,49 @@ $valuesData = $resource->values();
 
     <?php // First, display original values (literal only) and the matching corrections. ?>
     <?php foreach ($values as $key => $value):
+        if( $value->type() == "uri"){
+
+        $original_uri = $value->uri();
+        $original_label = $value->value();
+
+        $proposed = $correction ? $correction->proposedUriValue($term, $original_uri, $original_label) : null;
+
+        // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+        if (is_null($proposed)):
+            foreach ($proposedValues as $kp => $v):
+                if ( $v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original_label):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        else:
+            foreach ($proposedValues as $kp => $v):
+                if ( $v['original']['@uri'] === $original_uri && $v['original']['@label'] === $original_label):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        endif;
+
+        ?>
+            <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                <div class="input-body">
+                    <div class="input">
+                        <label class="value">
+                            URI :<input type="text" class="value to-require touched" data-value-key="@id"
+                            name="<?php echo  $term.'['.$key.'][@uri]';?> " value = "<?php echo $value->uri(); ?>">
+                        </label>
+                    </div>
+                    <div class="input">
+                        <label class="value-label">
+                            Label :        <textarea class="value-label touched" rows="1" data-value-key="o:label"
+                            name="<?php echo $term.'['.$key.'][@label]';?>"><?php echo $value->value(); ?></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        <?php
+        } else {
         $original = $value->value();
         $proposed = $correction ? $correction->proposedValue($term, $original) : null;
 
@@ -86,45 +166,84 @@ $valuesData = $resource->values();
             <?php if ($language): ?>
             <span class="language"><?php echo $language; ?></span>
             <?php endif; ?>
-            <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
+            <textarea  data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
         </div>
+        <?php
+        }
+        ?>
+
     <?php endforeach; ?>
 
     <?php // Second, display remaining corrections (no more original or appended). ?>
     <?php foreach ($proposedValues as $proposedValue):
-        ++$key;
-        if ($proposedValue['proposed']['@value'] === '') {
-            continue;
-        }
-        $val = $escape($proposedValue['proposed']['@value']);
+        $key++;
+        $type = "literal";
+        if(array_key_exists("@uri", $proposedValue['proposed'])) $type = "uri";
 
+        if( $type == "uri"){
         ?>
-        <div class="value">
-            <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
+            <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                <div class="input-body">
+                    <div class="input">
+                        <label class="value">
+                            URI :<input type="text" class="value to-require touched" data-value-key="@id" name="<?php echo  $term.'['.$key.'][@uri]';?> " value = "<?php echo $escape($proposedValue['proposed']['@uri']); ?>">
+                        </label>
+                    </div>
+                    <div class="input">
+                        <label class="value-label">
+                            Label :        <textarea class="value-label touched" rows="1" data-value-key="o:label" name="<?php echo $term.'['.$key.'][@label]';?>"><?php echo $escape($proposedValue['proposed']['@label']); ?></textarea>
+                        </label>
+                    </div>
+                </div>
+                <div class="input-footer" style="display: none;">
+                    <span class="restore-value">Value to be removed</span>
+                    <ul class="actions">
+                        <li><a class="o-icon-delete remove-value" title="Remove value" href="#" aria-label="Remove value"></a></li>
+                        <li><a class="o-icon-undo restore-value" title="Restore value" href="#" aria-label="Restore value"></a></li>
+                        <li>
+                            <a class="value-visibility o-icon-public" title="Make private" aria-label="Make private" href="#"></a>                <input type="hidden" class="is_public" name="<?php echo $term.'['.$key.'][is_public]';?>" value="1">
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        <?php
+        } else {
+        ?>
+        <div class="value" lang="<?php /*echo $escape($language);*/ ?>">
+            <textarea data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $escape($proposedValue['proposed']['@value']); ?></textarea>
         </div>
+        <?php
+        }
+        ?>
+
     <?php endforeach; ?>
 
+    </div>
     <?php // Third, display an empty field to allow to append a new value. ?>
     <?php if (isset($fillable[$term])): ?>
     <?php unset($fillable[$term]); ?>
     <?php ++$key; ?>
-        <div class="value">
-            <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"></textarea>
+    <div class="inputs">
+        <div class="add-values default-selector" nextKey = "<?php echo $key;?>" nextTerm = "<?php echo $term;?>">
+            <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $this->translate('Add value'); ?></div>
+            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $this->translate('URI'); ?></div>
         </div>
     </div>
     <?php endif; ?>
+
 </div>
 <?php endforeach;?>
 
-<?php // Fourth, display remaining fillable fields. ?>
-<?php foreach ($fillable as $term => $property):
-$proposedValues = $correction
-    ? ($correction->proposedValues($term) ?: [['proposed' => ['@value' => '']]])
-    : [['proposed' => ['@value' => '']]];
-?>
+<?php foreach ($fillable as $term => $property): ?>
+
+
+<?php $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]); ?>
+<?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
+<?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
+
 <div class="property">
     <h4>
-        <?php echo /* isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : */ $escape($translate($property->label())); ?>
+        <?php echo isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())); ?>
         <?php if ($labelInfo === 'term'): ?>
         <span class="field-term">(<?php echo $escape($property->term()); ?>)</span>
         <?php elseif ($labelInfo === 'vocab'): ?>
@@ -132,15 +251,142 @@ $proposedValues = $correction
         <?php endif; ?>
     </h4>
     <div class="values">
-        <?php foreach ($proposedValues as $key => $proposedValue): ?>
-        <?php $val = $escape($proposedValue['proposed']['@value']); ?>
-        <div class="value">
-            <textarea name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
+
+    <?php // First, display original values (literal only) and the matching corrections. ?>
+    <?php foreach ($values as $key => $value):
+        if( $value->type() == "uri"){
+
+        $original_uri = $value->uri();
+        $original_label = $value->value();
+
+        $proposed = $correction ? $correction->proposedUriValue($term, $original_uri, $original_label) : null;
+
+        // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+        if (is_null($proposed)):
+            foreach ($proposedValues as $kp => $v):
+                if ( $v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original_label):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        else:
+            foreach ($proposedValues as $kp => $v):
+                if ( $v['original']['@uri'] === $original_uri && $v['original']['@label'] === $original_label):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        endif;
+
+        ?>
+            <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                <div class="input-body">
+                    <div class="input">
+                        <label class="value">
+                            URI :<input readonly type="text" class="value to-require touched" data-value-key="@id"
+                            name="<?php echo  $term.'['.$key.'][@uri]';?> " value = "<?php echo $value->uri(); ?>">
+                        </label>
+                    </div>
+                    <div class="input">
+                        <label class="value-label">
+                            Label :        <textarea readonly class="value-label touched" rows="1" data-value-key="o:label"
+                            name="<?php echo $term.'['.$key.'][@label]';?>"><?php echo $value->value(); ?></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        <?php
+        } else {
+        $original = $value->value();
+        $proposed = $correction ? $correction->proposedValue($term, $original) : null;
+
+        // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+        if (is_null($proposed)):
+            foreach ($proposedValues as $kp => $v):
+                if ( $v['proposed']['@value'] === $original):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        else:
+            foreach ($proposedValues as $kp => $v):
+                if ( $v['original']['@value'] === $original):
+                    unset($proposedValues[$kp]);
+                    break;
+                endif;
+            endforeach;
+        endif;
+
+        $val = is_null($proposed) ? $value->asHtml() : $escape($proposed);
+
+        $class = ['value'];
+        if ('resource' == $value->type()) {
+            $class[] = 'resource';
+            $class[] = $escape($value->valueResource()->resourceName());
+        } elseif ('uri' == $value->type()) {
+            $class[] = 'uri';
+        }
+        if (method_exists($value, 'isPublic') && !$value->isPublic()) {
+            $class[] = 'private';
+        }
+        $language = $value->lang();
+        ?>
+        <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+            <?php if ($language): ?>
+            <span class="language"><?php echo $language; ?></span>
+            <?php endif; ?>
+            <textarea readonly data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
         </div>
-        <?php endforeach; ?>
+        <?php
+        }
+        ?>
+
+    <?php endforeach; ?>
+
+    <?php // Second, display remaining corrections (no more original or appended). ?>
+    <?php foreach ($proposedValues as $proposedValue):
+        $key++;
+        $type = "literal";
+        if(array_key_exists("@uri", $proposedValue['proposed'])) $type = "uri";
+
+        if( $type == "uri"){
+        ?>
+            <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                <div class="input-body">
+                    <div class="input">
+                        <label class="value">
+                            URI :<input type="text" class="value to-require touched" data-value-key="@id"
+                            name="<?php echo  $term.'['.$key.'][@uri]';?> " value = "<?php echo $escape($proposedValue['proposed']['@uri']);; ?>">
+                        </label>
+                    </div>
+                    <div class="input">
+                        <label class="value-label">
+                            Label :        <textarea class="value-label touched" rows="1" data-value-key="o:label"
+                            name="<?php echo $term.'['.$key.'][@label]';?>"><?php echo $escape($proposedValue['proposed']['@label']); ?></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        <?php
+        } else {
+        ?>
+        <div class="value" lang="<?php /*echo $escape($language);*/ ?>">
+            <textarea data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $escape($proposedValue['proposed']['@value']); ?></textarea>
+        </div>
+        <?php
+        }
+        ?>
+    <?php endforeach; ?>
+    </div>
+    <?php ++$key; ?>
+    <div class="inputs">
+        <div class="add-values default-selector" nextKey = "<?php echo $key;?>" nextTerm = "<?php echo $term;?>">
+            <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $this->translate('Add value'); ?></div>
+            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $this->translate('URI'); ?></div>
+        </div>
     </div>
 </div>
-<?php endforeach; ?>
+<?php endforeach;?>
 
 <?php echo $formElement($form->get('csrf')); ?>
 

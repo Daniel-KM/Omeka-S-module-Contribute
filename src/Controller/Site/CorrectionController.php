@@ -31,6 +31,14 @@ class CorrectionController extends AbstractActionController
         $resource = $api
             ->searchOne($resourceName, ['id' => $resourceId])
             ->getContent();
+        //$resource = $api()->read($resourceName, $resourceId)->getContent();
+
+
+        $result_corrigible_fillable = $this->corection_default($resource);
+
+        // var_dump($result_corrigible_fillable);
+        // exit;
+
         if (empty($resource)) {
             return $this->notFoundAction();
         }
@@ -75,8 +83,13 @@ class CorrectionController extends AbstractActionController
         $form->setAttribute('id', 'edit-resource');
 
         $settings = $this->settings();
-        $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
-        $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
+        // $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
+        // $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
+        $corrigible = $this->fetchProperties($result_corrigible_fillable['corrigible']);
+        $fillable = $this->fetchProperties($result_corrigible_fillable['fillable']);
+
+        //var_dump($corrigible);
+
         if (empty($corrigible) && empty($fillable)) {
             $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
@@ -149,11 +162,12 @@ class CorrectionController extends AbstractActionController
 
         // Filter data.
         $settings = $this->settings();
-        $corrigible = $settings->get('correction_properties_corrigible', []);
-        $fillable = $settings->get('correction_properties_fillable', []);
-
+        // $corrigible = $settings->get('correction_properties_corrigible', []);
+        // $fillable = $settings->get('correction_properties_fillable', []);
+        $result_corrigible_fillable = $this->corection_default($resource);
+        $corrigible = $result_corrigible_fillable['corrigible'];
+        $fillable = $result_corrigible_fillable['fillable'];
         $proposalCorrigible = array_intersect_key($proposal, array_flip($corrigible));
-
         $result = [];
         foreach ($corrigible as $term) {
             // TODO Manage all types of data, in particular custom vocab and value suggest.
@@ -170,10 +184,22 @@ class CorrectionController extends AbstractActionController
                 if (!isset($proposedValues[$key])) {
                     continue;
                 }
-                $result[$term][] = [
-                    'original' => ['@value' => $value->value()],
-                    'proposed' => $proposedValues[$key],
-                ];
+
+                if ($value->type() != "literal" && $value->type() != "uri") {
+                    continue;
+                }
+
+                if ($value->type() == 'literal') {
+                    $result[$term][] = [
+                        'original' => ['@value' => $value->value()],
+                        'proposed' => $proposedValues[$key],
+                    ];
+                } elseif ($value->type() == 'uri') {
+                    $result[$term][] = [
+                        'original' => ['@label' => $value->value(), '@uri' => $value->uri()],
+                        'proposed' => $proposedValues[$key],
+                    ];
+                }
                 // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
                 unset($proposedValues[$key]);
             }
@@ -183,10 +209,17 @@ class CorrectionController extends AbstractActionController
                 if ($proposedValue === '') {
                     continue;
                 }
-                $result[$term][] = [
-                    'original' => ['@value' => ''],
-                    'proposed' => $proposedValue,
-                ];
+                if (array_key_exists("@uri", $proposedValue)) {
+                    $result[$term][] = [
+                        'original' => ['@uri' => '','@label'=>''],
+                        'proposed' => $proposedValue,
+                    ];
+                } elseif (array_key_exists("@value", $proposedValue)) {
+                    $result[$term][] = [
+                        'original' => ['@value' => ''],
+                        'proposed' => $proposedValue,
+                    ];
+                }
             }
         }
 
@@ -197,10 +230,17 @@ class CorrectionController extends AbstractActionController
                 if ($proposedValue === '') {
                     continue;
                 }
-                $result[$term][] = [
-                    'original' => ['@value' => ''],
-                    'proposed' => $proposedValue,
-                ];
+                if (array_key_exists("@uri", $proposedValue)) {
+                    $result[$term][] = [
+                        'original' => ['@uri' => '','@label'=>''],
+                        'proposed' => $proposedValue,
+                    ];
+                } elseif (array_key_exists("@value", $proposedValue)) {
+                    $result[$term][] = [
+                        'original' => ['@value' => ''],
+                        'proposed' => $proposedValue,
+                    ];
+                }
             }
         }
 
@@ -246,5 +286,48 @@ class CorrectionController extends AbstractActionController
         $view->setTemplate('error/403');
         $view->setVariable('message', $message);
         return $view;
+    }
+
+    public function corection_default($resource)
+    {
+        $settings = $this->settings();
+        $api = $this->api();
+
+        $resourceTemplate = $resource->resourceTemplate();
+        $result = [];
+        $corrigible = [];
+        $fillable = [];
+
+        if ($resourceTemplate) {
+            $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplate->id());
+            $api = $this->api();
+            if (isset($correctionPartMap->corrigible)) {
+                foreach ($correctionPartMap->corrigible as $term) {
+                    $property = $api->searchOne('properties', ['term' => $term])->getContent();
+                    if ($property) {
+                        $corrigible[$property->id()] = $term;
+                    }
+                }
+            }
+            if (isset($correctionPartMap->fillable)) {
+                foreach ($correctionPartMap->fillable as $term) {
+                    $property = $api->searchOne('properties', ['term' => $term])->getContent();
+                    if ($property) {
+                        $fillable[$property->id()] = $term;
+                    }
+                }
+            }
+        }
+
+        if (count($corrigible) == 0 && count($fillable) == 0) {
+            $corrigible = $settings->get('correction_properties_corrigible', []);
+            $fillable = $settings->get('correction_properties_fillable', []);
+        }
+
+        $result = [
+            'corrigible' => $corrigible,
+            'fillable' => $fillable,
+        ];
+        return $result;
     }
 }

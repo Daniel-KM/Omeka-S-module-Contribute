@@ -321,6 +321,9 @@ class CorrectionController extends AbstractActionController
             return $this->returnError('Mising term or key.'); // @translate
         }
 
+        // echo "correction-term : ".$term."<br>";
+        // echo "correction-key  : ".$key."<br>";
+
         $this->validateCorrection($correction, $term, $key);
 
         return new JsonModel([
@@ -370,21 +373,27 @@ class CorrectionController extends AbstractActionController
         foreach ($values as $term => $propertyData) {
             $data[$term] = [];
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
-            foreach ($propertyData['values'] as $key => $value) {
+            foreach ($propertyData['values'] as $key1 => $value) {
                 // Keep all existing values.
                 // TODO How to update only one property to avoid to update unmodified terms?
-                $data[$term][$key] = $value->jsonSerialize();
+                $data[$term][$key1] = $value->jsonSerialize();
                 if (!isset($proposal[$term])) {
                     continue;
                 }
                 // TODO Manage all types of value.
-                if ($value->type() !== 'literal') {
+                if ($value->type() !== 'literal' && $value->type() !== 'uri') {
                     continue;
                 }
+
+                if ($hasProposedKey && $proposedKey != $key1) {
+                    continue;
+                }
+
                 // Values have no id and the order key is not saved, so the
                 // check should be redone.
                 $v = $value->value();
                 foreach ($proposal[$term] as $key => $proposition) {
+
                     if ($hasProposedKey && $proposedKey != $key) {
                         continue;
                     }
@@ -394,21 +403,36 @@ class CorrectionController extends AbstractActionController
                     if (!in_array($proposition['process'], ['remove', 'update'])) {
                         continue;
                     }
-                    if ($proposition['original']['@value'] === $v) {
-                        switch ($proposition['process']) {
-                            case 'remove':
-                                unset($data[$term][$key]);
-                                break;
-                            case 'update':
-                                $data[$term][$key]['@value'] = $proposition['proposed']['@value'];
-                                break;
+
+                    if (array_key_exists("@value", $proposition['original'])) {
+                        if ($proposition['original']['@value'] === $v) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['@value'] = $proposition['proposed']['@value'];
+                                    break;
+                            }
+                            break;
                         }
-                        break;
+                    } elseif (array_key_exists("@uri", $proposition['original'])) {
+                        if ($proposition['original']['@label'] === $v) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['@id'] = $proposition['proposed']['@uri'];
+                                    $data[$term][$key]['o:label'] = $proposition['proposed']['@label'];
+                                    break;
+                            }
+                            break;
+                        }
                     }
                 }
             }
         }
-
         // Convert last remaining propositions into array.
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {
@@ -423,18 +447,28 @@ class CorrectionController extends AbstractActionController
                 if ($proposition['process'] !== 'append') {
                     continue;
                 }
-                $data[$term][] = [
-                    'property_id' => $propertyId,
-                    'type' => 'literal',
-                    '@value' => $proposition['proposed']['@value'],
-                    // 'is_public' => true,
-                    // '@language' => null,
-                ];
+
+                if (array_key_exists("@value", $proposition['original'])) {
+                    $data[$term][] = [
+                        'property_id' => $propertyId,
+                        'type' => 'literal',
+                        '@value' => $proposition['proposed']['@value'],
+                        // 'is_public' => true,
+                        // '@language' => null,
+                    ];
+                } elseif (array_key_exists("@uri", $proposition['original'])) {
+                    $data[$term][] = [
+                        'type' => 'uri',
+                        'property_id' => $propertyId,
+                        'o:label' => $proposition['proposed']['@label'],
+                        '@id' => $proposition['proposed']['@uri'],
+                        'is_public' => true,
+                    ];
+                }
             }
         }
 
-        $this->api()
-            ->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
+        $this->api()->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
     }
 
     protected function jsonErrorUnauthorized()

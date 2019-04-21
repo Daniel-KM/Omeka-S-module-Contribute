@@ -8,8 +8,12 @@
  * @var \Omeka\Api\Representation\PropertyRepresentation[] $fillable
  */
 
+$this->headLink()->appendStylesheet($this->assetUrl('css/style.css'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/correction.css', 'Correction'));
+$this->headScript()->appendFile($this->assetUrl('js/correction.js', 'Correction'));
+
 $translate = $this->plugin('translate');
-$this->htmlElement('body')->appendAttribute('class', 'edit ' . $this->params()->fromRoute('resource'). ' resource');
+$this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource'). ' resource');
 
 $mapLabels = [
     'items' => 'Item',

@@ -184,8 +184,8 @@ $(document).ready(function() {
                 // Update the validate button.
                 content = data.content;
                 status = content.status;
-                button.attr('title', statusLabel);
-                button.attr('aria-label', statusLabel);
+                // button.attr('title', statusLabel);
+                // button.attr('aria-label', statusLabel);
 
                 // Reload the page to update the default show view.
                 // TODO Dynamically update default show view after correction.

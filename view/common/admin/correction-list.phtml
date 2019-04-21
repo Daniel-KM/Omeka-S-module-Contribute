@@ -123,49 +123,106 @@ $editRight = $resource->userIsAllowed('update');
             <?php endif; ?>
         </h4>
         <div class="values">
-        <?php foreach ($propositions as $key => $proposition): ?>
+        <?php foreach ($propositions as $key => $proposition):
+            $type = "literal";
+            if( array_key_exists("@uri",$proposition['original']) ){
+                $type = "uri";
+            }
+            if($type == "literal"){
+                $original = $proposition['original']['@value'];
+                $proposed = $proposition['proposed']['@value'];
+                $isValidated = $proposition['validated'];
+                $process = $proposition['process'];
+
+                $class = ['value'];
+                if ($isValidated) $class[] = 'validated-value';
+                $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
+                ?>
+                <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+                    <?php if ($language): ?>
+                    <span class="language"><?php echo $language; ?></span>
+                    <?php endif; ?>
+
+                    <?php if ($process === 'remove'): ?>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original); ?></span>
+                    <?php else: ?>
+                    <?php if ($original): ?>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original); ?></span>
+                    <br/>
+                    <?php endif; ?>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed); ?></span>
+                    <?php endif; ?>
+
+                    <span class="single actions">
+                    <?php if ($isValidated): ?>
+                        <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
+                    <?php elseif ($process === 'keep'): ?>
+                        <span class="no-action o-icon-not-validable-value" aria-label="<?php echo $escape($translate('Not validable')); ?>"></span>
+                    <?php elseif (!$editRight): ?>
+                        <span class="no-action o-icon-validate-value no-right" aria-label="<?php echo $escape($translate('No right to write')); ?>"></span>
+                    <?php else: ?>
+                        <a href="#"
+                            class="validate-value o-icon-validate-value"
+                            data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?term=$term&key=$key"); ?>"
+                            aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
+                            title="<?php echo $txt; ?>"></a>
+                    <?php endif; ?>
+                    </span>
+                </div>
+             <?php
+            } elseif ($type == "uri") {
+                $original_uri = $proposition['original']['@uri'];
+                $proposed_uri = $proposition['proposed']['@uri'];
+                $original_label = $proposition['original']['@label'];
+                $proposed_label = $proposition['proposed']['@label'];
+
+                $isValidated = $proposition['validated'];
+                $process = $proposition['process'];
+
+                $class = ['value'];
+                if ($isValidated) $class[] = 'validated-value';
+                $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
+                ?>
+                <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+                    <?php if ($language): ?>
+                    <span class="language"><?php echo $language; ?></span>
+                    <?php endif; ?>
+
+                    <?php if ($process === 'remove'): ?>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_label); ?></span><span>:</span>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_uri); ?></span>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_label); ?></span><span>:</span>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_uri); ?></span>
+                    <?php else: ?>
+                    <?php if ($original_label): ?>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original_label); ?></span><span>:</span>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original_uri); ?></span>
+                    <br/>
+                    <?php endif; ?>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed_label); ?></span><span>:</span>
+                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed_uri); ?></span>
+                    <?php endif; ?>
+
+                    <span class="single actions">
+                    <?php if ($isValidated): ?>
+                        <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
+                    <?php elseif ($process === 'keep'): ?>
+                        <span class="no-action o-icon-not-validable-value" aria-label="<?php echo $escape($translate('Not validable')); ?>"></span>
+                    <?php elseif (!$editRight): ?>
+                        <span class="no-action o-icon-validate-value no-right" aria-label="<?php echo $escape($translate('No right to write')); ?>"></span>
+                    <?php else: ?>
+                        <a href="#"
+                            class="validate-value o-icon-validate-value"
+                            data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?term=$term&key=$key"); ?>"
+                            aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
+                            title="<?php echo $txt; ?>"></a>
+                    <?php endif; ?>
+                    </span>
+                </div>
             <?php
-            $original = $proposition['original']['@value'];
-            $proposed = $proposition['proposed']['@value'];
-            $isValidated = $proposition['validated'];
-            $process = $proposition['process'];
-
-            $class = ['value'];
-            if ($isValidated) $class[] = 'validated-value';
-            $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
-            ?>
-            <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
-                <?php if ($language): ?>
-                <span class="language"><?php echo $language; ?></span>
-                <?php endif; ?>
-
-                <?php if ($process === 'remove'): ?>
-                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original); ?></span>
-                <?php else: ?>
-                <?php if ($original): ?>
-                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original); ?></span>
-                <br/>
-                <?php endif; ?>
-                <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed); ?></span>
-                <?php endif; ?>
-
-                <span class="single actions">
-                <?php if ($isValidated): ?>
-                    <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
-                <?php elseif ($process === 'keep'): ?>
-                    <span class="no-action o-icon-not-validable-value" aria-label="<?php echo $escape($translate('Not validable')); ?>"></span>
-                <?php elseif (!$editRight): ?>
-                    <span class="no-action o-icon-validate-value no-right" aria-label="<?php echo $escape($translate('No right to write')); ?>"></span>
-                <?php else: ?>
-                    <a href="#"
-                        class="validate-value o-icon-validate-value"
-                        data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?term=$term&key=$key"); ?>"
-                        aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
-                        title="<?php echo $txt; ?>"></a>
-                <?php endif; ?>
-                </span>
-            </div>
-        <?php endforeach; ?>
+            }
+            endforeach;
+        ?>
         </div>
     </div>
 <?php endforeach; ?>
