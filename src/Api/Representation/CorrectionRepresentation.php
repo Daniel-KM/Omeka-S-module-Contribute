@@ -133,21 +133,26 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             return null;
         }
         foreach ($proposed as $value) {
-            if (isset($value['original']['@value']) && $value['original']['@value'] === $original) {
+            if (isset($value['original']['@value'])
+                && $value['original']['@value'] === $original
+            ) {
                 return $value['proposed']['@value'];
             }
         }
         return null;
     }
 
-    public function proposedUriValue($term, $original_uri, $original_label)
+    public function proposedUriValue($term, $originalUri, $originalLabel)
     {
         $proposed = $this->proposedValues($term);
         if (empty($proposed)) {
             return null;
         }
         foreach ($proposed as $value) {
-            if (isset($value['original']['@uri']) && $value['original']['@uri'] === $original_uri && $value['original']['@label'] === $original_label) {
+            if (isset($value['original']['@uri'])
+                && $value['original']['@uri'] === $originalUri
+                && $value['original']['@label'] === $originalLabel
+            ) {
                 return $value['proposed'];
             }
         }
@@ -212,17 +217,13 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         $services = $this->getServiceLocator();
         $api = $services->get('ControllerPluginManager')->get('api');
 
-
-        $result_corrigible_fillable = $this->resourceTemplateSettings();
-
-        // $corrigible = $settings->get('correction_properties_corrigible', []);
-        // $fillable = $settings->get('correction_properties_fillable', []);
-        $corrigible = $result_corrigible_fillable['corrigible'];
-        $fillable = $result_corrigible_fillable['fillable'];
+        $editable = $this->resourceTemplateSettings();
+        $corrigible = $editable['corrigible'];
+        $fillable = $editable['fillable'];
 
         if (empty($corrigible) && empty($fillable)) {
-            $proposalCheck = [];
-            return $proposalCheck;
+            $check = [];
+            return $check;
         }
 
         $proposal = $this->proposal();
@@ -243,118 +244,134 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             }
 
             foreach ($propositions as $key => $proposition) {
-                $type = 'literal';
+                // TODO Manage all the cases (custom vocab is literal, value suggest is uri).
+                $type = null;
                 if (array_key_exists('@uri', $proposition['original'])) {
                     $type = 'uri';
                 } elseif (array_key_exists('@value', $proposition['original'])) {
                     $type = 'literal';
                 }
 
-                if ($type == 'literal') {
-                    $original = $proposition['original']['@value'];
-                    $proposed = $proposition['proposed']['@value'];
+                switch ($type) {
+                    case 'literal':
+                        $original = $proposition['original']['@value'];
+                        $proposed = $proposition['proposed']['@value'];
 
-                    // Nothing to do if there is no proposition and no original.
-                    $hasOriginal = (bool) strlen($original);
-                    $hasProposition = (bool) strlen($proposed);
-                    if (!$hasOriginal && !$hasProposition) {
-                        unset($proposal[$term][$key]);
-                        continue;
-                    }
+                        // Nothing to do if there is no proposition and no original.
+                        $hasOriginal = (bool) strlen($original);
+                        $hasProposition = (bool) strlen($proposed);
+                        if (!$hasOriginal && !$hasProposition) {
+                            unset($proposal[$term][$key]);
+                            continue;
+                        }
 
-                    // TODO Keep the key order of the value in the list of values of each term to simplify validation.
+                        // TODO Keep the key order of the value in the list of values of each term to simplify validation.
 
-                    $prop = &$proposal[$term][$key];
-                    if ($original === $proposed) {
-                        $prop['value'] = $this->resourceValue($term, $original);
-                        $prop['value_updated'] = $prop['value'];
-                        $prop['validated'] = true;
-                        $prop['process'] = 'keep';
-                    }
-                    // If no proposition, the user wants to remove a value, so check if it still exists.
-                    // Either the value is validated, either it is not (to be removed, corrected or appended).
-                    elseif (!strlen($proposed)) {
-                        $prop['value'] = $this->resourceValue($term, $original);
-                        $prop['value_updated'] = null;
-                        $prop['validated'] = !$prop['value'];
-                        $prop['process'] = $isCorrigible
-                            ? 'remove'
-                            // A value to remove is not a fillable value.
-                            : 'keep';
-                    } elseif (!strlen($original)) {
-                        // The original value may have been removed or appended:
-                        // this is not really determinable.
-                        $prop['value'] = null;
-                        $prop['value_updated'] = $this->resourceValue($term, $proposed);
-                        $prop['validated'] = (bool) $prop['value_updated'];
-                        $prop['process'] = $isFillable
-                            ? 'append'
-                            // A value to append is not a corrigible value.
-                            : 'keep';
-                    } else {
-                        $prop['value'] = $this->resourceValue($term, $original);
-                        $prop['value_updated'] = $this->resourceValue($term, $proposed);
-                        $prop['validated'] = (bool) $prop['value_updated'];
-                        $prop['process'] = $isCorrigible
-                            ? 'update'
-                            // A value to update is not a fillable value.
-                            : 'keep';
-                    }
-                } elseif ($type == 'uri') {
-                    $original_uri = $proposition['original']['@uri'];
-                    $original_label = $proposition['original']['@label'];
+                        $prop = &$proposal[$term][$key];
+                        if ($original === $proposed) {
+                            $prop['value'] = $this->resourceValue($term, $original);
+                            $prop['value_updated'] = $prop['value'];
+                            $prop['validated'] = true;
+                            $prop['process'] = 'keep';
+                        }
+                        // If no proposition, the user wants to remove a value, so check if it still exists.
+                        // Either the value is validated, either it is not (to be removed, corrected or appended).
+                        elseif (!strlen($proposed)) {
+                            $prop['value'] = $this->resourceValue($term, $original);
+                            $prop['value_updated'] = null;
+                            $prop['validated'] = !$prop['value'];
+                            $prop['process'] = $isCorrigible
+                                ? 'remove'
+                                // A value to remove is not a fillable value.
+                                : 'keep';
+                        } elseif (!strlen($original)) {
+                            // The original value may have been removed or appended:
+                            // this is not really determinable.
+                            $prop['value'] = null;
+                            $prop['value_updated'] = $this->resourceValue($term, $proposed);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = $isFillable
+                                ? 'append'
+                                // A value to append is not a corrigible value.
+                                : 'keep';
+                        } elseif ($originalValue = $this->resourceValue($term, $original)) {
+                            $prop['value'] = $originalValue;
+                            $prop['value_updated'] = $this->resourceValue($term, $proposed);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = $isCorrigible
+                                ? 'update'
+                                // A value to update is not a fillable value.
+                                : 'keep';
+                        } else {
+                            $prop['value'] = null;
+                            $prop['value_updated'] = $this->resourceValue($term, $proposed);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = 'keep';
+                        }
+                        unset($prop);
+                        break;
 
-                    $proposed_uri = $proposition['proposed']['@uri'];
-                    $proposed_label = $proposition['proposed']['@label'];
+                    case 'uri':
+                        $originalUri = $proposition['original']['@uri'];
+                        $originalLabel = $proposition['original']['@label'];
 
-                    // Nothing to do if there is no proposition and no original.
-                    $hasOriginal = (bool) strlen($original_uri);
-                    $hasProposition = (bool) strlen($proposed_uri);
-                    if (!$hasOriginal && !$hasProposition) {
-                        unset($proposal[$term][$key]);
-                        continue;
-                    }
+                        $proposed_uri = $proposition['proposed']['@uri'];
+                        $proposedLabel = $proposition['proposed']['@label'];
 
-                    // TODO Keep the key order of the value in the list of values of each term to simplify validation.
+                        // Nothing to do if there is no proposition and no original.
+                        $hasOriginal = (bool) strlen($originalUri);
+                        $hasProposition = (bool) strlen($proposed_uri);
+                        if (!$hasOriginal && !$hasProposition) {
+                            unset($proposal[$term][$key]);
+                            continue;
+                        }
 
-                    $prop = &$proposal[$term][$key];
-                    if ($original_uri === $proposed_uri && $original_label === $proposed_label) {
-                        $prop['value'] = $this->resourceValue($term, $original_label);
-                        $prop['value_updated'] = $prop['value'];
-                        $prop['validated'] = true;
-                        $prop['process'] = 'keep';
-                    }
-                    // If no proposition, the user wants to remove a value, so check if it still exists.
-                    // Either the value is validated, either it is not (to be removed, corrected or appended).
-                    elseif (!strlen($proposed_label)) {
-                        $prop['value'] = $this->resourceValue($term, $original_label);
-                        $prop['value_updated'] = null;
-                        $prop['validated'] = !$prop['value'];
-                        $prop['process'] = $isCorrigible
-                            ? 'remove'
-                            // A value to remove is not a fillable value.
-                            : 'keep';
-                    } elseif (!strlen($original_label)) {
-                        // The original value may have been removed or appended:
-                        // this is not really determinable.
-                        $prop['value'] = null;
-                        $prop['value_updated'] = $this->resourceValue($term, $proposed_label);
-                        $prop['validated'] = (bool) $prop['value_updated'];
-                        $prop['process'] = $isFillable
-                            ? 'append'
-                            // A value to append is not a corrigible value.
-                            : 'keep';
-                    } else {
-                        $prop['value'] = $this->resourceValue($term, $original_label);
-                        $prop['value_updated'] = $this->resourceValue($term, $proposed_label);
-                        $prop['validated'] = (bool) $prop['value_updated'];
-                        $prop['process'] = $isCorrigible
-                            ? 'update'
-                            // A value to update is not a fillable value.
-                            : 'keep';
-                    }
+                        // TODO Keep the key order of the value in the list of values of each term to simplify validation.
+
+                        $prop = &$proposal[$term][$key];
+                        if ($originalUri === $proposed_uri && $originalLabel === $proposedLabel) {
+                            $prop['value'] = $this->resourceValue($term, $originalLabel);
+                            $prop['value_updated'] = $prop['value'];
+                            $prop['validated'] = true;
+                            $prop['process'] = 'keep';
+                        }
+                        // If no proposition, the user wants to remove a value, so check if it still exists.
+                        // Either the value is validated, either it is not (to be removed, corrected or appended).
+                        elseif (!strlen($proposedLabel)) {
+                            $prop['value'] = $this->resourceValue($term, $originalLabel);
+                            $prop['value_updated'] = null;
+                            $prop['validated'] = !$prop['value'];
+                            $prop['process'] = $isCorrigible
+                                ? 'remove'
+                                // A value to remove is not a fillable value.
+                                : 'keep';
+                        } elseif (!strlen($originalLabel)) {
+                            // The original value may have been removed or appended:
+                            // this is not really determinable.
+                            $prop['value'] = null;
+                            $prop['value_updated'] = $this->resourceValue($term, $proposedLabel);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = $isFillable
+                                ? 'append'
+                                // A value to append is not a corrigible value.
+                                : 'keep';
+                        } elseif ($originalValue = $this->resourceValue($term, $original)) {
+                            $prop['value'] = $this->resourceValue($term, $originalLabel);
+                            $prop['value_updated'] = $this->resourceValue($term, $proposedLabel);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = $isCorrigible
+                                ? 'update'
+                                // A value to update is not a fillable value.
+                                : 'keep';
+                        } else {
+                            $prop['value'] = null;
+                            $prop['value_updated'] = $this->resourceValue($term, $proposedLabel);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = 'keep';
+                        }
+                        unset($prop);
+                        break;
                 }
-                unset($prop);
             }
         }
 

@@ -395,32 +395,28 @@ class CorrectionController extends AbstractActionController
 
         // Right to update the resource is already checked.
         $resource = $correction->resource();
-        $values = $resource->values();
+        $existingValues = $resource->values();
         $proposal = $correction->proposalCheck();
 
+        // TODO How to update only one property to avoid to update unmodified terms?
         $data = [];
-        foreach ($values as $term => $propertyData) {
+        foreach ($existingValues as $term => $propertyData) {
             $data[$term] = [];
-            /** @var \Omeka\Api\Representation\ValueRepresentation $value */
-            foreach ($propertyData['values'] as $key1 => $value) {
+            /** @var \Omeka\Api\Representation\ValueRepresentation $existingValue */
+            foreach ($propertyData['values'] as $key1 => $existingValue) {
                 // Keep all existing values.
-                // TODO How to update only one property to avoid to update unmodified terms?
-                $data[$term][$key1] = $value->jsonSerialize();
+                $data[$term][$key1] = $existingValue->jsonSerialize();
                 if (!isset($proposal[$term])) {
                     continue;
                 }
                 // TODO Manage all types of value.
-                if ($value->type() !== 'literal' && $value->type() !== 'uri') {
-                    continue;
-                }
-
-                if ($hasProposedKey && $proposedKey !== $key1) {
+                if ($existingValue->type() !== 'literal' && $existingValue->type() !== 'uri') {
                     continue;
                 }
 
                 // Values have no id and the order key is not saved, so the
                 // check should be redone.
-                $v = $value->value();
+                $existingValue = $existingValue->value();
                 foreach ($proposal[$term] as $key => $proposition) {
                     if ($hasProposedKey && $proposedKey != $key) {
                         continue;
@@ -433,7 +429,7 @@ class CorrectionController extends AbstractActionController
                     }
 
                     if (array_key_exists("@value", $proposition['original'])) {
-                        if ($proposition['original']['@value'] === $v) {
+                        if ($proposition['original']['@value'] === $existingValue) {
                             switch ($proposition['process']) {
                                 case 'remove':
                                     unset($data[$term][$key]);
@@ -445,7 +441,7 @@ class CorrectionController extends AbstractActionController
                             break;
                         }
                     } elseif (array_key_exists("@uri", $proposition['original'])) {
-                        if ($proposition['original']['@label'] === $v) {
+                        if ($proposition['original']['@label'] === $existingValue) {
                             switch ($proposition['process']) {
                                 case 'remove':
                                     unset($data[$term][$key]);
@@ -461,6 +457,7 @@ class CorrectionController extends AbstractActionController
                 }
             }
         }
+
         // Convert last remaining propositions into array.
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {

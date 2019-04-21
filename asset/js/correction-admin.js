@@ -48,6 +48,27 @@ Omeka.correctionManageSelectedActions = function() {
 
 $(document).ready(function() {
 
+    var correctionInfo = function() {
+        return `
+            <div class="field">
+                <h3>` + Omeka.jsTranslate('Correction options') + `</h3>
+                <div class="option">
+                    <label for="is-corrigible">
+                        ` + Omeka.jsTranslate('Corrigible') + `
+                        <input id="is-corrigible" type="checkbox">
+                    </label>
+                </div>
+                <div class="option">
+                    <label for="is-fillable">
+                        ` + Omeka.jsTranslate('Fillable') + `
+                        <input id="is-corrigible" type="checkbox">
+                    </label>
+                </div>
+            </div>
+        `;
+    }
+    $('#edit-sidebar .confirm-main').append(correctionInfo());
+
     // Manage the modal to create the token.
     // Get the modal.
     var modal = document.getElementById('create_correction_token_dialog');
