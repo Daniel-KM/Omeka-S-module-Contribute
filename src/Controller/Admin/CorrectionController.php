@@ -31,7 +31,7 @@ class CorrectionController extends AbstractActionController
             'query' => [],
             'batch_action' => null,
             'redirect' => null,
-            'email' => null,
+            // 'email' => null,
             'expire' => null,
         ];
 
@@ -321,9 +321,6 @@ class CorrectionController extends AbstractActionController
             return $this->returnError('Mising term or key.'); // @translate
         }
 
-        // echo "correction-term : ".$term."<br>";
-        // echo "correction-key  : ".$key."<br>";
-
         $this->validateCorrection($correction, $term, $key);
 
         return new JsonModel([
@@ -336,6 +333,39 @@ class CorrectionController extends AbstractActionController
         ]);
     }
 
+    public  function resourceTemplateDataAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            throw new \Omeka\Mvc\Exception\NotFoundException;
+        }
+
+        $api = $this->api();
+        $resourceTemplateId = $this->params()->fromQuery('resource_template_id');
+
+        $result = [
+            'corrigible' => [],
+            'fillable' => [],
+        ];
+
+        $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplateId);
+        foreach ($correctionPartMap['corrigible'] as $term) {
+            $property = $api->searchOne('properties', ['term' => $term])->getContent();
+            if ($property) {
+                $result['corrigible'][$property->id()] = $term;
+            }
+        }
+        foreach ($correctionPartMap['fillable'] as $term) {
+            $property = $api->searchOne('properties', ['term' => $term])->getContent();
+            if ($property) {
+                $result['fillable'][$property->id()] = $term;
+            }
+        }
+
+        // No default values here.
+
+        return new JsonModel($result);
+    }
+
     /**
      * Correct existing values of the resource with the correction proposal.
      *
@@ -345,10 +375,9 @@ class CorrectionController extends AbstractActionController
      */
     protected function validateCorrection(CorrectionRepresentation $correction, $term = null, $proposedKey = null)
     {
-        // Check the options in the case they were updated.
-        $settings = $this->settings();
-        $corrigible = $settings->get('correction_properties_corrigible', []);
-        $fillable = $settings->get('correction_properties_fillable', []);
+        $editable = $correction->resourceTemplateSettings();
+        $corrigible = $editable['corrigible'];
+        $fillable = $editable['fillable'];
 
         if ($term) {
             $corrigible = in_array($term, $corrigible) ? [$term] : [];
@@ -385,7 +414,7 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
 
-                if ($hasProposedKey && $proposedKey != $key1) {
+                if ($hasProposedKey && $proposedKey !== $key1) {
                     continue;
                 }
 
@@ -393,7 +422,6 @@ class CorrectionController extends AbstractActionController
                 // check should be redone.
                 $v = $value->value();
                 foreach ($proposal[$term] as $key => $proposition) {
-
                     if ($hasProposedKey && $proposedKey != $key) {
                         continue;
                     }

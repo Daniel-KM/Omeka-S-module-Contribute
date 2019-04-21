@@ -133,7 +133,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             return null;
         }
         foreach ($proposed as $value) {
-            if ($value['original']['@value'] === $original) {
+            if (isset($value['original']['@value']) && $value['original']['@value'] === $original) {
                 return $value['proposed']['@value'];
             }
         }
@@ -210,11 +210,16 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         }
 
         $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
-        $api = $this->getServiceLocator()->get('ControllerPluginManager')->get('api');
+        $api = $services->get('ControllerPluginManager')->get('api');
 
-        $corrigible = $settings->get('correction_properties_corrigible', []);
-        $fillable = $settings->get('correction_properties_fillable', []);
+
+        $result_corrigible_fillable = $this->resourceTemplateSettings();
+
+        // $corrigible = $settings->get('correction_properties_corrigible', []);
+        // $fillable = $settings->get('correction_properties_fillable', []);
+        $corrigible = $result_corrigible_fillable['corrigible'];
+        $fillable = $result_corrigible_fillable['fillable'];
+
         if (empty($corrigible) && empty($fillable)) {
             $proposalCheck = [];
             return $proposalCheck;
@@ -226,15 +231,15 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             $isFillable = in_array($term, $fillable);
             // In the case that the options changed between corrections an moderation.
             if (!$isCorrigible && !$isFillable) {
-                unset($proposal[$term]);
-                continue;
+                // unset($proposal[$term]);
+                // continue;
             }
 
             // In the case that the property was removed.
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if (empty($property)) {
-                unset($proposal[$term]);
-                continue;
+                // unset($proposal[$term]);
+                // continue;
             }
 
             foreach ($propositions as $key => $proposition) {
@@ -355,5 +360,44 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
 
         $check = $proposal;
         return $check;
+    }
+
+    public function resourceTemplateSettings()
+    {
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+        $plugins = $services->get('ControllerPluginManager');
+        $api = $plugins->get('api');
+        $resource = $this->resource();
+
+        $result = [
+            'corrigible' => [],
+            'fillable' => [],
+        ];
+
+        $resourceTemplate = $resource->resourceTemplate();
+        if ($resourceTemplate) {
+            $resourceTemplateCorrectionPartMap = $plugins->get('resourceTemplateCorrectionPartMap');
+            $correctionPartMap = $resourceTemplateCorrectionPartMap($resourceTemplate->id());
+            foreach ($correctionPartMap['corrigible'] as $term) {
+                $property = $api->searchOne('properties', ['term' => $term])->getContent();
+                if ($property) {
+                    $result['corrigible'][$property->id()] = $term;
+                }
+            }
+            foreach ($correctionPartMap['fillable'] as $term) {
+                $property = $api->searchOne('properties', ['term' => $term])->getContent();
+                if ($property) {
+                    $result['fillable'][$property->id()] = $term;
+                }
+            }
+        }
+
+        if (!count($result['corrigible']) && !count($result['fillable'])) {
+            $result['corrigible'] = $settings->get('correction_properties_corrigible', []);
+            $result['fillable'] = $settings->get('correction_properties_fillable', []);
+        }
+
+        return $result;
     }
 }

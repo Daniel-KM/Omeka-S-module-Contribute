@@ -116,6 +116,23 @@ class Module extends AbstractModule
             );
         }
 
+        // Manage resource template.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\ResourceTemplate',
+            'view.layout',
+            [$this, 'addHeadersAdminResourceTemplate']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ResourceTemplateAdapter::class,
+            'api.create.post',
+            [$this, 'handleResourceTemplateCreateOrUpdatePost']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ResourceTemplateAdapter::class,
+            'api.update.post',
+            [$this, 'handleResourceTemplateCreateOrUpdatePost']
+        );
+
         // Handle main settings.
         $sharedEventManager->attach(
             \Omeka\Form\SettingForm::class,
@@ -129,11 +146,56 @@ class Module extends AbstractModule
         );
     }
 
+    public function handleResourceTemplateCreateOrUpdatePost(Event $event)
+    {
+        // The acl are already checked via the api.
+        $request = $event->getParam('request');
+        $response = $event->getParam('response');
+        $services = $this->getServiceLocator();
+
+        $viewHelpers = $services->get('ViewHelperManager');
+        $api = $viewHelpers->get('api');
+
+        $requestContent = $request->getContent();
+        $requestResourceProperties = isset($requestContent['o:resource_template_property']) ? $requestContent['o:resource_template_property'] : [];
+
+        $editables = ['corrigible' => [], 'fillable' => []];
+        foreach (['corrigible' => 'correction_corrigible_part', 'fillable' => 'correction_fillable_part'] as $editableKey => $part) {
+            foreach ($requestResourceProperties as $propertyId => $requestResourceProperty) {
+                if (!isset($requestResourceProperty['data'][$part]) || $requestResourceProperty['data'][$part] != 1) {
+                    continue;
+                }
+                try {
+                    /** @var \Omeka\Api\Representation\PropertyRepresentation $property */
+                    $property = $api->read('properties', $propertyId)->getContent();
+                    // $term = $api->searchOne('properties', ['id' => $propertyId])->getContent()->term();
+                } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                    continue;
+                }
+                $editables[$editableKey][] = $property->term();
+            }
+        }
+
+        $resourceTemplateId = $response->getContent()->getId();
+        $settings = $services->get('Omeka\Settings');
+        $resourceTemplateData = $settings->get('correction_resource_template_data', []);
+        $resourceTemplateData['corrigible'][$resourceTemplateId] = $editables['corrigible'];
+        $resourceTemplateData['fillable'][$resourceTemplateId] = $editables['fillable'];
+
+        $settings->set('correction_resource_template_data', $resourceTemplateData);
+    }
+
     public function addHeadersAdmin(Event $event)
     {
         $view = $event->getTarget();
         $view->headLink()->appendStylesheet($view->assetUrl('css/correction-admin.css', 'Correction'));
         $view->headScript()->appendFile($view->assetUrl('js/correction-admin.js', 'Correction'));
+    }
+
+    public function addHeadersAdminResourceTemplate(Event $event)
+    {
+        $view = $event->getTarget();
+        $view->headScript()->appendFile($view->assetUrl('js/correction-admin-resource-template.js', 'Correction'));
     }
 
     public function adminViewShowSidebar(Event $event)
@@ -187,6 +249,7 @@ class Module extends AbstractModule
         $view = $event->getTarget();
 
         $resource = $view->resource;
+
         $corrections = $api
             ->search('corrections', [
                 'resource_id' => $resource->id(),
