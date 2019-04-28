@@ -1,0 +1,72 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var \Correction\Api\Representation\TokenRepresentation[] $tokens
+ * @var string $siteSlug
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$hyperlink = $this->plugin('hyperlink');
+?>
+
+<?php if (empty($tokens)): ?>
+
+    <div class="no-resources">
+        <p><?php echo $translate('There are no tokens for this resource.'); ?></p>
+    </div>
+
+<?php else: ?>
+
+<?php
+$mapResourceAdapters = [
+    'item' => \Omeka\Api\Adapter\ItemAdapter::class,
+    'media' => \Omeka\Api\Adapter\ItemSetAdapter::class,
+    'item-set' => \Omeka\Api\Adapter\MediaAdapter::class,
+];
+$resourceName = $resource->getControllerName();
+$adapterName = $mapResourceAdapters[$resourceName];
+$batchEditRight = $this->userIsAllowed($adapterName, 'batch-update');
+$editRight = $resource->userIsAllowed('update');
+?>
+<div class="correction correction-token">
+<table class="tablesaw <?php if ($batchEditRight) echo 'batch-edit'; ?>" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th>
+                <?php echo $translate('Token'); ?>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($tokens as $token): ?>
+        <tr>
+            <td>
+                <span class="correction-token"><?php echo $token->siteUrl($siteSlug, true); ?></span>
+                <?php if ($email = $token->email()): ?>
+                <span class="correction-email"><?php echo $hyperlink($email, 'mailto:' . $email); ?></span>
+                <?php else: ?>
+                <span class="correction-email"><?php echo $translate('[no email]'); ?></span>
+                <?php endif; ?>
+                <?php if ($token->isExpired()): ?>
+                <span class="single actions no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
+                <?php else: ?>
+                    <?php if ($editRight): ?>
+                <span class="single actions"><a href="#"
+                    class="expire-token o-icon-expire-token"
+                    data-expire-token-url="<?php echo $escape($token->adminUrl('expire-token')); ?>"
+                    aria-label="<?php echo $escape($translate('Expire token')); ?>"
+                    title="<?php echo $escape($translate('Expire token')); ?>"></a></span>
+                    <?php else: ?>
+                <span class="single no-action o-icon-expire-token" aria-label="<?php echo $escape($translate('Unused token')); ?>"></span>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </td>
+        </tr>
+       <?php endforeach; ?>
+   </tbody>
+</table>
+</div>
+
+<?php endif; ?>

@@ -4,6 +4,7 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
  * @var \Correction\Api\Representation\CorrectionRepresentation[] $corrections
+ * @var \Correction\Api\Representation\TokenRepresentation[] $unusedTokens
  * @var string $siteSlug
  */
 
@@ -241,6 +242,15 @@ $editRight = $resource->userIsAllowed('update');
     </tbody>
 </table>
 </div>
+
+    <?php if ($unusedTokens): ?>
+    <h4><?= $translate('Unused tokens') ?></h4>
+    <?= $this->partial('common/admin/correction-token-list', [
+        'resource' => $resource,
+        'tokens' => $unusedTokens,
+        'siteSlug' => $siteSlug,
+    ]); ?>
+    <?php endif; ?>
 
 <?php endif; ?>
 </div>

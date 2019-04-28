@@ -239,13 +239,26 @@ class CorrectionController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
-        $correction = $this->api()->read('corrections', $id)->getContent();
-        if (!$correction->resource()->userIsAllowed('update')) {
+        if (empty($id)) {
+            $token = $this->params()->fromQuery('token');
+            if (empty($token)) {
+                return $this->jsonErrorNotFound();
+            }
+            /** @var \Correction\Api\Representation\TokenRepresentation $token */
+            $token = $this->api()->searchOne('correction_tokens', ['token' => $token])->getContent();
+            if (!$token) {
+                return $this->jsonErrorNotFound();
+            }
+        } else {
+            /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
+            $correction = $this->api()->read('corrections', $id)->getContent();
+            $token = $correction->token();
+        }
+
+        if (!$token->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $token = $correction->token();
         if (!$token->isExpired()) {
             $response = $this->api()
                 ->update('correction_tokens', $token->id(), ['o-module-correction:expire' => 'now'], [], ['isPartial' => true]);

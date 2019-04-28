@@ -109,6 +109,30 @@ class TokenRepresentation extends AbstractEntityRepresentation
         return $result;
     }
 
+    /**
+     * In admin, the token admin url use CorrectionController and the id is "0",
+     * the token is set in the query.
+     *
+     * {@inheritDoc}
+     * @see \Omeka\Api\Representation\AbstractResourceRepresentation::adminUrl()
+     */
+    public function adminUrl($action = null, $canonical = false)
+    {
+        $url = $this->getViewHelper('Url');
+        return $url(
+            'admin/id',
+            [
+                'controller' => $this->getControllerName(),
+                'action' => $action,
+                'id' => 0,
+            ],
+            [
+                'query' => ['token' => $this->token()],
+                'force_canonical' => $canonical,
+            ]
+        );
+    }
+
     public function siteUrl($siteSlug = null, $canonical = false)
     {
         $services = $this->getServiceLocator();

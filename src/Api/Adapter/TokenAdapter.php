@@ -109,6 +109,26 @@ class TokenAdapter extends AbstractEntityAdapter
             ));
         }
 
+        if (isset($query['used'])) {
+            $resourceAlias = $this->createAlias();
+            if ($query['used']) {
+                $qb->innerJoin(
+                    \Correction\Entity\Correction::class,
+                    $resourceAlias,
+                    'WITH',
+                    $expr->eq($resourceAlias . '.token', $this->getEntityClass() . '.id')
+                );
+            } else {
+                $qb->leftJoin(
+                    \Correction\Entity\Correction::class,
+                    $resourceAlias,
+                    'WITH',
+                    $expr->eq($resourceAlias . '.token', $this->getEntityClass() . '.id')
+                );
+                $qb->andWhere($expr->isNull($resourceAlias . '.id'));
+            }
+        }
+
         $this->searchDateTime($qb, $query);
     }
 

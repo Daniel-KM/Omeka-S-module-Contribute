@@ -259,6 +259,13 @@ class Module extends AbstractModule
             ])
             ->getContent();
 
+        $unusedTokens = $api
+            ->search('correction_tokens', [
+                'resource_id' => $resource->id(),
+                'used' => false,
+            ])
+            ->getContent();
+
         $plugins = $services->get('ControllerPluginManager');
         $siteSlug = $plugins->get('defaultSiteSlug');
         $siteSlug = $siteSlug();
@@ -267,6 +274,7 @@ class Module extends AbstractModule
         echo $view->partial('common/admin/correction-list', [
             'resource' => $view->resource,
             'corrections' => $corrections,
+            'unusedTokens' => $unusedTokens,
             'siteSlug' => $siteSlug,
         ]);
         echo '</div>';
