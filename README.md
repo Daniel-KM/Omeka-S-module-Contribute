@@ -97,6 +97,8 @@ Copyright
 
 * Copyright Daniel Berthereau, 2019 (see [Daniel-KM] on GitHub)
 
+First version of this module was done for [Université de Paris-Saclay].
+
 
 [Correction]: https://github.com/Daniel-KM/Omeka-S-module-Correction
 [Omeka S]: https://omeka.org/s
@@ -108,4 +110,5 @@ Copyright
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
+[Université de Paris-Saclay]: https://www.universite-paris-saclay.fr
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
