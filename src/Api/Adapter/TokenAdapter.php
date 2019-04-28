@@ -72,8 +72,9 @@ class TokenAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query)
     {
+        $expr = $qb->expr();
         if (isset($query['id'])) {
-            $qb->andWhere($qb->expr()->eq(
+            $qb->andWhere($expr->eq(
                 $this->getEntityClass() . '.id',
                 $this->createNamedParameter($qb, $query['id'])
             ));
@@ -88,21 +89,21 @@ class TokenAdapter extends AbstractEntityAdapter
                 $this->getEntityClass() . '.resource',
                 $resourceAlias
             );
-            $qb->andWhere($qb->expr()->in(
+            $qb->andWhere($expr->in(
                 $resourceAlias . '.id',
                 $this->createNamedParameter($qb, $query['resource_id'])
             ));
         }
 
         if (isset($query['token'])) {
-            $qb->andWhere($qb->expr()->eq(
+            $qb->andWhere($expr->eq(
                 $this->getEntityClass() . '.token',
                 $this->createNamedParameter($qb, $query['token'])
             ));
         }
 
         if (isset($query['email'])) {
-            $qb->andWhere($qb->expr()->eq(
+            $qb->andWhere($expr->eq(
                 $this->getEntityClass() . '.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
@@ -159,6 +160,7 @@ class TokenAdapter extends AbstractEntityAdapter
         }
 
         $adapter = $this;
+        $expr = $qb->expr();
 
         $where = '';
 
@@ -178,14 +180,14 @@ class TokenAdapter extends AbstractEntityAdapter
                         $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $qb->expr()->gt($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->gt($resourceClass . '.' . $field, $param);
                     break;
                 case 'gte':
                     if (strlen($value) < 19) {
                         $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $qb->expr()->gte($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->gte($resourceClass . '.' . $field, $param);
                     break;
                 case 'eq':
                     if (strlen($value) < 19) {
@@ -193,10 +195,10 @@ class TokenAdapter extends AbstractEntityAdapter
                         $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
-                        $predicateExpr = $qb->expr()->between($resourceClass . '.' . $field, $paramFrom, $paramTo);
+                        $predicateExpr = $expr->between($resourceClass . '.' . $field, $paramFrom, $paramTo);
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
-                        $predicateExpr = $qb->expr()->eq($resourceClass . '.' . $field, $param);
+                        $predicateExpr = $expr->eq($resourceClass . '.' . $field, $param);
                     }
                     break;
                 case 'neq':
@@ -205,12 +207,12 @@ class TokenAdapter extends AbstractEntityAdapter
                         $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
-                        $predicateExpr = $qb->expr()->not(
-                            $qb->expr()->between($resourceClass . '.' . $field, $paramFrom, $paramTo)
+                        $predicateExpr = $expr->not(
+                            $expr->between($resourceClass . '.' . $field, $paramFrom, $paramTo)
                             );
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
-                        $predicateExpr = $qb->expr()->neq($resourceClass . '.' . $field, $param);
+                        $predicateExpr = $expr->neq($resourceClass . '.' . $field, $param);
                     }
                     break;
                 case 'lte':
@@ -218,20 +220,20 @@ class TokenAdapter extends AbstractEntityAdapter
                         $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $qb->expr()->lte($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->lte($resourceClass . '.' . $field, $param);
                     break;
                 case 'lt':
                     if (strlen($value) < 19) {
                         $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $qb->expr()->lt($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->lt($resourceClass . '.' . $field, $param);
                     break;
                 case 'ex':
-                    $predicateExpr = $qb->expr()->isNotNull($resourceClass . '.' . $field);
+                    $predicateExpr = $expr->isNotNull($resourceClass . '.' . $field);
                     break;
                 case 'nex':
-                    $predicateExpr = $qb->expr()->isNull($resourceClass . '.' . $field);
+                    $predicateExpr = $expr->isNull($resourceClass . '.' . $field);
                     break;
                 default:
                     continue 2;

@@ -211,7 +211,7 @@ $valuesData = $resource->values();
     <?php unset($fillable[$term]); ?>
     <?php ++$key; ?>
     <div class="inputs">
-        <div class="add-values default-selector" nextKey="<?php echo $key; ?>" nextTerm="<?php echo $term; ?>">
+        <div class="add-values default-selector" data-next-key="<?php echo $key; ?>" data-next-term="<?php echo $term; ?>">
             <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
             <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
         </div>
@@ -279,7 +279,7 @@ $valuesData = $resource->values();
         </div>
         <?php ++$key; ?>
         <div class="inputs">
-            <div class="add-values default-selector" nextKey="<?php echo $key; ?>" nextTerm="<?php echo $term; ?>">
+            <div class="add-values default-selector" data-next-key="<?php echo $key; ?>" data-next-term="<?php echo $term; ?>">
                 <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
                 <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
             </div>

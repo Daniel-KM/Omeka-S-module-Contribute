@@ -233,12 +233,12 @@ class CorrectionController extends AbstractActionController
                 if ($proposedValue === '') {
                     continue;
                 }
-                if (array_key_exists("@uri", $proposedValue)) {
+                if (array_key_exists('@uri', $proposedValue)) {
                     $result[$term][] = [
-                        'original' => ['@uri' => '','@label'=>''],
+                        'original' => ['@uri' => '', '@label'=>''],
                         'proposed' => $proposedValue,
                     ];
-                } elseif (array_key_exists("@value", $proposedValue)) {
+                } elseif (array_key_exists('@value', $proposedValue)) {
                     $result[$term][] = [
                         'original' => ['@value' => ''],
                         'proposed' => $proposedValue,
