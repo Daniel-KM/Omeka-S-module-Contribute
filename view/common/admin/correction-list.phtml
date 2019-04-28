@@ -4,10 +4,12 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
  * @var \Correction\Api\Representation\CorrectionRepresentation[] $corrections
+ * @var string $siteSlug
  */
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
+$hyperlink = $this->plugin('hyperlink');
 $api = $this->plugin('api');
 
 $labelInfo = $this->setting('property_label_information');
@@ -30,7 +32,7 @@ $values = $resource->values();
     <div class="correction-token">
         <p><?php echo sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens); ?></p>
         <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Correction\Controller\Admin\Correction', 'expire-tokens')): ?>
-        <?php echo $this->hyperlink($translate('Expire all tokens'), $this->url('admin/correction/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']); ?>
+        <?php echo $hyperlink($translate('Expire all tokens'), $this->url('admin/correction/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']); ?>
         <?php endif; ?>
     </div>
     <?php endif; ?>
@@ -51,6 +53,7 @@ $batchEditRight = $this->userIsAllowed($adapterName, 'batch-update');
 $editRight = $resource->userIsAllowed('update');
 ?>
 <?php foreach ($corrections as $correction): ?>
+<?php $token = $correction->token(); ?>
 <div class="correction">
 <table class="tablesaw <?php if ($batchEditRight) echo 'batch-edit'; ?>" data-tablesaw-mode="stack">
     <thead>
@@ -61,10 +64,12 @@ $editRight = $resource->userIsAllowed('update');
                 <span class="correction-id">#<?php echo $correction->id(); ?></span>
                 */ ?>
                 <?php if ($email = $correction->email()): ?>
-                <span class="correction-email"><?php echo $this->hyperlink($email, 'mailto:' . $email); ?></span>
+                <span class="correction-email"><?php echo $hyperlink($email, 'mailto:' . $email); ?></span>
                 <?php endif; ?>
                 <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
                 <span class="correction-date"><?php echo $escape($correction->created()->format('Y-m-d H:i:s')); ?></span>
+                <span> / </span>
+                <span class="correction-token"><?php echo $hyperlink($token->token(), $token->siteUrl($siteSlug, true)); ?></span>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
@@ -78,10 +83,10 @@ $editRight = $resource->userIsAllowed('update');
                     data-status="<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
                     aria-label="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"
                     title="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"></a></span>
-                <?php if ($correction->token()->isExpired()): ?>
-                <span class="single actions no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
+                <?php if ($token->isExpired()): ?>
+                <span class="single no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
                 <?php else: ?>
-                <span class="single actions"><a href="#"
+                <span class="single single-action"><a href="#"
                     class="expire-token o-icon-expire-token"
                     data-expire-token-url="<?php echo $escape($correction->url('expire-token')); ?>"
                     aria-label="<?php echo $escape($translate('Expire token')); ?>"

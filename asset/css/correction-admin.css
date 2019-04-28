@@ -46,7 +46,9 @@
     .correction .single.actions a::before {
         text-align: inherit;
     }
-    .correction .single.actions .o-icon-transmit::before {
+    .correction .single-action .o-icon-transmit::before,
+    .correction .single.actions .o-icon-transmit::before;
+    .correction-token .single.actions .o-icon-transmit::before {
         background: url('../img/waiting-mini.gif') no-repeat scroll 3px 3px transparent !important;
     }
     .correction .o-icon-users,
@@ -140,6 +142,7 @@
     .correction .o-icon-expired-token::before {
         color: #FF0000;
         content: ""; /* stop-watch */
+        opacity: 0.4;
     }
     .correction .o-icon-unknown-value::before,
     .correction .o-icon-not-validable-value::before {
@@ -159,6 +162,23 @@
         color: #000000;
         content: "";
         cursor: progress;
+    }
+
+    .single-action {
+        margin: 0 0 0 auto;
+        padding: 0;
+    }
+    .single-action a,
+    .single-action a::before,
+    .single-action button,
+    .single-action button::before {
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: right;
+       vertical-align: top;
+        border: 0;
+        box-shadow: none;
     }
 
     .correction .correction-email,

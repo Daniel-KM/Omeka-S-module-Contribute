@@ -245,7 +245,8 @@ class Module extends AbstractModule
      */
     public function displayTab(Event $event)
     {
-        $api = $this->getServiceLocator()->get('Omeka\ApiManager');
+        $services = $this->getServiceLocator();
+        $api = $services->get('Omeka\ApiManager');
         $view = $event->getTarget();
 
         $resource = $view->resource;
@@ -258,10 +259,15 @@ class Module extends AbstractModule
             ])
             ->getContent();
 
+        $plugins = $services->get('ControllerPluginManager');
+        $siteSlug = $plugins->get('defaultSiteSlug');
+        $siteSlug = $siteSlug();
+
         echo '<div id="correction" class="section">';
         echo $view->partial('common/admin/correction-list', [
             'resource' => $view->resource,
             'corrections' => $corrections,
+            'siteSlug' => $siteSlug,
         ]);
         echo '</div>';
     }

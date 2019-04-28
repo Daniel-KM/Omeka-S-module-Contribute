@@ -108,4 +108,41 @@ class TokenRepresentation extends AbstractEntityRepresentation
         $result = $expire && $expire < new DateTime('now');
         return $result;
     }
+
+    public function siteUrl($siteSlug = null, $canonical = false)
+    {
+        $services = $this->getServiceLocator();
+        if (!$siteSlug) {
+            $siteSlug = $services->get('Application')
+                ->getMvcEvent()->getRouteMatch()->getParam('site-slug');
+        }
+        if (empty($siteSlug)) {
+            $plugins = $services->get('ControllerPluginManager');
+            $siteSlug = $plugins->get('defaultSiteSlug');
+            $siteSlug = $siteSlug();
+            if (is_null($siteSlug)) {
+                $messenger = $plugins->get('messenger');
+                $messenger()->addError('A site is required to create a public token.'); // @translate
+                return '';
+            }
+        }
+
+        $resource = $this->resource();
+        $query = ['token' => $this->token()];
+
+        $url = $this->getViewHelper('Url');
+        return $url(
+            'site/resource-id',
+            [
+                'site-slug' => $siteSlug,
+                'controller' => $resource->getControllerName(),
+                'id' => $resource->id(),
+                'action' => 'edit',
+            ],
+            [
+                'query' => $query,
+                'force_canonical' => $canonical,
+            ]
+        );
+    }
 }
