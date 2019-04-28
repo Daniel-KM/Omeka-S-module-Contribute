@@ -346,7 +346,7 @@ class CorrectionController extends AbstractActionController
         ]);
     }
 
-    public  function resourceTemplateDataAction()
+    public function resourceTemplateDataAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
             throw new \Omeka\Mvc\Exception\NotFoundException;
