@@ -27,22 +27,23 @@ the module to `Correction`.
 Usage
 -----
 
-- Configure the properties to correct in the config form of the module. Only
-  specified properties will be listed and corrigible or fillable.
+- Configure the resource templates to select the properties to be corrected or
+  filled.
+- For the resources without template, configure the properties to correct by
+  default in the main parameters.
 - Create one or more tokens for the resources you want to correct via the link
   in the sidebar of a resource or the bulk process dropdown at the top of the
   resource browse pages.
 - Send emails to your users with the tokens, so they can correct or complete
   metadata of the resources.
 - Go to the resource page of the corrected items and apply changes, or decline
-  them. Corrections can be marked as reviewed.
+  them. Corrections can be marked as reviewed and token can be made expired.
 
 
 TODO
 ----
 
 - Make the token optional (allow anybody to edit).
-- Add a js in public view to add new fillable fields.
 - Manage the fillable fields with a language, so it will simplify validation of
   translation.
 
