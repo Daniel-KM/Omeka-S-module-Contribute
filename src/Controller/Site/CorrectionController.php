@@ -229,6 +229,9 @@ class CorrectionController extends AbstractActionController
         // Third, save remaining fillable properties.
         $proposalFillable = array_intersect_key($proposal, array_flip($fillable));
         foreach ($fillable as $term) {
+            if (!isset($proposalFillable[$term])) {
+                continue;
+            }
             foreach ($proposalFillable[$term] as $proposedValue) {
                 if ($proposedValue === '') {
                     continue;

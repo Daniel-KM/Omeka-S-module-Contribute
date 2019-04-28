@@ -17,6 +17,8 @@ $form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
 
+$template = $resource->resourceTemplate();
+
 // TODO Improve the process in order to get only one list of values (term, original, corrections). See CorrectionRepresentation::proposalCheck().
 ?>
 
@@ -208,14 +210,24 @@ $valuesData = $resource->values();
     </div>
     <?php // Third, display an empty field to allow to append a new value. ?>
     <?php if (isset($fillable[$term])): ?>
-    <?php unset($fillable[$term]); ?>
-    <?php ++$key; ?>
+        <?php
+        unset($fillable[$term]);
+        $propertyTemplate = $template ? $template->resourceTemplateProperty($property->id()) : null;
+        $dataType = $propertyTemplate ? $propertyTemplate->dataType() : null;
+        ++$key;
+        if (in_array($dataType, [null, 'literal', 'uri'])):
+    ?>
     <div class="inputs">
         <div class="add-values default-selector" data-next-key="<?php echo $key; ?>" data-next-term="<?php echo $term; ?>">
+            <?php if (empty($dataType) || $dataType === 'literal'): ?>
             <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
+            <?php endif; ?>
+            <?php if (empty($dataType) || $dataType === 'uri'): ?>
             <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
+            <?php endif; ?>
         </div>
     </div>
+        <?php endif; ?>
     <?php endif; ?>
 
 </div>
@@ -277,13 +289,23 @@ $valuesData = $resource->values();
         <?php endforeach; ?>
 
         </div>
-        <?php ++$key; ?>
+        <?php
+        $propertyTemplate = $template ? $template->resourceTemplateProperty($property->id()) : null;
+        $dataType = $propertyTemplate ? $propertyTemplate->dataType() : null;
+        ++$key;
+        if (in_array($dataType, [null, 'literal', 'uri'])):
+    ?>
         <div class="inputs">
             <div class="add-values default-selector" data-next-key="<?php echo $key; ?>" data-next-term="<?php echo $term; ?>">
-                <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
-                <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
+            <?php if (empty($dataType) || $dataType === 'literal'): ?>
+            <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
+            <?php endif; ?>
+            <?php if (empty($dataType) || $dataType === 'uri'): ?>
+            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
+            <?php endif; ?>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 <?php endforeach; ?>
 
