@@ -76,24 +76,30 @@ class CorrectionController extends AbstractActionController
         $form->setAttribute('enctype', 'multipart/form-data');
         $form->setAttribute('id', 'edit-resource');
 
-        $settings = $this->settings();
+        // $settings = $this->settings();
         // $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
         // $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
         $corrigible = $this->fetchProperties($editable['corrigible']);
         $fillable = $this->fetchProperties($editable['fillable']);
 
-        //var_dump($corrigible);
-
         if (empty($corrigible) && empty($fillable)) {
             $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
-            $data = $this->params()->fromPost();
-            $form->setData($data);
+            $post = $this->params()->fromPost();
+            $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
                 // TODO Manage file data.
                 // $fileData = $this->getRequest()->getFiles()->toArray();
+                // TODO Only the csrf is checked, other fields are textual.
+                // $data = $form->getData();
+                $data = $post;
                 $data = array_diff_key($data, ['csrf' => null, 'correct-resource-submit' => null]);
+                $post = $data;
+                // Keep only the keys that are a term.
+                $data = array_filter($data, function ($k) {
+                    return (bool) preg_match('/^[a-z0-9-_]+:[a-z0-9-_]+$/i', $k);
+                }, ARRAY_FILTER_USE_KEY);
                 $proposal = $this->prepareProposal($resource, $data);
                 // The resource isn’t updated, but the proposition of correction
                 // is saved for moderation.
@@ -116,6 +122,12 @@ class CorrectionController extends AbstractActionController
                 } else {
                     $this->messenger()->addWarning('No change.'); // @translate
                 }
+                $eventManager = $this->getEventManager();
+                $eventManager->trigger('correction.submit', $this, [
+                    'correction' => $correction,
+                    'resource' => $resource,
+                    'data' => $post,
+                ]);
                 if ($response) {
                     $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
                     return $this->redirect()->toUrl($currentUrl);
