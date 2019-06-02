@@ -91,15 +91,8 @@ class CorrectionController extends AbstractActionController
             if ($form->isValid()) {
                 // TODO Manage file data.
                 // $fileData = $this->getRequest()->getFiles()->toArray();
-                // TODO Only the csrf is checked, other fields are textual.
                 // $data = $form->getData();
-                $data = $post;
-                $data = array_diff_key($data, ['csrf' => null, 'correct-resource-submit' => null]);
-                $post = $data;
-                // Keep only the keys that are a term.
-                $data = array_filter($data, function ($k) {
-                    return (bool) preg_match('/^[a-z0-9-_]+:[a-z0-9-_]+$/i', $k);
-                }, ARRAY_FILTER_USE_KEY);
+                $data = array_diff_key($post, ['csrf' => null, 'correct-resource-submit' => null]);
                 $proposal = $this->prepareProposal($resource, $data);
                 // The resource isn’t updated, but the proposition of correction
                 // is saved for moderation.
@@ -113,23 +106,29 @@ class CorrectionController extends AbstractActionController
                         'o-module-correction:proposal' => $proposal,
                     ];
                     $response = $this->api($form)->create('corrections', $data);
+                    if ($response) {
+                        $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
+                    }
                 } elseif ($proposal !== $correction->proposal()) {
                     $data = [
                         'o-module-correction:reviewed' => false,
                         'o-module-correction:proposal' => $proposal,
                     ];
                     $response = $this->api($form)->update('corrections', $correction->id(), $data, [], ['isPartial' => true]);
+                    if ($response) {
+                        $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
+                    }
                 } else {
                     $this->messenger()->addWarning('No change.'); // @translate
+                    $response = true;
                 }
-                $eventManager = $this->getEventManager();
-                $eventManager->trigger('correction.submit', $this, [
-                    'correction' => $correction,
-                    'resource' => $resource,
-                    'data' => $post,
-                ]);
                 if ($response) {
-                    $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
+                    $eventManager = $this->getEventManager();
+                    $eventManager->trigger('correction.submit', $this, [
+                        'correction' => $correction,
+                        'resource' => $resource,
+                        'data' => $data,
+                    ]);
                     return $this->redirect()->toUrl($currentUrl);
                 }
             } else {
@@ -156,10 +155,14 @@ class CorrectionController extends AbstractActionController
      * @param array $proposal
      * @return array
      */
-    protected function prepareProposal(AbstractResourceEntityRepresentation $resource, $proposal)
+    protected function prepareProposal(AbstractResourceEntityRepresentation $resource, array $proposal)
     {
         // Clean data.
         foreach ($proposal as &$values) {
+            // Manage specific posts.
+            if (!is_array($values)) {
+                continue;
+            }
             foreach ($values as &$value) {
                 if (isset($value['@value'])) {
                     $value['@value'] = trim($value['@value']);
