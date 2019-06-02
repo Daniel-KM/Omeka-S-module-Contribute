@@ -71,29 +71,44 @@ $valuesData = $resource->values();
     </h4>
     <div class="values">
 
-    <?php // First, display original values (literal only) and the matching corrections. ?>
+    <?php // First, display original values and the matching corrections. ?>
     <?php foreach ($values as $key => $value):
 
     switch ($value->type()):
     case 'uri':
+        // Method value() is the label or the value.
+        $original = $value->value();
         $original_uri = $value->uri();
-        $original_label = $value->value();
-
-        $proposed = $correction ? $correction->proposedUriValue($term, $original_uri, $original_label) : null;
+        $proposed = $correction ? $correction->proposedUriValue($term, $original_uri, $original) : null;
 
         // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+        // Manage the case where the type of the property was changed in the template between two corrections.
         if (is_null($proposed)):
             foreach ($proposedValues as $kp => $v):
-                if ( $v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original_label):
-                    unset($proposedValues[$kp]);
-                    break;
+                if (isset($v['proposed']['@uri'])):
+                    if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
+                else:
+                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
                 endif;
             endforeach;
         else:
             foreach ($proposedValues as $kp => $v):
-                if ( $v['original']['@uri'] === $original_uri && $v['original']['@label'] === $original_label):
-                    unset($proposedValues[$kp]);
-                    break;
+                if (isset($v['proposed']['@uri'])):
+                    if ( $v['original']['@uri'] === $original_uri && $v['original']['@label'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
+                else:
+                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
                 endif;
             endforeach;
         endif;
@@ -120,22 +135,38 @@ $valuesData = $resource->values();
     break;
     case 'literal':
     default:
+        // Method value() is the label or the value.
         $original = $value->value();
+        $original_uri = $value->uri();
         $proposed = $correction ? $correction->proposedValue($term, $original) : null;
 
         // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
         if (is_null($proposed)):
             foreach ($proposedValues as $kp => $v):
-                if ($v['proposed']['@value'] === $original):
-                    unset($proposedValues[$kp]);
-                    break;
+                if (isset($v['proposed']['@uri'])):
+                    if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
+                else:
+                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
                 endif;
             endforeach;
         else:
             foreach ($proposedValues as $kp => $v):
-                if ($v['original']['@value'] === $original):
-                    unset($proposedValues[$kp]);
-                    break;
+                if (isset($v['proposed']['@uri'])):
+                    if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
+                else:
+                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                        unset($proposedValues[$kp]);
+                        break;
+                    endif;
                 endif;
             endforeach;
         endif;
