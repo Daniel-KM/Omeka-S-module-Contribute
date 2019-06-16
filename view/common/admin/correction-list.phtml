@@ -37,6 +37,7 @@ $values = $resource->values();
         <?php endif; ?>
     </div>
     <?php endif; ?>
+
 <?php if (empty($corrections)): ?>
     <div class="no-resources">
         <p><?php echo $translate('There are no corrections for this resource.'); ?></p>
@@ -243,14 +244,15 @@ $editRight = $resource->userIsAllowed('update');
 </table>
 </div>
 
-    <?php if ($unusedTokens): ?>
-    <h4><?= $translate('Unused tokens') ?></h4>
-    <?= $this->partial('common/admin/correction-token-list', [
-        'resource' => $resource,
-        'tokens' => $unusedTokens,
-        'siteSlug' => $siteSlug,
-    ]); ?>
-    <?php endif; ?>
-
 <?php endif; ?>
+
+<?php if ($unusedTokens): ?>
+<h4><?= $translate('Unused tokens') ?></h4>
+<?= $this->partial('common/admin/correction-token-list', [
+    'resource' => $resource,
+    'tokens' => $unusedTokens,
+    'siteSlug' => $siteSlug,
+]); ?>
+<?php endif; ?>
+
 </div>
