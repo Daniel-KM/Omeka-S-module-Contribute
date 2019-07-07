@@ -78,21 +78,25 @@ $(document).ready(function() {
     var span = document.getElementById('create_correction_token_dialog_close');
 
     // When the user clicks the button, open the modal.
-    btn.onclick = function() {
-        var href = $('#create_correction_token a').attr('href');
-        var email = $('#create_correction_token_dialog_email').val();
-        if (email !== '' && !validateEmail(email)) {
-            $('#create_correction_token_dialog_email').css('color', 'red');
-            return;
+    if (btn) {
+        btn.onclick = function() {
+            var href = $('#create_correction_token a').attr('href');
+            var email = $('#create_correction_token_dialog_email').val();
+            if (email !== '' && !validateEmail(email)) {
+                $('#create_correction_token_dialog_email').css('color', 'red');
+                return;
+            }
+            href = href + '&email=' + email;
+            location.href = href;
+            modal.style.display = 'none';
         }
-        href = href + '&email=' + email;
-        location.href = href;
-        modal.style.display = 'none';
     }
 
     // When the user clicks on <span> (x), close the modal.
-    span.onclick = function() {
-        modal.style.display = 'none';
+    if (span) {
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
     }
 
     // TODO When the user clicks anywhere outside of the modal, close it.
