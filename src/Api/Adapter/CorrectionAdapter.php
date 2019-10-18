@@ -78,7 +78,7 @@ class CorrectionAdapter extends AbstractEntityAdapter
     {
         if (isset($query['id'])) {
             $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.id',
+                'omeka_root.id',
                 $this->createNamedParameter($qb, $query['id'])
             ));
         }
@@ -89,7 +89,7 @@ class CorrectionAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                $this->getEntityClass() . '.resource',
+                'omeka_root.resource',
                 $resourceAlias
             );
             $qb->andWhere($qb->expr()->in(
@@ -104,7 +104,7 @@ class CorrectionAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                $this->getEntityClass() . '.token',
+                'omeka_root.token',
                 $resourceAlias
             );
             $qb->andWhere($qb->expr()->eq(
@@ -115,14 +115,14 @@ class CorrectionAdapter extends AbstractEntityAdapter
 
         if (isset($query['email'])) {
             $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.email',
+                'omeka_root.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
 
         if (isset($query['reviewed']) && is_numeric($query['reviewed'])) {
             $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.reviewed',
+                'omeka_root.reviewed',
                 $this->createNamedParameter($qb, (bool) $query['reviewed'])
             ));
         }
@@ -130,14 +130,14 @@ class CorrectionAdapter extends AbstractEntityAdapter
         // TODO Add time comparison (see modules AdvancedSearchPlus or Next).
         if (isset($query['created'])) {
             $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.created',
+                'omeka_root.created',
                 $this->createNamedParameter($qb, $query['created'])
             ));
         }
 
         if (isset($query['modified'])) {
             $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.modified',
+                'omeka_root.modified',
                 $this->createNamedParameter($qb, $query['modified'])
             ));
         }

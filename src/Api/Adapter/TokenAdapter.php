@@ -75,7 +75,7 @@ class TokenAdapter extends AbstractEntityAdapter
         $expr = $qb->expr();
         if (isset($query['id'])) {
             $qb->andWhere($expr->eq(
-                $this->getEntityClass() . '.id',
+                'omeka_root.id',
                 $this->createNamedParameter($qb, $query['id'])
             ));
         }
@@ -86,7 +86,7 @@ class TokenAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                $this->getEntityClass() . '.resource',
+                'omeka_root.resource',
                 $resourceAlias
             );
             $qb->andWhere($expr->in(
@@ -97,14 +97,14 @@ class TokenAdapter extends AbstractEntityAdapter
 
         if (isset($query['token'])) {
             $qb->andWhere($expr->eq(
-                $this->getEntityClass() . '.token',
+                'omeka_root.token',
                 $this->createNamedParameter($qb, $query['token'])
             ));
         }
 
         if (isset($query['email'])) {
             $qb->andWhere($expr->eq(
-                $this->getEntityClass() . '.email',
+                'omeka_root.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
@@ -116,14 +116,14 @@ class TokenAdapter extends AbstractEntityAdapter
                     \Correction\Entity\Correction::class,
                     $resourceAlias,
                     'WITH',
-                    $expr->eq($resourceAlias . '.token', $this->getEntityClass() . '.id')
+                    $expr->eq($resourceAlias . '.token', 'omeka_root.id')
                 );
             } else {
                 $qb->leftJoin(
                     \Correction\Entity\Correction::class,
                     $resourceAlias,
                     'WITH',
-                    $expr->eq($resourceAlias . '.token', $this->getEntityClass() . '.id')
+                    $expr->eq($resourceAlias . '.token', 'omeka_root.id')
                 );
                 $qb->andWhere($expr->isNull($resourceAlias . '.id'));
             }
@@ -190,7 +190,7 @@ class TokenAdapter extends AbstractEntityAdapter
             $type = $queryRow['type'];
             $value = $queryRow['value'];
 
-            $resourceClass = $adapter->getEntityClass();
+            $resourceClass = 'omeka_root';
 
             // By default, sql replace missing time by 00:00:00, but this is not
             // clear for the user. And it doesn't allow partial date/time.
