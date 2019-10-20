@@ -17,7 +17,7 @@ class SettingsFieldset extends Fieldset
             'options' => [
                 'label' => 'Corrigible properties', // @translate
                 'info' => 'Only the selected properties will be proposed for public correction. It’s not recommended to allow to correct identifiers.', // @translate
-                'empty_option' => '', // @translate
+                'empty_option' => '',
                 'term_as_value' => true,
             ],
             'attributes' => [
@@ -36,7 +36,7 @@ class SettingsFieldset extends Fieldset
             'options' => [
                 'label' => 'Fillable properties', // @translate
                 'info' => 'Allow user to append new values for the selected properties.', // @translate
-                'empty_option' => '', // @translate
+                'empty_option' => '',
                 'term_as_value' => true,
             ],
             'attributes' => [

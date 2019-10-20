@@ -1,0 +1,302 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-21 00:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: Module.php:216
+msgid "Create correction token"
+msgstr ""
+
+#: Module.php:220 Module.php:311 view/common/admin/correction-list.phtml:64
+msgid "Correction"
+msgstr ""
+
+#: Module.php:225
+msgid "Please input optional email…"
+msgstr ""
+
+#: Module.php:226
+msgid "Create token"
+msgstr ""
+
+#: Module.php:314
+#, php-format
+msgid "%d corrections (%d not reviewed)"
+msgstr ""
+
+#: Module.php:317
+msgid "No correction"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:229
+msgid "Unreviewed"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:229
+#: src/Controller/Admin/CorrectionController.php:311
+msgid "Reviewed"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:274
+msgid "Expired"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:308
+#: view/common/admin/correction-list.phtml:173
+#: view/common/admin/correction-list.phtml:217
+msgid "Validated"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:344
+msgid "Validated value"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:514
+msgid "Unauthorized access."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:519
+msgid "Resource not found."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:524
+msgid "An internal error occurred."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:498
+#, php-format
+msgid "This module requires the module \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:518
+#, php-format
+msgid "This module requires modules \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:586
+#, php-format
+msgid ""
+"The module \"%s\" was automatically deactivated because the dependencies are "
+"unavailable."
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:24
+#: view/common/admin/correction-token-list.phtml:17
+msgid "There are no tokens for this resource."
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:34
+#, php-format
+msgid "There are %d tokens for this resource (%d expired)."
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:36
+msgid "Expire all tokens"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:43
+msgid "There are no corrections for this resource."
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:80
+#: view/common/admin/correction-list.phtml:81
+msgid "Validate all values"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:86
+#: view/common/admin/correction-list.phtml:87
+msgid "Toggle status reviewed/unreviewed"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:89
+#: view/common/admin/correction-token-list.phtml:53
+msgid "Expired token"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:94
+#: view/common/admin/correction-list.phtml:95
+#: view/common/admin/correction-token-list.phtml:59
+#: view/common/admin/correction-token-list.phtml:60
+msgid "Expire token"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:175
+#: view/common/admin/correction-list.phtml:219
+msgid "Not validable"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:177
+#: view/common/admin/correction-list.phtml:221
+msgid "No right to write"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:182
+#: view/common/admin/correction-list.phtml:226
+#, php-format
+msgid "Validate this value (%s)"
+msgstr ""
+
+#: view/common/admin/correction-list.phtml:250
+msgid "Unused tokens"
+msgstr ""
+
+#: view/common/admin/correction-token-list.phtml:38
+msgid "Token"
+msgstr ""
+
+#: view/common/admin/correction-token-list.phtml:50
+msgid "[no email]"
+msgstr ""
+
+#: view/common/admin/correction-token-list.phtml:62
+msgid "Unused token"
+msgstr ""
+
+#: view/correction/site/correction/edit.phtml:34
+#: view/correction/site/correction/edit.phtml:46
+msgid "Correct"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:128
+#: view/correction/site/correction/form.phtml:221
+#: view/correction/site/correction/form.phtml:303
+msgid "Label:"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:350
+msgid "Go back to resource"
+msgstr ""
+
+#: Module.php:241
+msgid "Corrections"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:18
+msgid "Corrigible properties"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:19
+msgid ""
+"Only the selected properties will be proposed for public correction. It’s "
+"not recommended to allow to correct identifiers."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:29 src/Form/SettingsFieldset.php:47
+msgid "Select properties…"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:37
+msgid "Fillable properties"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:38
+msgid "Allow user to append new values for the selected properties."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:55
+msgid "Days for token to expire"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:56
+msgid ""
+"Allow to set the default expiration date of a token. Let empty to remove "
+"expiration."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:62
+msgid "90"
+msgstr ""
+
+#: src/Controller/Site/CorrectionController.php:86
+msgid "No metadata can be corrected. Ask the publisher for more information."
+msgstr ""
+
+#: src/Controller/Site/CorrectionController.php:110
+#: src/Controller/Site/CorrectionController.php:119
+msgid "Corrections successfully submitted!"
+msgstr ""
+
+#: src/Controller/Site/CorrectionController.php:122
+msgid "No change."
+msgstr ""
+
+#: src/Controller/Site/CorrectionController.php:135
+msgid "An error occurred: check your input."
+msgstr ""
+
+#: src/Controller/Site/CorrectionController.php:303
+msgid "Forbidden access."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:47
+msgid "You can create token only for items, media and item sets."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:55
+#: src/Api/Representation/TokenRepresentation.php:149
+msgid "A site is required to create a public token."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:81
+msgid "You must select at least one resource to create a token."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:90
+#, php-format
+msgid ""
+"You set the optional email \"%s\" to create a correction token, but it is "
+"not well-formed."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:132
+#, php-format
+msgid "Created %1$s correction tokens (email: %2$s, duration: %3$s): %4$s"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:134
+msgid "none"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:136
+#, php-format
+msgid "%d days"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:137
+msgid "unlimited"
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:174
+#, php-format
+msgid "Resource #%s has no tokens to expire."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:195
+msgid "All tokens of the resource were expired."
+msgstr ""
+
+#: src/Controller/Admin/CorrectionController.php:334
+msgid "Mising term or key."
+msgstr ""
+
+#: config/module.config.php:123
+msgid "Prepare tokens to correct selected"
+msgstr ""
+
+#: config/module.config.php:124
+msgid "Prepare tokens to correct all"
+msgstr ""
