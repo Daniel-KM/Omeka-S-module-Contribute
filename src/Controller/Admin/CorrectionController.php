@@ -31,7 +31,7 @@ class CorrectionController extends AbstractActionController
             'query' => [],
             'batch_action' => null,
             'redirect' => null,
-            // 'email' => null,
+            'email' => null,
             'expire' => null,
         ];
 
