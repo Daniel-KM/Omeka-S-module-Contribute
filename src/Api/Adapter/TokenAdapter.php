@@ -73,6 +73,7 @@ class TokenAdapter extends AbstractEntityAdapter
     public function buildQuery(QueryBuilder $qb, array $query)
     {
         $expr = $qb->expr();
+
         if (isset($query['id'])) {
             $qb->andWhere($expr->eq(
                 'omeka_root.id',
