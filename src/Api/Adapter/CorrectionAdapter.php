@@ -76,11 +76,13 @@ class CorrectionAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query)
     {
+        $isOldOmeka = \Omeka\Module::VERSION < 2;
+        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
 
         if (isset($query['id'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.id',
+                $alias . '.id',
                 $this->createNamedParameter($qb, $query['id'])
             ));
         }
@@ -91,7 +93,7 @@ class CorrectionAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                'omeka_root.resource',
+                $alias . '.resource',
                 $resourceAlias
             );
             $qb->andWhere($expr->in(
@@ -106,7 +108,7 @@ class CorrectionAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                'omeka_root.token',
+                $alias . '.token',
                 $resourceAlias
             );
             $qb->andWhere($expr->eq(
@@ -117,14 +119,14 @@ class CorrectionAdapter extends AbstractEntityAdapter
 
         if (isset($query['email'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.email',
+                $alias . '.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
 
         if (isset($query['reviewed']) && is_numeric($query['reviewed'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.reviewed',
+                $alias . '.reviewed',
                 $this->createNamedParameter($qb, (bool) $query['reviewed'])
             ));
         }
@@ -132,14 +134,14 @@ class CorrectionAdapter extends AbstractEntityAdapter
         // TODO Add time comparison (see modules AdvancedSearchPlus or Next).
         if (isset($query['created'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.created',
+                $alias . '.created',
                 $this->createNamedParameter($qb, $query['created'])
             ));
         }
 
         if (isset($query['modified'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.modified',
+                $alias . '.modified',
                 $this->createNamedParameter($qb, $query['modified'])
             ));
         }

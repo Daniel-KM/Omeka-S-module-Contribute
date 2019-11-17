@@ -72,11 +72,13 @@ class TokenAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query)
     {
+        $isOldOmeka = \Omeka\Module::VERSION < 2;
+        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
 
         if (isset($query['id'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.id',
+                $alias . '.id',
                 $this->createNamedParameter($qb, $query['id'])
             ));
         }
@@ -87,7 +89,7 @@ class TokenAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                'omeka_root.resource',
+                $alias . '.resource',
                 $resourceAlias
             );
             $qb->andWhere($expr->in(
@@ -98,14 +100,14 @@ class TokenAdapter extends AbstractEntityAdapter
 
         if (isset($query['token'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.token',
+                $alias . '.token',
                 $this->createNamedParameter($qb, $query['token'])
             ));
         }
 
         if (isset($query['email'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.email',
+                $alias . '.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
@@ -181,6 +183,8 @@ class TokenAdapter extends AbstractEntityAdapter
         }
 
         $adapter = $this;
+        $isOldOmeka = \Omeka\Module::VERSION < 2;
+        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
 
         $where = '';
@@ -191,8 +195,6 @@ class TokenAdapter extends AbstractEntityAdapter
             $type = $queryRow['type'];
             $value = $queryRow['value'];
 
-            $resourceClass = 'omeka_root';
-
             // By default, sql replace missing time by 00:00:00, but this is not
             // clear for the user. And it doesn't allow partial date/time.
             switch ($type) {
@@ -201,14 +203,14 @@ class TokenAdapter extends AbstractEntityAdapter
                         $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->gt($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->gt($alias . '.' . $field, $param);
                     break;
                 case 'gte':
                     if (strlen($value) < 19) {
                         $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->gte($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->gte($alias . '.' . $field, $param);
                     break;
                 case 'eq':
                     if (strlen($value) < 19) {
@@ -216,10 +218,10 @@ class TokenAdapter extends AbstractEntityAdapter
                         $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
-                        $predicateExpr = $expr->between($resourceClass . '.' . $field, $paramFrom, $paramTo);
+                        $predicateExpr = $expr->between($alias . '.' . $field, $paramFrom, $paramTo);
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
-                        $predicateExpr = $expr->eq($resourceClass . '.' . $field, $param);
+                        $predicateExpr = $expr->eq($alias . '.' . $field, $param);
                     }
                     break;
                 case 'neq':
@@ -229,11 +231,11 @@ class TokenAdapter extends AbstractEntityAdapter
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
                         $predicateExpr = $expr->not(
-                            $expr->between($resourceClass . '.' . $field, $paramFrom, $paramTo)
+                            $expr->between($alias . '.' . $field, $paramFrom, $paramTo)
                             );
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
-                        $predicateExpr = $expr->neq($resourceClass . '.' . $field, $param);
+                        $predicateExpr = $expr->neq($alias . '.' . $field, $param);
                     }
                     break;
                 case 'lte':
@@ -241,20 +243,20 @@ class TokenAdapter extends AbstractEntityAdapter
                         $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->lte($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->lte($alias . '.' . $field, $param);
                     break;
                 case 'lt':
                     if (strlen($value) < 19) {
                         $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->lt($resourceClass . '.' . $field, $param);
+                    $predicateExpr = $expr->lt($alias . '.' . $field, $param);
                     break;
                 case 'ex':
-                    $predicateExpr = $expr->isNotNull($resourceClass . '.' . $field);
+                    $predicateExpr = $expr->isNotNull($alias . '.' . $field);
                     break;
                 case 'nex':
-                    $predicateExpr = $expr->isNull($resourceClass . '.' . $field);
+                    $predicateExpr = $expr->isNull($alias . '.' . $field);
                     break;
                 default:
                     continue 2;
