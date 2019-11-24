@@ -131,7 +131,8 @@ $(document).ready(function() {
             // Resource templates cannot be assigned duplicate properties.
             return;
         }
-        propertyList.find('li:last-child').append(correctionPartInput(propertyId));
+        propertyList.find('li:last-child').append(correctionCorrigiblePartInput(propertyId));
+        propertyList.find('li:last-child').append(correctionFillablePartInput(propertyId));
     });
 
     propertyList.on('click', '.property-edit', function(e) {
