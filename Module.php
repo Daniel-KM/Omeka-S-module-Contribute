@@ -192,14 +192,18 @@ class Module extends AbstractModule
     public function addHeadersAdmin(Event $event)
     {
         $view = $event->getTarget();
-        $view->headLink()->appendStylesheet($view->assetUrl('css/correction-admin.css', 'Correction'));
-        $view->headScript()->appendFile($view->assetUrl('js/correction-admin.js', 'Correction'));
+        $assetUrl = $view->plugin('assetUrl');
+        $view->headLink()
+            ->appendStylesheet($assetUrl('css/correction-admin.css', 'Correction'), 'text/javascript', ['defer' => 'defer']);
+        $view->headScript()
+            ->appendFile($assetUrl('js/correction-admin.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function addHeadersAdminResourceTemplate(Event $event)
     {
         $view = $event->getTarget();
-        $view->headScript()->appendFile($view->assetUrl('js/correction-admin-resource-template.js', 'Correction'));
+        $view->headScript()
+            ->appendFile($view->assetUrl('js/correction-admin-resource-template.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function adminViewShowSidebar(Event $event)
