@@ -223,7 +223,7 @@ class Module extends AbstractModule
         $output =  '<div class="meta-group create_correction">'
             . '<h4>' . $translate('Correction') . '</h4>'
             . '<div class="value" id="create_correction_token">' . $link . '</div>'
-            . '<div id="create_correction_token_dialog" class="modal">'
+            . '<div id="create_correction_token_dialog" class="modal" style="display:none;">'
             . '<div class="modal-content">'
             . '<span class="close" id="create_correction_token_dialog_close">&times;</span>'
             . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_correction_token_dialog_email"/>'
