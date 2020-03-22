@@ -106,7 +106,7 @@ class CorrectionController extends AbstractActionController
         $urlHelper = $this->viewHelpers()->get('url');
         $urls = [];
         foreach ($resourceIds as $resourceId) {
-            /** @var \Correction\Api\Representation\CorrectionTokenRepresentation $token */
+            /** @var \Correction\Api\Representation\TokenRepresentation $token */
             $token = $api
                 ->create(
                     'correction_tokens',

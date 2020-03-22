@@ -8,12 +8,14 @@ class CorrectionForm extends Form
 {
     public function init()
     {
-        $this->add([
-            'name' => 'submit',
-            'type' => Element\Submit::class,
-            'attributes' => [
-                'value' => 'Correct', // @translate
-            ],
-        ]);
+        $this
+            ->add([
+                'name' => 'submit',
+                'type' => Element\Submit::class,
+                'attributes' => [
+                    'value' => 'Correct', // @translate
+                ],
+            ])
+        ;
     }
 }

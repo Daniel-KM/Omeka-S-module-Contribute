@@ -41,7 +41,7 @@ class CorrectionController extends AbstractActionController
             return $this->viewError403();
         }
 
-        /** @var \Correction\Api\Representation\CorrectionTokenRepresentation $token */
+        /** @var \Correction\Api\Representation\TokenRepresentation $token */
         $token = $api
             ->searchOne('correction_tokens', ['token' => $token, 'resource_id' => $resourceId])
             ->getContent();
@@ -137,13 +137,13 @@ class CorrectionController extends AbstractActionController
             }
         }
 
-        $view = new ViewModel;
-        $view->setVariable('form', $form);
-        $view->setVariable('resource', $resource);
-        $view->setVariable('correction', $correction);
-        $view->setVariable('corrigible', $corrigible);
-        $view->setVariable('fillable', $fillable);
-        return $view;
+        return new ViewModel([
+            'form' => $form,
+            'resource' => $resource,
+            'correction' => $correction,
+            'corrigible' => $corrigible,
+            'fillable' => $fillable,
+        ]);
     }
 
     /**
