@@ -199,23 +199,24 @@ class TokenAdapter extends AbstractEntityAdapter
             // clear for the user. And it doesn't allow partial date/time.
             switch ($type) {
                 case 'gt':
-                    if (strlen($value) < 19) {
-                        $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                    // TODO Use mb_substr_replace.
+                    if (mb_strlen($value) < 19) {
+                        $value = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
                     $predicateExpr = $expr->gt($alias . '.' . $field, $param);
                     break;
                 case 'gte':
-                    if (strlen($value) < 19) {
-                        $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
+                    if (mb_strlen($value) < 19) {
+                        $value = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
                     $predicateExpr = $expr->gte($alias . '.' . $field, $param);
                     break;
                 case 'eq':
-                    if (strlen($value) < 19) {
-                        $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
-                        $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                    if (mb_strlen($value) < 19) {
+                        $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
+                        $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
                         $predicateExpr = $expr->between($alias . '.' . $field, $paramFrom, $paramTo);
@@ -225,9 +226,9 @@ class TokenAdapter extends AbstractEntityAdapter
                     }
                     break;
                 case 'neq':
-                    if (strlen($value) < 19) {
-                        $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
-                        $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                    if (mb_strlen($value) < 19) {
+                        $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
+                        $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
                         $predicateExpr = $expr->not(
@@ -239,15 +240,15 @@ class TokenAdapter extends AbstractEntityAdapter
                     }
                     break;
                 case 'lte':
-                    if (strlen($value) < 19) {
-                        $value = substr_replace('9999-12-31 23:59:59', $value, 0, strlen($value) - 19);
+                    if (mb_strlen($value) < 19) {
+                        $value = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
                     $predicateExpr = $expr->lte($alias . '.' . $field, $param);
                     break;
                 case 'lt':
-                    if (strlen($value) < 19) {
-                        $value = substr_replace('0000-01-01 00:00:00', $value, 0, strlen($value) - 19);
+                    if (mb_strlen($value) < 19) {
+                        $value = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
                     $predicateExpr = $expr->lt($alias . '.' . $field, $param);
