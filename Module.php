@@ -8,6 +8,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
+use Omeka\Settings\SettingsInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Mvc\MvcEvent;
@@ -183,6 +184,17 @@ class Module extends AbstractModule
             'form.add_input_filters',
             [$this, 'handleMainSettingsFilters']
         );
+    }
+
+    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
+    {
+        $data = parent::prepareDataToPopulate($settings, $settingsType);
+        if (in_array($settingsType, ['settings'])) {
+            if (isset($data['correction_notify']) && is_array($data['correction_notify'])) {
+                $data['correction_notify'] = implode("\n", $data['correction_notify']);
+            }
+        }
+        return $data;
     }
 
     public function handleViewShowAfterResource(Event $event)
@@ -368,6 +380,18 @@ class Module extends AbstractModule
     {
         $event->getParam('inputFilter')
             ->get('correction')
+            ->add([
+                'name' => 'correction_notify',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'stringToList'],
+                        ],
+                    ],
+                ],
+            ])
             ->add([
                 'name' => 'correction_template_editable',
                 'required' => false,

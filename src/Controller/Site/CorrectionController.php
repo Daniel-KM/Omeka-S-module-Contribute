@@ -5,6 +5,7 @@ use Correction\Api\Representation\CorrectionRepresentation;
 use Correction\Form\CorrectionForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 // use Omeka\Form\ResourceForm;
+use Omeka\Stdlib\Message;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
@@ -91,6 +92,7 @@ class CorrectionController extends AbstractActionController
                     $response = $this->api($form)->create('corrections', $data);
                     if ($response) {
                         $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
+                        $this->prepareCorrectionEmail($response->getContent());
                     }
                 } elseif ($proposal !== $correction->proposal()) {
                     $data = [
@@ -100,6 +102,7 @@ class CorrectionController extends AbstractActionController
                     $response = $this->api($form)->update('corrections', $correction->id(), $data, [], ['isPartial' => true]);
                     if ($response) {
                         $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
+                        $this->prepareCorrectionEmail($response->getContent());
                     }
                 } else {
                     $this->messenger()->addWarning('No change.'); // @translate
@@ -126,6 +129,31 @@ class CorrectionController extends AbstractActionController
             'correction' => $correction,
             'fields' => $fields,
         ]);
+    }
+
+    protected function prepareCorrectionEmail(CorrectionRepresentation $correction)
+    {
+        $emails = $this->settings()->get('correction_notify', []);
+        if (empty($emails)) {
+            return;
+        }
+
+        $user = $this->identity();
+        if ($user) {
+            $message = '<p>' . new Message(
+                'User %1$s has corrected resource #%2$s (%3$s).', // @translate
+                '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                '<a href="' . $correction->resource()->adminUrl('show', true) . '#correction">' . $correction->resource()->id() . '</a>',
+                $correction->resource()->displayTitle()
+            ) . '</p>';
+        } else {
+            $message = '<p>' . new Message(
+                'A user has corrected resource #%1$d (%2$s).', // @translate
+                '<a href="' . $correction->resource()->adminUrl('show', true) . '#correction">' . $correction->resource()->id() . '</a>',
+                $correction->resource()->displayTitle()
+            ) . '</p>';
+        }
+        $this->sendCorrectionEmail($emails, $this->translate('[Omeka Correction] New correction'), $message); // @translate
     }
 
     /**

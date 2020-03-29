@@ -50,6 +50,7 @@ return [
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
             'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
+            'sendCorrectionEmail' => Service\ControllerPlugin\SendCorrectionEmailFactory::class,
         ],
     ],
     'router' => [
@@ -147,6 +148,7 @@ return [
     ],
     'correction' => [
         'settings' => [
+            'correction_notify' => [],
             'correction_template_editable' => null,
             'correction_properties_corrigible_mode' => 'all',
             'correction_properties_corrigible' => [],

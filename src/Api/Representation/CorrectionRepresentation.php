@@ -437,4 +437,22 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             ->get('editableData');
         return $editableData($this->resource());
     }
+
+    public function siteUrl($siteSlug = null, $canonical = false)
+    {
+        if (!$siteSlug) {
+            $siteSlug = $this->getServiceLocator()->get('Application')
+                ->getMvcEvent()->getRouteMatch()->getParam('site-slug');
+        }
+        $url = $this->getViewHelper('Url');
+        return $url(
+            'site/correction',
+            [
+                'site-slug' => $siteSlug,
+                'resource' => $this->resource()->getControllerName(),
+                'id' => $this->id(),
+            ],
+            ['force_canonical' => $canonical]
+        );
+    }
 }

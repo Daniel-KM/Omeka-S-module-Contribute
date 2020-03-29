@@ -14,6 +14,21 @@ class SettingsFieldset extends Fieldset
     {
         $this
             ->add([
+                'name' => 'correction_notify',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Default emails to notify corrections', // @translate
+                    'info' => 'The list of emails to notify when a user corrects a resource, one by row.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'correction_notify',
+                    'required' => false,
+                    'placeholder' => 'contact@example.org
+info@example2.org',
+                ],
+            ])
+
+            ->add([
                 'name' => 'correction_template_editable',
                 'type' => ResourceTemplateSelect::class,
                 'options' => [
