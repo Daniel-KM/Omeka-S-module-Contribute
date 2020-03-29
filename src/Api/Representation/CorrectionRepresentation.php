@@ -419,6 +419,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         $resource = $this->resource();
 
         $result = [
+            'use_default' => false,
             'corrigible' => [],
             'fillable' => [],
         ];
@@ -442,6 +443,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         }
 
         if (!count($result['corrigible']) && !count($result['fillable'])) {
+            $result['use_default'] = false;
             $result['corrigible'] = $settings->get('correction_properties_corrigible', []);
             $result['fillable'] = $settings->get('correction_properties_fillable', []);
         }
