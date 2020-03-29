@@ -61,7 +61,7 @@ class CorrectionController extends AbstractActionController
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
-        $editable = $this->getResourceTemplateSetting($resource);
+        $editable = $this->getEditableProperties($resource);
         // $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
         // $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
         $corrigible = $this->fetchProperties($editable['corrigible']);
@@ -163,7 +163,7 @@ class CorrectionController extends AbstractActionController
         unset($values, $value);
 
         // Filter data.
-        $editable = $this->getResourceTemplateSetting($resource);
+        $editable = $this->getEditableProperties($resource);
         $corrigible = $editable['corrigible'];
         $fillable = $editable['fillable'];
         $proposalCorrigible = array_intersect_key($proposal, array_flip($corrigible));
@@ -254,6 +254,37 @@ class CorrectionController extends AbstractActionController
     }
 
     /**
+     * Get the list of editable property terms and ids.
+     *
+     * @param AbstractResourceEntityRepresentation $resource
+     * @return array[]
+     */
+    protected function getEditableProperties(AbstractResourceEntityRepresentation $resource)
+    {
+        $result = [
+            'corrigible' => [],
+            'fillable' => [],
+        ];
+
+        $propertyIdsByTerms = $this->propertyIdsByTerms();
+
+        $resourceTemplate = $resource->resourceTemplate();
+        if ($resourceTemplate) {
+            $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplate->id());
+            $result['corrigible'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible'])));
+            $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable'])));
+        }
+
+        if (!count($result['corrigible']) && !count($result['fillable'])) {
+            $settings = $this->settings();
+            $result['corrigible'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', []))));
+            $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', []))));
+        }
+
+        return $result;
+    }
+
+    /**
      * List all selected properties by term.
      *
      * @todo Get all properties in one query.
@@ -286,46 +317,11 @@ class CorrectionController extends AbstractActionController
         // TODO Return a normal page instead of an exception.
         // throw new \Omeka\Api\Exception\PermissionDeniedException('Forbidden access.');
         $message = 'Forbidden access.'; // @translate
-        $response = $this->getResponse();
-        $response->setStatusCode(\Zend\Http\Response::STATUS_CODE_403);
+        $this->getResponse()
+            ->setStatusCode(\Zend\Http\Response::STATUS_CODE_403);
         $view = new ViewModel;
-        $view->setTemplate('error/403');
-        $view->setVariable('message', $message);
-        return $view;
-    }
-
-    protected function getResourceTemplateSetting($resource)
-    {
-        $settings = $this->settings();
-        $api = $this->api();
-
-        $result = [
-            'corrigible' => [],
-            'fillable' => [],
-        ];
-
-        $resourceTemplate = $resource->resourceTemplate();
-        if ($resourceTemplate) {
-            $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplate->id());
-            foreach ($correctionPartMap['corrigible'] as $term) {
-                $property = $api->searchOne('properties', ['term' => $term])->getContent();
-                if ($property) {
-                    $result['corrigible'][$property->id()] = $term;
-                }
-            }
-            foreach ($correctionPartMap['fillable'] as $term) {
-                $property = $api->searchOne('properties', ['term' => $term])->getContent();
-                if ($property) {
-                    $result['fillable'][$property->id()] = $term;
-                }
-            }
-        }
-
-        if (!count($result['corrigible']) && !count($result['fillable'])) {
-            $result['corrigible'] = $settings->get('correction_properties_corrigible', []);
-            $result['fillable'] = $settings->get('correction_properties_fillable', []);
-        }
-
-        return $result;
+        return $view
+            ->setTemplate('error/403')
+            ->setVariable('message', $message);
     }
 }
