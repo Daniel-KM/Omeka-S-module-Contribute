@@ -1,0 +1,14 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ */
+
+$translate = $this->plugin('translate');
+?>
+
+<div id="correction" class="correction">
+    <h3><?= $translate('Correction') ?></h3>
+    <?= $this->hyperlink($translate('Correct this record'), $this->url('site/correction', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
+</div>

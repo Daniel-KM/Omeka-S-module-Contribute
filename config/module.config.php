@@ -26,7 +26,7 @@ return [
     ],
     'view_helpers' => [
         'invokables' => [
-            // 'showCorrectionLink' => View\Helper\ShowCorrectionLink::class,
+            'linkCorrection' => View\Helper\LinkCorrection::class,
         ],
     ],
     'form_elements' => [

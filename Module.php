@@ -76,6 +76,13 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
+        // Link to correct form on item/show page.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Site\Item',
+            'view.show.after',
+            [$this, 'handleViewShowAfterResource']
+        );
+
         $controllers = [
             'Omeka\Controller\Admin\Item',
             'Omeka\Controller\Admin\ItemSet',
@@ -148,6 +155,11 @@ class Module extends AbstractModule
             'form.add_input_filters',
             [$this, 'handleMainSettingsFilters']
         );
+    }
+
+    public function handleViewShowAfterResource(Event $event)
+    {
+        echo $event->getTarget()->linkCorrection();
     }
 
     public function handleResourceTemplateCreateOrUpdatePost(Event $event)
