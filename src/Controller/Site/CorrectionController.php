@@ -1,6 +1,7 @@
 <?php
 namespace Correction\Controller\Site;
 
+use Correction\Api\Representation\CorrectionRepresentation;
 use Correction\Form\CorrectionForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 // use Omeka\Form\ResourceForm;
@@ -61,13 +62,14 @@ class CorrectionController extends AbstractActionController
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
+
         $editable = $this->getEditableProperties($resource);
         // $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
         // $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
         $corrigible = $this->fetchProperties($editable['corrigible']);
         $fillable = $this->fetchProperties($editable['fillable']);
 
-        if (empty($corrigible) && empty($fillable)) {
+        if (!count($editable['corrigible']) && !count($editable['fillable'])) {
             $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
@@ -129,6 +131,122 @@ class CorrectionController extends AbstractActionController
             'corrigible' => $corrigible,
             'fillable' => $fillable,
         ]);
+    }
+
+    /**
+     * Get all fields that are updatable for this resource.
+     *
+     * The order is the one of the resource template, else the order of terms in
+     * the database (Dublin Core first, bibo, foaf, then specific terms).
+     *
+     * The output is similar than $resource->values(), but may contain empty
+     * properties, and three more keys, corrigible, fillable, and corrections.
+     *
+     * <code>
+     * array(
+     *   {term} => array(
+     *     'property' => {PropertyRepresentation},
+     *     'alternate_label' => {label},
+     *     'alternate_comment' => {comment},
+     *     'corrigible' => {bool}
+     *     'fillable' => {bool}
+     *     'values' => array(
+     *       {ValueRepresentation},
+     *       {ValueRepresentation},
+     *     ),
+     *     'corrections' => array(
+     *       array(
+     *         'original' => array(
+     *           '@value' => (string),
+     *           '@uri' => (string),
+     *           '@label' => (string),
+     *         ),
+     *         'proposed' => array(
+     *           '@value' => (string),
+     *           '@uri' => (string),
+     *           '@label' => (string),
+     *         ),
+     *       ),
+     *     ),
+     *   ),
+     * )
+     * </code>
+     *
+     * @return array
+     *
+     * @param AbstractResourceEntityRepresentation $resource
+     * @param CorrectionRepresentation $correction
+     * @return array
+     */
+    protected function prepareFields(AbstractResourceEntityRepresentation $resource, CorrectionRepresentation $correction = null)
+    {
+        $fields = [];
+
+        $editable = $this->getEditableProperties($resource);
+        $resourceTemplate = $resource->resourceTemplate();
+        $values = $resource->values();
+        $proposals = $correction ? $correction->proposal() : [];
+
+        // List the fields for the resource when there is a resource template.
+        if ($resourceTemplate) {
+            // List the resource template fields first.
+            foreach ($resourceTemplate->resourceTemplateProperties() as $templateProperty) {
+                $term = $templateProperty->property()->term();
+                $fields[$term] = [
+                    'alternate_label' => $templateProperty->alternateLabel(),
+                    'alternate_comment' => $templateProperty->alternateComment(),
+                    'corrigible' => isset($editable['corrigible'][$term]),
+                    'fillable' => isset($editable['fillable'][$term]),
+                    'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
+                    'corrections' => isset($proposals[$term]) ? $proposals[$term] : [],
+                ];
+            }
+
+            // When the resource template is configured, the remaining values
+            // are never editable, since they are not in the resource template.
+            if (!$editable['use_default']) {
+                foreach ($values as $term => $valueInfo) {
+                    if (!isset($fields[$term])) {
+                        $fields[$term] = $valueInfo;
+                        $fields[$term]['corrigible'] = false;
+                        $fields[$term]['fillable'] = false;
+                        $fields[$term]['corrections'] = isset($proposals[$term]) ? $proposals[$term] : [];
+                    }
+                }
+            }
+        }
+
+        // Append default fields from the main config, with or without template.
+
+        if ($editable['use_default']) {
+            $api = $this->api();
+            // Append the values of the resource.
+            foreach ($values as $term => $valueInfo) {
+                if (!isset($fields[$term])) {
+                    $fields[$term] = $valueInfo;
+                    $fields[$term]['corrigible'] = isset($editable['corrigible'][$term]);
+                    $fields[$term]['fillable'] = isset($editable['fillable'][$term]);
+                    $fields[$term]['corrections'] = isset($proposals[$term]) ? $proposals[$term] : [];
+                }
+            }
+
+            // Append the fillable fields.
+            foreach ($editable['fillable'] as $term => $propertyId) {
+                if (!isset($fields[$term])) {
+                    $fields[$term] = [
+                        'property' => $api->read('properties', $propertyId)->getContent(),
+                        'alternate_label' => null,
+                        'alternate_comment' => null,
+                        'corrigible' => isset($editable['corrigible'][$term]),
+                        'fillable' => true,
+                        'values' => [],
+                        'corrections' => isset($proposals[$term]) ? $proposals[$term] : [],
+                    ];
+                }
+            }
+        }
+
+        return $fields;
     }
 
     /**
@@ -256,12 +374,16 @@ class CorrectionController extends AbstractActionController
     /**
      * Get the list of editable property terms and ids.
      *
+     *  The list come from the resource template if it is configured, else the
+     *  default list is used.
+     *
      * @param AbstractResourceEntityRepresentation $resource
      * @return array[]
      */
     protected function getEditableProperties(AbstractResourceEntityRepresentation $resource)
     {
         $result = [
+            'use_default' => false,
             'corrigible' => [],
             'fillable' => [],
         ];
@@ -275,7 +397,8 @@ class CorrectionController extends AbstractActionController
             $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable'])));
         }
 
-        if (!count($result['corrigible']) && !count($result['fillable'])) {
+        $result['use_default'] = !count($result['corrigible']) && !count($result['fillable']);
+        if ($result['use_default']) {
             $settings = $this->settings();
             $result['corrigible'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', []))));
             $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', []))));
