@@ -62,13 +62,9 @@ class CorrectionController extends AbstractActionController
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
+        $fields = $this->prepareFields($resource, $correction);
 
         $editable = $this->getEditableProperties($resource);
-        // $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
-        // $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
-        $corrigible = $this->fetchProperties($editable['corrigible']);
-        $fillable = $this->fetchProperties($editable['fillable']);
-
         if (!count($editable['corrigible']) && !count($editable['fillable'])) {
             $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
@@ -128,8 +124,7 @@ class CorrectionController extends AbstractActionController
             'form' => $form,
             'resource' => $resource,
             'correction' => $correction,
-            'corrigible' => $corrigible,
-            'fillable' => $fillable,
+            'fields' => $fields,
         ]);
     }
 
@@ -138,6 +133,9 @@ class CorrectionController extends AbstractActionController
      *
      * The order is the one of the resource template, else the order of terms in
      * the database (Dublin Core first, bibo, foaf, then specific terms).
+     *
+     * Some corrections may not have the matching fields: it means that the
+     * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
      * properties, and three more keys, corrigible, fillable, and corrections.
@@ -157,14 +155,17 @@ class CorrectionController extends AbstractActionController
      *     'corrections' => array(
      *       array(
      *         'original' => array(
-     *           '@value' => (string),
-     *           '@uri' => (string),
-     *           '@label' => (string),
+     *           'value' => {ValueRepresentation},
+     *           'type' => {string},
+     *           '@value' => {string},
+     *           '@uri' => {string},
+     *           '@label' => {string},
      *         ),
      *         'proposed' => array(
-     *           '@value' => (string),
-     *           '@uri' => (string),
-     *           '@label' => (string),
+     *           'type' => {string},
+     *           '@value' => {string},
+     *           '@uri' => {string},
+     *           '@label' => {string},
      *         ),
      *       ),
      *     ),
@@ -185,7 +186,6 @@ class CorrectionController extends AbstractActionController
         $editable = $this->getEditableProperties($resource);
         $resourceTemplate = $resource->resourceTemplate();
         $values = $resource->values();
-        $proposals = $correction ? $correction->proposal() : [];
 
         // List the fields for the resource when there is a resource template.
         if ($resourceTemplate) {
@@ -198,7 +198,7 @@ class CorrectionController extends AbstractActionController
                     'corrigible' => isset($editable['corrigible'][$term]),
                     'fillable' => isset($editable['fillable'][$term]),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
-                    'corrections' => isset($proposals[$term]) ? $proposals[$term] : [],
+                    'corrections' => [],
                 ];
             }
 
@@ -210,7 +210,7 @@ class CorrectionController extends AbstractActionController
                         $fields[$term] = $valueInfo;
                         $fields[$term]['corrigible'] = false;
                         $fields[$term]['fillable'] = false;
-                        $fields[$term]['corrections'] = isset($proposals[$term]) ? $proposals[$term] : [];
+                        $fields[$term]['corrections'] = [];
                     }
                 }
             }
@@ -226,7 +226,7 @@ class CorrectionController extends AbstractActionController
                     $fields[$term] = $valueInfo;
                     $fields[$term]['corrigible'] = isset($editable['corrigible'][$term]);
                     $fields[$term]['fillable'] = isset($editable['fillable'][$term]);
-                    $fields[$term]['corrections'] = isset($proposals[$term]) ? $proposals[$term] : [];
+                    $fields[$term]['corrections'] = [];
                 }
             }
 
@@ -240,7 +240,136 @@ class CorrectionController extends AbstractActionController
                         'corrigible' => isset($editable['corrigible'][$term]),
                         'fillable' => true,
                         'values' => [],
-                        'corrections' => isset($proposals[$term]) ? $proposals[$term] : [],
+                        'corrections' => [],
+                    ];
+                }
+            }
+        }
+
+        // Initialize corrections with existing values, then append corrections.
+        foreach ($fields as $term => $field) {
+            /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+            foreach ($field['values'] as $value) {
+                // Method value() is label or value depending on type.
+                $type = $value->type();
+                if ($type === 'uri') {
+                    $val = null;
+                    $label = $value->value();
+                } else {
+                    $val = $value->value();
+                    $label = null;
+                }
+                $fields[$term]['corrections'][] = [
+                    'original' => [
+                        'value' => $value,
+                        'type' => $type,
+                        '@value' => $val,
+                        '@uri' => $value->uri(),
+                        '@label' => $label,
+                    ],
+                    'proposed' => [
+                        // The type cannot be changed.
+                        'type' => $type,
+                        '@value' => null,
+                        '@uri' => null,
+                        '@label' => null,
+                    ],
+                ];
+            }
+        }
+
+        $proposals = $correction ? $correction->proposal() : [];
+        if (!$proposals) {
+            return $fields;
+        }
+
+        foreach ($fields as $term => &$field) {
+            if (!isset($proposals[$term])) {
+                continue;
+            }
+            foreach ($field['corrections'] as &$fieldCorrection) {
+                $proposed = null;
+                $type = $fieldCorrection['original']['type'];
+                if ($type === 'uri') {
+                    foreach ($proposals[$term] as $key => $proposal) {
+                        if (isset($proposal['original']['@uri'])
+                            && $proposal['original']['@uri'] === $fieldCorrection['original']['@uri']
+                            && $proposal['original']['@label'] === $fieldCorrection['original']['@label']
+                        ) {
+                            $proposed = $proposal['proposed'];
+                            break;
+                        }
+                    }
+                    if (is_null($proposed)) {
+                        continue;
+                    }
+                    $fieldCorrection['proposed'] = [
+                        'type' => $type,
+                        '@value' => null,
+                        '@uri' => $proposed['@uri'],
+                        '@label' => $proposed['@label'],
+                    ];
+                } elseif (strtok($type, ':') === 'resource') {
+                    // TODO Value resource are currently not editable.
+                } else {
+                    foreach ($proposals[$term] as $proposal) {
+                        if (isset($proposal['original']['@value'])
+                            && $proposal['original']['@value'] === $fieldCorrection['original']['@value']
+                        ) {
+                            $proposed = $proposal['proposed'];
+                            break;
+                        }
+                    }
+                    if (is_null($proposed)) {
+                        continue;
+                    }
+                    $fieldCorrection['proposed'] = [
+                        'type' => $type,
+                        '@value' => $proposed['@value'],
+                        '@uri' => null,
+                        '@label' => null,
+                    ];
+                }
+                unset($proposals[$term][$key]);
+            }
+        }
+
+        // Append only remaining corrections that are fillable.
+        // Other ones are related to an older config.
+        $proposals = array_intersect_key(array_filter($proposals), $editable['fillable']);
+        foreach ($proposals as $term => $termProposal) {
+            foreach ($termProposal as $proposal) {
+                if (isset($proposal['proposed']['@uri'])) {
+                    $fields[$term]['corrections'][] = [
+                        'original' => [
+                            'value' => null,
+                            'type' => 'uri',
+                            '@value' => null,
+                            '@uri' => null,
+                            '@label' => null,
+                        ],
+                        'proposed' => [
+                            'type' => 'uri',
+                            '@value' => null,
+                            '@uri' => $proposal['proposed']['@uri'],
+                            '@label' => $proposal['proposed']['@label'],
+                        ],
+                    ];
+                } else {
+                    $fields[$term]['corrections'][] = [
+                        'original' => [
+                            'value' => null,
+                            'type' => 'literal',
+                            '@value' => null,
+                            '@uri' => null,
+                            '@label' => null,
+                        ],
+                        'proposed' => [
+                            'type' => 'literal',
+                            '@value' => $proposal['proposed']['@value'],
+                            '@uri' => null,
+                            '@label' => null,
+                        ],
                     ];
                 }
             }
@@ -404,29 +533,6 @@ class CorrectionController extends AbstractActionController
             $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', []))));
         }
 
-        return $result;
-    }
-
-    /**
-     * List all selected properties by term.
-     *
-     * @todo Get all properties in one query.
-     *
-     * @param array $terms
-     * @return \Omeka\Api\Representation\\PropertyRepresentation[]
-     */
-    protected function fetchProperties(array $terms)
-    {
-        $result = [];
-        // Normally, all properties are cached by Doctrine.
-        $api = $this->api();
-        foreach ($terms as $term) {
-            // Use searchOne() to avoid issue when a vocabulary is removed.
-            $property = $api->searchOne('properties', ['term' => $term])->getContent();
-            if ($property) {
-                $result[$term] = $property;
-            }
-        }
         return $result;
     }
 

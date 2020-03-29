@@ -124,7 +124,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
      *
      * @param string $term
      * @param string $original
-     * @return string|null Empty string is used when the value is removed.
+     * @return array|null Empty string value is used when the value is removed.
      */
     public function proposedValue($term, $original)
     {
@@ -136,12 +136,19 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             if (isset($value['original']['@value'])
                 && $value['original']['@value'] === $original
             ) {
-                return $value['proposed']['@value'];
+                return $value['proposed'];
             }
         }
         return null;
     }
 
+    /**
+     * Get a specific proposed correction uri for a term.
+     *
+     * @param string $term
+     * @param string $original
+     * @return array|null Empty string uri is used when the value is removed.
+     */
     public function proposedUriValue($term, $originalUri, $originalLabel)
     {
         $proposed = $this->proposedValues($term);
@@ -210,6 +217,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     public function proposalCheck()
     {
         static $check;
+
         if (isset($check)) {
             return $check;
         }

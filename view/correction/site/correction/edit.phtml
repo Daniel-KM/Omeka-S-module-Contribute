@@ -3,9 +3,8 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Correction\Api\Representation\CorrectionRepresentation $correction
- * @var \Omeka\Api\Representation\PropertyRepresentation[] $corrigible
- * @var \Omeka\Api\Representation\PropertyRepresentation[] $fillable
+ * @var \Correction\Api\Representation\CorrectionRepresentation|null $correction
+ * @var array $fields
  */
 
 $assetUrl = $this->plugin('assetUrl');
@@ -16,7 +15,7 @@ $this->headScript()
     ->appendFile($assetUrl('js/correction.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
 
 $translate = $this->plugin('translate');
-$this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource'). ' resource');
+$this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource') . ' resource');
 
 $mapLabels = [
     'items' => 'Item',
@@ -35,20 +34,21 @@ $mapLabels = [
     font-style: italic;
 }
 </style>
-<?= $this->pageTitle($resource->displayTitle(), 2, null, ' ' . $translate('Correct')) ?>
-<h3><?= $translate($mapLabels[$resource->resourceName()]) ?></h3>
-<?= $this->messages() ?>
-<?php $this->trigger('view.edit.before'); ?>
-<?php
-echo $this->partial('correction/site/correction/form.phtml', [
-    'form' => $form,
-    'resource' => $resource,
-    'correction' => $correction,
-    'corrigible' => $corrigible,
-    'fillable' => $fillable,
-    'action' => 'edit',
-    'submitLabel' => $translate('Correct'),
-]);
-?>
+<div class="container">
+    <h2 class="text-primary my-3"><?= $resource->displayTitle() ?></h2>
+    <h3><?= sprintf($translate('Correct %s'), $translate($mapLabels[$resource->resourceName()])) ?></h3>
+    <?= $this->messages() ?>
+    <?php $this->trigger('view.edit.before'); ?>
+    <?php
+    echo $this->partial('correction/site/correction/form.phtml', [
+        'form' => $form,
+        'resource' => $resource,
+        'correction' => $correction,
+        'fields' => $fields,
+        'action' => 'edit',
+        'submitLabel' => $translate('Correct'),
+    ]);
+    ?>
+</div>
 
 <?php $this->trigger('view.edit.after'); ?>
