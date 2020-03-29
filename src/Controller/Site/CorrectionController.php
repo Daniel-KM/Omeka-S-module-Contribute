@@ -320,6 +320,7 @@ class CorrectionController extends AbstractActionController
             return $fields;
         }
 
+        // Fill the proposed corrections, according to the original value.
         foreach ($fields as $term => &$field) {
             if (!isset($proposals[$term])) {
                 continue;
@@ -346,7 +347,7 @@ class CorrectionController extends AbstractActionController
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif (strtok($type, ':') === 'resource') {
+                } elseif (strtok($type, ':') === 'resource' || $type !== 'literal') {
                     // TODO Value resource are currently not editable.
                     continue;
                 } else {
@@ -371,6 +372,63 @@ class CorrectionController extends AbstractActionController
                 unset($proposals[$term][$keyProposal]);
             }
         }
+        unset($field, $fieldCorrection);
+
+        // Fill the proposed correction, according to the existing values: some
+        // corrections may have been accepted or the resource updated, so check
+        // if there are remaining corrections that were validated.
+        foreach ($fields as $term => &$field) {
+            if (!isset($proposals[$term])) {
+                continue;
+            }
+            foreach ($field['corrections'] as &$fieldCorrection) {
+                $proposed = null;
+                $type = $fieldCorrection['original']['type'];
+                if ($type === 'uri') {
+                    foreach ($proposals[$term] as $keyProposal => $proposal) {
+                        if (isset($proposal['proposed']['@uri'])
+                            && $proposal['proposed']['@uri'] === $fieldCorrection['original']['@uri']
+                            && $proposal['proposed']['@label'] === $fieldCorrection['original']['@label']
+                        ) {
+                            $proposed = $proposal['proposed'];
+                            break;
+                        }
+                    }
+                    if (is_null($proposed)) {
+                        continue;
+                    }
+                    $fieldCorrection['proposed'] = [
+                        'type' => $type,
+                        '@value' => null,
+                        '@uri' => $proposed['@uri'],
+                        '@label' => $proposed['@label'],
+                    ];
+                } elseif (strtok($type, ':') === 'resource' || $type !== 'literal') {
+                    // TODO Value resource are currently not editable.
+                    continue;
+                } else {
+                    foreach ($proposals[$term] as $keyProposal => $proposal) {
+                        if (isset($proposal['proposed']['@value'])
+                            && $proposal['proposed']['@value'] === $fieldCorrection['original']['@value']
+                        ) {
+                            $proposed = $proposal['proposed'];
+                            break;
+                        }
+                    }
+                    if (is_null($proposed)) {
+                        continue;
+                    }
+                    $fieldCorrection['proposed'] = [
+                        'type' => $type,
+                        '@value' => $proposed['@value'],
+                        '@uri' => null,
+                        '@label' => null,
+                    ];
+                }
+                unset($proposals[$term][$keyProposal]);
+            }
+        }
+        unset($field, $fieldCorrection);
 
         // Append only remaining corrections that are fillable.
         // Other ones are related to an older config.
