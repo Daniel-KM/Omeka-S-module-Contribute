@@ -3,13 +3,13 @@ Correction (module for Omeka S)
 
 [Correction] is a module for [Omeka S] that allows visitors to correct, complete
 or translate metadata of the resources without access to the admin board. Access
-to the edit page is controlled by a token, that you can send to your users.
+to the edit page may be controlled by a token, that you can send to your users.
 
 
 Installation
 ------------
 
-This module requires the module [`Generic`] installed first.
+This module requires the module [`Generic`] (version >= 3.0.16) installed first.
 
 See general end user documentation for [installing a module].
 
