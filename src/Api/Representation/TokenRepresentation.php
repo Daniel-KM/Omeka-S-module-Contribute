@@ -76,7 +76,7 @@ class TokenRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function expire()
     {
@@ -92,7 +92,7 @@ class TokenRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function accessed()
     {
@@ -105,8 +105,8 @@ class TokenRepresentation extends AbstractEntityRepresentation
     public function isExpired()
     {
         $expire = $this->expire();
-        $result = $expire && $expire < new DateTime('now');
-        return $result;
+        return $expire
+            && $expire < new DateTime('now');
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright Daniel Berthereau 2019
+ * Copyright Daniel Berthereau 2019-2020
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -38,11 +38,11 @@ use Omeka\Entity\Resource;
  * @Table(
  *     indexes={
  *         @Index(
- *             name="email_idx",
+ *             name="correction_email_idx",
  *             columns={"email"}
  *         ),
  *         @Index(
- *             name="modified_idx",
+ *             name="correction_modified_idx",
  *             columns={"modified"}
  *         )
  *     }
@@ -91,31 +91,45 @@ class Correction extends AbstractEntity
      * possible to get the propositions of a user.
      *
      * @var string
-     * @Column(type="string", length=255, nullable=true)
+     * @Column(
+     *     type="string",
+     *     length=190,
+     *     nullable=true
+     * )
      */
     protected $email;
 
     /**
      * @var bool
-     * @Column(type="boolean", nullable=false)
+     * @Column(
+     *     type="boolean",
+     *     nullable=false
+     * )
      */
     protected $reviewed = false;
 
     /**
      * @var array
-     * @Column(type="json_array")
+     * @Column(
+     *     type="json_array"
+     * )
      */
     protected $proposal;
 
     /**
      * @var DateTime
-     * @Column(type="datetime")
+     * @Column(
+     *     type="datetime"
+     * )
      */
     protected $created;
 
     /**
      * @var DateTime
-     * @Column(type="datetime", nullable=true)
+     * @Column(
+     *     type="datetime",
+     *     nullable=true
+     * )
      */
     protected $modified;
 
@@ -124,78 +138,127 @@ class Correction extends AbstractEntity
         return $this->id;
     }
 
+    /**
+     * @param Resource $resource
+     * @return self
+     */
     public function setResource(Resource $resource)
     {
         $this->resource = $resource;
         return $this;
     }
 
+    /**
+     * @return \Omeka\Entity\Resource
+     */
     public function getResource()
     {
         return $this->resource;
     }
 
+    /**
+     * @param Token|null $token
+     * @return self
+     */
     public function setToken(Token $token = null)
     {
         $this->token = $token;
         return $this;
     }
 
+    /**
+     * @return \Correction\Entity\Token
+     */
     public function getToken()
     {
         return $this->token;
     }
 
+    /**
+     * @param string|null $email
+     * @return \Correction\Entity\Correction
+     */
     public function setEmail($email = null)
     {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEmail()
     {
         return $this->email;
     }
 
+    /**
+     * @param bool $reviewed
+     * @return self
+     */
     public function setReviewed($reviewed)
     {
         $this->reviewed = (bool) $reviewed;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getReviewed()
     {
         return (bool) $this->reviewed;
     }
 
-    public function setProposal($proposal)
+    /**
+     * @param array $proposal
+     * @return self
+     */
+    public function setProposal(array $proposal)
     {
         $this->proposal = $proposal;
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getProposal()
     {
         return $this->proposal;
     }
 
+    /**
+     * @param DateTime $dateTime
+     * @return self
+     */
     public function setCreated(DateTime $dateTime)
     {
         $this->created = $dateTime;
         return $this;
     }
 
+    /**
+     * @return DateTime
+     */
     public function getCreated()
     {
         return $this->created;
     }
 
+    /**
+     * @param DateTime|null $dateTime
+     * @return self
+     */
     public function setModified(DateTime $dateTime = null)
     {
         $this->modified = $dateTime;
         return $this;
     }
 
+    /**
+     * @return DateTime|null
+     */
     public function getModified()
     {
         return $this->modified;

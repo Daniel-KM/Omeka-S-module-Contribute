@@ -98,7 +98,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function modified()
     {

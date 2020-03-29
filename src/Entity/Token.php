@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright Daniel Berthereau 2019
+ * Copyright Daniel Berthereau 2019-2020
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -41,11 +41,11 @@ use Omeka\Entity\Resource;
  *     name="correction_token",
  *     indexes={
  *         @Index(
- *             name="token_idx",
+ *             name="correction_token_idx",
  *             columns={"token"}
  *         ),
  *         @Index(
- *             name="expire_idx",
+ *             name="correction_expire_idx",
  *             columns={"expire"}
  *         )
  *     }
@@ -75,31 +75,46 @@ class Token extends AbstractEntity
 
     /**
      * @var string
-     * @Column(type="string", length=40)
+     * @Column(
+     *     type="string",
+     *     length=40
+     * )
      */
     protected $token;
 
     /**
      * @var string
-     * @Column(type="string", length=255, nullable=true)
+     * @Column(
+     *     type="string",
+     *     length=190,
+     *     nullable=true
+     * )
      */
     protected $email;
 
     /**
      * @var \DateTime
-     * @Column(type="datetime", nullable=true)
+     * @Column(
+     *     type="datetime",
+     *     nullable=true
+     * )
      */
     protected $expire;
 
     /**
      * @var \DateTime
-     * @Column(type="datetime")
+     * @Column(
+     *     type="datetime"
+     * )
      */
     protected $created;
 
     /**
      * @var \DateTime
-     * @Column(type="datetime", nullable=true)
+     * @Column(
+     *     type="datetime",
+     *     nullable=true
+     * )
      */
     protected $accessed;
 
@@ -108,67 +123,109 @@ class Token extends AbstractEntity
         return $this->id;
     }
 
+    /**
+     * @param Resource $resource
+     * @return self
+     */
     public function setResource(Resource $resource)
     {
         $this->resource = $resource;
         return $this;
     }
 
+    /**
+     * @return \Omeka\Entity\Resource
+     */
     public function getResource()
     {
         return $this->resource;
     }
 
+    /**
+     * @param string $token
+     * @return self
+     */
     public function setToken($token)
     {
         $this->token = $token;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getToken()
     {
         return $this->token;
     }
 
+    /**
+     * @param string $email
+     * @return self
+     */
     public function setEmail($email)
     {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEmail()
     {
         return $this->email;
     }
 
+    /**
+     * @param DateTime|null $dateTime
+     * @return self
+     */
     public function setExpire(DateTime $dateTime = null)
     {
         $this->expire = $dateTime;
         return $this;
     }
 
+    /**
+     * @return DateTime|null
+     */
     public function getExpire()
     {
         return $this->expire;
     }
 
+    /**
+     * @param DateTime $dateTime
+     * @return self
+     */
     public function setCreated(DateTime $dateTime)
     {
         $this->created = $dateTime;
         return $this;
     }
 
+    /**
+     * @return DateTime
+     */
     public function getCreated()
     {
         return $this->created;
     }
 
+    /**
+     * @param DateTime|null $dateTime
+     * @return self
+     */
     public function setAccessed(DateTime $dateTime = null)
     {
         $this->accessed = $dateTime;
         return $this;
     }
 
+    /**
+     * @return DateTime|null
+     */
     public function getAccessed()
     {
         return $this->accessed;
