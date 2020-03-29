@@ -1,5 +1,4 @@
 <?php
-
 namespace Correction\View\Helper;
 
 use Correction\Mvc\Controller\Plugin\CheckToken;
@@ -8,6 +7,11 @@ use Zend\View\Helper\AbstractHelper;
 
 class LinkCorrection extends AbstractHelper
 {
+    /**
+     * The default partial view script.
+     */
+    const PARTIAL_NAME = 'common/helper/correction-link';
+
     /**
      * @var CheckToken
      */
@@ -21,9 +25,11 @@ class LinkCorrection extends AbstractHelper
     /**
      * Get the link to the correction page.
      *
+     * @param AbstractResourceEntityRepresentation $resource
+     * @param array $options Options for the template
      * @return string
      */
-    public function __invoke(AbstractResourceEntityRepresentation $resource = null)
+    public function __invoke(AbstractResourceEntityRepresentation $resource = null, array $options = [])
     {
         $view = $this->getView();
 
@@ -34,18 +40,28 @@ class LinkCorrection extends AbstractHelper
             }
         }
 
+        $defaultOptions = [
+            'template' => self::PARTIAL_NAME,
+        ];
+        $options += $defaultOptions;
+
         $user = $view->identity();
 
         $helper = $this->checkToken;
         $canCorrect = (bool) $helper($resource)
             || ($user && $view->setting('correction_without_token'));
 
-        return $view->partial('common/helper/correction-link', [
+        $template = $options['template'];
+        unset($options['template']);
+
+        $vars = [
             'site' => $this->currentSite(),
             'user' => $user,
             'resource' => $resource,
             'canCorrect' => $canCorrect,
-        ]);
+        ] + $options;
+
+        return $view->partial($template, $vars);
     }
 
     /**
