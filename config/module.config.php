@@ -44,10 +44,10 @@ return [
     'controller_plugins' => [
         'invokables' => [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
+            'resourceTemplateCorrectionPartMap' => Mvc\Controller\Plugin\ResourceTemplateCorrectionPartMap::class,
         ],
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
-            'resourceTemplateCorrectionPartMap' => Service\ControllerPlugin\ResourceTemplateCorrectionPartMapFactory::class,
             'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
         ],
     ],
@@ -151,6 +151,8 @@ return [
             'correction_without_token' => false,
             // Days.
             'correction_token_duration' => 60,
+            // Where the config of resource templates are stored.
+            'correction_resource_template_data' => [],
         ],
     ],
 ];

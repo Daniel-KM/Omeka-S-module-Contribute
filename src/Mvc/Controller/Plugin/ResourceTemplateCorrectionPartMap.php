@@ -1,21 +1,10 @@
 <?php
 namespace Correction\Mvc\Controller\Plugin;
 
-use Omeka\Mvc\Controller\Plugin\Settings;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
 class ResourceTemplateCorrectionPartMap extends AbstractPlugin
 {
-    /**
-     * @var Settings
-     */
-    protected $settings;
-
-    public function __construct(Settings $settings)
-    {
-        $this->settings = $settings;
-    }
-
     /**
      * Get the correction mapping of a resource template.
      *
@@ -26,9 +15,9 @@ class ResourceTemplateCorrectionPartMap extends AbstractPlugin
      */
     public function __invoke($resourceTemplateId)
     {
-        $settings = $this->settings;
+        $settings = $this->getController()->settings();
 
-        $mapping = $settings()->get('correction_resource_template_data', []);
+        $mapping = $settings->get('correction_resource_template_data', []);
 
         $corrigible = empty($mapping['corrigible'][$resourceTemplateId])
             ? []
