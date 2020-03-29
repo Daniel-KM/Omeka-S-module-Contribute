@@ -279,7 +279,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                         $hasOriginal = (bool) strlen($original);
                         if (!$hasOriginal) {
                             unset($proposal[$term][$key]);
-                            continue;
+                            continue 2;
                         }
 
                         $prop = &$proposal[$term][$key];
@@ -299,7 +299,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                         $hasProposition = (bool) strlen($proposed);
                         if (!$hasOriginal && !$hasProposition) {
                             unset($proposal[$term][$key]);
-                            continue;
+                            continue 2;
                         }
 
                         // TODO Keep the key order of the value in the list of values of each term to simplify validation.
@@ -366,7 +366,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                         $hasProposition = (bool) strlen($proposedUri);
                         if (!$hasOriginal && !$hasProposition) {
                             unset($proposal[$term][$key]);
-                            continue;
+                            continue 2;
                         }
 
                         // TODO Keep the key order of the value in the list of values of each term to simplify validation.
