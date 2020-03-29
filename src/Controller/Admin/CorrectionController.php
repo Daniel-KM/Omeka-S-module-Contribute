@@ -430,6 +430,9 @@ class CorrectionController extends AbstractActionController
                 if (!isset($proposal[$term])) {
                     continue;
                 }
+                if (!isset($editable['corrigible'][$term]) && !isset($editable['fillable'][$term])) {
+                    continue;
+                }
                 // TODO Manage all types of value.
                 if (!in_array($existingValue->type(), ['literal', 'uri'])) {
                     continue;
@@ -489,6 +492,9 @@ class CorrectionController extends AbstractActionController
             $propertyId = $api->searchOne('properties', ['term' => $term])->getContent()->id();
             foreach ($propositions as $key => $proposition) {
                 if ($hasProposedKey && $proposedKey != $key) {
+                    continue;
+                }
+                if (!isset($editable['corrigible'][$term]) && !isset($editable['fillable'][$term])) {
                     continue;
                 }
                 if ($proposition['validated']) {
