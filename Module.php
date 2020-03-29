@@ -36,6 +36,21 @@ class Module extends AbstractModule
         $settings->set('correction_template_editable', $resourceTemplate->id());
     }
 
+    protected function postUninstall()
+    {
+        if (!class_exists(\Generic\InstallResources::class)) {
+            require_once file_exists(dirname(__DIR__) . '/Generic/InstallResources.php')
+                ? dirname(__DIR__) . '/Generic/InstallResources.php'
+                : __DIR__ . '/src/Generic/InstallResources.php';
+        }
+
+        $services = $this->getServiceLocator();
+        $installResources = new \Generic\InstallResources($services);
+        $installResources = $installResources();
+
+        $installResources->removeResourceTemplate('Correction');
+    }
+
     /**
      * Add ACL rules for this module.
      */
