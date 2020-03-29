@@ -44,7 +44,7 @@ return [
     'controller_plugins' => [
         'invokables' => [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
-            'listEditableProperties' => Mvc\Controller\Plugin\ListEditableProperties::class,
+            'editableData' => Mvc\Controller\Plugin\EditableData::class,
             'resourceTemplateCorrectionPartMap' => Mvc\Controller\Plugin\ResourceTemplateCorrectionPartMap::class,
         ],
         'factories' => [

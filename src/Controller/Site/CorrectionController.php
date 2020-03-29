@@ -64,8 +64,8 @@ class CorrectionController extends AbstractActionController
 
         $fields = $this->prepareFields($resource, $correction);
 
-        $editable = $this->listEditableProperties($resource);
-        if (!$editable['is_editable']) {
+        $editable = $this->editableData($resource);
+        if (!$editable->isEditable()) {
             $this->messenger()->addError('This resource cannot be corrected. Ask the administrator for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
@@ -182,9 +182,6 @@ class CorrectionController extends AbstractActionController
     {
         $fields = [];
 
-        $values = $resource->values();
-        $editable = $this->listEditableProperties($resource);
-
         $defaultField = [
             'template_property' => null,
             'property' => null,
@@ -197,15 +194,19 @@ class CorrectionController extends AbstractActionController
             'corrections' => [],
         ];
 
-        $defaultField['datatype'] = $editable['datatype'];
+        /** @var \Correction\Mvc\Controller\Plugin\EditableData $editable */
+        $editable = $this->editableData($resource);
+        $values = $resource->values();
+
+        $defaultField['datatype'] = $editable->datatypes();
 
         // The default template is used when there is no template or when the
         // used one is not configured. $editable has info about that.
 
         // List the fields for the resource when there is a resource template.
-        if ($editable['template']) {
+        if ($editable->hasTemplate()) {
             // List the resource template fields first.
-            foreach ($editable['template']->resourceTemplateProperties() as $templateProperty) {
+            foreach ($editable->template()->resourceTemplateProperties() as $templateProperty) {
                 $property = $templateProperty->property();
                 $term = $property->term();
                 $dataType = $templateProperty->dataType();
@@ -214,12 +215,12 @@ class CorrectionController extends AbstractActionController
                     'property' => $property,
                     'alternate_label' => $templateProperty->alternateLabel(),
                     'alternate_comment' => $templateProperty->alternateComment(),
-                    'corrigible' => isset($editable['corrigible'][$term]),
-                    'fillable' => isset($editable['fillable'][$term]),
+                    'corrigible' => $editable->isTermCorrigible($term),
+                    'fillable' => $editable->isTermFillable($term),
                     // TODO Improved setting for datatype.
                     'datatype' => empty($dataType)
-                        ? $editable['datatype']
-                        : (in_array($dataType, $editable['datatype']) ? [$dataType] : []),
+                        ? $editable->datatypes()
+                        : ($editable->isDatatypeAllowed($dataType) ? [$dataType] : []),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
                     'corrections' => [],
                 ];
@@ -227,7 +228,7 @@ class CorrectionController extends AbstractActionController
 
             // When the resource template is configured, the remaining values
             // are never editable, since they are not in the resource template.
-            if (!$editable['default_properties']) {
+            if (!$editable->useDefaultProperties()) {
                 foreach ($values as $term => $valueInfo) {
                     if (!isset($fields[$term])) {
                         $fields[$term] = $valueInfo;
@@ -241,37 +242,32 @@ class CorrectionController extends AbstractActionController
         }
 
         // Append default fields from the main config, with or without template.
-        if ($editable['default_properties']) {
+        if ($editable->useDefaultProperties()) {
             $api = $this->api();
             // Append the values of the resource.
             foreach ($values as $term => $valueInfo) {
                 if (!isset($fields[$term])) {
                     $fields[$term] = $valueInfo;
                     $fields[$term]['template_property'] = null;
-                    $fields[$term]['corrigible'] = $editable['corrigible_mode'] === 'all'
-                        || ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term]))
-                        || ($editable['corrigible_mode'] === 'blacklist' && !isset($editable['corrigible'][$term]));
-                    $fields[$term]['fillable'] = $editable['fillable_mode'] === 'all'
-                        || ($editable['fillable_mode'] === 'whitelist' && isset($editable['fillable'][$term]))
-                        || ($editable['fillable_mode'] === 'blacklist' && !isset($editable['fillable'][$term]));
+                    $fields[$term]['corrigible'] = $editable->isTermCorrigible($term);
+                    $fields[$term]['fillable'] = $editable->isTermFillable($term);
                     $fields[$term]['corrections'] = [];
                     $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
             }
 
             // Append the fillable fields.
-            if ($editable['fillable_mode'] !== 'blacklist') {
-                foreach ($editable['fillable'] as $term => $propertyId) {
+            if ($editable->fillableMode() !== 'blacklist') {
+                foreach ($editable->fillableProperties() as $term => $propertyId) {
                     if (!isset($fields[$term])) {
                         $fields[$term] = [
                             'template_property' => null,
                             'property' => $api->read('properties', $propertyId)->getContent(),
                             'alternate_label' => null,
                             'alternate_comment' => null,
-                            'corrigible' => $editable['corrigible_mode'] === 'all'
-                                || ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term])),
+                            'corrigible' => $editable->isTermCorrigible($term),
                             'fillable' => true,
-                            'datatype' => $editable['datatype'],
+                            'datatype' => $editable->datatypes(),
                             'values' => [],
                             'corrections' => [],
                         ];
@@ -347,7 +343,7 @@ class CorrectionController extends AbstractActionController
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
                 $type = $fieldCorrection['type'];
-                if (!in_array($type, $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
                 if ($type === 'uri') {
@@ -404,7 +400,7 @@ class CorrectionController extends AbstractActionController
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
                 $type = $fieldCorrection['type'];
-                if (!in_array($type, $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
                 if ($type === 'uri') {
@@ -453,11 +449,11 @@ class CorrectionController extends AbstractActionController
 
         // Append only remaining corrections that are fillable.
         // Other ones are related to an older config.
-        $proposals = array_intersect_key(array_filter($proposals), $editable['fillable']);
+        $proposals = array_intersect_key(array_filter($proposals), $editable->fillableProperties());
         foreach ($proposals as $term => $termProposal) {
             foreach ($termProposal as $proposal) {
                 $type = isset($proposal['proposed']['@uri']) ? 'uri' : 'literal';
-                if (!in_array($type, $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
                 if ($type === 'uri') {
@@ -534,19 +530,19 @@ class CorrectionController extends AbstractActionController
         unset($values, $value);
 
         // Process only editable keys.
-        $editable = $this->listEditableProperties($resource);
+        $editable = $this->editableData($resource);
 
-        if (!count($editable['datatype'])) {
+        if (!count($editable->datatypes())) {
             return [];
         }
 
         // Process corrigible properties first.
-        switch ($editable['corrigible_mode']) {
+        switch ($editable->corrigibleMode()) {
             case 'whitelist':
-                $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable['corrigible']));
+                $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable->corrigibleProperties()));
                 break;
             case 'blacklist':
-                $proposalCorrigibleTerms = array_keys(array_diff_key($proposal, $editable['corrigible']));
+                $proposalCorrigibleTerms = array_keys(array_diff_key($proposal, $editable->corrigibleProperties()));
                 break;
             case 'all':
             default:
@@ -561,7 +557,7 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 $type = $value->type();
-                if (!in_array($type, $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
                 switch ($type) {
@@ -602,12 +598,12 @@ class CorrectionController extends AbstractActionController
         }
 
         // Append fillable properties.
-        switch ($editable['fillable_mode']) {
+        switch ($editable->fillableMode()) {
             case 'whitelist':
-                $proposalFillableTerms = array_keys(array_intersect_key($proposal, $editable['fillable']));
+                $proposalFillableTerms = array_keys(array_intersect_key($proposal, $editable->fillableProperties()));
                 break;
             case 'blacklist':
-                $proposalFillableTerms = array_diff_key($proposal, $editable['fillable']);
+                $proposalFillableTerms = array_diff_key($proposal, $editable->fillableProperties());
                 break;
             case 'all':
             default:
@@ -622,7 +618,7 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 $type = array_key_exists('@uri', $value) ? 'uri' : 'literal';
-                if (!in_array($type, $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
                 switch ($type) {

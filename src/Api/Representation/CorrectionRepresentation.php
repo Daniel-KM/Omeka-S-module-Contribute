@@ -240,16 +240,12 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         $services = $this->getServiceLocator();
         $api = $services->get('ControllerPluginManager')->get('api');
 
-        $editable = $this->listEditableProperties();
+        $editable = $this->editableData();
 
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
-            $isCorrigible = ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term]))
-                || ($editable['corrigible_mode'] === 'blacklist' && !isset($editable['corrigible'][$term]))
-                || ($editable['corrigible_mode'] === 'all');
-            $isFillable = ($editable['fillable_mode'] === 'whitelist' && isset($editable['fillable'][$term]))
-                || ($editable['fillable_mode'] === 'blacklist' && !isset($editable['fillable'][$term]))
-                || ($editable['fillable_mode'] === 'all');
+            $isCorrigible = $editable->isTermCorrigible($term);
+            $isFillable = $editable->isTermFillable($term);
             if (!$isCorrigible && !$isFillable) {
                 // Skipped in the case options changed between corrections and moderation.
                 // continue;
@@ -271,7 +267,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                     $type = 'literal';
                 }
 
-                if (!in_array($type, $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($type)) {
                     $type = null;
                 }
 
@@ -430,18 +426,15 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get the list of editable (corrigible and fillable) property ids by terms.
-     *
-     *  The list come from the resource template if it is configured, else the
-     *  default list is used.
+     * Get the editable data (corrigible, fillable, etc.) of a resource.
      *
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return array
+     * @return \Correction\Mvc\Controller\Plugin\EditableData
      */
-    public function listEditableProperties()
+    public function editableData()
     {
-        $listEditableProperties = $this->getServiceLocator()->get('ControllerPluginManager')
-            ->get('listEditableProperties');
-        return $listEditableProperties($this->resource());
+        $editableData = $this->getServiceLocator()->get('ControllerPluginManager')
+            ->get('editableData');
+        return $editableData($this->resource());
     }
 }

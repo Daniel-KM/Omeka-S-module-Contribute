@@ -399,56 +399,15 @@ class CorrectionController extends AbstractActionController
      */
     protected function validateCorrection(CorrectionRepresentation $correction, $term = null, $proposedKey = null)
     {
-        $editable = $correction->listEditableProperties();
-        if (!$editable['is_editable']) {
+        $editable = $correction->editableData();
+        if (!$editable->isEditable()) {
             return;
         }
 
         // Right to update the resource is already checked.
         $resource = $correction->resource();
-
         $existingValues = $resource->values();
         $proposal = $correction->proposalCheck();
-
-        // When only one term is selected, convert it to a white list for simplicity.
-        if ($term) {
-            switch ($editable['corrigible_mode']) {
-                case 'whitelist':
-                    $editable['corrigible'] = isset($editable['corrigible'][$term]) ? [$term => $editable['corrigible'][$term]] : [];
-                    break;
-                case 'blacklist':
-                    $editable['corrigible'] = isset($editable['corrigible'][$term]) ? [] : [$term => -1];
-                    break;
-                case 'all':
-                default:
-                    $editable['corrigible'] = [$term => -1];
-                    break;
-            }
-            $editable['corrigible_mode'] = 'whitelist';
-            $isCorrigible = count($editable['corrigible']);
-
-            switch ($editable['fillable_mode']) {
-                case 'whitelist':
-                    $editable['fillable'] = isset($editable['fillable'][$term]) ? [$term => $editable['fillable'][$term]] : [];
-                    break;
-                case 'blacklist':
-                    $editable['fillable'] = isset($editable['fillable'][$term]) ? [] : [$term => -1];
-                    break;
-                case 'all':
-                default:
-                    $editable['fillable'] = [$term => -1];
-                    break;
-            }
-            $editable['fillable_mode'] = 'whitelist';
-            $isFillable = count($editable['fillable']);
-
-            $editable['is_editable'] = $isCorrigible || $isFillable;
-            if (!$editable['is_editable']) {
-                return;
-            }
-        } else {
-            $proposedKey = null;
-        }
         $hasProposedKey = !is_null($proposedKey);
 
         $api = $this->api();
@@ -457,27 +416,20 @@ class CorrectionController extends AbstractActionController
 
         $data = [];
         foreach ($existingValues as $term => $propertyData) {
-            $data[$term] = [];
+            // Keep all existing values.
+            $data[$term] = array_map(function($v) {
+                return $v->jsonSerialize();
+            }, $propertyData['values']);
+            if (!$editable->isEditable($term)) {
+                continue;
+            }
             /** @var \Omeka\Api\Representation\ValueRepresentation $existingValue */
-            foreach ($propertyData['values'] as $originalKey => $existingValue) {
-                // Keep all existing values.
-                $data[$term][$originalKey] = $existingValue->jsonSerialize();
+            foreach ($propertyData['values'] as $existingValue) {
                 if (!isset($proposal[$term])) {
                     continue;
                 }
-
-                $isCorrigible = ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term]))
-                    || ($editable['corrigible_mode'] === 'blacklist' && !isset($editable['corrigible'][$term]))
-                    || ($editable['corrigible_mode'] === 'all');
-                $isFillable = ($editable['fillable_mode'] === 'whitelist' && isset($editable['fillable'][$term]))
-                    || ($editable['fillable_mode'] === 'blacklist' && !isset($editable['fillable'][$term]))
-                    || ($editable['fillable_mode'] === 'all');
-                if (!$isCorrigible && !$isFillable) {
-                    continue;
-                }
-
                 // TODO Manage all types of value.
-                if (!in_array($existingValue->type(), $editable['datatype'])) {
+                if (!$editable->isDatatypeAllowed($existingValue->type())) {
                     continue;
                 }
 
@@ -532,16 +484,9 @@ class CorrectionController extends AbstractActionController
         // Convert last remaining propositions into array.
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {
-            $isCorrigible = ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term]))
-                || ($editable['corrigible_mode'] === 'blacklist' && !isset($editable['corrigible'][$term]))
-                || ($editable['corrigible_mode'] === 'all');
-            $isFillable = ($editable['fillable_mode'] === 'whitelist' && isset($editable['fillable'][$term]))
-                || ($editable['fillable_mode'] === 'blacklist' && !isset($editable['fillable'][$term]))
-                || ($editable['fillable_mode'] === 'all');
-            if (!$isCorrigible && !$isFillable) {
+            if (!$editable->isEditable($term)) {
                 continue;
             }
-
             $propertyId = $api->searchOne('properties', ['term' => $term])->getContent()->id();
             foreach ($propositions as $key => $proposition) {
                 if ($hasProposedKey && $proposedKey != $key) {
