@@ -313,7 +313,7 @@ class CorrectionController extends AbstractActionController
                 $proposed = null;
                 $type = $fieldCorrection['original']['type'];
                 if ($type === 'uri') {
-                    foreach ($proposals[$term] as $key => $proposal) {
+                    foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
                             && $proposal['original']['@uri'] === $fieldCorrection['original']['@uri']
                             && $proposal['original']['@label'] === $fieldCorrection['original']['@label']
@@ -333,8 +333,9 @@ class CorrectionController extends AbstractActionController
                     ];
                 } elseif (strtok($type, ':') === 'resource') {
                     // TODO Value resource are currently not editable.
+                    continue;
                 } else {
-                    foreach ($proposals[$term] as $proposal) {
+                    foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@value'])
                             && $proposal['original']['@value'] === $fieldCorrection['original']['@value']
                         ) {
@@ -352,7 +353,7 @@ class CorrectionController extends AbstractActionController
                         '@label' => null,
                     ];
                 }
-                unset($proposals[$term][$key]);
+                unset($proposals[$term][$keyProposal]);
             }
         }
 
