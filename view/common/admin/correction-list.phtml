@@ -68,8 +68,10 @@ $editRight = $resource->userIsAllowed('update');
                 <?php if ($email = $correction->email()): ?>
                 <span class="correction-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php endif; ?>
-                <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
                 <span class="correction-date"><?= $this->i18n()->dateFormat($correction->created(), 'medium', 'medium') ?></span>
+                <?php if ($correction->created() != $correction->modified()): // Don't use !==. ?>
+                <span class="correction-date-modified"><?= $translate('(modified)') ?></span>
+                <?php endif; ?>
                 <?php if ($token): ?>
                 <span> / </span>
                 <span class="correction-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>

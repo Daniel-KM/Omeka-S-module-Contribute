@@ -182,7 +182,8 @@
     }
 
     .correction .correction-email,
-    .correction .correction-date {
+    .correction .correction-date,
+    .correction .correction-date-modified {
         opacity: 0.6;
     }
     .correction .correction-id {
