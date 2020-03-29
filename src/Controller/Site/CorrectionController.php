@@ -278,7 +278,29 @@ class CorrectionController extends AbstractActionController
             }
         }
 
-        $proposals = $correction ? $correction->proposal() : [];
+        if (!$correction) {
+            return $fields;
+        }
+
+        $proposals = $correction->proposal();
+
+        // Clean old proposals.
+        foreach ($proposals as $term => $termProposal) {
+            foreach ($termProposal as $key => $proposal) {
+                if (isset($proposal['proposed']['@uri'])) {
+                    if (($proposal['original']['@uri'] === '' && $proposal['proposed']['@uri'] === '')
+                        && ($proposal['original']['@label'] === '' && $proposal['proposed']['@label'] === '')
+                    ) {
+                        unset($proposals[$term][$key]);
+                    }
+                } else {
+                    if ($proposal['original']['@value'] === '' && $proposal['proposed']['@value'] === '') {
+                        unset($proposals[$term][$key]);
+                    }
+                }
+            }
+        }
+        $proposals = array_filter($proposals);
         if (!$proposals) {
             return $fields;
         }
