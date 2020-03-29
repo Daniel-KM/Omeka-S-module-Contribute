@@ -123,6 +123,23 @@ return [
         'Prepare tokens to correct selected', // @translate
         'Prepare tokens to correct all', // @translate
     ],
+    'blocksdisposition' => [
+        'views' => [
+            /* No event currently.
+             'item_set_show' => [
+                'Correction',
+            ],
+            */
+            'item_show' => [
+                'Correction',
+            ],
+            /* No event currently.
+             'media_show' => [
+                'Correction',
+            ],
+            */
+        ],
+    ],
     'correction' => [
         'settings' => [
             'correction_properties_corrigible' => [],
