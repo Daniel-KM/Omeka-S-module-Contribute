@@ -18,7 +18,8 @@ class ListEditableProperties extends AbstractPlugin
     public function __invoke(AbstractResourceEntityRepresentation $resource)
     {
         $result = [
-            'use_default' => false,
+            'default_template' => false,
+            'default_properties' => false,
             'corrigible' => [],
             'fillable' => [],
         ];
@@ -33,11 +34,27 @@ class ListEditableProperties extends AbstractPlugin
             $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
         }
 
-        $result['use_default'] = !count($result['corrigible']) && !count($result['fillable']);
-        if ($result['use_default']) {
+        if (!count($result['corrigible']) && !count($result['fillable'])) {
             $settings = $controller->settings();
-            $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
-            $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
+            $resourceTemplateId = (int) $settings->get('correction_template_editable');
+            if ($resourceTemplateId) {
+                try {
+                    $resourceTemplate = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
+                    $result['default_template'] = $resourceTemplateId;
+                    $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplateId);
+                    $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
+                    $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
+                } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                    // Nothing to do.
+                }
+            }
+
+            if (!count($result['corrigible']) && !count($result['fillable'])) {
+                $result['default_template'] = false;
+                $result['default_properties'] = true;
+                $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
+                $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
+            }
         }
 
         return $result;

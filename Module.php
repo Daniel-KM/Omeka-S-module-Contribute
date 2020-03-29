@@ -23,6 +23,19 @@ class Module extends AbstractModule
         $this->addAclRules();
     }
 
+    protected function postInstall()
+    {
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $resourceTemplate = $services->get('Omeka\Api')->read('resource_templates', ['label' => 'Correction'])->getContent();
+        $templateData = $settings->get('correction_resource_template_data', []);
+        $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
+        $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
+        $settings->set('correction_resource_template_data', $templateData);
+        $settings->set('correction_template_editable', $resourceTemplate->id());
+    }
+
     /**
      * Add ACL rules for this module.
      */
@@ -338,15 +351,21 @@ class Module extends AbstractModule
 
     public function handleMainSettingsFilters(Event $event)
     {
-        $inputFilter = $event->getParam('inputFilter');
-        $inputFilter->get('correction')->add([
-            'name' => 'correction_properties_corrigible',
-            'required' => false,
-        ]);
-        $inputFilter->get('correction')->add([
-            'name' => 'correction_properties_fillable',
-            'required' => false,
-        ]);
+        $event->getParam('inputFilter')
+            ->get('correction')
+            ->add([
+                'name' => 'correction_template_editable',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'correction_properties_corrigible',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'correction_properties_fillable',
+                'required' => false,
+            ])
+        ;
     }
 
     /**

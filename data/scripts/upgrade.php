@@ -12,15 +12,17 @@ namespace Correction;
  * @var \Omeka\Api\Manager $api
  */
 $services = $serviceLocator;
-// $settings = $services->get('Omeka\Settings');
+$settings = $services->get('Omeka\Settings');
 // $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
 $connection = $services->get('Omeka\Connection');
 // $entityManager = $services->get('Omeka\EntityManager');
-// $plugins = $services->get('ControllerPluginManager');
-// $api = $plugins->get('api');
+$plugins = $services->get('ControllerPluginManager');
+$api = $plugins->get('api');
 // $space = strtolower(__NAMESPACE__);
 
 if (version_compare($oldVersion, '3.0.10', '<')) {
+    $this->checkAllResourcesToInstall();
+
     $sql = <<<'SQL'
 ALTER TABLE correction_token
     CHANGE email email VARCHAR(190) DEFAULT NULL,
@@ -47,4 +49,13 @@ SQL;
     foreach ($sqls as $sql) {
         $connection->exec($sql);
     }
+
+    $this->installAllResources();
+
+    $resourceTemplate = $api->read('resource_templates', ['label' => 'Correction'])->getContent();
+    $templateData = $settings->get('correction_resource_template_data', []);
+    $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
+    $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
+    $settings->set('correction_resource_template_data', $templateData);
+    $settings->set('correction_template_editable', $resourceTemplate->id());
 }

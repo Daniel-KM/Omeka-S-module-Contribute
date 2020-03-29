@@ -182,9 +182,6 @@ class CorrectionController extends AbstractActionController
     {
         $fields = [];
 
-        $editable = $this->listEditableProperties($resource);
-        $resourceTemplate = $resource->resourceTemplate();
-        $values = $resource->values();
         $defaultField = [
             'template_property' => null,
             'property' => null,
@@ -195,6 +192,15 @@ class CorrectionController extends AbstractActionController
             'values' => [],
             'corrections' => [],
         ];
+
+        $values = $resource->values();
+        $editable = $this->listEditableProperties($resource);
+
+        // The default template is used when there is no template or when the
+        // used one is not configured. $editable has info about that.
+        $resourceTemplate = $editable['default_template']
+            ? $this->api()->read('resource_templates', ['id' => $editable['default_template']])->getContent()
+            : $resource->resourceTemplate();
 
         // List the fields for the resource when there is a resource template.
         if ($resourceTemplate) {
@@ -215,7 +221,7 @@ class CorrectionController extends AbstractActionController
 
             // When the resource template is configured, the remaining values
             // are never editable, since they are not in the resource template.
-            if (!$editable['use_default']) {
+            if (!$editable['default_properties']) {
                 foreach ($values as $term => $valueInfo) {
                     if (!isset($fields[$term])) {
                         $fields[$term] = $valueInfo;
@@ -229,7 +235,7 @@ class CorrectionController extends AbstractActionController
         }
 
         // Append default fields from the main config, with or without template.
-        if ($editable['use_default']) {
+        if ($editable['default_properties']) {
             $api = $this->api();
             // Append the values of the resource.
             foreach ($values as $term => $valueInfo) {

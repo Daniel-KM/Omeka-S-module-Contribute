@@ -2,6 +2,7 @@
 namespace Correction\Form;
 
 use Omeka\Form\Element\PropertySelect;
+use Omeka\Form\Element\ResourceTemplateSelect;
 use Zend\Form\Element;
 use Zend\Form\Fieldset;
 
@@ -13,10 +14,26 @@ class SettingsFieldset extends Fieldset
     {
         $this
             ->add([
+                'name' => 'correction_template_editable',
+                'type' => ResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Template to use for default edit form', // @translate
+                    'info' => 'This template is used only when the current resource has no template or a template without config. If not set, the properties below will be used.', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'correction_template_editable',
+                    'multiple' => false,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a resource template…', // @translate
+                ],
+            ])
+            ->add([
                 'name' => 'correction_properties_corrigible',
                 'type' => PropertySelect::class,
                 'options' => [
-                    'label' => 'Corrigible properties', // @translate
+                    'label' => 'Properties to correct when no template is available', // @translate
                     'info' => 'Only the selected properties will be proposed for public correction. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
@@ -35,7 +52,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'correction_properties_fillable',
                 'type' => PropertySelect::class,
                 'options' => [
-                    'label' => 'Fillable properties', // @translate
+                    'label' => 'Properties to fill when no template is available', // @translate
                     'info' => 'Allow user to append new values for the selected properties. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
