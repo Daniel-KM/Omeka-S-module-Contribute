@@ -42,6 +42,9 @@ return [
         ],
     ],
     'controller_plugins' => [
+        'invokables' => [
+            'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
+        ],
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
             'resourceTemplateCorrectionPartMap' => Service\ControllerPlugin\ResourceTemplateCorrectionPartMapFactory::class,

@@ -35,31 +35,8 @@ class CorrectionController extends AbstractActionController
             return $this->notFoundAction();
         }
 
-        // Check the token and rights.
-        $token = $this->params()->fromQuery('token');
-        if (empty($token)) {
-            return $this->viewError403();
-        }
-
-        /** @var \Correction\Api\Representation\TokenRepresentation $token */
-        $token = $api
-            ->searchOne('correction_tokens', ['token' => $token, 'resource_id' => $resourceId])
-            ->getContent();
-        if (empty($token)) {
-            return $this->viewError403();
-        }
-
-        // Update the token with last accessed time.
-        $api->update(
-            'correction_tokens',
-            $token->id(),
-            ['o-module-correction:accessed' => 'now'],
-            [],
-            ['isPartial' => true]
-        );
-
-        // TODO Add a message for expiration.
-        if ($token->isExpired()) {
+        $token = $this->checkToken($resource);
+        if (!$token) {
             return $this->viewError403();
         }
 
