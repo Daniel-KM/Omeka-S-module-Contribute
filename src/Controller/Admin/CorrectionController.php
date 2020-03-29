@@ -421,24 +421,26 @@ class CorrectionController extends AbstractActionController
         $proposal = $correction->proposalCheck();
 
         // TODO How to update only one property to avoid to update unmodified terms?
+
         $data = [];
         foreach ($existingValues as $term => $propertyData) {
             $data[$term] = [];
             /** @var \Omeka\Api\Representation\ValueRepresentation $existingValue */
-            foreach ($propertyData['values'] as $key1 => $existingValue) {
+            foreach ($propertyData['values'] as $originalKey => $existingValue) {
                 // Keep all existing values.
-                $data[$term][$key1] = $existingValue->jsonSerialize();
+                $data[$term][$originalKey] = $existingValue->jsonSerialize();
                 if (!isset($proposal[$term])) {
                     continue;
                 }
                 // TODO Manage all types of value.
-                if ($existingValue->type() !== 'literal' && $existingValue->type() !== 'uri') {
+                if (!in_array($existingValue->type(), ['literal', 'uri'])) {
                     continue;
                 }
 
                 // Values have no id and the order key is not saved, so the
                 // check should be redone.
-                $existingValue = $existingValue->value();
+                $existingVal = $existingValue->value();
+                $existingUri = $existingValue->uri();
                 foreach ($proposal[$term] as $key => $proposition) {
                     if ($hasProposedKey && $proposedKey != $key) {
                         continue;
@@ -450,20 +452,11 @@ class CorrectionController extends AbstractActionController
                         continue;
                     }
 
-                    if (array_key_exists("@value", $proposition['original'])) {
-                        if ($proposition['original']['@value'] === $existingValue) {
-                            switch ($proposition['process']) {
-                                case 'remove':
-                                    unset($data[$term][$key]);
-                                    break;
-                                case 'update':
-                                    $data[$term][$key]['@value'] = $proposition['proposed']['@value'];
-                                    break;
-                            }
-                            break;
-                        }
-                    } elseif (array_key_exists("@uri", $proposition['original'])) {
-                        if ($proposition['original']['@label'] === $existingValue) {
+                    $isUri = array_key_exists('@uri', $proposition['original']);
+                    $isValue = array_key_exists('@value', $proposition['original']);
+
+                    if ($isUri) {
+                        if ($proposition['original']['@uri'] === $existingUri) {
                             switch ($proposition['process']) {
                                 case 'remove':
                                     unset($data[$term][$key]);
@@ -471,6 +464,18 @@ class CorrectionController extends AbstractActionController
                                 case 'update':
                                     $data[$term][$key]['@id'] = $proposition['proposed']['@uri'];
                                     $data[$term][$key]['o:label'] = $proposition['proposed']['@label'];
+                                    break;
+                            }
+                            break;
+                        }
+                    } elseif ($isValue) {
+                        if ($proposition['original']['@value'] === $existingVal) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['@value'] = $proposition['proposed']['@value'];
                                     break;
                             }
                             break;
@@ -500,7 +505,7 @@ class CorrectionController extends AbstractActionController
                         'property_id' => $propertyId,
                         'type' => 'literal',
                         '@value' => $proposition['proposed']['@value'],
-                        // 'is_public' => true,
+                        'is_public' => true,
                         // '@language' => null,
                     ];
                 } elseif (array_key_exists("@uri", $proposition['original'])) {
@@ -515,7 +520,7 @@ class CorrectionController extends AbstractActionController
             }
         }
 
-        $this->api()->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
+        $api->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
     }
 
     protected function jsonErrorUnauthorized()
