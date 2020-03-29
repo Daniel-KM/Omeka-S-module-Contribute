@@ -146,7 +146,7 @@
     }
     .correction .o-icon-unknown-value::before,
     .correction .o-icon-not-validable-value::before {
-        color: #FFA500;
+        color: #FF8800;
         content: ""; /* exclamation */
     }
     .correction .o-icon-undefined::before {
@@ -158,7 +158,7 @@
         content: "";
     }
     .correction .o-icon-transmit::before {
-        background: url('../img/waiting-mini.gif') no-repeat scroll 12px 3px transparent !important;
+        background: url('../img/waiting-mini.gif') no-repeat scroll 3px 3px transparent !important;
         color: #000000;
         content: "";
         cursor: progress;
@@ -176,7 +176,7 @@
         height: 24px;
         line-height: 24px;
         text-align: right;
-       vertical-align: top;
+        vertical-align: top;
         border: 0;
         box-shadow: none;
     }
@@ -197,7 +197,7 @@
     }
 
     /* Modal */
-    /* Mocal background */
+    /* Modal background */
     .create_correction .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */

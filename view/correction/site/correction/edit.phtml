@@ -9,7 +9,6 @@
 
 $assetUrl = $this->plugin('assetUrl');
 $this->headLink()
-    ->appendStylesheet($assetUrl('css/style.css'))
     ->appendStylesheet($assetUrl('css/correction.css', 'Correction'));
 $this->headScript()
     ->appendFile($assetUrl('js/correction.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);

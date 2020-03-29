@@ -206,7 +206,7 @@ class Module extends AbstractModule
         $view = $event->getTarget();
         $assetUrl = $view->plugin('assetUrl');
         $view->headLink()
-            ->appendStylesheet($assetUrl('css/correction-admin.css', 'Correction'), 'text/javascript', ['defer' => 'defer']);
+            ->appendStylesheet($assetUrl('css/correction-admin.css', 'Correction'));
         $view->headScript()
             ->appendFile($assetUrl('js/correction-admin.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
     }

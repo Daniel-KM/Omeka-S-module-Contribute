@@ -31,4 +31,10 @@
     [data-data-type="uri"] textarea.value-label {
         border-top-width: 0
     }
+
+    .button.add-value-new,
+    .button.add-value-uri,
+    .button.add-value {
+        cursor: pointer;
+    }
 }
