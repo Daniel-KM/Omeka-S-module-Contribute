@@ -20,9 +20,11 @@ $values = $resource->values();
 <div class="corrections">
     <?php $totalTokens = $api->search('correction_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
+        <?php if (!$this->setting('correction_without_token')): ?>
     <div class="no-resources no-tokens">
         <p><?= $translate('There are no tokens for this resource.') ?></p>
     </div>
+        <?php endif; ?>
     <?php else: ?>
     <?php $totalExpiredTokens = $api
         ->search(
@@ -81,6 +83,7 @@ $editRight = $resource->userIsAllowed('update');
                 <span class="single actions"><a href="#"
                     class="validate o-icon-validate"
                     data-validate-url="<?= $escape($correction->url('validate')) ?>"
+                    data-status="validate"
                     aria-label="<?= $escape($translate('Validate all values')) ?>"
                     title="<?= $escape($translate('Validate all values')) ?>"></a></span>
                 <span class="single actions"><a href="#"
@@ -134,10 +137,11 @@ $editRight = $resource->userIsAllowed('update');
             <?php endif; ?>
         </h4>
         <div class="values">
+
         <?php foreach ($propositions as $key => $proposition):
             // TODO Manage all types.
             $type = 'literal';
-            if (array_key_exists("@uri",$proposition['original'])) $type = 'uri';
+            if (array_key_exists('@uri', $proposition['original'])) $type = 'uri';
             switch ($type):
             case 'uri':
                 $original_uri = $proposition['original']['@uri'];
@@ -163,11 +167,11 @@ $editRight = $resource->userIsAllowed('update');
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_label) ?></span><span>:</span>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_uri) ?></span>
                     <?php else: ?>
-                    <?php if ($original_label): ?>
+                        <?php if ($original_label): ?>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original_label) ?></span><span>:</span>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original_uri) ?></span>
                     <br/>
-                    <?php endif; ?>
+                        <?php endif; ?>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed_label) ?></span><span>:</span>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed_uri) ?></span>
                     <?php endif; ?>
@@ -183,6 +187,7 @@ $editRight = $resource->userIsAllowed('update');
                         <a href="#"
                             class="validate-value o-icon-validate-value"
                             data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
                     <?php endif; ?>
@@ -209,10 +214,10 @@ $editRight = $resource->userIsAllowed('update');
                     <?php if ($process === 'remove'): ?>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original) ?></span>
                     <?php else: ?>
-                    <?php if ($original): ?>
+                        <?php if ($original): ?>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original) ?></span>
                     <br/>
-                    <?php endif; ?>
+                        <?php endif; ?>
                     <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed) ?></span>
                     <?php endif; ?>
 
@@ -227,6 +232,7 @@ $editRight = $resource->userIsAllowed('update');
                         <a href="#"
                             class="validate-value o-icon-validate-value"
                             data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
                     <?php endif; ?>

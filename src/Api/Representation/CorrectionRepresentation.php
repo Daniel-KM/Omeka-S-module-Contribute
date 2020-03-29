@@ -315,6 +315,11 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
+                        } elseif ($proposedValue = $this->resourceValue($term, $proposed)) {
+                            $prop['value'] = $this->resourceValue($term, $original);
+                            $prop['value_updated'] = $proposedValue;
+                            $prop['validated'] = true;
+                            $prop['process'] = 'keep';
                         } elseif ($originalValue = $this->resourceValue($term, $original)) {
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
@@ -377,6 +382,11 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
+                        } elseif ($proposedValue = $this->resourceUriValue($term, $proposedUri)) {
+                            $prop['value'] = $this->resourceUriValue($term, $originalUri);
+                            $prop['value_updated'] = $proposedValue;
+                            $prop['validated'] = true;
+                            $prop['process'] = 'keep';
                         } elseif ($originalValue = $this->resourceUriValue($term, $originalUri)) {
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
