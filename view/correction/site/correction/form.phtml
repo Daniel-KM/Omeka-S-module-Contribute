@@ -30,12 +30,14 @@ $labelInfo = $this->setting('property_label_information');
             <div class="input-body w-100">
                 <div class="input">
                     <label class="value input-container">
-                        <?= $translate('URI') ?>:<input type="text" class="value to-require touched form-control" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
+                        <?= $translate('URI') ?>:
+                        <input type="text" class="value to-require touched form-control" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
                     </label>
                 </div>
                 <div class="input">
                     <label class="value-label label-container">
-                        <?= $translate('Label') ?>: <textarea class="value-label touched form-control" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
+                        <?= $translate('Label') ?>:
+                        <textarea class="value-label touched form-control" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
                     </label>
                 </div>
             </div>
@@ -47,11 +49,12 @@ $labelInfo = $this->setting('property_label_information');
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 
     <?php // Display the corrected resource, with edited or non-edited fields, plus the non-editable original fields. ?>
-    <?php foreach ($fields as $term => $field): ?>
-        <?php $index = 0; ?>
-        <?php $property = $field['property']; ?>
-        <?php // Don't display empty values that are not fillable. ?>
-        <?php if (empty($field['corrections']) && !$field['fillable']) continue; ?>
+    <?php foreach ($fields as $term => $field):
+        $index = 0;
+        $property = $field['property'];
+        // Don't display empty values that are not fillable.
+        if (empty($field['corrections']) && !$field['fillable']) continue;
+        ?>
 
     <div class="property mb-3">
         <?php // Display property label. ?>
@@ -67,14 +70,17 @@ $labelInfo = $this->setting('property_label_information');
 
         <?php // Simple display of the value for properties that are not editable. ?>
         <?php if (!$field['corrigible'] && !$field['fillable']): ?>
-            <?php foreach ($field['values'] as $value):
-                $type = $value->type();
+            <?php
+            /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+            foreach ($field['values'] as $value):
+                $valueType = $value->type();
+                $isValueResource = strtok($valueType, ':') === 'resource';
                 $isPrivate = method_exists($value, 'isPublic') && !$value->isPublic();
                 $class = ['value'];
-                if ('resource' == $type):
+                if ($isValueResource):
                     $class[] = 'resource';
                     $class[] = $escape($value->valueResource()->resourceName());
-                elseif ('uri' == $type):
+                elseif ('uri' === $valueType):
                     $class[] = 'uri';
                 endif;
                 if ($isPrivate):
@@ -98,19 +104,20 @@ $labelInfo = $this->setting('property_label_information');
                 $value = $fieldCorrection['original']['value'];
                 if (!$value && !$field['fillable']) continue;
 
+                $valueType = $fieldCorrection['type'];
+                $isValueResource = strtok($valueType, ':') === 'resource';
                 $original = $fieldCorrection['original'];
                 $proposed = $fieldCorrection['proposed'];
-                $type = $fieldCorrection['type'];
                 $isPrivate = $value && method_exists($value, 'isPublic') && !$value->isPublic();
 
                 // Value that is not corrigible.
                 if ($value && !$field['corrigible']):
                     $val = strlen($fieldCorrection['proposed']['@value']) ? $escape($fieldCorrection['proposed']['@value']) : $value->asHtml();
                     $class = ['value'];
-                    if ('resource' == $type):
+                    if ($isValueResource):
                         $class[] = 'resource';
                         $class[] = $escape($value->valueResource()->resourceName());
-                    elseif ('uri' == $type):
+                    elseif ('uri' === $valueType):
                         $class[] = 'uri';
                     endif;
                     if ($isPrivate):
@@ -129,7 +136,7 @@ $labelInfo = $this->setting('property_label_information');
                 // Value that is corrigible or fillable.
                 else:
                     // TODO Manage all types of data, in particular custom vocab and value suggest.
-                    switch ($type):
+                    switch ($valueType):
                     case 'uri':
                         $val = isset($proposed['@uri']) ? $proposed['@uri'] : $original['@uri'];
                         $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
@@ -154,7 +161,7 @@ $labelInfo = $this->setting('property_label_information');
 
                     break;
                     // Resource are not editable currently.
-                    case strtok($type, ':') === 'resource':
+                    case strtok($valueType, ':') === 'resource':
                     default: ?>
                     <?php if ($value): ?>
             <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
@@ -167,10 +174,10 @@ $labelInfo = $this->setting('property_label_information');
                     case 'literal':
                         $val = isset($proposed['@value']) ? $proposed['@value'] : $original['@value'];
                         $class = ['value'];
-                        if ('resource' == $type):
+                        if (strtok($valueType, ':') === 'resource'):
                             $class[] = 'resource';
                             $class[] = $value ? $escape($value->valueResource()->resourceName()) : '';
-                        elseif ('uri' == $type):
+                        elseif ('uri' === $valueType):
                             $class[] = 'uri';
                         endif;
                         if ($isPrivate):
