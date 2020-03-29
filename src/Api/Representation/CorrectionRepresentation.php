@@ -201,9 +201,30 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             return;
         }
         //  TODO Manage correction of non literal values.
-        $values = $this->resource()->value($term, ['all' => true , 'default' => []]);
+        $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
         foreach ($values as $value) {
             if ($value->value() === $string) {
+                return $value;
+            }
+        }
+    }
+
+    /**
+     * Check if a uri exists in original resource.
+     *
+     * @param string $term
+     * @param string $string
+     * @return \Omeka\Api\Representation\ValueRepresentation
+     */
+    public function resourceUriValue($term, $string)
+    {
+        if ($string === '') {
+            return;
+        }
+        //  TODO Manage correction of non literal values.
+        $values = $this->resource()->value($term, ['type' => 'uri', 'all' => true, 'default' => []]);
+        foreach ($values as $value) {
+            if ($value->uri() === $string) {
                 return $value;
             }
         }
@@ -216,12 +237,6 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
      */
     public function proposalCheck()
     {
-        static $check;
-
-        if (isset($check)) {
-            return $check;
-        }
-
         $services = $this->getServiceLocator();
         $api = $services->get('ControllerPluginManager')->get('api');
 
@@ -230,8 +245,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         $fillable = $editable['fillable'];
 
         if (empty($corrigible) && empty($fillable)) {
-            $check = [];
-            return $check;
+            return [];
         }
 
         $proposal = $this->proposal();
@@ -281,10 +295,9 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value_updated'] = $prop['value'];
                             $prop['validated'] = true;
                             $prop['process'] = 'keep';
-                        }
-                        // If no proposition, the user wants to remove a value, so check if it still exists.
-                        // Either the value is validated, either it is not (to be removed, corrected or appended).
-                        elseif (!strlen($proposed)) {
+                        } elseif (!strlen($proposed)) {
+                            // If no proposition, the user wants to remove a value, so check if it still exists.
+                            // Either the value is validated, either it is not (to be removed, corrected or appended).
                             $prop['value'] = $this->resourceValue($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
@@ -322,13 +335,15 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                     case 'uri':
                         $originalUri = $proposition['original']['@uri'];
                         $originalLabel = $proposition['original']['@label'];
+                        $original = $originalUri . $originalLabel;
 
-                        $proposed_uri = $proposition['proposed']['@uri'];
+                        $proposedUri = $proposition['proposed']['@uri'];
                         $proposedLabel = $proposition['proposed']['@label'];
+                        $proposed = $proposedUri . $proposedLabel;
 
                         // Nothing to do if there is no proposition and no original.
                         $hasOriginal = (bool) strlen($originalUri);
-                        $hasProposition = (bool) strlen($proposed_uri);
+                        $hasProposition = (bool) strlen($proposedUri);
                         if (!$hasOriginal && !$hasProposition) {
                             unset($proposal[$term][$key]);
                             continue;
@@ -337,35 +352,34 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                         // TODO Keep the key order of the value in the list of values of each term to simplify validation.
 
                         $prop = &$proposal[$term][$key];
-                        if ($originalUri === $proposed_uri && $originalLabel === $proposedLabel) {
-                            $prop['value'] = $this->resourceValue($term, $originalLabel);
+                        if ($original === $proposed) {
+                            $prop['value'] = $this->resourceValue($term, $originalUri);
                             $prop['value_updated'] = $prop['value'];
                             $prop['validated'] = true;
                             $prop['process'] = 'keep';
-                        }
-                        // If no proposition, the user wants to remove a value, so check if it still exists.
-                        // Either the value is validated, either it is not (to be removed, corrected or appended).
-                        elseif (!strlen($proposedLabel)) {
-                            $prop['value'] = $this->resourceValue($term, $originalLabel);
+                        } elseif (!strlen($proposed)) {
+                            // If no proposition, the user wants to remove a value, so check if it still exists.
+                            // Either the value is validated, either it is not (to be removed, corrected or appended).
+                            $prop['value'] = $this->resourceValue($term, $originalUri);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
                             $prop['process'] = $isCorrigible
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
-                        } elseif (!strlen($originalLabel)) {
+                        } elseif (!strlen($original)) {
                             // The original value may have been removed or appended:
                             // this is not really determinable.
                             $prop['value'] = null;
-                            $prop['value_updated'] = $this->resourceValue($term, $proposedLabel);
+                            $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isFillable
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
-                        } elseif ($originalValue = $this->resourceValue($term, $original)) {
-                            $prop['value'] = $this->resourceValue($term, $originalLabel);
-                            $prop['value_updated'] = $this->resourceValue($term, $proposedLabel);
+                        } elseif ($originalValue = $this->resourceUriValue($term, $originalUri)) {
+                            $prop['value'] = $originalValue;
+                            $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isCorrigible
                                 ? 'update'
@@ -373,7 +387,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 : 'keep';
                         } else {
                             $prop['value'] = null;
-                            $prop['value_updated'] = $this->resourceValue($term, $proposedLabel);
+                            $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = 'keep';
                         }
@@ -383,8 +397,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             }
         }
 
-        $check = $proposal;
-        return $check;
+        return $proposal;
     }
 
     public function resourceTemplateSettings()

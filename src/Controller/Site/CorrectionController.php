@@ -469,7 +469,9 @@ class CorrectionController extends AbstractActionController
     /**
      * Prepare the proposal for saving.
      *
-     * The form and this method must use the same keys.
+     * The check is done comparing the keys of original values and the new ones.
+     *
+     * @todo Manage all types of data, in particular custom vocab and value suggest.
      *
      * @param AbstractResourceEntityRepresentation $resource
      * @param array $proposal
@@ -477,6 +479,8 @@ class CorrectionController extends AbstractActionController
      */
     protected function prepareProposal(AbstractResourceEntityRepresentation $resource, array $proposal)
     {
+        $result = [];
+
         // Clean data.
         foreach ($proposal as &$values) {
             // Manage specific posts.
@@ -497,88 +501,99 @@ class CorrectionController extends AbstractActionController
         }
         unset($values, $value);
 
-        // Filter data.
+        // Process only editable keys.
         $editable = $this->getEditableProperties($resource);
-        $corrigible = $editable['corrigible'];
-        $fillable = $editable['fillable'];
-        $proposalCorrigible = array_intersect_key($proposal, $corrigible);
-        $result = [];
-        foreach (array_keys($corrigible) as $term) {
-            // TODO Manage all types of data, in particular custom vocab and value suggest.
+
+        // Process corrigible properties first.
+        $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable['corrigible']));
+        foreach ($proposalCorrigibleTerms as $term) {
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
-            $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]);
-
-            $proposedValues = isset($proposalCorrigible[$term]) ? $proposalCorrigible[$term] : [];
-            // Don't save corrigible and fillable twice.
-            unset($fillable[$term]);
-
-            // First, save original values (literal only) and the matching corrections.
-            // TODO Check $key and order of values.
-            $key = 0;
-            foreach ($values as $value) {
-                if (!isset($proposedValues[$key])) {
+            $values = $resource->value($term, ['all' => true, 'default' => []]);
+            foreach ($values as $index => $value) {
+                if (!isset($proposal[$term][$index])) {
                     continue;
                 }
-
-                if ($value->type() != "literal" && $value->type() != "uri") {
-                    continue;
-                }
-
-                if ($value->type() == 'literal') {
-                    $result[$term][] = [
-                        'original' => ['@value' => $value->value()],
-                        'proposed' => $proposedValues[$key],
-                    ];
-                } elseif ($value->type() == 'uri') {
-                    $result[$term][] = [
-                        'original' => ['@label' => $value->value(), '@uri' => $value->uri()],
-                        'proposed' => $proposedValues[$key],
-                    ];
-                }
-                // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
-                unset($proposedValues[$key]);
-                ++$key;
-            }
-
-            // Second, save remaining corrections (no more original or appended).
-            foreach ($proposedValues as $proposedValue) {
-                if ($proposedValue === '') {
-                    continue;
-                }
-                if (array_key_exists("@uri", $proposedValue)) {
-                    $result[$term][] = [
-                        'original' => ['@uri' => '','@label'=>''],
-                        'proposed' => $proposedValue,
-                    ];
-                } elseif (array_key_exists("@value", $proposedValue)) {
-                    $result[$term][] = [
-                        'original' => ['@value' => ''],
-                        'proposed' => $proposedValue,
-                    ];
+                $type = $value->type();
+                switch ($type) {
+                    case 'literal':
+                        if (!isset($proposal[$term][$index]['@value'])) {
+                            continue 2;
+                        }
+                        $result[$term][] = [
+                            'original' => [
+                                '@value' => $value->value(),
+                            ],
+                            'proposed' => [
+                                '@value' => $proposal[$term][$index]['@value'],
+                            ],
+                        ];
+                        break;
+                    case 'uri':
+                        if (!isset($proposal[$term][$index]['@uri'])) {
+                            continue 2;
+                        }
+                        $proposal[$term][$index] += ['@label' => ''];
+                        $result[$term][] = [
+                            'original' => [
+                                '@uri' => $value->uri(),
+                                '@label' => $value->value(),
+                            ],
+                            'proposed' => [
+                                '@uri' => $proposal[$term][$index]['@uri'],
+                                '@label' => $proposal[$term][$index]['@label'],
+                            ],
+                        ];
+                        break;
+                    default:
+                        // Nothing to do.
+                        continue 2;
                 }
             }
         }
 
-        // Third, save remaining fillable properties.
-        $proposalFillable = array_intersect_key($proposal, $fillable);
-        foreach (array_keys($fillable) as $term) {
-            if (!isset($proposalFillable[$term])) {
-                continue;
-            }
-            foreach ($proposalFillable[$term] as $proposedValue) {
-                if ($proposedValue === '') {
+        // Append fillable properties.
+        $proposalFillableTerms = array_keys(array_intersect_key($proposal, $editable['fillable']));
+        foreach ($proposalFillableTerms as $term) {
+            foreach ($proposal[$term] as $index => $proposedValue) {
+                /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
+                $values = $resource->value($term, ['all' => true, 'default' => []]);
+                if (isset($values[$index])) {
                     continue;
                 }
-                if (array_key_exists('@uri', $proposedValue)) {
-                    $result[$term][] = [
-                        'original' => ['@uri' => '', '@label'=>''],
-                        'proposed' => $proposedValue,
-                    ];
-                } elseif (array_key_exists('@value', $proposedValue)) {
-                    $result[$term][] = [
-                        'original' => ['@value' => ''],
-                        'proposed' => $proposedValue,
-                    ];
+                $type = array_key_exists('@uri', $value) ? 'uri' : 'literal';
+                switch ($type) {
+                    case 'literal':
+                        if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
+                            continue 2;
+                        }
+                        $result[$term][] = [
+                            'original' => [
+                                '@value' => null,
+                            ],
+                            'proposed' => [
+                                '@value' => $proposedValue['@value'],
+                            ],
+                        ];
+                        break;
+                    case 'uri':
+                        if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
+                            continue 2;
+                        }
+                        $proposedValue += ['@label' => ''];
+                        $result[$term][] = [
+                            'original' => [
+                                '@uri' => null,
+                                '@label' => null,
+                            ],
+                            'proposed' => [
+                                '@uri' => $proposedValue['@uri'],
+                                '@label' => $proposedValue['@label'],
+                            ],
+                        ];
+                        break;
+                    default:
+                        // Nothing to do.
+                        continue 2;
                 }
             }
         }
