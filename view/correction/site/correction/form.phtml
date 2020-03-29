@@ -48,6 +48,7 @@ $labelInfo = $this->setting('property_label_information');
 
     <?php // Display the corrected resource, with edited or non-edited fields, plus the non-editable original fields. ?>
     <?php foreach ($fields as $term => $field): ?>
+        <?php $index = 0; ?>
         <?php $property = $field['property']; ?>
         <?php // Don't display empty values that are not fillable. ?>
         <?php if (empty($field['corrections']) && !$field['fillable']) continue; ?>
@@ -66,7 +67,7 @@ $labelInfo = $this->setting('property_label_information');
 
         <?php // Simple display of the value for properties that are not editable. ?>
         <?php if (!$field['corrigible'] && !$field['fillable']): ?>
-            <?php foreach ($field['values'] as $key => $value):
+            <?php foreach ($field['values'] as $value):
                 $type = $value->type();
                 $isPrivate = method_exists($value, 'isPublic') && !$value->isPublic();
                 $class = ['value'];
@@ -92,7 +93,7 @@ $labelInfo = $this->setting('property_label_information');
         <?php // Editable fields, that may have been edited or not. ?>
         <?php else: ?>
 
-           <?php foreach ($field['corrections'] as $key => $fieldCorrection):
+           <?php foreach ($field['corrections'] as $fieldCorrection):
                 /** @var \Omeka\Api\Representation\ValueRepresentation $value */
                 $value = $fieldCorrection['original']['value'];
                 if (!$value && !$field['fillable']) continue;
@@ -138,13 +139,13 @@ $labelInfo = $this->setting('property_label_information');
                     <div class="input">
                         <label class="value input-container">
                             <?= $translate('URI') ?>:
-                            <input type="text" class="value to-require touched form-control" data-value-key="@id" name="<?= $term . '[' . $key . '][@uri]' ?> " value = "<?= $escapeAttr($val) ?>"/>
+                            <input type="text" class="value to-require touched form-control" data-value-key="@id" name="<?= $term . '[' . $index . '][@uri]' ?> " value = "<?= $escapeAttr($val) ?>"/>
                         </label>
                     </div>
                     <div class="input">
                         <label class="value-label label-container">
                             <?= $translate('Label') ?>:
-                            <textarea class="value-label touched form-control" rows="1" data-value-key="o:label" name="<?= $term . '[' . $key . '][@label]' ?>"><?= $escape($label) ?></textarea>
+                            <textarea class="value-label touched form-control" rows="1" data-value-key="o:label" name="<?= $term . '[' . $index . '][@label]' ?>"><?= $escape($label) ?></textarea>
                         </label>
                     </div>
                 </div>
@@ -157,7 +158,7 @@ $labelInfo = $this->setting('property_label_information');
                     default: ?>
                     <?php if ($value): ?>
             <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
-                <?= $value->asHtml() ?>
+                <?= $value ? $value->asHtml() : $proposed['@value'] ?>
             </div>
                     <?php endif; ?>
                     <?php
@@ -168,20 +169,20 @@ $labelInfo = $this->setting('property_label_information');
                         $class = ['value'];
                         if ('resource' == $type):
                             $class[] = 'resource';
-                            $class[] = $escape($value->valueResource()->resourceName());
+                            $class[] = $value ? $escape($value->valueResource()->resourceName()) : '';
                         elseif ('uri' == $type):
                             $class[] = 'uri';
                         endif;
                         if ($isPrivate):
                             $class[] = 'private';
                         endif;
-                        $language = isset($proposed['@value']) ? null : $field['value']->lang();
+                        $language = isset($proposed['@value']) ? null : ($original['value'] ? $original['value']->lang() : null);
                         ?>
             <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
                 <?php if ($language): ?>
                 <span class="language"><?= $language ?></span>
                 <?php endif; ?>
-                <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value form-control" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($val) ?></textarea>
+                <textarea data-value-key="@value" name="<?= $term . '[' . $index . '][@value]' ?>" class="input-value form-control" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($val) ?></textarea>
             </div>
                     <?php
                     break;
@@ -190,6 +191,7 @@ $labelInfo = $this->setting('property_label_information');
                 endif;
                 ?>
 
+            <?php ++$index; ?>
             <?php endforeach; ?>
 
             <?php // Add buttons to add a new value for fillable properties. ?>
@@ -198,7 +200,7 @@ $labelInfo = $this->setting('property_label_information');
                 $valueType = $templateProperty ? $templateProperty->dataType() : null;
                 ?>
         <div class="inputs">
-            <div class="add-values default-selector" data-next-key="<?= $key ?>" data-next-term="<?= $term ?>">
+            <div class="add-values default-selector" data-next-index="<?= $index ?>" data-next-term="<?= $term ?>">
                 <?php if (empty($valueType) || $valueType === 'literal'): ?>
                 <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
                 <?php endif; ?>

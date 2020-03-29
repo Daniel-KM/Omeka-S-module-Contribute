@@ -255,8 +255,17 @@ class CorrectionController extends AbstractActionController
             $token = $correction->token();
         }
 
-        if (!$token->resource()->userIsAllowed('update')) {
-            return $this->jsonErrorUnauthorized();
+        if (!$token) {
+            if (!$this->settings()->get('correction_without_token')) {
+                return $this->jsonErrorUnauthorized();
+            }
+            return new JsonModel([
+                'status' => Response::STATUS_CODE_200,
+                'content' => [
+                    'status' => 'no-token',
+                    'statusLabel' => $this->translate('No token'),
+                ],
+            ]);
         }
 
         if (!$token->isExpired()) {
