@@ -22,335 +22,340 @@ $template = $resource->resourceTemplate();
 // TODO Improve the process in order to get only one list of values (term, original, corrections). See CorrectionRepresentation::proposalCheck().
 ?>
 
-<div id="correct_value_template" class="uri" style="display:none;">
-    <div class="value" lang="">
-        <textarea data-value-key="@value" name="dcterms:title[__INDEX__][@value]" class="input-value" aria-labelledby="property-__PROPERTYID__-label"></textarea>
-    </div>
-</div>
-<div id="correct_uri_template" class="uri" style="display:none;">
-    <div class="value" data-data-type="uri" role="group">
-        <div class="input-body">
-            <div class="input">
-                <label class="value">
-                    <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
-                </label>
-            </div>
-            <div class="input">
-                <label class="value-label">
-                    <?= $translate('Label') ?>: <textarea class="value-label touched" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
-                </label>
-            </div>
+<div class="pl-3">
+    <?php // Template for the fields according to the datatype. ?>
+    <div id="correct_value_template" class="uri" style="display:none;">
+        <div class="value" lang="">
+            <textarea data-value-key="@value" name="dcterms:title[__INDEX__][@value]" class="input-value form-control" aria-labelledby="property-__PROPERTYID__-label"></textarea>
         </div>
     </div>
-</div>
-
-<?= $this->form()->openTag($form) ?>
-
-<?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
-
-<?php
-// Use of values() allows to have the alternate labels and comments simply.
-$valuesData = $resource->values();
-$key = 0;
-?>
-
-<?php foreach ($corrigible as $term => $property): ?>
-<?php // TODO Manage all types of data, in particular custom vocab and value suggest. ?>
-<?php /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */ ?>
-<?php $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]); ?>
-<?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
-<?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
-
-<div class="property">
-    <h4>
-        <?= isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())) ?>
-        <?php if ($labelInfo === 'term'): ?>
-        <span class="field-term">(<?= $escape($property->term()) ?>)</span>
-        <?php elseif ($labelInfo === 'vocab'): ?>
-        <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
-        <?php endif; ?>
-    </h4>
-    <div class="values">
-
-    <?php // First, display original values and the matching corrections. ?>
-    <?php foreach ($values as $key => $value):
-
-    switch ($value->type()):
-    case 'uri':
-        // Method value() is the label or the value.
-        $original = $value->value();
-        $original_uri = $value->uri();
-        $proposed = $correction ? $correction->proposedUriValue($term, $original_uri, $original) : null;
-
-        // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
-        // Manage the case where the type of the property was changed in the template between two corrections.
-        if (is_null($proposed)):
-            foreach ($proposedValues as $kp => $v):
-                if (isset($v['proposed']['@uri'])):
-                    if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                else:
-                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                endif;
-            endforeach;
-        else:
-            foreach ($proposedValues as $kp => $v):
-                if (isset($v['proposed']['@uri'])):
-                    if ( $v['original']['@uri'] === $original_uri && $v['original']['@label'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                else:
-                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                endif;
-            endforeach;
-        endif;
-
-        ?>
-            <div class="value" data-data-type="uri" role="group" style="display: flex;">
-                <div class="input-body">
-                    <div class="input">
-                        <label class="value">
-                            <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@id"
-                            name="<?= $term . '[' . $key . '][@uri]'; ?> " value = "<?= $value->uri() ?>">
-                        </label>
-                    </div>
-                    <div class="input">
-                        <label class="value-label">
-                            <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label"
-                            name="<?= $term . '[' . $key . '][@label]'; ?>"><?= $value->value() ?></textarea>
-                        </label>
-                    </div>
+    <div id="correct_uri_template" class="uri" style="display:none;">
+        <div class="value" data-data-type="uri" role="group">
+            <div class="input-body w-100">
+                <div class="input">
+                    <label class="value input-container">
+                        <?= $translate('URI') ?>:<input type="text" class="value to-require touched form-control" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
+                    </label>
+                </div>
+                <div class="input">
+                    <label class="value-label label-container">
+                        <?= $translate('Label') ?>: <textarea class="value-label touched form-control" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
+                    </label>
                 </div>
             </div>
-        <?php
-
-    break;
-    case 'literal':
-    default:
-        // Method value() is the label or the value.
-        $original = $value->value();
-        $original_uri = $value->uri();
-        $proposed = $correction ? $correction->proposedValue($term, $original) : null;
-
-        // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
-        if (is_null($proposed)):
-            foreach ($proposedValues as $kp => $v):
-                if (isset($v['proposed']['@uri'])):
-                    if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                else:
-                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                endif;
-            endforeach;
-        else:
-            foreach ($proposedValues as $kp => $v):
-                if (isset($v['proposed']['@uri'])):
-                    if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                else:
-                    if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
-                        unset($proposedValues[$kp]);
-                        break;
-                    endif;
-                endif;
-            endforeach;
-        endif;
-
-        $val = is_null($proposed) ? $value->asHtml() : $escape($proposed);
-
-        $class = ['value'];
-        if ('resource' == $value->type()) {
-            $class[] = 'resource';
-            $class[] = $escape($value->valueResource()->resourceName());
-        } elseif ('uri' == $value->type()) {
-            $class[] = 'uri';
-        }
-        if (method_exists($value, 'isPublic') && !$value->isPublic()) {
-            $class[] = 'private';
-        }
-        $language = $value->lang();
-        ?>
-        <div class="<?= implode(' ', $class); ?>" lang="<?= $escape($language) ?>">
-            <?php if ($language): ?>
-            <span class="language"><?= $language ?></span>
-            <?php endif; ?>
-            <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?= $property->id() ?>-label"><?= $val; ?></textarea>
         </div>
-        <?php
-    break;
-    endswitch;
+    </div>
+
+    <?= $this->form()->openTag($form) ?>
+
+    <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
+
+    <?php
+    // Use of values() allows to have the alternate labels and comments simply.
+    $valuesData = $resource->values();
+    $key = 0;
     ?>
 
-    <?php endforeach; ?>
+    <?php foreach ($corrigible as $term => $property): ?>
+    <?php // TODO Manage all types of data, in particular custom vocab and value suggest. ?>
+    <?php /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */ ?>
+    <?php $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]); ?>
+    <?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
+    <?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
 
-    <?php // Second, display remaining corrections (no more original or appended). ?>
-    <?php foreach ($proposedValues as $proposedValue):
-        ++$key;
-        $type = 'literal';
-        if (array_key_exists('@uri', $proposedValue['proposed'])) $type = 'uri';
+    <div class="property mb-3">
+        <h4>
+            <?= isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())) ?>
+            <?php if ($labelInfo === 'term'): ?>
+            <span class="field-term">(<?= $escape($property->term()) ?>)</span>
+            <?php elseif ($labelInfo === 'vocab'): ?>
+            <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
+            <?php endif; ?>
+        </h4>
+        <div class="values">
 
-        switch ($type):
+        <?php // First, display original values and the matching corrections. ?>
+        <?php foreach ($values as $key => $value):
+
+        switch ($value->type()):
         case 'uri':
+            // Method value() is the label or the value.
+            $original = $value->value();
+            $original_uri = $value->uri();
+            $proposed = $correction ? $correction->proposedUriValue($term, $original_uri, $original) : null;
+
+            // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+            // Manage the case where the type of the property was changed in the template between two corrections.
+            if (is_null($proposed)):
+                foreach ($proposedValues as $kp => $v):
+                    if (isset($v['proposed']['@uri'])):
+                        if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    else:
+                        if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    endif;
+                endforeach;
+            else:
+                foreach ($proposedValues as $kp => $v):
+                    if (isset($v['proposed']['@uri'])):
+                        if ( $v['original']['@uri'] === $original_uri && $v['original']['@label'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    else:
+                        if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    endif;
+                endforeach;
+            endif;
+
             ?>
-            <div class="value" data-data-type="uri" role="group" style="display: flex;">
-                <div class="input-body">
-                    <div class="input">
-                        <label class="value">
-                            <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@id"
-                            name="<?=  $term . '[' . $key . '][@uri]'; ?> " value = "<?= $escape($proposedValue['proposed']['@uri']) ?>">
-                        </label>
-                    </div>
-                    <div class="input">
-                        <label class="value-label">
-                            <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label"
-                            name="<?= $term . '[' . $key . '][@label]'; ?>"><?= $escape($proposedValue['proposed']['@label']) ?></textarea>
-                        </label>
+                <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                    <div class="input-body w-100">
+                        <div class="input">
+                            <label class="value input-container">
+                                <?= $translate('URI') ?>:<input type="text" class="value to-require touched form-control" data-value-key="@id"
+                                name="<?= $term . '[' . $key . '][@uri]' ?> " value = "<?= $value->uri() ?>">
+                            </label>
+                        </div>
+                        <div class="input">
+                            <label class="value-label label-container">
+                                <?= $translate('Label:') ?>:<textarea class="value-label touched form-control" rows="1" data-value-key="o:label"
+                                name="<?= $term . '[' . $key . '][@label]' ?>"><?= $value->value() ?></textarea>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
             <?php
+
         break;
         case 'literal':
         default:
+            // Method value() is the label or the value.
+            $original = $value->value();
+            $original_uri = $value->uri();
+            $proposed = $correction ? $correction->proposedValue($term, $original) : null;
+
+            // Remove the proposed value from the list of proposed values in order to keep only new corrections to append.
+            if (is_null($proposed)):
+                foreach ($proposedValues as $kp => $v):
+                    if (isset($v['proposed']['@uri'])):
+                        if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    else:
+                        if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    endif;
+                endforeach;
+            else:
+                foreach ($proposedValues as $kp => $v):
+                    if (isset($v['proposed']['@uri'])):
+                        if ($v['proposed']['@uri'] === $original_uri && $v['proposed']['@label'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    else:
+                        if (isset($v['proposed']['@value']) && $v['proposed']['@value'] === $original):
+                            unset($proposedValues[$kp]);
+                            break;
+                        endif;
+                    endif;
+                endforeach;
+            endif;
+
+            $val = is_null($proposed) ? $value->asHtml() : $escape($proposed);
+
+            $class = ['value'];
+            if ('resource' == $value->type()) {
+                $class[] = 'resource';
+                $class[] = $escape($value->valueResource()->resourceName());
+            } elseif ('uri' == $value->type()) {
+                $class[] = 'uri';
+            }
+            if (method_exists($value, 'isPublic') && !$value->isPublic()) {
+                $class[] = 'private';
+            }
+            $language = $value->lang();
             ?>
-            <div class="value" lang="<?php /*echo $escape($language); */ ?>">
-                <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($proposedValue['proposed']['@value']) ?></textarea>
+            <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
+                <?php if ($language): ?>
+                <span class="language"><?= $language ?></span>
+                <?php endif; ?>
+                <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value form-control" aria-labelledby="property-<?= $property->id() ?>-label"><?= $val ?></textarea>
             </div>
             <?php
         break;
         endswitch;
         ?>
 
-    <?php endforeach; ?>
+        <?php endforeach; ?>
 
-    </div>
-    <?php // Third, display an empty field to allow to append a new value. ?>
-    <?php if (isset($fillable[$term])): ?>
-        <?php
-        unset($fillable[$term]);
-        $propertyTemplate = $template ? $template->resourceTemplateProperty($property->id()) : null;
-        $dataType = $propertyTemplate ? $propertyTemplate->dataType() : null;
-        ++$key;
-        if (in_array($dataType, [null, 'literal', 'uri'])):
-    ?>
-    <div class="inputs">
-        <div class="add-values default-selector" data-next-key="<?= $key ?>" data-next-term="<?= $term ?>">
-            <?php if (empty($dataType) || $dataType === 'literal'): ?>
-            <div style="float:left;" class="o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
-            <?php endif; ?>
-            <?php if (empty($dataType) || $dataType === 'uri'): ?>
-            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
-            <?php endif; ?>
-        </div>
-    </div>
-        <?php endif; ?>
-    <?php endif; ?>
+        <?php // Second, display remaining corrections (no more original or appended). ?>
+        <?php foreach ($proposedValues as $proposedValue):
+            ++$key;
+            $type = 'literal';
+            if (array_key_exists('@uri', $proposedValue['proposed'])) $type = 'uri';
 
-</div>
-<?php endforeach; ?>
-
-<?php // Fourth, display remaining fillable fields. ?>
-<?php foreach ($fillable as $term => $property): ?>
-
-<?php $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]); ?>
-<?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
-<?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
-
-<div class="property">
-    <h4>
-        <?= isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())) ?>
-        <?php if ($labelInfo === 'term'): ?>
-        <span class="field-term">(<?= $escape($property->term()) ?>)</span>
-        <?php elseif ($labelInfo === 'vocab'): ?>
-        <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
-        <?php endif; ?>
-    </h4>
-    <div class="values">
-        <?php foreach ($proposedValues as $key => $proposedValue): ?>
-        <?php
-        $type = 'literal';
-        if (array_key_exists('@uri', $proposedValue['proposed'])) $type = 'uri';
-
-        switch ($type):
-        case 'uri':
-            ?>
-            <div class="value" data-data-type="uri" role="group" style="display: flex;">
-                <div class="input-body">
-                    <div class="input">
-                        <label class="value">
-                            <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@id"
-                            name="<?=  $term . '[' . $key . '][@uri]' ?> " value = "<?= $escape($proposedValue['proposed']['@uri']) ?>">
-                        </label>
-                    </div>
-                    <div class="input">
-                        <label class="value-label">
-                            <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label"
-                            name="<?= $term . '[' . $key . '][@label]' ?>"><?= $escape($proposedValue['proposed']['@label']) ?></textarea>
-                        </label>
+            switch ($type):
+            case 'uri':
+                ?>
+                <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                    <div class="input-body w-100">
+                        <div class="input">
+                            <label class="value input-container">
+                                <?= $translate('URI') ?>:<input type="text" class="value to-require touched form-control" data-value-key="@id"
+                                name="<?=  $term . '[' . $key . '][@uri]' ?> " value = "<?= $escape($proposedValue['proposed']['@uri']) ?>">
+                            </label>
+                        </div>
+                        <div class="input">
+                            <label class="value-label label-container">
+                                <?= $translate('Label:') ?>:<textarea class="value-label touched form-control" rows="1" data-value-key="o:label"
+                                name="<?= $term . '[' . $key . '][@label]' ?>"><?= $escape($proposedValue['proposed']['@label']) ?></textarea>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <?php
-        break;
-        case 'literal':
-        default:
+                <?php
+            break;
+            case 'literal':
+            default:
+                ?>
+                <div class="value" lang="<?php /*echo $escape($language); */ ?>">
+                    <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value form-control" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($proposedValue['proposed']['@value']) ?></textarea>
+                </div>
+                <?php
+            break;
+            endswitch;
             ?>
-            <div class="value" lang="<?php /*echo $escape($language); */ ?>">
-                <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($proposedValue['proposed']['@value']) ?></textarea>
-            </div>
-            <?php
-        break;
-        endswitch;
-        ?>
+
         <?php endforeach; ?>
 
         </div>
-        <?php
-        $propertyTemplate = $template ? $template->resourceTemplateProperty($property->id()) : null;
-        $dataType = $propertyTemplate ? $propertyTemplate->dataType() : null;
-        ++$key;
-        if (in_array($dataType, [null, 'literal', 'uri'])):
-    ?>
+        <?php // Third, display an empty field to allow to append a new value. ?>
+        <?php if (isset($fillable[$term])): ?>
+            <?php
+            unset($fillable[$term]);
+            $propertyTemplate = $template ? $template->resourceTemplateProperty($property->id()) : null;
+            $dataType = $propertyTemplate ? $propertyTemplate->dataType() : null;
+            ++$key;
+            if (in_array($dataType, [null, 'literal', 'uri'])):
+        ?>
         <div class="inputs">
             <div class="add-values default-selector" data-next-key="<?= $key ?>" data-next-term="<?= $term ?>">
-            <?php if (empty($dataType) || $dataType === 'literal'): ?>
-            <div style="float:left;" class="o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
-            <?php endif; ?>
-            <?php if (empty($dataType) || $dataType === 'uri'): ?>
-            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
-            <?php endif; ?>
+                <?php if (empty($dataType) || $dataType === 'literal'): ?>
+                <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
+                <?php endif; ?>
+                <?php if (empty($dataType) || $dataType === 'uri'): ?>
+                <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
+                <?php endif; ?>
+                <div class="clearfix"></div>
             </div>
         </div>
+            <?php endif; ?>
         <?php endif; ?>
+
     </div>
-<?php endforeach; ?>
+    <?php endforeach; ?>
 
-<?= $formElement($form->get('csrf')) ?>
+    <?php // Fourth, display remaining fillable fields. ?>
+    <?php foreach ($fillable as $term => $property): ?>
 
-<?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
+    <?php $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]); ?>
+    <?php $propertyData = isset($valuesData[$term]) ? $valuesData[$term] : []; ?>
+    <?php $proposedValues = $correction ? $correction->proposedValues($term) : []; ?>
 
-<div id="page-actions">
-    <?php // echo $this->cancelButton() ?>
-    <?= $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'button']) ?>
-    <button type="submit" name="correct-resource-submit"><?= $escape($submitLabel) ?></button>
+    <div class="property mb-3">
+        <h4>
+            <?= isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())) ?>
+            <?php if ($labelInfo === 'term'): ?>
+            <span class="field-term">(<?= $escape($property->term()) ?>)</span>
+            <?php elseif ($labelInfo === 'vocab'): ?>
+            <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
+            <?php endif; ?>
+        </h4>
+        <div class="values">
+            <?php foreach ($proposedValues as $key => $proposedValue): ?>
+            <?php
+            $type = 'literal';
+            if (array_key_exists('@uri', $proposedValue['proposed'])) $type = 'uri';
+
+            switch ($type):
+            case 'uri':
+                ?>
+                <div class="value" data-data-type="uri" role="group" style="display: flex;">
+                    <div class="input-body w-100">
+                        <div class="input">
+                            <label class="value input-container">
+                                <?= $translate('URI') ?>:<input type="text" class="value to-require touched form-control" data-value-key="@id"
+                                name="<?=  $term . '[' . $key . '][@uri]' ?> " value = "<?= $escape($proposedValue['proposed']['@uri']) ?>">
+                            </label>
+                        </div>
+                        <div class="input">
+                            <label class="value-label label-container">
+                                <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label" class="form-control"
+                                name="<?= $term . '[' . $key . '][@label]' ?>"><?= $escape($proposedValue['proposed']['@label']) ?></textarea>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            break;
+            case 'literal':
+            default:
+                ?>
+                <div class="value" lang="<?php /*echo $escape($language); */ ?>">
+                    <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value form-control" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($proposedValue['proposed']['@value']) ?></textarea>
+                </div>
+                <?php
+            break;
+            endswitch;
+            ?>
+            <?php endforeach; ?>
+
+            </div>
+            <?php
+            $propertyTemplate = $template ? $template->resourceTemplateProperty($property->id()) : null;
+            $dataType = $propertyTemplate ? $propertyTemplate->dataType() : null;
+            ++$key;
+            if (in_array($dataType, [null, 'literal', 'uri'])):
+        ?>
+            <div class="inputs">
+                <div class="add-values default-selector" data-next-key="<?= $key ?>" data-next-term="<?= $term ?>">
+                <?php if (empty($dataType) || $dataType === 'literal'): ?>
+                <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
+                <?php endif ?>
+                <?php if (empty($dataType) || $dataType === 'uri'): ?>
+                <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
+                <?php endif; ?>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+
+    <?= $formElement($form->get('csrf')) ?>
+
+    <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
+
+    <div id="page-actions">
+        <?php // echo $this->cancelButton() ?>
+        <?= $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <button type="submit" name="correct-resource-submit" class="btn btn-primary"><?= $escape($submitLabel) ?></button>
+    </div>
+
+    <?= $this->form()->closeTag() ?>
+
+    <?php // echo $this->partial('common/resource-form-templates.phtml') ?>
 </div>
-
-<?= $this->form()->closeTag() ?>
-
-<?php // echo $this->partial('common/resource-form-templates.phtml') ?>
