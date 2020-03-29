@@ -1,100 +1,100 @@
-# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Daniel Berthereau <Daniel.github@Berthereau.net>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-03-30 00:00+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2020-03-30 00:00+0200\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: French <kde-i18n-doc@kde.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: Module.php:272
 msgid "Create correction token"
-msgstr ""
+msgstr "Créer un jeton pour la correction"
 
 #: Module.php:276 Module.php:367 view/common/admin/correction-list.phtml:66
 #: view/common/helper/correction-link.phtml:16
 msgid "Correction"
-msgstr ""
+msgstr "Correction"
 
 #: Module.php:281
 msgid "Please input optional email…"
-msgstr ""
+msgstr "Ajouter un email si besoin…"
 
 #: Module.php:282
 msgid "Create token"
-msgstr ""
+msgstr "Créer un jeton"
 
 #: Module.php:370
 #, php-format
 msgid "%d corrections (%d not reviewed)"
-msgstr ""
+msgstr "%d corrections (%d non relues)"
 
 #: Module.php:373
 msgid "No correction"
-msgstr ""
+msgstr "Pas de correction"
 
 #: src/Controller/Admin/CorrectionController.php:229
 msgid "Unreviewed"
-msgstr ""
+msgstr "Non relu"
 
 #: src/Controller/Admin/CorrectionController.php:229
 #: src/Controller/Admin/CorrectionController.php:320
 msgid "Reviewed"
-msgstr ""
+msgstr "Relu"
 
 #: src/Controller/Admin/CorrectionController.php:266
 msgid "No token"
-msgstr ""
+msgstr "Pas de jeton"
 
 #: src/Controller/Admin/CorrectionController.php:283
 msgid "Expired"
-msgstr ""
+msgstr "Expiré"
 
 #: src/Controller/Admin/CorrectionController.php:317
 #: view/common/admin/correction-list.phtml:181
 #: view/common/admin/correction-list.phtml:226
 msgid "Validated"
-msgstr ""
+msgstr "Validé"
 
 #: src/Controller/Admin/CorrectionController.php:353
 msgid "Validated value"
-msgstr ""
+msgstr "Valeur validée"
 
 #: src/Controller/Admin/CorrectionController.php:527
 msgid "Unauthorized access."
-msgstr ""
+msgstr "Accès interdit."
 
 #: src/Controller/Admin/CorrectionController.php:532
 msgid "Resource not found."
-msgstr ""
+msgstr "Ressource non trouvée."
 
 #: src/Controller/Admin/CorrectionController.php:537
 msgid "An internal error occurred."
-msgstr ""
+msgstr "Une erreur interne s‘est produite."
 
 #: src/Controller/Site/CorrectionController.php:156
 msgid "[Omeka Correction] New correction"
-msgstr ""
+msgstr "[Omeka Correction] Nouvelle correction"
 
 #: src/Generic/AbstractModule.php:598
 #, php-format
 msgid "This module requires the module \"%s\"."
-msgstr ""
+msgstr "Ce module requiert le module \"%s\"."
 
 #: src/Generic/AbstractModule.php:618
 #, php-format
 msgid "This module requires modules \"%s\"."
-msgstr ""
+msgstr "Ce module requiert les modules \"%s\"."
 
 #: src/Generic/AbstractModule.php:686
 #, php-format
@@ -102,271 +102,292 @@ msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
 "unavailable."
 msgstr ""
+"Le module %s\" a été automatiquement désactivé car ses dépendances ne sont "
+"plus disponibles."
 
 #: view/common/admin/correction-list.phtml:25
 #: view/common/admin/correction-token-list.phtml:17
 msgid "There are no tokens for this resource."
-msgstr ""
+msgstr "Aucun jeton pour cette ressource."
 
 #: view/common/admin/correction-list.phtml:36
 #, php-format
 msgid "There are %d tokens for this resource (%d expired)."
-msgstr ""
+msgstr "Il y a %d jetons pour cette ressource (%d expirés)."
 
 #: view/common/admin/correction-list.phtml:38
 msgid "Expire all tokens"
-msgstr ""
+msgstr "Expirer tous les jetons"
 
 #: view/common/admin/correction-list.phtml:45
 msgid "There are no corrections for this resource."
-msgstr ""
+msgstr "Aucune correction pour cette ressource."
 
 #: view/common/admin/correction-list.phtml:75
 msgid "(modified)"
-msgstr ""
+msgstr "(modifié)"
 
 #: view/common/admin/correction-list.phtml:87
 #: view/common/admin/correction-list.phtml:88
 msgid "Validate all values"
-msgstr ""
+msgstr "Valider toutes les valeurs"
 
 #: view/common/admin/correction-list.phtml:93
 #: view/common/admin/correction-list.phtml:94
 msgid "Toggle status reviewed/unreviewed"
-msgstr ""
+msgstr "Inverser le statut relu/non-relu"
 
 #: view/common/admin/correction-list.phtml:96
 #: view/common/admin/correction-token-list.phtml:53
 msgid "Expired token"
-msgstr ""
+msgstr "Jeton expiré"
 
 #: view/common/admin/correction-list.phtml:101
 #: view/common/admin/correction-list.phtml:102
 #: view/common/admin/correction-token-list.phtml:59
 #: view/common/admin/correction-token-list.phtml:60
 msgid "Expire token"
-msgstr ""
+msgstr "Expirer le jeton"
 
 #: view/common/admin/correction-list.phtml:183
 #: view/common/admin/correction-list.phtml:228
 msgid "Not validable"
-msgstr ""
+msgstr "Ne peut être validé"
 
 #: view/common/admin/correction-list.phtml:185
 #: view/common/admin/correction-list.phtml:230
 msgid "No right to write"
-msgstr ""
+msgstr "Pas de droit d‘écriture"
 
 #: view/common/admin/correction-list.phtml:191
 #: view/common/admin/correction-list.phtml:236
 #, php-format
 msgid "Validate this value (%s)"
-msgstr ""
+msgstr "Valider cette valeur (%s)"
 
 #: view/common/admin/correction-list.phtml:260
 msgid "Unused tokens"
-msgstr ""
+msgstr "Jetons non utilisés"
 
 #: view/common/admin/correction-token-list.phtml:38
 msgid "Token"
-msgstr ""
+msgstr "Jeton"
 
 #: view/common/admin/correction-token-list.phtml:50
 msgid "[no email]"
-msgstr ""
+msgstr "[pas d‘email]"
 
 #: view/common/admin/correction-token-list.phtml:62
 msgid "Unused token"
-msgstr ""
+msgstr "Jeton inutilisé"
 
 #: view/common/helper/correction-link.phtml:18
 msgid "Correct this record"
-msgstr ""
+msgstr "Corriger cette notice"
 
 #: view/common/helper/correction-link.phtml:20
 msgid "Click your token link to correct this record."
-msgstr ""
+msgstr "Cliquez sur votre lien pour corriger cette notice."
 
 #: view/common/helper/correction-link.phtml:23
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to correct this record."
 msgstr ""
+"%1$sConnectez-vous%2$s ou cliquez sur votre lien pour corriger cette notice."
 
 #: view/correction/site/correction/edit.phtml:38
 #, php-format
 msgid "Correct %s"
-msgstr ""
+msgstr "Corriger le %s"
 
 #: view/correction/site/correction/edit.phtml:48
 msgid "Correct"
-msgstr ""
+msgstr "Corriger"
 
 #: view/correction/site/correction/form.phtml:230
 msgid "Go back to resource"
-msgstr ""
+msgstr "Revenir au document"
 
 #: Module.php:297
 msgid "Corrections"
-msgstr ""
+msgstr "Corrections"
 
 #: src/Form/SettingsFieldset.php:20
 msgid "Default emails to notify corrections"
-msgstr ""
+msgstr "Adresses mails par défaut pour informer des corrections"
 
 #: src/Form/SettingsFieldset.php:21
 msgid ""
 "The list of emails to notify when a user corrects a resource, one by row."
 msgstr ""
+"La liste d’adresses mail à notifier quand un visiteur corrige une ressource, "
+"une par ligne."
 
 #: src/Form/SettingsFieldset.php:35
 msgid "Template to use for default edit form"
-msgstr ""
+msgstr "Modèle à utiliser pour le formulaire d‘édition par défaut"
 
 #: src/Form/SettingsFieldset.php:36
 msgid ""
 "This template is used only when the current resource has no template or a "
 "template without config. If not set, the properties below will be used."
 msgstr ""
+"Ce modèle est utilisé seulement quand la ressource en cours n‘utilise pas de "
+"modèle, ou que ce modèle n‘est pas configuré. Si aucun modèle n‘est "
+"disponible, les propriétés ci-dessous seront utilisées."
 
 #: src/Form/SettingsFieldset.php:44
 msgid "Select a resource template…"
-msgstr ""
+msgstr "Choisir un modèle de ressource…"
 
 #: src/Form/SettingsFieldset.php:52
 msgid "Default correction mode"
-msgstr ""
+msgstr "Mode de correction par défaut"
 
 #: src/Form/SettingsFieldset.php:53 src/Form/SettingsFieldset.php:88
 msgid "This option is used only when the template is not configured."
 msgstr ""
+"Cette option est utilisée seulement quand le modèle n‘est pas configuré."
 
 #: src/Form/SettingsFieldset.php:55
 msgid "Allow to correct all values"
-msgstr ""
+msgstr "Autoriser la correction de toutes les valeurs"
 
 #: src/Form/SettingsFieldset.php:56 src/Form/SettingsFieldset.php:91
 msgid "Only specified properties (whitelist)"
-msgstr ""
+msgstr "Seulement les propriétés indiquées (liste blanche)"
 
 #: src/Form/SettingsFieldset.php:57
 msgid "All values except properties (blacklist)"
-msgstr ""
+msgstr "Toutes les valeurs sauf les propriétés indiquées (liste noire)"
 
 #: src/Form/SettingsFieldset.php:68
 msgid "Properties to correct or not when no template is available"
-msgstr ""
+msgstr "Les propriétés à corriger ou non quand le modèle n‘est pas disponible"
 
 #: src/Form/SettingsFieldset.php:69
 msgid ""
 "Only the selected properties will be proposed for public correction. This "
 "list is used only when the resource template is not configured."
 msgstr ""
+"Seules les propriétés sélectionnées seront proposées au public pour la "
+"correction. Cette option est utilisée seulement quand le modèle n‘est pas "
+"configuré."
 
 #: src/Form/SettingsFieldset.php:79 src/Form/SettingsFieldset.php:113
 msgid "Select properties…"
-msgstr ""
+msgstr "Choisir des propriétés…"
 
 #: src/Form/SettingsFieldset.php:87
 msgid "Default fillable mode"
-msgstr ""
+msgstr "Mode d‘ajout par défaut"
 
 #: src/Form/SettingsFieldset.php:90
 msgid "Allow to fill any value"
-msgstr ""
+msgstr "Autoriser l‘ajout de toutes les propriétés"
 
 #: src/Form/SettingsFieldset.php:92
 msgid "Any values except properties (blacklist)"
-msgstr ""
+msgstr "Toutes les propriétés sauf celles indiquées (liste noire)"
 
 #: src/Form/SettingsFieldset.php:103
 msgid "Properties to fill or not when no template is available"
-msgstr ""
+msgstr "Propriétés à ajouter ou non lorsque aucun modèle n‘est disponible"
 
 #: src/Form/SettingsFieldset.php:104
 msgid ""
 "Allow user to append new values for the selected properties. This list is "
 "used only when the resource template is not configured."
 msgstr ""
+"Autoriser l‘utilisateur à ajouter de nouvelles valeurs pour les propriétés "
+"choisies. Cette option est utilisée seulement quand le modèle n‘est pas "
+"configuré."
 
 #: src/Form/SettingsFieldset.php:121
 msgid "Editable datatypes"
-msgstr ""
+msgstr "Types de donnée modifiables"
 
 #: src/Form/SettingsFieldset.php:122
 msgid "Other datatypes are not editable."
-msgstr ""
+msgstr "Les autres types de données ne sont pas corrigeables."
 
 #: src/Form/SettingsFieldset.php:124
 msgid "Literal"
-msgstr ""
+msgstr "Textuel"
 
 #: src/Form/SettingsFieldset.php:125
 msgid "Uri"
-msgstr ""
+msgstr "Uri"
 
 #: src/Form/SettingsFieldset.php:137
 msgid "Allow correction of resources without a token"
-msgstr ""
+msgstr "Autoriser la correction des ressources sans jeton"
 
 #: src/Form/SettingsFieldset.php:147
 msgid "Days for token to expire"
-msgstr ""
+msgstr "Nombre de jours avant que le jeton n‘expire"
 
 #: src/Form/SettingsFieldset.php:148
 msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
 msgstr ""
+"Permet de définir une durée avant expiration automatique du jeton. Laisser "
+"vide pour supprimer l‘expiration."
 
 #: src/Form/SettingsFieldset.php:154
 msgid "90"
-msgstr ""
+msgstr "90"
 
 #: src/Controller/Site/CorrectionController.php:70
 msgid ""
 "This resource cannot be corrected. Ask the administrator for more "
 "information."
 msgstr ""
+"Cette ressource ne peut pas être corrigée. Merci de contacter "
+"l‘administrateur pour plus d‘information."
 
 #: src/Controller/Site/CorrectionController.php:94
 #: src/Controller/Site/CorrectionController.php:104
 msgid "Corrections successfully submitted!"
-msgstr ""
+msgstr "Les corrections ont été correctement envoyées !"
 
 #: src/Controller/Site/CorrectionController.php:108
 msgid "No change."
-msgstr ""
+msgstr "Pas de changement."
 
 #: src/Controller/Site/CorrectionController.php:121
 msgid "An error occurred: check your input."
-msgstr ""
+msgstr "Une erreur interne s‘est produite : merci de vérifier votre saisie."
 
 #: src/Controller/Site/CorrectionController.php:144
 #, php-format
 msgid "User %1$s has corrected resource #%2$s (%3$s)."
-msgstr ""
+msgstr "L‘utilisateur %1$s a corrigé la ressource #%2$s (%3$s)."
 
 #: src/Controller/Site/CorrectionController.php:151
 #, php-format
 msgid "A user has corrected resource #%1$d (%2$s)."
-msgstr ""
+msgstr "Un utilisateur a corrigé la ressource #%1$d (%2$s)."
 
 #: src/Controller/Site/CorrectionController.php:701
 msgid "Forbidden access."
-msgstr ""
+msgstr "Accès interdit."
 
 #: src/Controller/Admin/CorrectionController.php:47
 msgid "You can create token only for items, media and item sets."
 msgstr ""
+"Vous pouvez créer un jeton seulement pour les contenus, les médias et les "
+"collections."
 
 #: src/Controller/Admin/CorrectionController.php:55
 #: src/Api/Representation/TokenRepresentation.php:149
 msgid "A site is required to create a public token."
-msgstr ""
+msgstr "Un site est nécessaire pour créer un jeton public."
 
 #: src/Controller/Admin/CorrectionController.php:81
 msgid "You must select at least one resource to create a token."
-msgstr ""
+msgstr "Vous devez choisir au moins une ressource pour créer un jeton."
 
 #: src/Controller/Admin/CorrectionController.php:90
 #, php-format
@@ -374,61 +395,66 @@ msgid ""
 "You set the optional email \"%s\" to create a correction token, but it is "
 "not well-formed."
 msgstr ""
+"Vous avez saisi \"%s\" comme email optionnel pour le jeton de correction, "
+"mais il n‘est pas correctement écrit."
 
 #: src/Controller/Admin/CorrectionController.php:132
 #, php-format
 msgid "Created %1$s correction tokens (email: %2$s, duration: %3$s): %4$s"
 msgstr ""
+"Création de %1$s jetons de correction (email : %2$s, durée : %3$s) : %4$s"
 
 #: src/Controller/Admin/CorrectionController.php:134
 msgid "none"
-msgstr ""
+msgstr "aucun"
 
 #: src/Controller/Admin/CorrectionController.php:136
 #, php-format
 msgid "%d days"
-msgstr ""
+msgstr "%d jours"
 
 #: src/Controller/Admin/CorrectionController.php:137
 msgid "unlimited"
-msgstr ""
+msgstr "illimité"
 
 #: src/Controller/Admin/CorrectionController.php:174
 #, php-format
 msgid "Resource #%s has no tokens to expire."
-msgstr ""
+msgstr "La ressource #%s n‘a pas de jeton à expirer."
 
 #: src/Controller/Admin/CorrectionController.php:195
 msgid "All tokens of the resource were expired."
-msgstr ""
+msgstr "Tous les jetons de la ressource ont été expirés."
 
 #: src/Controller/Admin/CorrectionController.php:343
 msgid "Missing term or key."
-msgstr ""
+msgstr "Terme ou clé manquante."
 
 #: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:51
 msgid "Email not sent: the subject is missing."
-msgstr ""
+msgstr "Mail non envoyé : pas de sujet."
 
 #: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:57
 #, php-format
 msgid "Email not sent: content is missing (subject: %1$s)."
-msgstr ""
+msgstr "Mail non envoyé : pas de contenu (sujet : %1$s)."
 
 #: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:63
 #, php-format
 msgid "Email not sent: no recipient (subject: %1$s)."
-msgstr ""
+msgstr "Mail non envoyé : pas de destinataire (sujet : %1$s)."
 
 #: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:119
 #, php-format
 msgid "An email was sent to %1$s with subject: %2$s"
-msgstr ""
+msgstr "Un mail a été envoyé à %1$s avec le sujet : %2$s"
 
 #: src/Generic/InstallResources.php:150
 #, php-format
 msgid "The file \"%s\" cannot be read. Check your file system."
 msgstr ""
+"Le fichier \"%s\" ne peut pas être lu. Merci de vérifier le système de "
+"fichiers."
 
 #: src/Generic/InstallResources.php:176
 #, php-format
@@ -436,6 +462,8 @@ msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists. "
 "Resolve the conflict before installing this module."
 msgstr ""
+"Une erreur est survenue en ajoutant le préfixe \"%s\" : un autre vocabulaire "
+"existe. Merci de résoudre le conflit avant d'installer ce module."
 
 #: src/Generic/InstallResources.php:206
 #, php-format
@@ -443,10 +471,12 @@ msgid ""
 "A resource template named \"%s\" exists: rename it or remove it before "
 "installing this module."
 msgstr ""
+"Un modèle de ressource nommé \"%s\" existe : merci de le renommer ou de le "
+"supprimer avant d'installer ce module."
 
 #: src/Generic/InstallResources.php:234
 msgid "The current version of this module requires the module Custom Vocab."
-msgstr ""
+msgstr "Cette version du module requiert le module Custom Vocab."
 
 #: src/Generic/InstallResources.php:241
 #, php-format
@@ -454,6 +484,8 @@ msgid ""
 "A custom vocab named \"%s\" exists and has not the needed terms: rename it "
 "or remove it before installing this module."
 msgstr ""
+"Un vocabulaire personnalisé nommé \"%s\" existe et n'a pas les mêmes "
+"termes : merci de le renommer ou de le supprimer avant d'installer ce module."
 
 #: src/Generic/InstallResources.php:251
 #, php-format
@@ -461,11 +493,14 @@ msgid ""
 "A custom vocab named \"%s\" exists and has not the needed language (\"%s\"): "
 "check it or remove it before installing this module."
 msgstr ""
+"Un vocabulaire personnalisé nommé \"%s\" existe et n'utilise pas la même "
+"langue (\"%s\") : merci de vérifier ou de le supprimer avant d'installer ce "
+"module."
 
 #: src/Generic/InstallResources.php:291
 #, php-format
 msgid "The vocabulary \"%s\" was already installed and was kept."
-msgstr ""
+msgstr "Le vocabulaire \"%s\" a déjà été installé et a été conservé."
 
 #: src/Generic/InstallResources.php:301
 #, php-format
@@ -473,6 +508,9 @@ msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists "
 "with the same prefix. Resolve the conflict before installing this module."
 msgstr ""
+"Une erreur est survenue lors de l'ajout du préfixe \"%s\" : un autre "
+"vocabulaire existe avec le même préfixe. Merci de résoudre le conflit avant "
+"d'installer ce module."
 
 #: src/Generic/InstallResources.php:321
 #, php-format
@@ -480,21 +518,33 @@ msgid ""
 "An error occured when adding the prefix \"%s\" and the associated "
 "properties: %s"
 msgstr ""
+"Une erreur est survenue en ajoutant le préfixe \"%s\" et les propriétés "
+"associées : %s"
 
 #: src/Generic/InstallResources.php:351
 #, php-format
 msgid "The resource template named \"%s\" is already available and is skipped."
 msgstr ""
+"Le modèle de ressource nommé \"%s\" est déjà disponible et a été conservé."
 
 #: src/Generic/InstallResources.php:376 src/Generic/InstallResources.php:509
 #, php-format
 msgid "The custom vocab named \"%s\" is not available."
-msgstr ""
+msgstr "Le vocabulaire personnalisé nommé \"%s\" n'est pas disponible."
 
 #: config/module.config.php:129
 msgid "Prepare tokens to correct selected"
-msgstr ""
+msgstr "Préparer les jetons de correction pour la sélection"
 
 #: config/module.config.php:130
 msgid "Prepare tokens to correct all"
-msgstr ""
+msgstr "Préparer des jetons de corrections pour tous"
+
+#~ msgid "The message has no recipient."
+#~ msgstr "Le message n’a pas de destinataire."
+
+#~ msgid "The message has no subject."
+#~ msgstr "Le message n’a pas de sujet."
+
+#~ msgid "The message has no content."
+#~ msgstr "Le message n’a pas de contenu."

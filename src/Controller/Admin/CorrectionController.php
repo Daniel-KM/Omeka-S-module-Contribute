@@ -340,7 +340,7 @@ class CorrectionController extends AbstractActionController
         $term = $this->params()->fromQuery('term');
         $key = $this->params()->fromQuery('key');
         if (!$term || !is_numeric($key)) {
-            return $this->returnError('Mising term or key.'); // @translate
+            return $this->returnError('Missing term or key.'); // @translate
         }
 
         $this->validateCorrection($correction, $term, $key);
