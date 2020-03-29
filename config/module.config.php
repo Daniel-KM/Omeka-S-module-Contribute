@@ -48,6 +48,7 @@ return [
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
             'resourceTemplateCorrectionPartMap' => Service\ControllerPlugin\ResourceTemplateCorrectionPartMapFactory::class,
+            'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
         ],
     ],
     'router' => [
