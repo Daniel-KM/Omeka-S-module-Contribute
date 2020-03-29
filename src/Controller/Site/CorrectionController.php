@@ -186,6 +186,16 @@ class CorrectionController extends AbstractActionController
         $editable = $this->getEditableProperties($resource);
         $resourceTemplate = $resource->resourceTemplate();
         $values = $resource->values();
+        $defaultField = [
+            'template_property' => null,
+            'property' => null,
+            'alternate_label' => null,
+            'alternate_comment' => null,
+            'corrigible' => false,
+            'fillable' => false,
+            'values' => [],
+            'corrections' => [],
+        ];
 
         // List the fields for the resource when there is a resource template.
         if ($resourceTemplate) {
@@ -193,6 +203,8 @@ class CorrectionController extends AbstractActionController
             foreach ($resourceTemplate->resourceTemplateProperties() as $templateProperty) {
                 $term = $templateProperty->property()->term();
                 $fields[$term] = [
+                    'template_property' => $templateProperty,
+                    'property' => $templateProperty->property(),
                     'alternate_label' => $templateProperty->alternateLabel(),
                     'alternate_comment' => $templateProperty->alternateComment(),
                     'corrigible' => isset($editable['corrigible'][$term]),
@@ -211,22 +223,24 @@ class CorrectionController extends AbstractActionController
                         $fields[$term]['corrigible'] = false;
                         $fields[$term]['fillable'] = false;
                         $fields[$term]['corrections'] = [];
+                        $fields[$term] = array_replace($defaultField, $fields[$term]);
                     }
                 }
             }
         }
 
         // Append default fields from the main config, with or without template.
-
         if ($editable['use_default']) {
             $api = $this->api();
             // Append the values of the resource.
             foreach ($values as $term => $valueInfo) {
                 if (!isset($fields[$term])) {
                     $fields[$term] = $valueInfo;
+                    $fields[$term]['template_property'] = null;
                     $fields[$term]['corrigible'] = isset($editable['corrigible'][$term]);
                     $fields[$term]['fillable'] = isset($editable['fillable'][$term]);
                     $fields[$term]['corrections'] = [];
+                    $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
             }
 
@@ -234,6 +248,7 @@ class CorrectionController extends AbstractActionController
             foreach ($editable['fillable'] as $term => $propertyId) {
                 if (!isset($fields[$term])) {
                     $fields[$term] = [
+                        'template_property' => null,
                         'property' => $api->read('properties', $propertyId)->getContent(),
                         'alternate_label' => null,
                         'alternate_comment' => null,
