@@ -34,11 +34,15 @@ class LinkCorrection extends AbstractHelper
             }
         }
 
+        $user = $view->identity();
+
         $helper = $this->checkToken;
-        $canCorrect = (bool) $helper($resource);
+        $canCorrect = (bool) $helper($resource)
+            || ($user && $view->setting('correction_without_token'));
 
         return $view->partial('common/helper/correction-link', [
             'site' => $this->currentSite(),
+            'user' => $user,
             'resource' => $resource,
             'canCorrect' => $canCorrect,
         ]);

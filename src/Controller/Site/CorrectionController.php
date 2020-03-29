@@ -35,25 +35,33 @@ class CorrectionController extends AbstractActionController
             return $this->notFoundAction();
         }
 
+        $settings = $this->settings();
+        $user = $this->identity();
+
         $token = $this->checkToken($resource);
-        if (!$token) {
+        if (!$token && !($user && $settings->get('correction_without_token'))) {
             return $this->viewError403();
         }
 
+        if ($token) {
+            $correction = $api
+                ->searchOne('corrections', ['resource_id' => $resourceId, 'token_id' => $token->id()])
+                ->getContent();
+            $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
+        } else {
+            $correction = $api
+                ->searchOne('corrections', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                ->getContent();
+            $currentUrl = $this->url()->fromRoute(null, [], true);
+        }
+
+        /** @var \Correction\Form\CorrectionForm $form */
+        $form = $this->getForm(CorrectionForm::class)
+            ->setAttribute('action', $currentUrl)
+            ->setAttribute('enctype', 'multipart/form-data')
+            ->setAttribute('id', 'edit-resource');
+
         $editable = $this->getResourceTemplateSetting($resource);
-
-        $correction = $api
-            ->searchOne('corrections', ['resource_id' => $resourceId, 'token_id' => $token->id()])
-            ->getContent();
-
-        $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
-
-        $form = $this->getForm(CorrectionForm::class);
-        $form->setAttribute('action', $currentUrl);
-        $form->setAttribute('enctype', 'multipart/form-data');
-        $form->setAttribute('id', 'edit-resource');
-
-        // $settings = $this->settings();
         // $corrigible = $this->fetchProperties($settings->get('correction_properties_corrigible', []));
         // $fillable = $this->fetchProperties($settings->get('correction_properties_fillable', []));
         $corrigible = $this->fetchProperties($editable['corrigible']);
@@ -77,8 +85,8 @@ class CorrectionController extends AbstractActionController
                 if (empty($correction)) {
                     $data = [
                         'o:resource' => ['o:id' => $resourceId],
-                        'o-module-correction:token' => ['o:id' => $token->id()],
-                        'o:email' => $token->email(),
+                        'o-module-correction:token' => $token ? ['o:id' => $token->id()] : null,
+                        'o:email' => $token ? $token->email() : $user->getEmail(),
                         'o-module-correction:reviewed' => false,
                         'o-module-correction:proposal' => $proposal,
                     ];

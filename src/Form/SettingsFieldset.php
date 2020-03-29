@@ -17,7 +17,7 @@ class SettingsFieldset extends Fieldset
                 'type' => PropertySelect::class,
                 'options' => [
                     'label' => 'Corrigible properties', // @translate
-                    'info' => 'Only the selected properties will be proposed for public correction. It’s not recommended to allow to correct identifiers.', // @translate
+                    'info' => 'Only the selected properties will be proposed for public correction. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
                 ],
@@ -36,7 +36,7 @@ class SettingsFieldset extends Fieldset
                 'type' => PropertySelect::class,
                 'options' => [
                     'label' => 'Fillable properties', // @translate
-                    'info' => 'Allow user to append new values for the selected properties.', // @translate
+                    'info' => 'Allow user to append new values for the selected properties. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
                 ],
@@ -49,6 +49,16 @@ class SettingsFieldset extends Fieldset
                 ],
             ])
 
+            ->add([
+                'name' => 'correction_without_token',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Allow correction of resources without a token', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'correction_without_token',
+                ],
+            ])
             ->add([
                 'name' => 'correction_token_duration',
                 'type' => Element\Number::class,

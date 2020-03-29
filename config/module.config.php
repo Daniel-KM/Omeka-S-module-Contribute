@@ -147,6 +147,8 @@ return [
         'settings' => [
             'correction_properties_corrigible' => [],
             'correction_properties_fillable' => [],
+            'correction_without_token' => false,
+            // Days.
             'correction_token_duration' => 60,
         ],
     ],

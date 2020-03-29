@@ -70,8 +70,10 @@ $editRight = $resource->userIsAllowed('update');
                 <?php endif; ?>
                 <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
                 <span class="correction-date"><?php echo $escape($correction->created()->format('Y-m-d H:i:s')); ?></span>
+                <?php if ($token): ?>
                 <span> / </span>
                 <span class="correction-token"><?php echo $hyperlink($token->token(), $token->siteUrl($siteSlug, true)); ?></span>
+                <?php endif; ?>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
@@ -85,7 +87,7 @@ $editRight = $resource->userIsAllowed('update');
                     data-status="<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
                     aria-label="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"
                     title="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"></a></span>
-                <?php if ($token->isExpired()): ?>
+                <?php if ($token && $token->isExpired()): ?>
                 <span class="single no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
                 <?php else: ?>
                 <span class="single single-action"><a href="#"
