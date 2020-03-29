@@ -38,7 +38,7 @@ class SendCorrectionEmail extends AbstractPlugin
      * @param string $subject
      * @param string $body
      * @param string $name
-     * @return bool|string True, or a message in case of error.
+     * @return bool
      */
     public function __invoke($recipients, $subject, $body, $name = null)
     {
@@ -46,21 +46,26 @@ class SendCorrectionEmail extends AbstractPlugin
             $recipients = [$recipients];
         }
 
-        $recipients = array_filter(array_unique(array_map('trim', $recipients)));
-        if (empty($recipients)) {
-            return new Message('The message has no recipient.'); // @translate
-        }
         $subject = trim($subject);
         if (empty($subject)) {
-            return new Message('The message has no subject.'); // @translate
+            $message = new Message('Email not sent: the subject is missing.'); // @translate
+            $this->logger->err($message);
+            return false;
         }
         $body = trim($body);
         if (empty($body)) {
-            return new Message('The message has no content.'); // @translate
+            $message = new Message('Email not sent: content is missing (subject: %1$s).', $subject); // @translate
+            $this->logger->err($message);
+            return false;
+        }
+        $recipients = array_filter(array_unique(array_map('trim', $recipients)));
+        if (empty($recipients)) {
+            $message = new Message('Email not sent: no recipient (subject: %1$s).', $subject); // @translate
+            $this->logger->err($message);
+            return false;
         }
 
-        $mailer = $this->mailer;
-        $message = $mailer->createMessage();
+        $message = $this->mailer->createMessage();
 
         $isHtml = strpos($body, '<') === 0;
         if ($isHtml) {
@@ -103,17 +108,18 @@ BODY;
             ->setBody($body);
 
         try {
-            $mailer->send($message);
-            // Log email sent for security purpose.
-            $msg = new Message(
-                'A mail was sent to %1$s with subject: %2$s', // @translate
-                implode(', ', $recipients), $subject
-            );
-            $this->logger->info($msg->getMessage());
-            return true;
+            $this->mailer->send($message);
         } catch (\Exception $e) {
             $this->logger->err((string) $e);
-            return (string) $e;
+            return false;
         }
+
+        // Log email sent for security purpose.
+        $msg = new Message(
+            'An email was sent to %1$s with subject: %2$s', // @translate
+            implode(', ', $recipients), $subject
+        );
+        $this->logger->info($msg);
+        return true;
     }
 }
