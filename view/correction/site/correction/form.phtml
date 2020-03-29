@@ -32,19 +32,19 @@ $template = $resource->resourceTemplate();
         <div class="input-body">
             <div class="input">
                 <label class="value">
-                    <?= $translate('URI'); ?>:<input type="text" class="value to-require touched" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
+                    <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
                 </label>
             </div>
             <div class="input">
                 <label class="value-label">
-                    <?= $translate('Label'); ?>: <textarea class="value-label touched" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
+                    <?= $translate('Label') ?>: <textarea class="value-label touched" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
                 </label>
             </div>
         </div>
     </div>
 </div>
 
-<?php echo $this->form()->openTag($form); ?>
+<?= $this->form()->openTag($form) ?>
 
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 
@@ -63,11 +63,11 @@ $key = 0;
 
 <div class="property">
     <h4>
-        <?php echo isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())); ?>
+        <?= isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())) ?>
         <?php if ($labelInfo === 'term'): ?>
-        <span class="field-term">(<?php echo $escape($property->term()); ?>)</span>
+        <span class="field-term">(<?= $escape($property->term()) ?>)</span>
         <?php elseif ($labelInfo === 'vocab'): ?>
-        <span class="field-term">(<?php echo $escape($property->vocabulary()->label()); ?>)</span>
+        <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
         <?php endif; ?>
     </h4>
     <div class="values">
@@ -120,13 +120,13 @@ $key = 0;
                     <div class="input">
                         <label class="value">
                             <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@id"
-                            name="<?php echo $term . '[' . $key . '][@uri]'; ?> " value = "<?php echo $value->uri(); ?>">
+                            name="<?= $term . '[' . $key . '][@uri]'; ?> " value = "<?= $value->uri() ?>">
                         </label>
                     </div>
                     <div class="input">
                         <label class="value-label">
                             <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label"
-                            name="<?php echo $term . '[' . $key . '][@label]'; ?>"><?php echo $value->value(); ?></textarea>
+                            name="<?= $term . '[' . $key . '][@label]'; ?>"><?= $value->value() ?></textarea>
                         </label>
                     </div>
                 </div>
@@ -186,11 +186,11 @@ $key = 0;
         }
         $language = $value->lang();
         ?>
-        <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+        <div class="<?= implode(' ', $class); ?>" lang="<?= $escape($language) ?>">
             <?php if ($language): ?>
-            <span class="language"><?php echo $language; ?></span>
+            <span class="language"><?= $language ?></span>
             <?php endif; ?>
-            <textarea data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $val; ?></textarea>
+            <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?= $property->id() ?>-label"><?= $val; ?></textarea>
         </div>
         <?php
     break;
@@ -213,13 +213,13 @@ $key = 0;
                     <div class="input">
                         <label class="value">
                             <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@id"
-                            name="<?php echo  $term . '[' . $key . '][@uri]'; ?> " value = "<?php echo $escape($proposedValue['proposed']['@uri']);; ?>">
+                            name="<?=  $term . '[' . $key . '][@uri]'; ?> " value = "<?= $escape($proposedValue['proposed']['@uri']) ?>">
                         </label>
                     </div>
                     <div class="input">
                         <label class="value-label">
                             <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label"
-                            name="<?php echo $term . '[' . $key . '][@label]'; ?>"><?php echo $escape($proposedValue['proposed']['@label']); ?></textarea>
+                            name="<?= $term . '[' . $key . '][@label]'; ?>"><?= $escape($proposedValue['proposed']['@label']) ?></textarea>
                         </label>
                     </div>
                 </div>
@@ -230,7 +230,7 @@ $key = 0;
         default:
             ?>
             <div class="value" lang="<?php /*echo $escape($language); */ ?>">
-                <textarea data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $escape($proposedValue['proposed']['@value']); ?></textarea>
+                <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($proposedValue['proposed']['@value']) ?></textarea>
             </div>
             <?php
         break;
@@ -250,12 +250,12 @@ $key = 0;
         if (in_array($dataType, [null, 'literal', 'uri'])):
     ?>
     <div class="inputs">
-        <div class="add-values default-selector" data-next-key="<?php echo $key; ?>" data-next-term="<?php echo $term; ?>">
+        <div class="add-values default-selector" data-next-key="<?= $key ?>" data-next-term="<?= $term ?>">
             <?php if (empty($dataType) || $dataType === 'literal'): ?>
-            <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
+            <div style="float:left;" class="o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
             <?php endif; ?>
             <?php if (empty($dataType) || $dataType === 'uri'): ?>
-            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
+            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
             <?php endif; ?>
         </div>
     </div>
@@ -274,11 +274,11 @@ $key = 0;
 
 <div class="property">
     <h4>
-        <?php echo isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())); ?>
+        <?= isset($propertyData['alternate_label']) ? $escape($propertyData['alternate_label']) : $escape($translate($property->label())) ?>
         <?php if ($labelInfo === 'term'): ?>
-        <span class="field-term">(<?php echo $escape($property->term()); ?>)</span>
+        <span class="field-term">(<?= $escape($property->term()) ?>)</span>
         <?php elseif ($labelInfo === 'vocab'): ?>
-        <span class="field-term">(<?php echo $escape($property->vocabulary()->label()); ?>)</span>
+        <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
         <?php endif; ?>
     </h4>
     <div class="values">
@@ -295,13 +295,13 @@ $key = 0;
                     <div class="input">
                         <label class="value">
                             <?= $translate('URI') ?>:<input type="text" class="value to-require touched" data-value-key="@id"
-                            name="<?php echo  $term . '[' . $key . '][@uri]'; ?> " value = "<?php echo $escape($proposedValue['proposed']['@uri']);; ?>">
+                            name="<?=  $term . '[' . $key . '][@uri]' ?> " value = "<?= $escape($proposedValue['proposed']['@uri']) ?>">
                         </label>
                     </div>
                     <div class="input">
                         <label class="value-label">
                             <?= $translate('Label:') ?>:<textarea class="value-label touched" rows="1" data-value-key="o:label"
-                            name="<?php echo $term . '[' . $key . '][@label]'; ?>"><?php echo $escape($proposedValue['proposed']['@label']); ?></textarea>
+                            name="<?= $term . '[' . $key . '][@label]' ?>"><?= $escape($proposedValue['proposed']['@label']) ?></textarea>
                         </label>
                     </div>
                 </div>
@@ -312,7 +312,7 @@ $key = 0;
         default:
             ?>
             <div class="value" lang="<?php /*echo $escape($language); */ ?>">
-                <textarea data-value-key="@value" name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="input-value" aria-labelledby="property-<?php echo $property->id(); ?>-label"><?php echo $escape($proposedValue['proposed']['@value']); ?></textarea>
+                <textarea data-value-key="@value" name="<?= $term . '[' . $key . '][@value]' ?>" class="input-value" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($proposedValue['proposed']['@value']) ?></textarea>
             </div>
             <?php
         break;
@@ -328,12 +328,12 @@ $key = 0;
         if (in_array($dataType, [null, 'literal', 'uri'])):
     ?>
         <div class="inputs">
-            <div class="add-values default-selector" data-next-key="<?php echo $key; ?>" data-next-term="<?php echo $term; ?>">
+            <div class="add-values default-selector" data-next-key="<?= $key ?>" data-next-term="<?= $term ?>">
             <?php if (empty($dataType) || $dataType === 'literal'): ?>
-            <div style="float:left;" class="o-icon-add add-value-new button"><?php echo $translate('Add value'); ?></div>
+            <div style="float:left;" class="o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
             <?php endif; ?>
             <?php if (empty($dataType) || $dataType === 'uri'): ?>
-            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?php echo $translate('URI'); ?></div>
+            <div style="float:left; margin-left:10px;" class=" add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
             <?php endif; ?>
             </div>
         </div>
@@ -341,16 +341,16 @@ $key = 0;
     </div>
 <?php endforeach; ?>
 
-<?php echo $formElement($form->get('csrf')); ?>
+<?= $formElement($form->get('csrf')) ?>
 
 <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
 <div id="page-actions">
-    <?php // echo $this->cancelButton(); ?>
-    <?php echo $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'button']); ?>
-    <button type="submit" name="correct-resource-submit"><?php echo $escape($submitLabel); ?></button>
+    <?php // echo $this->cancelButton() ?>
+    <?= $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'button']) ?>
+    <button type="submit" name="correct-resource-submit"><?= $escape($submitLabel) ?></button>
 </div>
 
-<?php echo $this->form()->closeTag(); ?>
+<?= $this->form()->closeTag() ?>
 
-<?php // echo $this->partial('common/resource-form-templates.phtml'); ?>
+<?php // echo $this->partial('common/resource-form-templates.phtml') ?>

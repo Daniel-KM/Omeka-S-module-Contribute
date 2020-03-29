@@ -14,7 +14,7 @@ $hyperlink = $this->plugin('hyperlink');
 <?php if (empty($tokens)): ?>
 
     <div class="no-resources">
-        <p><?php echo $translate('There are no tokens for this resource.'); ?></p>
+        <p><?= $translate('There are no tokens for this resource.') ?></p>
     </div>
 
 <?php else: ?>
@@ -35,7 +35,7 @@ $editRight = $resource->userIsAllowed('update');
     <thead>
         <tr>
             <th>
-                <?php echo $translate('Token'); ?>
+                <?= $translate('Token') ?>
             </th>
         </tr>
     </thead>
@@ -43,23 +43,23 @@ $editRight = $resource->userIsAllowed('update');
         <?php foreach ($tokens as $token): ?>
         <tr>
             <td>
-                <span class="correction-token"><?php echo $token->siteUrl($siteSlug, true); ?></span>
+                <span class="correction-token"><?= $token->siteUrl($siteSlug, true) ?></span>
                 <?php if ($email = $token->email()): ?>
-                <span class="correction-email"><?php echo $hyperlink($email, 'mailto:' . $email); ?></span>
+                <span class="correction-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php else: ?>
-                <span class="correction-email"><?php echo $translate('[no email]'); ?></span>
+                <span class="correction-email"><?= $translate('[no email]') ?></span>
                 <?php endif; ?>
                 <?php if ($token->isExpired()): ?>
-                <span class="single actions no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
+                <span class="single actions no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
                 <?php else: ?>
                     <?php if ($editRight): ?>
                 <span class="single actions"><a href="#"
                     class="expire-token o-icon-expire-token"
-                    data-expire-token-url="<?php echo $escape($token->adminUrl('expire-token')); ?>"
-                    aria-label="<?php echo $escape($translate('Expire token')); ?>"
-                    title="<?php echo $escape($translate('Expire token')); ?>"></a></span>
+                    data-expire-token-url="<?= $escape($token->adminUrl('expire-token')) ?>"
+                    aria-label="<?= $escape($translate('Expire token')) ?>"
+                    title="<?= $escape($translate('Expire token')) ?>"></a></span>
                     <?php else: ?>
-                <span class="single no-action o-icon-expire-token" aria-label="<?php echo $escape($translate('Unused token')); ?>"></span>
+                <span class="single no-action o-icon-expire-token" aria-label="<?= $escape($translate('Unused token')) ?>"></span>
                     <?php endif; ?>
                 <?php endif; ?>
             </td>

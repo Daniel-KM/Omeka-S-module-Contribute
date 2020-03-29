@@ -21,7 +21,7 @@ $values = $resource->values();
     <?php $totalTokens = $api->search('correction_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
     <div class="no-resources">
-        <p><?php echo $translate('There are no tokens for this resource.'); ?></p>
+        <p><?= $translate('There are no tokens for this resource.') ?></p>
     </div>
     <?php else: ?>
     <?php $totalExpiredTokens = $api
@@ -31,16 +31,16 @@ $values = $resource->values();
         )
         ->getTotalResults(); ?>
     <div class="correction-token">
-        <p><?php echo sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens); ?></p>
+        <p><?= sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens) ?></p>
         <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Correction\Controller\Admin\Correction', 'expire-tokens')): ?>
-        <?php echo $hyperlink($translate('Expire all tokens'), $this->url('admin/correction/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']); ?>
+        <?= $hyperlink($translate('Expire all tokens'), $this->url('admin/correction/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']) ?>
         <?php endif; ?>
     </div>
     <?php endif; ?>
 
 <?php if (empty($corrections)): ?>
     <div class="no-resources">
-        <p><?php echo $translate('There are no corrections for this resource.'); ?></p>
+        <p><?= $translate('There are no corrections for this resource.') ?></p>
     </div>
 <?php else: ?>
 <?php
@@ -61,43 +61,43 @@ $editRight = $resource->userIsAllowed('update');
     <thead>
         <tr>
             <th>
-                <?php echo $translate('Correction'); ?>
+                <?= $translate('Correction') ?>
                 <?php /*
-                <span class="correction-id">#<?php echo $correction->id(); ?></span>
+                <span class="correction-id">#<?= $correction->id() ?></span>
                 */ ?>
                 <?php if ($email = $correction->email()): ?>
-                <span class="correction-email"><?php echo $hyperlink($email, 'mailto:' . $email); ?></span>
+                <span class="correction-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php endif; ?>
                 <?php // TODO Correction date is not clear: use the date of the token when modified? ?>
-                <span class="correction-date"><?php echo $escape($correction->created()->format('Y-m-d H:i:s')); ?></span>
+                <span class="correction-date"><?= $escape($correction->created()->format('Y-m-d H:i:s')) ?></span>
                 <?php if ($token): ?>
                 <span> / </span>
-                <span class="correction-token"><?php echo $hyperlink($token->token(), $token->siteUrl($siteSlug, true)); ?></span>
+                <span class="correction-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
                 <?php endif; ?>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
                     class="validate o-icon-validate"
-                    data-validate-url="<?php echo $escape($correction->url('validate')); ?>"
-                    aria-label="<?php echo $escape($translate('Validate all values')); ?>"
-                    title="<?php echo $escape($translate('Validate all values')); ?>"></a></span>
+                    data-validate-url="<?= $escape($correction->url('validate')) ?>"
+                    aria-label="<?= $escape($translate('Validate all values')) ?>"
+                    title="<?= $escape($translate('Validate all values')) ?>"></a></span>
                 <span class="single actions"><a href="#"
-                    class="status-toggle o-icon-<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
-                    data-status-toggle-url="<?php echo $escape($correction->url('toggle-status')); ?>"
-                    data-status="<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"
-                    aria-label="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"
-                    title="<?php echo $escape($translate('Toggle status reviewed/unreviewed')); ?>"></a></span>
+                    class="status-toggle o-icon-<?= $correction->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    data-status-toggle-url="<?= $escape($correction->url('toggle-status')) ?>"
+                    data-status="<?= $correction->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
+                    title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
                 <?php if ($token && $token->isExpired()): ?>
-                <span class="single no-action o-icon-expired-token" aria-label="<?php echo $escape($translate('Expired token')); ?>"></span>
+                <span class="single no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
                 <?php else: ?>
                 <span class="single single-action"><a href="#"
                     class="expire-token o-icon-expire-token"
-                    data-expire-token-url="<?php echo $escape($correction->url('expire-token')); ?>"
-                    aria-label="<?php echo $escape($translate('Expire token')); ?>"
-                    title="<?php echo $escape($translate('Expire token')); ?>"></a></span>
+                    data-expire-token-url="<?= $escape($correction->url('expire-token')) ?>"
+                    aria-label="<?= $escape($translate('Expire token')) ?>"
+                    title="<?= $escape($translate('Expire token')) ?>"></a></span>
                 <?php endif; ?>
                 <?php else: ?>
-                <span class="no-action o-icon-<?php echo $correction->reviewed() ? 'reviewed' : 'unreviewed'; ?>"></span>
+                <span class="no-action o-icon-<?= $correction->reviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
                 <?php endif; ?>
             </th>
         </tr>
@@ -124,11 +124,11 @@ $editRight = $resource->userIsAllowed('update');
 ?>
     <div class="property">
         <h4>
-            <?php echo $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())); ?>
+            <?= $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())) ?>
             <?php if ('term' === $labelInfo): ?>
-            <span class="field-term">(<?php echo $escape($propertyData['property']->term()); ?>)</span>
+            <span class="field-term">(<?= $escape($propertyData['property']->term()) ?>)</span>
             <?php elseif ('vocab' === $labelInfo): ?>
-            <span class="field-term">(<?php echo $escape($propertyData['property']->vocabulary()->label()); ?>)</span>
+            <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>
             <?php endif; ?>
         </h4>
         <div class="values">
@@ -150,39 +150,39 @@ $editRight = $resource->userIsAllowed('update');
                 if ($isValidated) $class[] = 'validated-value';
                 $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
                 ?>
-                <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+                <div class="<?= implode(' ', $class); ?>" lang="<?= $escape($language) ?>">
                     <?php if ($language): ?>
-                    <span class="language"><?php echo $language; ?></span>
+                    <span class="language"><?= $language ?></span>
                     <?php endif; ?>
 
                     <?php if ($process === 'remove'): ?>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_label); ?></span><span>:</span>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_uri); ?></span>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_label); ?></span><span>:</span>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original_uri); ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_label) ?></span><span>:</span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_uri) ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_label) ?></span><span>:</span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_uri) ?></span>
                     <?php else: ?>
                     <?php if ($original_label): ?>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original_label); ?></span><span>:</span>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original_uri); ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original_label) ?></span><span>:</span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original_uri) ?></span>
                     <br/>
                     <?php endif; ?>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed_label); ?></span><span>:</span>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed_uri); ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed_label) ?></span><span>:</span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed_uri) ?></span>
                     <?php endif; ?>
 
                     <span class="single actions">
                     <?php if ($isValidated): ?>
-                        <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
+                        <span class="no-action o-icon-validated-value" aria-label="<?= $escape($translate('Validated')) ?>"></span>
                     <?php elseif ($process === 'keep'): ?>
-                        <span class="no-action o-icon-not-validable-value" aria-label="<?php echo $escape($translate('Not validable')); ?>"></span>
+                        <span class="no-action o-icon-not-validable-value" aria-label="<?= $escape($translate('Not validable')) ?>"></span>
                     <?php elseif (!$editRight): ?>
-                        <span class="no-action o-icon-validate-value no-right" aria-label="<?php echo $escape($translate('No right to write')); ?>"></span>
+                        <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escape($translate('No right to write')) ?>"></span>
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?term=$term&key=$key"); ?>"
-                            aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
-                            title="<?php echo $txt; ?>"></a>
+                            data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
+                            title="<?= $txt ?>"></a>
                     <?php endif; ?>
                     </span>
                 </div>
@@ -199,34 +199,34 @@ $editRight = $resource->userIsAllowed('update');
                 if ($isValidated) $class[] = 'validated-value';
                 $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
                 ?>
-                <div class="<?php echo implode(' ', $class); ?>" lang="<?php echo $escape($language); ?>">
+                <div class="<?= implode(' ', $class); ?>" lang="<?= $escape($language) ?>">
                     <?php if ($language): ?>
-                    <span class="language"><?php echo $language; ?></span>
+                    <span class="language"><?= $language ?></span>
                     <?php endif; ?>
 
                     <?php if ($process === 'remove'): ?>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?php echo $escape($original); ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original) ?></span>
                     <?php else: ?>
                     <?php if ($original): ?>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="original-value"><?php echo $escape($original); ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original) ?></span>
                     <br/>
                     <?php endif; ?>
-                    <span data-name="<?php echo $term . '[' . $key . '][@value]'; ?>" class="<?php echo $process; ?>-value"><?php echo $escape($proposed); ?></span>
+                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed) ?></span>
                     <?php endif; ?>
 
                     <span class="single actions">
                     <?php if ($isValidated): ?>
-                        <span class="no-action o-icon-validated-value" aria-label="<?php echo $escape($translate('Validated')); ?>"></span>
+                        <span class="no-action o-icon-validated-value" aria-label="<?= $escape($translate('Validated')) ?>"></span>
                     <?php elseif ($process === 'keep'): ?>
-                        <span class="no-action o-icon-not-validable-value" aria-label="<?php echo $escape($translate('Not validable')); ?>"></span>
+                        <span class="no-action o-icon-not-validable-value" aria-label="<?= $escape($translate('Not validable')) ?>"></span>
                     <?php elseif (!$editRight): ?>
-                        <span class="no-action o-icon-validate-value no-right" aria-label="<?php echo $escape($translate('No right to write')); ?>"></span>
+                        <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escape($translate('No right to write')) ?>"></span>
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?php echo $escape($correction->url('validate-value') . "?term=$term&key=$key"); ?>"
-                            aria-label="<?php echo $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))); ?>"
-                            title="<?php echo $txt; ?>"></a>
+                            data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
+                            title="<?= $txt ?>"></a>
                     <?php endif; ?>
                     </span>
                 </div>
@@ -254,7 +254,7 @@ $editRight = $resource->userIsAllowed('update');
     'resource' => $resource,
     'tokens' => $unusedTokens,
     'siteSlug' => $siteSlug,
-]); ?>
+]) ?>
 <?php endif; ?>
 
 </div>
