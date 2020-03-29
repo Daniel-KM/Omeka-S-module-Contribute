@@ -100,6 +100,22 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'correction_properties_datatype',
+                'type' => Element\MultiCheckbox::class,
+                'options' => [
+                    'label' => 'Editable datatypes', // @translate
+                    'info' => 'Other datatypes are not editable.', // @translate
+                    'value_options' => [
+                        'literal' => 'Literal', // @translate
+                        'uri' => 'Uri', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'correction_properties_datatype',
+                ],
+            ])
+
+            ->add([
                 'name' => 'correction_without_token',
                 'type' => Element\Checkbox::class,
                 'options' => [

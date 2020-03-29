@@ -182,6 +182,9 @@ class CorrectionController extends AbstractActionController
     {
         $fields = [];
 
+        $values = $resource->values();
+        $editable = $this->listEditableProperties($resource);
+
         $defaultField = [
             'template_property' => null,
             'property' => null,
@@ -189,12 +192,12 @@ class CorrectionController extends AbstractActionController
             'alternate_comment' => null,
             'corrigible' => false,
             'fillable' => false,
+            'datatype' => [],
             'values' => [],
             'corrections' => [],
         ];
 
-        $values = $resource->values();
-        $editable = $this->listEditableProperties($resource);
+        $defaultField['datatype'] = $editable['datatype'];
 
         // The default template is used when there is no template or when the
         // used one is not configured. $editable has info about that.
@@ -206,14 +209,20 @@ class CorrectionController extends AbstractActionController
         if ($resourceTemplate) {
             // List the resource template fields first.
             foreach ($resourceTemplate->resourceTemplateProperties() as $templateProperty) {
-                $term = $templateProperty->property()->term();
+                $property = $templateProperty->property();
+                $term = $property->term();
+                $dataType = $templateProperty->dataType();
                 $fields[$term] = [
                     'template_property' => $templateProperty,
-                    'property' => $templateProperty->property(),
+                    'property' => $property,
                     'alternate_label' => $templateProperty->alternateLabel(),
                     'alternate_comment' => $templateProperty->alternateComment(),
                     'corrigible' => isset($editable['corrigible'][$term]),
                     'fillable' => isset($editable['fillable'][$term]),
+                    // TODO Improved setting for datatype.
+                    'datatype' => empty($dataType)
+                        ? $editable['datatype']
+                        : (in_array($dataType, $editable['datatype']) ? [$dataType] : []),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
                     'corrections' => [],
                 ];
@@ -265,6 +274,7 @@ class CorrectionController extends AbstractActionController
                             'corrigible' => $editable['corrigible_mode'] === 'all'
                                 || ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term])),
                             'fillable' => true,
+                            'datatype' => $editable['datatype'],
                             'values' => [],
                             'corrections' => [],
                         ];
@@ -279,6 +289,7 @@ class CorrectionController extends AbstractActionController
             foreach ($field['values'] as $value) {
                 // Method value() is label or value depending on type.
                 $type = $value->type();
+                // TODO No need to check if the datatype is managed?
                 if ($type === 'uri') {
                     $val = null;
                     $label = $value->value();
@@ -339,6 +350,9 @@ class CorrectionController extends AbstractActionController
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
                 $type = $fieldCorrection['type'];
+                if (!in_array($type, $editable['datatype'])) {
+                    continue;
+                }
                 if ($type === 'uri') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
@@ -357,7 +371,7 @@ class CorrectionController extends AbstractActionController
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif (strtok($type, ':') === 'resource' || $type !== 'literal') {
+                } elseif (strtok($type, ':') === 'resource') {
                     // TODO Value resource are currently not editable.
                     continue;
                 } else {
@@ -393,6 +407,9 @@ class CorrectionController extends AbstractActionController
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
                 $type = $fieldCorrection['type'];
+                if (!in_array($type, $editable['datatype'])) {
+                    continue;
+                }
                 if ($type === 'uri') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
@@ -411,7 +428,7 @@ class CorrectionController extends AbstractActionController
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif (strtok($type, ':') === 'resource' || $type !== 'literal') {
+                } elseif (strtok($type, ':') === 'resource') {
                     // TODO Value resource are currently not editable.
                     continue;
                 } else {
@@ -442,7 +459,11 @@ class CorrectionController extends AbstractActionController
         $proposals = array_intersect_key(array_filter($proposals), $editable['fillable']);
         foreach ($proposals as $term => $termProposal) {
             foreach ($termProposal as $proposal) {
-                if (isset($proposal['proposed']['@uri'])) {
+                $type = isset($proposal['proposed']['@uri']) ? 'uri' : 'literal';
+                if (!in_array($type, $editable['datatype'])) {
+                    continue;
+                }
+                if ($type === 'uri') {
                     $fields[$term]['corrections'][] = [
                         'type' => 'uri',
                         'original' => [
@@ -518,6 +539,10 @@ class CorrectionController extends AbstractActionController
         // Process only editable keys.
         $editable = $this->listEditableProperties($resource);
 
+        if (!count($editable['datatype'])) {
+            return [];
+        }
+
         // Process corrigible properties first.
         switch ($editable['corrigible_mode']) {
             case 'whitelist':
@@ -539,6 +564,9 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 $type = $value->type();
+                if (!in_array($type, $editable['datatype'])) {
+                    continue;
+                }
                 switch ($type) {
                     case 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
@@ -597,6 +625,9 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 $type = array_key_exists('@uri', $value) ? 'uri' : 'literal';
+                if (!in_array($type, $editable['datatype'])) {
+                    continue;
+                }
                 switch ($type) {
                     case 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {

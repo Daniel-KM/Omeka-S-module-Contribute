@@ -477,7 +477,7 @@ class CorrectionController extends AbstractActionController
                 }
 
                 // TODO Manage all types of value.
-                if (!in_array($existingValue->type(), ['literal', 'uri'])) {
+                if (!in_array($existingValue->type(), $editable['datatype'])) {
                     continue;
                 }
 

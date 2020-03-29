@@ -152,6 +152,10 @@ return [
             'correction_properties_corrigible' => [],
             'correction_properties_fillable_mode' => 'all',
             'correction_properties_fillable' => [],
+            'correction_properties_datatype' => [
+                'literal',
+                'uri',
+            ],
             'correction_without_token' => false,
             // Days.
             'correction_token_duration' => 60,

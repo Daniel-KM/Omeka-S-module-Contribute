@@ -202,16 +202,13 @@ $labelInfo = $this->setting('property_label_information');
             <?php endforeach; ?>
 
             <?php // Add buttons to add a new value for fillable properties. ?>
-            <?php if ($field['fillable']):
-                $templateProperty = $field['template_property'] ?: null;
-                $valueType = $templateProperty ? $templateProperty->dataType() : null;
-                ?>
+            <?php if ($field['fillable']): ?>
         <div class="inputs">
             <div class="add-values default-selector" data-next-index="<?= $index ?>" data-next-term="<?= $term ?>">
-                <?php if (empty($valueType) || $valueType === 'literal'): ?>
+                <?php if (in_array('literal', $field['datatype'])): ?>
                 <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
                 <?php endif; ?>
-                <?php if (empty($valueType) || $valueType === 'uri'): ?>
+                <?php if (in_array('uri', $field['datatype'])): ?>
                 <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
                 <?php endif; ?>
                 <div class="clearfix"></div>

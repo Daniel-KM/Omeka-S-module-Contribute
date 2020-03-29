@@ -388,6 +388,10 @@ class Module extends AbstractModule
                 'name' => 'correction_properties_fillable',
                 'required' => false,
             ])
+            ->add([
+                'name' => 'correction_properties_datatype',
+                'required' => false,
+            ])
         ;
     }
 

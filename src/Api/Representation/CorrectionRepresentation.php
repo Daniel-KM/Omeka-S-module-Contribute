@@ -271,6 +271,10 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                     $type = 'literal';
                 }
 
+                if (!in_array($type, $editable['datatype'])) {
+                    $type = null;
+                }
+
                 switch ($type) {
                     default:
                         $original = isset($proposition['original']['@value']) ? $proposition['original']['@value'] : '';

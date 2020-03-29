@@ -25,10 +25,13 @@ class ListEditableProperties extends AbstractPlugin
             'corrigible' => [],
             'fillable_mode' => 'whitelist',
             'fillable' => [],
+            'datatype' => [],
         ];
 
         $controller = $this->getController();
         $propertyIdsByTerms = $controller->propertyIdsByTerms();
+        $settings = $controller->settings();
+        $result['datatype'] = $settings->get('correction_properties_datatype', []);
 
         $resourceTemplate = $resource->resourceTemplate();
         if ($resourceTemplate) {
@@ -38,7 +41,6 @@ class ListEditableProperties extends AbstractPlugin
         }
 
         if (!count($result['corrigible']) && !count($result['fillable'])) {
-            $settings = $controller->settings();
             $resourceTemplateId = (int) $settings->get('correction_template_editable');
             if ($resourceTemplateId) {
                 try {
@@ -66,7 +68,8 @@ class ListEditableProperties extends AbstractPlugin
             }
         }
 
-        $result['is_editable'] = count($result['corrigible'])
+        $result['is_editable'] = count($result['datatype'])
+            || count($result['corrigible'])
             || count($result['fillable'])
             || in_array($result['corrigible_mode'], ['all', 'blacklist'])
             || in_array($result['fillable_mode'], ['all', 'blacklist']);
