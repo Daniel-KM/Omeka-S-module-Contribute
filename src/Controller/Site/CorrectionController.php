@@ -154,15 +154,14 @@ class CorrectionController extends AbstractActionController
      *     ),
      *     'corrections' => array(
      *       array(
+     *         'type' => {string},
      *         'original' => array(
      *           'value' => {ValueRepresentation},
-     *           'type' => {string},
      *           '@value' => {string},
      *           '@uri' => {string},
      *           '@label' => {string},
      *         ),
      *         'proposed' => array(
-     *           'type' => {string},
      *           '@value' => {string},
      *           '@uri' => {string},
      *           '@label' => {string},
@@ -275,16 +274,15 @@ class CorrectionController extends AbstractActionController
                     $label = null;
                 }
                 $fields[$term]['corrections'][] = [
+                    // The type cannot be changed.
+                    'type' => $type,
                     'original' => [
                         'value' => $value,
-                        'type' => $type,
                         '@value' => $val,
                         '@uri' => $value->uri(),
                         '@label' => $label,
                     ],
                     'proposed' => [
-                        // The type cannot be changed.
-                        'type' => $type,
                         '@value' => null,
                         '@uri' => null,
                         '@label' => null,
@@ -327,7 +325,7 @@ class CorrectionController extends AbstractActionController
             }
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
-                $type = $fieldCorrection['original']['type'];
+                $type = $fieldCorrection['type'];
                 if ($type === 'uri') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
@@ -342,7 +340,6 @@ class CorrectionController extends AbstractActionController
                         continue;
                     }
                     $fieldCorrection['proposed'] = [
-                        'type' => $type,
                         '@value' => null,
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
@@ -363,7 +360,6 @@ class CorrectionController extends AbstractActionController
                         continue;
                     }
                     $fieldCorrection['proposed'] = [
-                        'type' => $type,
                         '@value' => $proposed['@value'],
                         '@uri' => null,
                         '@label' => null,
@@ -383,7 +379,7 @@ class CorrectionController extends AbstractActionController
             }
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
-                $type = $fieldCorrection['original']['type'];
+                $type = $fieldCorrection['type'];
                 if ($type === 'uri') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
@@ -398,7 +394,6 @@ class CorrectionController extends AbstractActionController
                         continue;
                     }
                     $fieldCorrection['proposed'] = [
-                        'type' => $type,
                         '@value' => null,
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
@@ -419,7 +414,6 @@ class CorrectionController extends AbstractActionController
                         continue;
                     }
                     $fieldCorrection['proposed'] = [
-                        'type' => $type,
                         '@value' => $proposed['@value'],
                         '@uri' => null,
                         '@label' => null,
@@ -437,15 +431,14 @@ class CorrectionController extends AbstractActionController
             foreach ($termProposal as $proposal) {
                 if (isset($proposal['proposed']['@uri'])) {
                     $fields[$term]['corrections'][] = [
+                        'type' => 'uri',
                         'original' => [
                             'value' => null,
-                            'type' => 'uri',
                             '@value' => null,
                             '@uri' => null,
                             '@label' => null,
                         ],
                         'proposed' => [
-                            'type' => 'uri',
                             '@value' => null,
                             '@uri' => $proposal['proposed']['@uri'],
                             '@label' => $proposal['proposed']['@label'],
@@ -453,15 +446,14 @@ class CorrectionController extends AbstractActionController
                     ];
                 } else {
                     $fields[$term]['corrections'][] = [
+                        'type' => 'literal',
                         'original' => [
                             'value' => null,
-                            'type' => 'literal',
                             '@value' => null,
                             '@uri' => null,
                             '@label' => null,
                         ],
                         'proposed' => [
-                            'type' => 'literal',
                             '@value' => $proposal['proposed']['@value'],
                             '@uri' => null,
                             '@label' => null,

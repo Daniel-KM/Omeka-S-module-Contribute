@@ -100,7 +100,7 @@ $labelInfo = $this->setting('property_label_information');
 
                 $original = $fieldCorrection['original'];
                 $proposed = $fieldCorrection['proposed'];
-                $type = $original['type'];
+                $type = $fieldCorrection['type'];
                 $isPrivate = $value && method_exists($value, 'isPublic') && !$value->isPublic();
 
                 // Value that is not corrigible.
