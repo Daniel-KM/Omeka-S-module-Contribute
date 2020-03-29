@@ -20,7 +20,7 @@ $values = $resource->values();
 <div class="corrections">
     <?php $totalTokens = $api->search('correction_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
-    <div class="no-resources">
+    <div class="no-resources no-tokens">
         <p><?= $translate('There are no tokens for this resource.') ?></p>
     </div>
     <?php else: ?>
@@ -39,7 +39,7 @@ $values = $resource->values();
     <?php endif; ?>
 
 <?php if (empty($corrections)): ?>
-    <div class="no-resources">
+    <div class="no-resources no-corrections">
         <p><?= $translate('There are no corrections for this resource.') ?></p>
     </div>
 <?php else: ?>
@@ -91,7 +91,7 @@ $editRight = $resource->userIsAllowed('update');
                     title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
                 <?php if ($token && $token->isExpired()): ?>
                 <span class="single no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
-                <?php else: ?>
+                <?php elseif ($token): ?>
                 <span class="single single-action"><a href="#"
                     class="expire-token o-icon-expire-token"
                     data-expire-token-url="<?= $escape($correction->url('expire-token')) ?>"

@@ -121,7 +121,7 @@ $(document).ready(function() {
         $.ajax({
             url: url,
             beforeSend: function() {
-                button.removeClass('o-icon-' + status).addClass('o-icon-transmit');
+                button.removeClass('o-icon-' + status).addClass('fas fa-sync fa-spin');
             }
         })
         .done(function(data) {
@@ -143,7 +143,7 @@ $(document).ready(function() {
             }
         })
         .always(function () {
-            button.removeClass('o-icon-transmit').addClass('o-icon-' + status);
+            button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
     });
 
@@ -157,7 +157,7 @@ $(document).ready(function() {
         $.ajax({
             url: url,
             beforeSend: function() {
-                button.removeClass('o-icon-expire-token').addClass('o-icon-transmit');
+                button.removeClass('o-icon-expire-token').addClass('fas fa-sync fa-spin');
             }
         })
         .done(function(data) {
@@ -178,7 +178,7 @@ $(document).ready(function() {
             }
         })
         .always(function () {
-            button.removeClass('o-icon-transmit').addClass('o-icon-' + status + '-token');
+            button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status + '-token');
         });
     });
 
@@ -192,7 +192,7 @@ $(document).ready(function() {
         $.ajax({
             url: url,
             beforeSend: function() {
-                button.removeClass('o-icon-' + status).addClass('o-icon-transmit');
+                button.removeClass('o-icon-' + status).addClass('fas fa-sync fa-spin');
             }
         })
         .done(function(data) {
@@ -225,7 +225,7 @@ $(document).ready(function() {
             }
         })
         .always(function () {
-            button.removeClass('o-icon-transmit').addClass('o-icon-' + status);
+            button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
     });
 
@@ -239,7 +239,7 @@ $(document).ready(function() {
         $.ajax({
             url: url,
             beforeSend: function() {
-                button.removeClass('o-icon-' + status).addClass('o-icon-transmit');
+                button.removeClass('o-icon-' + status).addClass('fas fa-sync fa-spin');
             }
         })
         .done(function(data) {
@@ -262,7 +262,7 @@ $(document).ready(function() {
             }
         })
         .always(function () {
-            button.removeClass('o-icon-transmit').addClass('o-icon-' + status);
+            button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
     });
 

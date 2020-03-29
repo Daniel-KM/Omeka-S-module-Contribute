@@ -2,8 +2,12 @@
     header nav .correction:before {
         content:"\f044"; /* fas fa-edit */
     }
+    #correction .no-corrections:before,
     .correction .no-resources:before {
         content:"\f044"; /* far fa-edit */
+    }
+    #correction .no-tokens:before {
+        content:""; /* clock */
     }
     #corrections .property {
         display: inherit;
@@ -45,11 +49,6 @@
     }
     .correction .single.actions a::before {
         text-align: inherit;
-    }
-    .correction .single-action .o-icon-transmit::before,
-    .correction .single.actions .o-icon-transmit::before;
-    .correction-token .single.actions .o-icon-transmit::before {
-        background: url('../img/waiting-mini.gif') no-repeat scroll 3px 3px transparent !important;
     }
     .correction .o-icon-users,
     .correction .no-action::before {
@@ -137,11 +136,16 @@
     }
     .correction .o-icon-expire-token::before {
         color: #00FF00;
-        content: ""; /* stop-watch */
+        content: ""; /* clock */
     }
     .correction .o-icon-expired-token::before {
         color: #FF0000;
-        content: ""; /* stop-watch */
+        content: ""; /* clock */
+        opacity: 0.4;
+    }
+    .correction .o-icon-no-token::before {
+        color: #00FF00;
+        content: ""; /* infinity */
         opacity: 0.4;
     }
     .correction .o-icon-unknown-value::before,
@@ -156,12 +160,6 @@
     .correction .o-icon-none::before {
         color: #FFFFFF;
         content: "";
-    }
-    .correction .o-icon-transmit::before {
-        background: url('../img/waiting-mini.gif') no-repeat scroll 3px 3px transparent !important;
-        color: #000000;
-        content: "";
-        cursor: progress;
     }
 
     .single-action {
