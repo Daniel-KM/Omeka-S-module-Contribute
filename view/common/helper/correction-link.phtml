@@ -3,12 +3,20 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var bool $canCorrect
  */
 
-$translate = $this->plugin('translate');
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$url = $plugins->get('url');
 ?>
 
 <div id="correction" class="correction">
     <h3><?= $translate('Correction') ?></h3>
-    <?= $this->hyperlink($translate('Correct this record'), $this->url('site/correction', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
+    <?php if ($canCorrect): ?>
+    <?= $this->hyperlink($translate('Correct this record'), $url('site/correction', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
+    <?php else: ?>
+    <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
+    <?= sprintf($translate('%1$sLogin%2$s or click your token link to correct this record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
+    <?php endif; ?>
 </div>

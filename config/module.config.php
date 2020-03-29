@@ -25,8 +25,8 @@ return [
         ],
     ],
     'view_helpers' => [
-        'invokables' => [
-            'linkCorrection' => View\Helper\LinkCorrection::class,
+        'factories' => [
+            'linkCorrection' => Service\ViewHelper\LinkCorrectionFactory::class,
         ],
     ],
     'form_elements' => [

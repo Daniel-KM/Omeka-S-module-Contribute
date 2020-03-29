@@ -2,11 +2,22 @@
 
 namespace Correction\View\Helper;
 
+use Correction\Mvc\Controller\Plugin\CheckToken;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Zend\View\Helper\AbstractHelper;
 
 class LinkCorrection extends AbstractHelper
 {
+    /**
+     * @var CheckToken
+     */
+    protected $checkToken;
+
+    public function __construct(CheckToken $checkToken)
+    {
+        $this->checkToken = $checkToken;
+    }
+
     /**
      * Get the link to the correction page.
      *
@@ -16,8 +27,6 @@ class LinkCorrection extends AbstractHelper
     {
         $view = $this->getView();
 
-        // TODO Check if the user has right to see it.
-
         if (empty($resource)) {
             $resource = $view->resource;
             if (empty($resource)) {
@@ -25,9 +34,13 @@ class LinkCorrection extends AbstractHelper
             }
         }
 
+        $helper = $this->checkToken;
+        $canCorrect = (bool) $helper($resource);
+
         return $view->partial('common/helper/correction-link', [
             'site' => $this->currentSite(),
             'resource' => $resource,
+            'canCorrect' => $canCorrect,
         ]);
     }
 
