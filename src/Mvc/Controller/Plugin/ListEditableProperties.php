@@ -19,7 +19,7 @@ class ListEditableProperties extends AbstractPlugin
     {
         $result = [
             'is_editable' => false,
-            'default_template' => false,
+            'template' => null,
             'default_properties' => false,
             'corrigible_mode' => 'whitelist',
             'corrigible' => [],
@@ -35,6 +35,7 @@ class ListEditableProperties extends AbstractPlugin
 
         $resourceTemplate = $resource->resourceTemplate();
         if ($resourceTemplate) {
+            $result['template'] = $resourceTemplate;
             $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplate->id());
             $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
             $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
@@ -44,18 +45,19 @@ class ListEditableProperties extends AbstractPlugin
             $resourceTemplateId = (int) $settings->get('correction_template_editable');
             if ($resourceTemplateId) {
                 try {
-                    $resourceTemplate = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
-                    $result['default_template'] = $resourceTemplateId;
+                    $result['template'] = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
                     $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplateId);
                     $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
                     $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
                 } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    // Nothing to do.
+                    $result['template'] = null;
                 }
+            } else {
+                $result['template'] = null;
             }
 
             if (!count($result['corrigible']) && !count($result['fillable'])) {
-                $result['default_template'] = false;
+                $result['template'] = null;
                 $result['default_properties'] = true;
                 $result['corrigible_mode'] = $settings->get('correction_properties_corrigible_mode', 'all');
                 if (in_array($result['corrigible_mode'], ['blacklist', 'whitelist'])) {

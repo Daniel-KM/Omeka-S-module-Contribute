@@ -201,14 +201,11 @@ class CorrectionController extends AbstractActionController
 
         // The default template is used when there is no template or when the
         // used one is not configured. $editable has info about that.
-        $resourceTemplate = $editable['default_template']
-            ? $this->api()->read('resource_templates', ['id' => $editable['default_template']])->getContent()
-            : $resource->resourceTemplate();
 
         // List the fields for the resource when there is a resource template.
-        if ($resourceTemplate) {
+        if ($editable['template']) {
             // List the resource template fields first.
-            foreach ($resourceTemplate->resourceTemplateProperties() as $templateProperty) {
+            foreach ($editable['template']->resourceTemplateProperties() as $templateProperty) {
                 $property = $templateProperty->property();
                 $term = $property->term();
                 $dataType = $templateProperty->dataType();
