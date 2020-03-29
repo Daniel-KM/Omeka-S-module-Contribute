@@ -451,18 +451,16 @@ class CorrectionController extends AbstractActionController
         $editable = $this->getEditableProperties($resource);
         $corrigible = $editable['corrigible'];
         $fillable = $editable['fillable'];
-        $proposalCorrigible = array_intersect_key($proposal, array_flip($corrigible));
+        $proposalCorrigible = array_intersect_key($proposal, $corrigible);
         $result = [];
-        foreach ($corrigible as $term) {
+        foreach (array_keys($corrigible) as $term) {
             // TODO Manage all types of data, in particular custom vocab and value suggest.
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
             $values = $resource->value($term, [/*'type' => 'literal',*/ 'all' => true, 'default' => []]);
 
             $proposedValues = isset($proposalCorrigible[$term]) ? $proposalCorrigible[$term] : [];
             // Don't save corrigible and fillable twice.
-            if (in_array($term, $fillable)) {
-                unset($fillable[array_search($term, $fillable)]);
-            }
+            unset($fillable[$term]);
 
             // First, save original values (literal only) and the matching corrections.
             // TODO Check $key and order of values.
@@ -512,8 +510,8 @@ class CorrectionController extends AbstractActionController
         }
 
         // Third, save remaining fillable properties.
-        $proposalFillable = array_intersect_key($proposal, array_flip($fillable));
-        foreach ($fillable as $term) {
+        $proposalFillable = array_intersect_key($proposal, $fillable);
+        foreach (array_keys($fillable) as $term) {
             if (!isset($proposalFillable[$term])) {
                 continue;
             }
@@ -539,13 +537,13 @@ class CorrectionController extends AbstractActionController
     }
 
     /**
-     * Get the list of editable property terms and ids.
+     * Get the list of editable property ids by terms.
      *
      *  The list come from the resource template if it is configured, else the
      *  default list is used.
      *
      * @param AbstractResourceEntityRepresentation $resource
-     * @return array[]
+     * @return array
      */
     protected function getEditableProperties(AbstractResourceEntityRepresentation $resource)
     {
@@ -560,15 +558,15 @@ class CorrectionController extends AbstractActionController
         $resourceTemplate = $resource->resourceTemplate();
         if ($resourceTemplate) {
             $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplate->id());
-            $result['corrigible'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible'])));
-            $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable'])));
+            $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
+            $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
         }
 
         $result['use_default'] = !count($result['corrigible']) && !count($result['fillable']);
         if ($result['use_default']) {
             $settings = $this->settings();
-            $result['corrigible'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', []))));
-            $result['fillable'] = array_flip(array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', []))));
+            $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
+            $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
         }
 
         return $result;
