@@ -65,8 +65,8 @@ class CorrectionController extends AbstractActionController
         $fields = $this->prepareFields($resource, $correction);
 
         $editable = $this->listEditableProperties($resource);
-        if (!count($editable['corrigible']) && !count($editable['fillable'])) {
-            $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
+        if (!$editable['is_editable']) {
+            $this->messenger()->addError('This resource cannot be corrected. Ask the administrator for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
             $form->setData($post);
@@ -242,26 +242,33 @@ class CorrectionController extends AbstractActionController
                 if (!isset($fields[$term])) {
                     $fields[$term] = $valueInfo;
                     $fields[$term]['template_property'] = null;
-                    $fields[$term]['corrigible'] = isset($editable['corrigible'][$term]);
-                    $fields[$term]['fillable'] = isset($editable['fillable'][$term]);
+                    $fields[$term]['corrigible'] = $editable['corrigible_mode'] === 'all'
+                        || ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term]))
+                        || ($editable['corrigible_mode'] === 'blacklist' && !isset($editable['corrigible'][$term]));
+                    $fields[$term]['fillable'] = $editable['fillable_mode'] === 'all'
+                        || ($editable['fillable_mode'] === 'whitelist' && isset($editable['fillable'][$term]))
+                        || ($editable['fillable_mode'] === 'blacklist' && !isset($editable['fillable'][$term]));
                     $fields[$term]['corrections'] = [];
                     $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
             }
 
             // Append the fillable fields.
-            foreach ($editable['fillable'] as $term => $propertyId) {
-                if (!isset($fields[$term])) {
-                    $fields[$term] = [
-                        'template_property' => null,
-                        'property' => $api->read('properties', $propertyId)->getContent(),
-                        'alternate_label' => null,
-                        'alternate_comment' => null,
-                        'corrigible' => isset($editable['corrigible'][$term]),
-                        'fillable' => true,
-                        'values' => [],
-                        'corrections' => [],
-                    ];
+            if ($editable['fillable_mode'] !== 'blacklist') {
+                foreach ($editable['fillable'] as $term => $propertyId) {
+                    if (!isset($fields[$term])) {
+                        $fields[$term] = [
+                            'template_property' => null,
+                            'property' => $api->read('properties', $propertyId)->getContent(),
+                            'alternate_label' => null,
+                            'alternate_comment' => null,
+                            'corrigible' => $editable['corrigible_mode'] === 'all'
+                                || ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term])),
+                            'fillable' => true,
+                            'values' => [],
+                            'corrections' => [],
+                        ];
+                    }
                 }
             }
         }
@@ -478,6 +485,7 @@ class CorrectionController extends AbstractActionController
      * The check is done comparing the keys of original values and the new ones.
      *
      * @todo Manage all types of data, in particular custom vocab and value suggest.
+     * @todo Factorize with \Correction\Admin\CorrectionController::validateCorrection()
      *
      * @param AbstractResourceEntityRepresentation $resource
      * @param array $proposal
@@ -511,7 +519,18 @@ class CorrectionController extends AbstractActionController
         $editable = $this->listEditableProperties($resource);
 
         // Process corrigible properties first.
-        $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable['corrigible']));
+        switch ($editable['corrigible_mode']) {
+            case 'whitelist':
+                $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable['corrigible']));
+                break;
+            case 'blacklist':
+                $proposalCorrigibleTerms = array_keys(array_diff_key($proposal, $editable['corrigible']));
+                break;
+            case 'all':
+            default:
+                $proposalCorrigibleTerms = array_keys($proposal);
+                break;
+        }
         foreach ($proposalCorrigibleTerms as $term) {
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
             $values = $resource->value($term, ['all' => true, 'default' => []]);
@@ -558,7 +577,18 @@ class CorrectionController extends AbstractActionController
         }
 
         // Append fillable properties.
-        $proposalFillableTerms = array_keys(array_intersect_key($proposal, $editable['fillable']));
+        switch ($editable['fillable_mode']) {
+            case 'whitelist':
+                $proposalFillableTerms = array_keys(array_intersect_key($proposal, $editable['fillable']));
+                break;
+            case 'blacklist':
+                $proposalFillableTerms = array_diff_key($proposal, $editable['fillable']);
+                break;
+            case 'all':
+            default:
+                $proposalFillableTerms = array_keys($proposal);
+                break;
+        }
         foreach ($proposalFillableTerms as $term) {
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */

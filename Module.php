@@ -373,7 +373,15 @@ class Module extends AbstractModule
                 'required' => false,
             ])
             ->add([
+                'name' => 'correction_properties_corrigible_mode',
+                'required' => false,
+            ])
+            ->add([
                 'name' => 'correction_properties_corrigible',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'correction_properties_fillable_mode',
                 'required' => false,
             ])
             ->add([

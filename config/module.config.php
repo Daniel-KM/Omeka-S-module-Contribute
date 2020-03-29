@@ -148,7 +148,9 @@ return [
     'correction' => [
         'settings' => [
             'correction_template_editable' => null,
+            'correction_properties_corrigible_mode' => 'all',
             'correction_properties_corrigible' => [],
+            'correction_properties_fillable_mode' => 'all',
             'correction_properties_fillable' => [],
             'correction_without_token' => false,
             // Days.

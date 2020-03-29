@@ -18,9 +18,12 @@ class ListEditableProperties extends AbstractPlugin
     public function __invoke(AbstractResourceEntityRepresentation $resource)
     {
         $result = [
+            'is_editable' => false,
             'default_template' => false,
             'default_properties' => false,
+            'corrigible_mode' => 'whitelist',
             'corrigible' => [],
+            'fillable_mode' => 'whitelist',
             'fillable' => [],
         ];
 
@@ -52,10 +55,21 @@ class ListEditableProperties extends AbstractPlugin
             if (!count($result['corrigible']) && !count($result['fillable'])) {
                 $result['default_template'] = false;
                 $result['default_properties'] = true;
-                $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
-                $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
+                $result['corrigible_mode'] = $settings->get('correction_properties_corrigible_mode', 'all');
+                if (in_array($result['corrigible_mode'], ['blacklist', 'whitelist'])) {
+                    $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
+                }
+                $result['fillable_mode'] = $settings->get('correction_properties_fillable_mode', 'all');
+                if (in_array($result['fillable_mode'], ['blacklist', 'whitelist'])) {
+                    $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
+                }
             }
         }
+
+        $result['is_editable'] = count($result['corrigible'])
+            || count($result['fillable'])
+            || in_array($result['corrigible_mode'], ['all', 'blacklist'])
+            || in_array($result['fillable_mode'], ['all', 'blacklist']);
 
         return $result;
     }

@@ -241,25 +241,25 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         $api = $services->get('ControllerPluginManager')->get('api');
 
         $editable = $this->listEditableProperties();
-        if (!count($editable['corrigible']) && !count($editable['fillable'])) {
-            return [];
-        }
 
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
-            $isCorrigible = isset($editable['corrigible'][$term]);
-            $isFillable = isset($editable['fillable'][$term]);
-            // In the case that the options changed between corrections an moderation.
+            $isCorrigible = ($editable['corrigible_mode'] === 'whitelist' && isset($editable['corrigible'][$term]))
+                || ($editable['corrigible_mode'] === 'blacklist' && !isset($editable['corrigible'][$term]))
+                || ($editable['corrigible_mode'] === 'all');
+            $isFillable = ($editable['fillable_mode'] === 'whitelist' && isset($editable['fillable'][$term]))
+                || ($editable['fillable_mode'] === 'blacklist' && !isset($editable['fillable'][$term]))
+                || ($editable['fillable_mode'] === 'all');
             if (!$isCorrigible && !$isFillable) {
-                // unset($proposal[$term]);
+                // Skipped in the case options changed between corrections and moderation.
                 // continue;
             }
 
             // In the case that the property was removed.
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if (empty($property)) {
-                // unset($proposal[$term]);
-                // continue;
+                unset($proposal[$term]);
+                continue;
             }
 
             foreach ($propositions as $key => $proposition) {
@@ -272,6 +272,24 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                 }
 
                 switch ($type) {
+                    default:
+                        $original = isset($proposition['original']['@value']) ? $proposition['original']['@value'] : '';
+
+                        // Nothing to do if there is no original.
+                        $hasOriginal = (bool) strlen($original);
+                        if (!$hasOriginal) {
+                            unset($proposal[$term][$key]);
+                            continue;
+                        }
+
+                        $prop = &$proposal[$term][$key];
+                        $prop['value'] = null;
+                        $prop['value_updated'] = null;
+                        $prop['validated'] = false;
+                        $prop['process'] = 'keep';
+                        unset($prop);
+                        break;
+
                     case 'literal':
                         $original = $proposition['original']['@value'];
                         $proposed = $proposition['proposed']['@value'];

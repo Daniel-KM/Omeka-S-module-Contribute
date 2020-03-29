@@ -29,11 +29,28 @@ class SettingsFieldset extends Fieldset
                     'data-placeholder' => 'Select a resource template…', // @translate
                 ],
             ])
+
+            ->add([
+                'name' => 'correction_properties_corrigible_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Default correction mode', // @translate
+                    'info' => 'This option is used only when the template is not configured.', // @translate
+                    'value_options' => [
+                        'all' => 'Allow to correct all values', // @translate
+                        'whitelist' => 'Only specified properties (whitelist)', // @translate
+                        'blacklist' => 'All values except properties (blacklist)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'correction_properties_corrigible_mode',
+                ],
+            ])
             ->add([
                 'name' => 'correction_properties_corrigible',
                 'type' => PropertySelect::class,
                 'options' => [
-                    'label' => 'Properties to correct when no template is available', // @translate
+                    'label' => 'Properties to correct or not when no template is available', // @translate
                     'info' => 'Only the selected properties will be proposed for public correction. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
@@ -49,10 +66,26 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'correction_properties_fillable_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Default fillable mode', // @translate
+                    'info' => 'This option is used only when the template is not configured.', // @translate
+                    'value_options' => [
+                        'all' => 'Allow to fill any value', // @translate
+                        'whitelist' => 'Only specified properties (whitelist)', // @translate
+                        'blacklist' => 'Any values except properties (blacklist)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'correction_properties_fillable_mode',
+                ],
+            ])
+            ->add([
                 'name' => 'correction_properties_fillable',
                 'type' => PropertySelect::class,
                 'options' => [
-                    'label' => 'Properties to fill when no template is available', // @translate
+                    'label' => 'Properties to fill or not when no template is available', // @translate
                     'info' => 'Allow user to append new values for the selected properties. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
