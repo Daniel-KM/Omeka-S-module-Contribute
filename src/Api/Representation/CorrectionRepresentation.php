@@ -240,18 +240,15 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         $services = $this->getServiceLocator();
         $api = $services->get('ControllerPluginManager')->get('api');
 
-        $editable = $this->resourceTemplateSettings();
-        $corrigible = $editable['corrigible'];
-        $fillable = $editable['fillable'];
-
-        if (empty($corrigible) && empty($fillable)) {
+        $editable = $this->listEditableProperties();
+        if (!count($editable['corrigible']) && !count($editable['fillable'])) {
             return [];
         }
 
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
-            $isCorrigible = in_array($term, $corrigible);
-            $isFillable = in_array($term, $fillable);
+            $isCorrigible = isset($editable['corrigible'][$term]);
+            $isFillable = isset($editable['fillable'][$term]);
             // In the case that the options changed between corrections an moderation.
             if (!$isCorrigible && !$isFillable) {
                 // unset($proposal[$term]);
@@ -410,44 +407,19 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         return $proposal;
     }
 
-    public function resourceTemplateSettings()
+    /**
+     * Get the list of editable (corrigible and fillable) property ids by terms.
+     *
+     *  The list come from the resource template if it is configured, else the
+     *  default list is used.
+     *
+     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+     * @return array
+     */
+    public function listEditableProperties()
     {
-        $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
-        $plugins = $services->get('ControllerPluginManager');
-        $api = $plugins->get('api');
-        $resource = $this->resource();
-
-        $result = [
-            'use_default' => false,
-            'corrigible' => [],
-            'fillable' => [],
-        ];
-
-        $resourceTemplate = $resource->resourceTemplate();
-        if ($resourceTemplate) {
-            $resourceTemplateCorrectionPartMap = $plugins->get('resourceTemplateCorrectionPartMap');
-            $correctionPartMap = $resourceTemplateCorrectionPartMap($resourceTemplate->id());
-            foreach ($correctionPartMap['corrigible'] as $term) {
-                $property = $api->searchOne('properties', ['term' => $term])->getContent();
-                if ($property) {
-                    $result['corrigible'][$property->id()] = $term;
-                }
-            }
-            foreach ($correctionPartMap['fillable'] as $term) {
-                $property = $api->searchOne('properties', ['term' => $term])->getContent();
-                if ($property) {
-                    $result['fillable'][$property->id()] = $term;
-                }
-            }
-        }
-
-        if (!count($result['corrigible']) && !count($result['fillable'])) {
-            $result['use_default'] = false;
-            $result['corrigible'] = $settings->get('correction_properties_corrigible', []);
-            $result['fillable'] = $settings->get('correction_properties_fillable', []);
-        }
-
-        return $result;
+        $listEditableProperties = $this->getServiceLocator()->get('ControllerPluginManager')
+            ->get('listEditableProperties');
+        return $listEditableProperties($this->resource());
     }
 }

@@ -397,19 +397,17 @@ class CorrectionController extends AbstractActionController
      */
     protected function validateCorrection(CorrectionRepresentation $correction, $term = null, $proposedKey = null)
     {
-        $editable = $correction->resourceTemplateSettings();
-        $corrigible = $editable['corrigible'];
-        $fillable = $editable['fillable'];
+        $editable = $correction->listEditableProperties();
 
         if ($term) {
-            $corrigible = in_array($term, $corrigible) ? [$term] : [];
-            $fillable = in_array($term, $fillable) ? [$term] : [];
+            $editable['corrigible'] = array_intersect_key($editable['corrigible'], [$term => null]);
+            $editable['fillable'] = array_intersect_key($editable['fillable'], [$term => null]);
         } else {
             $proposedKey = null;
         }
         $hasProposedKey = !is_null($proposedKey);
 
-        if (empty($corrigible) && empty($fillable)) {
+        if (!count($editable['corrigible']) && !count($editable['fillable'])) {
             return;
         }
 

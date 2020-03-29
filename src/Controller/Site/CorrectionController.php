@@ -64,7 +64,7 @@ class CorrectionController extends AbstractActionController
 
         $fields = $this->prepareFields($resource, $correction);
 
-        $editable = $this->getEditableProperties($resource);
+        $editable = $this->listEditableProperties($resource);
         if (!count($editable['corrigible']) && !count($editable['fillable'])) {
             $this->messenger()->addError('No metadata can be corrected. Ask the publisher for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
@@ -182,7 +182,7 @@ class CorrectionController extends AbstractActionController
     {
         $fields = [];
 
-        $editable = $this->getEditableProperties($resource);
+        $editable = $this->listEditableProperties($resource);
         $resourceTemplate = $resource->resourceTemplate();
         $values = $resource->values();
         $defaultField = [
@@ -502,7 +502,7 @@ class CorrectionController extends AbstractActionController
         unset($values, $value);
 
         // Process only editable keys.
-        $editable = $this->getEditableProperties($resource);
+        $editable = $this->listEditableProperties($resource);
 
         // Process corrigible properties first.
         $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable['corrigible']));
@@ -596,42 +596,6 @@ class CorrectionController extends AbstractActionController
                         continue 2;
                 }
             }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get the list of editable property ids by terms.
-     *
-     *  The list come from the resource template if it is configured, else the
-     *  default list is used.
-     *
-     * @param AbstractResourceEntityRepresentation $resource
-     * @return array
-     */
-    protected function getEditableProperties(AbstractResourceEntityRepresentation $resource)
-    {
-        $result = [
-            'use_default' => false,
-            'corrigible' => [],
-            'fillable' => [],
-        ];
-
-        $propertyIdsByTerms = $this->propertyIdsByTerms();
-
-        $resourceTemplate = $resource->resourceTemplate();
-        if ($resourceTemplate) {
-            $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplate->id());
-            $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
-            $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
-        }
-
-        $result['use_default'] = !count($result['corrigible']) && !count($result['fillable']);
-        if ($result['use_default']) {
-            $settings = $this->settings();
-            $result['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
-            $result['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
         }
 
         return $result;
