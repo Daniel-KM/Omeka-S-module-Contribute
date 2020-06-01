@@ -1,10 +1,10 @@
 
 $(document).ready(function() {
 
-    var contributionCorrigiblePartInput = function(propertyId, contributionPart) {
+    var contributionEditablePartInput = function(propertyId, contributionPart) {
         contributionPart = contributionPart || '0';
         return `
-        <input class="contribution-corrigible-part" type="hidden" name="o:resource_template_property[${propertyId}][data][contribution_corrigible_part]" value="${contributionPart}">
+        <input class="contribution-editable-part" type="hidden" name="o:resource_template_property[${propertyId}][data][contribution_editable_part]" value="${contributionPart}">
         `;
     }
 
@@ -15,16 +15,16 @@ $(document).ready(function() {
         `;
     }
 
-    var contributionPartForm = function(contributionCorrigiblePart, contributionFillPart) {
-        var checked_1 = (contributionCorrigiblePart === 'oc:hasCorrigible') ? 'checked="checked" ' : '';
+    var contributionPartForm = function(contributionEditablePart, contributionFillPart) {
+        var checked_1 = (contributionEditablePart === 'oc:hasEditable') ? 'checked="checked" ' : '';
         var checked_2 = (contributionFillPart === 'oc:hasFillable') ? 'checked="checked" ' : '';
         return `
             <div class="field" id="contribution-options">
                 <h3>` + Omeka.jsTranslate('Contribute options') + `</h3>
                 <div class="option">
-                    <label for="contribution-corrigible-part">
-                        ` + Omeka.jsTranslate('Corrigible') + `
-                        <input id="contribution-corrigible-part" type="checkbox" ${checked_1}>
+                    <label for="contribution-editable-part">
+                        ` + Omeka.jsTranslate('Editable') + `
+                        <input id="contribution-editable-part" type="checkbox" ${checked_1}>
                     </label>
                 </div>
                 <div class="option">
@@ -75,11 +75,11 @@ $(document).ready(function() {
             .done(function(data) {
                 propertyList.find('li.property').each(function() {
                     var propertyId = $(this).data('property-id');
-                    var contributionPart = data['corrigible'][propertyId] || '';
+                    var contributionPart = data['editable'][propertyId] || '';
                     if (contributionPart == '') {
-                        $(this).find('.data-type').after(contributionCorrigiblePartInput(propertyId, 0));
+                        $(this).find('.data-type').after(contributionEditablePartInput(propertyId, 0));
                     } else {
-                        $(this).find('.data-type').after(contributionCorrigiblePartInput(propertyId, 1));
+                        $(this).find('.data-type').after(contributionEditablePartInput(propertyId, 1));
                     }
                     var contributionPart = data['fillable'][propertyId] || '';
                     if (contributionPart == '') {
@@ -91,20 +91,20 @@ $(document).ready(function() {
 
                 var table = $('#content #properties');
                 table.find('thead tr').each(function(){
-                    var corrigible = "<th>Corrigible?</th>";
+                    var editable = "<th>Editable?</th>";
                     var fillable = "<th>Fillable?</th>";
-                    $(this).append(corrigible,fillable);
+                    $(this).append(editable,fillable);
                 });
                 table.find('tbody tr').each(function(){
 
                     var propertyId = $(this).attr('data-property-id');
-                    var contributionPart = data['corrigible'][propertyId] || '';
+                    var contributionPart = data['editable'][propertyId] || '';
 
-                    var corrigible = '';
+                    var editable = '';
                     if (contributionPart == ''){
-                        corrigible = '<td><b class="tablesaw-cell-label">Required?</b><span class="tablesaw-cell-content">No</span></td>';
+                        editable = '<td><b class="tablesaw-cell-label">Required?</b><span class="tablesaw-cell-content">No</span></td>';
                     } else {
-                        corrigible = '<td><b class="tablesaw-cell-label">Required?</b><span class="tablesaw-cell-content">Yes</span></td>';
+                        editable = '<td><b class="tablesaw-cell-label">Required?</b><span class="tablesaw-cell-content">Yes</span></td>';
                     }
 
                     var contributionPart = data['fillable'][propertyId] || '';
@@ -115,7 +115,7 @@ $(document).ready(function() {
                         fillable = '<td><b class="tablesaw-cell-label">Required?</b><span class="tablesaw-cell-content">Yes</span></td>';
                     }
 
-                    $(this).append(corrigible, fillable);
+                    $(this).append(editable, fillable);
                 });
             });
 
@@ -131,22 +131,22 @@ $(document).ready(function() {
             // Resource templates cannot be assigned duplicate properties.
             return;
         }
-        propertyList.find('li:last-child').append(contributionCorrigiblePartInput(propertyId));
+        propertyList.find('li:last-child').append(contributionEditablePartInput(propertyId));
         propertyList.find('li:last-child').append(contributionFillablePartInput(propertyId));
     });
 
     propertyList.on('click', '.property-edit', function(e) {
         e.preventDefault();
         var prop = $(this).closest('.property');
-        var contributionCorrigible = prop.find('.contribution-corrigible-part');
-        var contributionCorrigibleVal = contributionCorrigible.val()|| 'oc:ContributeCorrigible';
+        var contributionEditable = prop.find('.contribution-editable-part');
+        var contributionEditableVal = contributionEditable.val()|| 'oc:ContributeEditable';
         var contributionFillable = prop.find('.contribution-fillable-part');
         var contributionFillableVal = contributionFillable.val()|| 'oc:ContributeFillable';
 
-        if (contributionCorrigibleVal == 1) {
-            $('#contribution-corrigible-part').prop('checked', true);
+        if (contributionEditableVal == 1) {
+            $('#contribution-editable-part').prop('checked', true);
         } else {
-            $('#contribution-corrigible-part').prop('checked', false);
+            $('#contribution-editable-part').prop('checked', false);
         }
         if (contributionFillableVal == 1) {
             $('#contribution-fillable-part').prop('checked', true);
@@ -155,7 +155,7 @@ $(document).ready(function() {
         }
 
         $('#set-changes').on('click.setchanges', function(e) {
-            contributionCorrigible.val($('#contribution-corrigible-part').prop('checked')?'1':'0');
+            contributionEditable.val($('#contribution-editable-part').prop('checked')?'1':'0');
             contributionFillable.val($('#contribution-fillable-part').prop('checked')?'1':'0');
         });
     });

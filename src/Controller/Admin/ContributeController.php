@@ -365,15 +365,15 @@ class ContributeController extends AbstractActionController
         $resourceTemplateId = $this->params()->fromQuery('resource_template_id');
 
         $result = [
-            'corrigible' => [],
+            'editable' => [],
             'fillable' => [],
         ];
 
         $contributionPartMap = $this->resourceTemplateContributionPartMap($resourceTemplateId);
-        foreach ($contributionPartMap['corrigible'] as $term) {
+        foreach ($contributionPartMap['editable'] as $term) {
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if ($property) {
-                $result['corrigible'][$property->id()] = $term;
+                $result['editable'][$property->id()] = $term;
             }
         }
         foreach ($contributionPartMap['fillable'] as $term) {
@@ -399,8 +399,8 @@ class ContributeController extends AbstractActionController
      */
     protected function validateContribute(ContributionRepresentation $contribute, $term = null, $proposedKey = null)
     {
-        $editable = $contribute->editableData();
-        if (!$editable->isEditable()) {
+        $contributive = $contribute->contributiveData();
+        if (!$contributive->isContributive()) {
             return;
         }
 
@@ -422,7 +422,7 @@ class ContributeController extends AbstractActionController
             $data[$term] = array_map(function($v) {
                 return $v->jsonSerialize();
             }, $propertyData['values']);
-            if (!$editable->isTermEditable($term)) {
+            if (!$contributive->isTermContributive($term)) {
                 continue;
             }
             /** @var \Omeka\Api\Representation\ValueRepresentation $existingValue */
@@ -430,7 +430,7 @@ class ContributeController extends AbstractActionController
                 if (!isset($proposal[$term])) {
                     continue;
                 }
-                if (!$editable->isTermDatatype($term, $existingValue->type())) {
+                if (!$contributive->isTermDatatype($term, $existingValue->type())) {
                     continue;
                 }
 
@@ -499,7 +499,7 @@ class ContributeController extends AbstractActionController
         // Convert last remaining propositions into array.
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {
-            if (!$editable->isTermEditable($term)) {
+            if (!$contributive->isTermContributive($term)) {
                 continue;
             }
             $propertyId = isset($propertyIds[$term]) ? $propertyIds[$term] : null;

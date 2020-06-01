@@ -46,7 +46,7 @@ info@example2.org',
             ])
 
             ->add([
-                'name' => 'contribute_properties_corrigible_mode',
+                'name' => 'contribute_properties_editable_mode',
                 'type' => Element\Radio::class,
                 'options' => [
                     'label' => 'Default contribute mode', // @translate
@@ -58,11 +58,11 @@ info@example2.org',
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'contribute_properties_corrigible_mode',
+                    'id' => 'contribute_properties_editable_mode',
                 ],
             ])
             ->add([
-                'name' => 'contribute_properties_corrigible',
+                'name' => 'contribute_properties_editable',
                 'type' => PropertySelect::class,
                 'options' => [
                     'label' => 'Properties to edit or not when no template is available', // @translate
@@ -71,7 +71,7 @@ info@example2.org',
                     'term_as_value' => true,
                 ],
                 'attributes' => [
-                    'id' => 'contribute_properties_corrigible',
+                    'id' => 'contribute_properties_editable',
                     'multiple' => true,
                     // Should be true and without filter, but simpler for user.
                     'required' => false,

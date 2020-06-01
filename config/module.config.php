@@ -44,7 +44,7 @@ return [
     'controller_plugins' => [
         'invokables' => [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
-            'editableData' => Mvc\Controller\Plugin\EditableData::class,
+            'contributiveData' => Mvc\Controller\Plugin\ContributiveData::class,
             'resourceTemplateContributionPartMap' => Mvc\Controller\Plugin\ResourceTemplateContributionPartMap::class,
         ],
         'factories' => [
@@ -150,8 +150,8 @@ return [
         'settings' => [
             'contribute_notify' => [],
             'contribute_template_editable' => null,
-            'contribute_properties_corrigible_mode' => 'all',
-            'contribute_properties_corrigible' => [],
+            'contribute_properties_editable_mode' => 'all',
+            'contribute_properties_editable' => [],
             'contribute_properties_fillable_mode' => 'all',
             'contribute_properties_fillable' => [],
             'contribute_properties_datatype' => [

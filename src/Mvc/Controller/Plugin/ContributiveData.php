@@ -5,7 +5,7 @@ use ArrayObject;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
-class EditableData extends AbstractPlugin
+class ContributiveData extends AbstractPlugin
 {
     /**
      * @var \ArrayObject
@@ -13,7 +13,7 @@ class EditableData extends AbstractPlugin
     protected $data;
 
     /**
-     * Get the editable data (corrigible, fillable, etc.) of a resource.
+     * Get the contributive data (editable, fillable, etc.) of a resource.
      *
      *  The list come from the resource template if it is configured, else the
      *  default list is used.
@@ -24,11 +24,11 @@ class EditableData extends AbstractPlugin
     public function __invoke(AbstractResourceEntityRepresentation $resource)
     {
         $this->data = new ArrayObject([
-            'isEditable' => false,
+            'is_contributive' => false,
             'template' => null,
             'default_properties' => false,
-            'corrigible_mode' => 'whitelist',
-            'corrigible' => [],
+            'editable_mode' => 'whitelist',
+            'editable' => [],
             'fillable_mode' => 'whitelist',
             'fillable' => [],
             'datatype' => [],
@@ -59,7 +59,7 @@ class EditableData extends AbstractPlugin
         if ($resourceTemplate) {
             $this->data['template'] = $resourceTemplate;
             $contributionPartMap = $controller->resourceTemplateContributionPartMap($resourceTemplate->id());
-            $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['corrigible']));
+            $this->data['editable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['editable']));
             $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['fillable']));
             foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
                 $term = $resourceTemplateProperty->property()->term();
@@ -69,9 +69,9 @@ class EditableData extends AbstractPlugin
         } else {
             $this->data['template'] = null;
             $this->data['default_properties'] = true;
-            $this->data['corrigible_mode'] = $settings->get('contribute_properties_corrigible_mode', 'all');
-            if (in_array($this->data['corrigible_mode'], ['blacklist', 'whitelist'])) {
-                $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('contribute_properties_corrigible', [])));
+            $this->data['editable_mode'] = $settings->get('contribute_properties_editable_mode', 'all');
+            if (in_array($this->data['editable_mode'], ['blacklist', 'whitelist'])) {
+                $this->data['editable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('contribute_properties_editable', [])));
             }
             $this->data['fillable_mode'] = $settings->get('contribute_properties_fillable_mode', 'all');
             if (in_array($this->data['fillable_mode'], ['blacklist', 'whitelist'])) {
@@ -79,10 +79,10 @@ class EditableData extends AbstractPlugin
             }
         }
 
-        $this->data['isEditable'] = count($this->data['datatypes_default'])
-            || count($this->data['corrigible'])
+        $this->data['is_contributive'] = count($this->data['datatypes_default'])
+            || count($this->data['editable'])
             || count($this->data['fillable'])
-            || in_array($this->data['corrigible_mode'], ['all', 'blacklist'])
+            || in_array($this->data['editable_mode'], ['all', 'blacklist'])
             || in_array($this->data['fillable_mode'], ['all', 'blacklist']);
 
         return $this;
@@ -99,9 +99,9 @@ class EditableData extends AbstractPlugin
     /**
      * @return bool
      */
-    public function isEditable()
+    public function isContributive()
     {
-        return $this->data['isEditable'];
+        return $this->data['is_contributive'];
     }
 
     /**
@@ -131,17 +131,17 @@ class EditableData extends AbstractPlugin
     /**
      * @return string
      */
-    public function corrigibleMode()
+    public function editableMode()
     {
-        return $this->data['corrigible_mode'];
+        return $this->data['editable_mode'];
     }
 
     /**
      * @return array
      */
-    public function corrigibleProperties()
+    public function editableProperties()
     {
-        return $this->data['corrigible'];
+        return $this->data['editable'];
     }
 
     /**
@@ -191,9 +191,9 @@ class EditableData extends AbstractPlugin
      * @param string $term
      * @return bool
      */
-    public function isTermEditable($term)
+    public function isTermContributive($term)
     {
-        return $this->isTermCorrigible($term)
+        return $this->isTermEditable($term)
             || $this->isTermFillable($term);
     }
 
@@ -201,17 +201,17 @@ class EditableData extends AbstractPlugin
      * @param string $term
      * @return bool
      */
-    public function isTermCorrigible($term)
+    public function isTermEditable($term)
     {
         if ($this->hasTemplate()) {
-            return isset($this->data['corrigible'][$term])
+            return isset($this->data['editable'][$term])
                 && !empty($this->data['datatype'][$term]);
         }
         return count($this->data['datatypes_default'])
             && (
-                ($this->data['corrigible_mode'] === 'all')
-                || ($this->data['corrigible_mode'] === 'whitelist' && isset($this->data['corrigible'][$term]))
-                || ($this->data['corrigible_mode'] === 'blacklist' && !isset($this->data['corrigible'][$term]))
+                ($this->data['editable_mode'] === 'all')
+                || ($this->data['editable_mode'] === 'whitelist' && isset($this->data['editable'][$term]))
+                || ($this->data['editable_mode'] === 'blacklist' && !isset($this->data['editable'][$term]))
             );
     }
 

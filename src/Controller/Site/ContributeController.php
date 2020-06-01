@@ -65,8 +65,8 @@ class ContributeController extends AbstractActionController
 
         $fields = $this->prepareFields($resource, $contribute);
 
-        $editable = $this->editableData($resource);
-        if (!$editable->isEditable()) {
+        $contributive = $this->contributiveData($resource);
+        if (!$contributive->isContributive()) {
             $this->messenger()->addError('This resource cannot be edited. Ask the administrator for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
@@ -166,7 +166,7 @@ class ContributeController extends AbstractActionController
      * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
-     * properties, and four more keys, corrigible, fillable, datatype and
+     * properties, and four more keys, editable, fillable, datatype and
      * contributions.
      *
      * <code>
@@ -176,7 +176,7 @@ class ContributeController extends AbstractActionController
      *     'property' => {PropertyRepresentation},
      *     'alternate_label' => {label},
      *     'alternate_comment' => {comment},
-     *     'corrigible' => {bool}
+     *     'editable' => {bool}
      *     'fillable' => {bool}
      *     'datatypes' => {array}
      *     'values' => array(
@@ -219,26 +219,26 @@ class ContributeController extends AbstractActionController
             'property' => null,
             'alternate_label' => null,
             'alternate_comment' => null,
-            'corrigible' => false,
+            'editable' => false,
             'fillable' => false,
             'datatypes' => [],
             'values' => [],
             'contributions' => [],
         ];
 
-        /** @var \Contribute\Mvc\Controller\Plugin\EditableData $editable */
-        $editable = $this->editableData($resource);
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
+        $contributive = $this->contributiveData($resource);
         $values = $resource->values();
         $resourceTemplate = $resource->resourceTemplate();
         $propertyIds = $this->propertyIdsByTerms();
 
         // The default template is used when there is no template or when the
-        // used one is not configured. $editable has info about that.
+        // used one is not configured. $contributive has info about that.
 
         // List the fields for the resource when there is a resource template.
-        if ($editable->hasTemplate()) {
+        if ($contributive->hasTemplate()) {
             // List the resource template fields first.
-            foreach ($editable->template()->resourceTemplateProperties() as $templateProperty) {
+            foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
                 $property = $templateProperty->property();
                 $term = $property->term();
                 $fields[$term] = [
@@ -246,9 +246,9 @@ class ContributeController extends AbstractActionController
                     'property' => $property,
                     'alternate_label' => $templateProperty->alternateLabel(),
                     'alternate_comment' => $templateProperty->alternateComment(),
-                    'corrigible' => $editable->isTermCorrigible($term),
-                    'fillable' => $editable->isTermFillable($term),
-                    'datatypes' => $editable->datatypeTerm($term),
+                    'editable' => $contributive->isTermEditable($term),
+                    'fillable' => $contributive->isTermFillable($term),
+                    'datatypes' => $contributive->datatypeTerm($term),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
                     'contributions' => [],
                 ];
@@ -257,11 +257,11 @@ class ContributeController extends AbstractActionController
             // When the resource template is configured, the remaining values
             // are never editable, since they are not in the resource template.
             // TODO Make the properties that are not in a template editable? Currently no.
-            if (!$editable->useDefaultProperties()) {
+            if (!$contributive->useDefaultProperties()) {
                 foreach ($values as $term => $valueInfo) {
                     if (!isset($fields[$term])) {
                         $fields[$term] = $valueInfo;
-                        $fields[$term]['corrigible'] = false;
+                        $fields[$term]['editable'] = false;
                         $fields[$term]['fillable'] = false;
                         $fields[$term]['datatypes'] = [];
                         $fields[$term]['contributions'] = [];
@@ -272,33 +272,33 @@ class ContributeController extends AbstractActionController
         }
 
         // Append default fields from the main config, with or without template.
-        if ($editable->useDefaultProperties()) {
+        if ($contributive->useDefaultProperties()) {
             $api = $this->api();
             // Append the values of the resource.
             foreach ($values as $term => $valueInfo) {
                 if (!isset($fields[$term])) {
                     $fields[$term] = $valueInfo;
                     $fields[$term]['template_property'] = null;
-                    $fields[$term]['corrigible'] = $editable->isTermCorrigible($term);
-                    $fields[$term]['fillable'] = $editable->isTermFillable($term);
-                    $fields[$term]['datatypes'] = $editable->datatypeTerm($term);
+                    $fields[$term]['editable'] = $contributive->isTermEditable($term);
+                    $fields[$term]['fillable'] = $contributive->isTermFillable($term);
+                    $fields[$term]['datatypes'] = $contributive->datatypeTerm($term);
                     $fields[$term]['contributions'] = [];
                     $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
             }
 
             // Append the fillable fields.
-            if ($editable->fillableMode() !== 'blacklist') {
-                foreach ($editable->fillableProperties() as $term => $propertyId) {
+            if ($contributive->fillableMode() !== 'blacklist') {
+                foreach ($contributive->fillableProperties() as $term => $propertyId) {
                     if (!isset($fields[$term])) {
                         $fields[$term] = [
                             'template_property' => null,
                             'property' => $api->read('properties', $propertyId)->getContent(),
                             'alternate_label' => null,
                             'alternate_comment' => null,
-                            'corrigible' => $editable->isTermCorrigible($term),
+                            'editable' => $contributive->isTermEditable($term),
                             'fillable' => true,
-                            'datatypes' => $editable->datatypeTerm($term),
+                            'datatypes' => $contributive->datatypeTerm($term),
                             'values' => [],
                             'contributions' => [],
                         ];
@@ -394,7 +394,7 @@ class ContributeController extends AbstractActionController
             foreach ($field['contributions'] as &$fieldContribute) {
                 $proposed = null;
                 $type = $fieldContribute['type'];
-                if (!$editable->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
@@ -469,7 +469,7 @@ class ContributeController extends AbstractActionController
             foreach ($field['contributions'] as &$fieldContribute) {
                 $proposed = null;
                 $type = $fieldContribute['type'];
-                if (!$editable->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
@@ -536,7 +536,7 @@ class ContributeController extends AbstractActionController
 
         // Append only remaining contributions that are fillable.
         // Other ones are related to an older config.
-        $proposals = array_intersect_key(array_filter($proposals), $editable->fillableProperties());
+        $proposals = array_intersect_key(array_filter($proposals), $contributive->fillableProperties());
         foreach ($proposals as $term => $termProposal) {
             $propertyId = $propertyIds[$term];
             if (!isset($propertyIds[$term])) {
@@ -559,7 +559,7 @@ class ContributeController extends AbstractActionController
                 } else {
                     $type = 'literal';
                 }
-                if (!$editable->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
@@ -660,23 +660,23 @@ class ContributeController extends AbstractActionController
         unset($values, $value);
 
         // Process only editable keys.
-        $editable = $this->editableData($resource);
+        $contributive = $this->contributiveData($resource);
 
-        // Process corrigible properties first.
+        // Process editable properties first.
         $matches = [];
-        switch ($editable->corrigibleMode()) {
+        switch ($contributive->editableMode()) {
             case 'whitelist':
-                $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable->corrigibleProperties()));
+                $proposalEditableTerms = array_keys(array_intersect_key($proposal, $contributive->editableProperties()));
                 break;
             case 'blacklist':
-                $proposalCorrigibleTerms = array_keys(array_diff_key($proposal, $editable->corrigibleProperties()));
+                $proposalEditableTerms = array_keys(array_diff_key($proposal, $contributive->editableProperties()));
                 break;
             case 'all':
             default:
-                $proposalCorrigibleTerms = array_keys($proposal);
+                $proposalEditableTerms = array_keys($proposal);
                 break;
         }
-        foreach ($proposalCorrigibleTerms as $term) {
+        foreach ($proposalEditableTerms as $term) {
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
             $values = $resource->value($term, ['all' => true, 'default' => []]);
             foreach ($values as $index => $value) {
@@ -684,7 +684,7 @@ class ContributeController extends AbstractActionController
                     continue;
                 }
                 $type = $value->type();
-                if (!$editable->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 switch ($type) {
@@ -762,12 +762,12 @@ class ContributeController extends AbstractActionController
         }
 
         // Append fillable properties.
-        switch ($editable->fillableMode()) {
+        switch ($contributive->fillableMode()) {
             case 'whitelist':
-                $proposalFillableTerms = array_keys(array_intersect_key($proposal, $editable->fillableProperties()));
+                $proposalFillableTerms = array_keys(array_intersect_key($proposal, $contributive->fillableProperties()));
                 break;
             case 'blacklist':
-                $proposalFillableTerms = array_diff_key($proposal, $editable->fillableProperties());
+                $proposalFillableTerms = array_diff_key($proposal, $contributive->fillableProperties());
                 break;
             case 'all':
             default:
@@ -803,7 +803,7 @@ class ContributeController extends AbstractActionController
                 } else {
                     $type = 'literal';
                 }
-                if (!$editable->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 switch ($type) {

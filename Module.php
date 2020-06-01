@@ -31,7 +31,7 @@ class Module extends AbstractModule
 
         $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Contribution'])->getContent();
         $templateData = $settings->get('contribute_resource_template_data', []);
-        $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
+        $templateData['editable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
         $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
         $settings->set('contribute_resource_template_data', $templateData);
         $settings->set('contribute_template_editable', $resourceTemplate->id());
@@ -215,8 +215,8 @@ class Module extends AbstractModule
         $requestContent = $request->getContent();
         $requestResourceProperties = isset($requestContent['o:resource_template_property']) ? $requestContent['o:resource_template_property'] : [];
 
-        $editables = ['corrigible' => [], 'fillable' => []];
-        foreach (['corrigible' => 'contribute_corrigible_part', 'fillable' => 'contribute_fillable_part'] as $editableKey => $part) {
+        $contributives = ['editable' => [], 'fillable' => []];
+        foreach (['editable' => 'contribution_editable_part', 'fillable' => 'contribution_fillable_part'] as $editableKey => $part) {
             foreach ($requestResourceProperties as $propertyId => $requestResourceProperty) {
                 if (!isset($requestResourceProperty['data'][$part]) || $requestResourceProperty['data'][$part] != 1) {
                     continue;
@@ -228,15 +228,15 @@ class Module extends AbstractModule
                 } catch (\Omeka\Api\Exception\NotFoundException $e) {
                     continue;
                 }
-                $editables[$editableKey][] = $property->term();
+                $contributives[$editableKey][] = $property->term();
             }
         }
 
         $resourceTemplateId = $response->getContent()->getId();
         $settings = $services->get('Omeka\Settings');
         $resourceTemplateData = $settings->get('contribute_resource_template_data', []);
-        $resourceTemplateData['corrigible'][$resourceTemplateId] = $editables['corrigible'];
-        $resourceTemplateData['fillable'][$resourceTemplateId] = $editables['fillable'];
+        $resourceTemplateData['editable'][$resourceTemplateId] = $contributives['editable'];
+        $resourceTemplateData['fillable'][$resourceTemplateId] = $contributives['fillable'];
 
         $settings->set('contribute_resource_template_data', $resourceTemplateData);
     }
@@ -420,11 +420,11 @@ class Module extends AbstractModule
                 'required' => false,
             ])
             ->add([
-                'name' => 'contribute_properties_corrigible_mode',
+                'name' => 'contribute_properties_editable_mode',
                 'required' => false,
             ])
             ->add([
-                'name' => 'contribute_properties_corrigible',
+                'name' => 'contribute_properties_editable',
                 'required' => false,
             ])
             ->add([

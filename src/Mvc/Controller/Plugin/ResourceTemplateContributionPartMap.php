@@ -19,15 +19,15 @@ class ResourceTemplateContributionPartMap extends AbstractPlugin
 
         $mapping = $settings->get('contribute_resource_template_data', []);
 
-        $corrigible = empty($mapping['corrigible'][$resourceTemplateId])
+        $editable = empty($mapping['editable'][$resourceTemplateId])
             ? []
-            : $mapping['corrigible'][$resourceTemplateId];
+            : $mapping['editable'][$resourceTemplateId];
         $fillable = empty($mapping['fillable'][$resourceTemplateId])
             ? []
             : $mapping['fillable'][$resourceTemplateId];
 
         return [
-            'corrigible' => $corrigible,
+            'editable' => $editable,
             'fillable' => $fillable,
         ];
     }

@@ -95,7 +95,7 @@ $labelInfo = $this->setting('property_label_information');
         <div class="values">
 
         <?php // Simple display of the value for properties that are not editable or without datatypes. ?>
-        <?php if (!$field['corrigible'] && !$field['fillable'] || !count($field['datatypes'])): ?>
+        <?php if (!$field['editable'] && !$field['fillable'] || !count($field['datatypes'])): ?>
             <?php
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($field['values'] as $value):
@@ -140,8 +140,8 @@ $labelInfo = $this->setting('property_label_information');
                 $proposed = $fieldContribute['proposed'];
                 $isPrivate = $value && method_exists($value, 'isPublic') && !$value->isPublic();
 
-                // Value that is not corrigible.
-                if ($value && !$field['corrigible']):
+                // Value that is not editable.
+                if ($value && !$field['editable']):
                     $val = strlen($fieldContribute['proposed']['@value']) ? $escape($fieldContribute['proposed']['@value']) : $value->asHtml();
                     $class = ['value'];
                     if ($isValueResource):
@@ -164,7 +164,7 @@ $labelInfo = $this->setting('property_label_information');
             </div>
                 <?php
 
-                // Value that is corrigible or fillable.
+                // Value that is editable or fillable.
                 else:
                     // TODO Manage all types of data, in particular custom vocab and value suggest.
                     switch ($valueType):

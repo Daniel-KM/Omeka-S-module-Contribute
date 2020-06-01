@@ -272,15 +272,15 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms');
         $propertyIds = $propertyIds();
 
-        $editable = $this->editableData();
+        $contributive = $this->contributiveData();
 
         $resourceTemplate = $this->resource()->resourceTemplate();
 
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
-            $isCorrigible = $editable->isTermCorrigible($term);
-            $isFillable = $editable->isTermFillable($term);
-            if (!$isCorrigible && !$isFillable) {
+            $isEditable = $contributive->isTermEditable($term);
+            $isFillable = $contributive->isTermFillable($term);
+            if (!$isEditable && !$isFillable) {
                 // Skipped in the case options changed between contributions and moderation.
                 // continue;
             }
@@ -315,7 +315,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                     }
                 }
 
-                $isTermDatatype = $editable->isTermDatatype($term, $type);
+                $isTermDatatype = $contributive->isTermDatatype($term, $type);
 
                 switch ($type) {
                     case 'literal':
@@ -344,7 +344,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValue($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isCorrigible && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDatatype
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -360,7 +360,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isFillable && $isTermDatatype
                                 ? 'append'
-                                // A value to append is not a corrigible value.
+                                // A value to append is not an editable value.
                                 : 'keep';
                         } elseif ($proposedValue = $this->resourceValue($term, $proposed)) {
                             $prop['value'] = $this->resourceValue($term, $original);
@@ -371,7 +371,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isCorrigible && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDatatype
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -410,7 +410,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValueResource($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isCorrigible && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDatatype
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -426,7 +426,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isFillable && $isTermDatatype
                                 ? 'append'
-                                // A value to append is not a corrigible value.
+                                // A value to append is not an editable value.
                                 : 'keep';
                         } elseif ($proposedValue = $this->resourceValueResource($term, $proposed)) {
                             $prop['value'] = $this->resourceValueResource($term, $original);
@@ -437,7 +437,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isCorrigible && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDatatype
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -482,7 +482,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isCorrigible && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDatatype
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -498,7 +498,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isFillable && $isTermDatatype
                                 ? 'append'
-                                // A value to append is not a corrigible value.
+                                // A value to append is not an editable value.
                                 : 'keep';
                         } elseif ($proposedValue = $this->resourceValueUri($term, $proposedUri)) {
                             $prop['value'] = $this->resourceValueUri($term, $originalUri);
@@ -509,7 +509,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isCorrigible && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDatatype
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -547,16 +547,16 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get the editable data (corrigible, fillable, etc.) of a resource.
+     * Get the editable data (editable, fillable, etc.) of a resource.
      *
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return \Contribute\Mvc\Controller\Plugin\EditableData
+     * @return \Contribute\Mvc\Controller\Plugin\ContributiveData
      */
-    public function editableData()
+    public function contributiveData()
     {
-        $editableData = $this->getServiceLocator()->get('ControllerPluginManager')
-            ->get('editableData');
-        return $editableData($this->resource());
+        $contributiveData = $this->getServiceLocator()->get('ControllerPluginManager')
+            ->get('contributiveData');
+        return $contributiveData($this->resource());
     }
 
     public function siteUrl($siteSlug = null, $canonical = false)

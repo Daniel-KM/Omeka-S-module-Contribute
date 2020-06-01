@@ -53,15 +53,15 @@ $(document).ready(function() {
             <div class="field">
                 <h3>` + Omeka.jsTranslate('Contribute options') + `</h3>
                 <div class="option">
-                    <label for="is-corrigible">
-                        ` + Omeka.jsTranslate('Corrigible') + `
-                        <input id="is-corrigible" type="checkbox">
+                    <label for="is-editable">
+                        ` + Omeka.jsTranslate('Editable') + `
+                        <input id="is-editable" type="checkbox">
                     </label>
                 </div>
                 <div class="option">
                     <label for="is-fillable">
                         ` + Omeka.jsTranslate('Fillable') + `
-                        <input id="is-corrigible" type="checkbox">
+                        <input id="is-editable" type="checkbox">
                     </label>
                 </div>
             </div>
