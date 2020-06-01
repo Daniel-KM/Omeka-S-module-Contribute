@@ -40,7 +40,7 @@ class EditableData extends AbstractPlugin
         $settings = $controller->settings();
         $this->data['datatypes_default'] = $settings->get('correction_properties_datatype', []);
 
-        // TODO Manage valuesuggest differently, because it is a not datatype.
+        // TODO Manage valuesuggest differently, because it is not a datatype.
         if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
             unset($this->data['datatypes_default'][$has]);
         }
@@ -212,12 +212,15 @@ class EditableData extends AbstractPlugin
     public function isTermCorrigible($term)
     {
         if ($this->hasTemplate()) {
-            return isset($this->data['corrigible'][$term]) && !empty($this->data['datatype'][$term]);
+            return isset($this->data['corrigible'][$term])
+                && !empty($this->data['datatype'][$term]);
         }
-
-        return ($this->data['corrigible_mode'] === 'all')
-            || ($this->data['corrigible_mode'] === 'whitelist' && isset($this->data['corrigible'][$term]))
-            || ($this->data['corrigible_mode'] === 'blacklist' && !isset($this->data['corrigible'][$term]));
+        return count($this->data['datatypes_default'])
+            && (
+                ($this->data['corrigible_mode'] === 'all')
+                || ($this->data['corrigible_mode'] === 'whitelist' && isset($this->data['corrigible'][$term]))
+                || ($this->data['corrigible_mode'] === 'blacklist' && !isset($this->data['corrigible'][$term]))
+            );
     }
 
     /**
@@ -227,23 +230,31 @@ class EditableData extends AbstractPlugin
     public function isTermFillable($term)
     {
         if ($this->hasTemplate()) {
-            return isset($this->data['fillable'][$term]) && !empty($this->data['datatype'][$term]);
+            return isset($this->data['fillable'][$term])
+                && !empty($this->data['datatype'][$term]);
         }
-
-        return ($this->data['fillable_mode'] === 'all')
-            || ($this->data['fillable_mode'] === 'whitelist' && isset($this->data['fillable'][$term]))
-            || ($this->data['fillable_mode'] === 'blacklist' && !isset($this->data['fillable'][$term]));
+        return count($this->data['datatypes_default'])
+            && (
+                ($this->data['fillable_mode'] === 'all')
+                || ($this->data['fillable_mode'] === 'whitelist' && isset($this->data['fillable'][$term]))
+                || ($this->data['fillable_mode'] === 'blacklist' && !isset($this->data['fillable'][$term]))
+            );
     }
 
     /**
+     * Check if the datatype is managed for the specified term.
+     *
      * @param string $term
      * @param string $datatype
      * @return bool
      */
     public function isTermDatatype($term, $datatype)
     {
-        return !empty($this->data['datatype'][$term])
-            && in_array($datatype, $this->data['datatype'][$term]);
+        if ($this->hasTemplate()) {
+            return !empty($this->data['datatype'][$term])
+                && in_array($datatype, $this->data['datatype'][$term]);
+        }
+        return $this->isDefaultDatatype($datatype);
     }
 
     /**

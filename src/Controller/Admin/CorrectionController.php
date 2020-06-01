@@ -422,7 +422,7 @@ class CorrectionController extends AbstractActionController
             $data[$term] = array_map(function($v) {
                 return $v->jsonSerialize();
             }, $propertyData['values']);
-            if (!$editable->isEditable($term)) {
+            if (!$editable->isTermEditable($term)) {
                 continue;
             }
             /** @var \Omeka\Api\Representation\ValueRepresentation $existingValue */
@@ -499,7 +499,7 @@ class CorrectionController extends AbstractActionController
         // Convert last remaining propositions into array.
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {
-            if (!$editable->isEditable($term)) {
+            if (!$editable->isTermEditable($term)) {
                 continue;
             }
             $propertyId = isset($propertyIds[$term]) ? $propertyIds[$term] : null;

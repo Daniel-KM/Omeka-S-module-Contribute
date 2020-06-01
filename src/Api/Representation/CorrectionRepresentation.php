@@ -302,7 +302,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
 
             foreach ($propositions as $key => $proposition) {
                 // TODO Manage all the cases (custom vocab is literal, value suggest is uri).
-                $type = null;
+                $type = 'unknown';
                 if ($typeTemplate) {
                     $type = $typeTemplate;
                 } else {
@@ -315,9 +315,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                     }
                 }
 
-                if (!$editable->isTermDatatype($term, $type)) {
-                    $type = null;
-                }
+                $isTermDatatype = $editable->isTermDatatype($term, $type);
 
                 switch ($type) {
                     case 'literal':
@@ -346,7 +344,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValue($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isCorrigible
+                            $prop['process'] = $isCorrigible && $isTermDatatype
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -360,7 +358,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isFillable
+                            $prop['process'] = $isFillable && $isTermDatatype
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
@@ -373,7 +371,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isCorrigible
+                            $prop['process'] = $isCorrigible && $isTermDatatype
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -412,7 +410,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValueResource($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isCorrigible
+                            $prop['process'] = $isCorrigible && $isTermDatatype
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -426,7 +424,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isFillable
+                            $prop['process'] = $isFillable && $isTermDatatype
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
@@ -439,7 +437,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isCorrigible
+                            $prop['process'] = $isCorrigible && $isTermDatatype
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -484,7 +482,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isCorrigible
+                            $prop['process'] = $isCorrigible && $isTermDatatype
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -498,7 +496,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isFillable
+                            $prop['process'] = $isFillable && $isTermDatatype
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
@@ -511,7 +509,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isCorrigible
+                            $prop['process'] = $isCorrigible && $isTermDatatype
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';

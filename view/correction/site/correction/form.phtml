@@ -94,8 +94,8 @@ $labelInfo = $this->setting('property_label_information');
         </h4>
         <div class="values">
 
-        <?php // Simple display of the value for properties that are not editable. ?>
-        <?php if (!$field['corrigible'] && !$field['fillable']): ?>
+        <?php // Simple display of the value for properties that are not editable or without datatypes. ?>
+        <?php if (!$field['corrigible'] && !$field['fillable'] || !count($field['datatypes'])): ?>
             <?php
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($field['values'] as $value):
