@@ -29,7 +29,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
 
-        $resourceTemplate = $services->get('Omeka\Api')->read('resource_templates', ['label' => 'Correction'])->getContent();
+        $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Correction'])->getContent();
         $templateData = $settings->get('correction_resource_template_data', []);
         $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
         $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
