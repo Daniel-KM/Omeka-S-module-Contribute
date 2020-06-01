@@ -304,7 +304,11 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
-                        } elseif (!strlen($original)) {
+                        } elseif (!strlen($original)
+                            // Even if there is no original, check if a new
+                            // value has been appended.
+                            && !$this->resourceValue($term, $proposed)
+                        ) {
                             // The original value may have been removed or appended:
                             // this is not really determinable.
                             $prop['value'] = null;
@@ -371,7 +375,11 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
-                        } elseif (!strlen($original)) {
+                        } elseif (!strlen($original)
+                            // Even if there is no original, check if a new
+                            // value has been appended.
+                            && !$this->resourceValueUri($term, $proposedUri)
+                        ) {
                             // The original value may have been removed or appended:
                             // this is not really determinable.
                             $prop['value'] = null;
