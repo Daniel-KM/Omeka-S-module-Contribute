@@ -430,8 +430,7 @@ class CorrectionController extends AbstractActionController
                 if (!isset($proposal[$term])) {
                     continue;
                 }
-                // TODO Manage all types of value.
-                if (!$editable->isDatatypeAllowed($existingValue->type())) {
+                if (!$editable->isTermDatatype($term, $existingValue->type())) {
                     continue;
                 }
 

@@ -32,12 +32,18 @@ class EditableData extends AbstractPlugin
             'fillable_mode' => 'whitelist',
             'fillable' => [],
             'datatype' => [],
+            'datatypes_default' => [],
         ]);
 
         $controller = $this->getController();
         $propertyIdsByTerms = $controller->propertyIdsByTerms();
         $settings = $controller->settings();
-        $this->data['datatype'] = $settings->get('correction_properties_datatype', []);
+        $this->data['datatypes_default'] = $settings->get('correction_properties_datatype', []);
+
+        // TODO Manage valuesuggest differently, because it is a not datatype.
+        if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
+            unset($this->data['datatypes_default'][$has]);
+        }
 
         $resourceTemplate = $resource->resourceTemplate();
         if ($resourceTemplate) {
@@ -45,6 +51,11 @@ class EditableData extends AbstractPlugin
             $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplate->id());
             $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
             $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
+            foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
+                $term = $resourceTemplateProperty->property()->term();
+                $datatype = $resourceTemplateProperty->dataType();
+                $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
+            }
         }
 
         if (!count($this->data['corrigible']) && !count($this->data['fillable'])) {
@@ -76,7 +87,7 @@ class EditableData extends AbstractPlugin
             }
         }
 
-        $this->data['isEditable'] = count($this->data['datatype'])
+        $this->data['isEditable'] = count($this->data['datatypes_default'])
             || count($this->data['corrigible'])
             || count($this->data['fillable'])
             || in_array($this->data['corrigible_mode'], ['all', 'blacklist'])
@@ -157,6 +168,33 @@ class EditableData extends AbstractPlugin
         return $this->data['fillable'];
     }
 
+   /**
+     * @return array
+     */
+    public function datatypeProperties()
+    {
+        return $this->data['datatype'];
+    }
+
+    /**
+     * @return array
+     */
+    public function defaultDatatypes()
+    {
+        return $this->data['datatypes_default'];
+    }
+
+    /**
+     * @param string
+     * @return array
+     */
+    public function datatypeTerm($term)
+    {
+        return empty($this->data['datatype'][$term])
+            ? $this->data['datatypes_default']
+            : $this->data['datatype'][$term];
+    }
+
     /**
      * @param string $term
      * @return bool
@@ -174,7 +212,7 @@ class EditableData extends AbstractPlugin
     public function isTermCorrigible($term)
     {
         if ($this->hasTemplate()) {
-            return isset($this->data['corrigible'][$term]);
+            return isset($this->data['corrigible'][$term]) && !empty($this->data['datatype'][$term]);
         }
 
         return ($this->data['corrigible_mode'] === 'all')
@@ -189,7 +227,7 @@ class EditableData extends AbstractPlugin
     public function isTermFillable($term)
     {
         if ($this->hasTemplate()) {
-            return isset($this->data['fillable'][$term]);
+            return isset($this->data['fillable'][$term]) && !empty($this->data['datatype'][$term]);
         }
 
         return ($this->data['fillable_mode'] === 'all')
@@ -198,29 +236,22 @@ class EditableData extends AbstractPlugin
     }
 
     /**
+     * @param string $term
      * @param string $datatype
      * @return bool
      */
-    public function isDatatypeAllowed($datatype)
+    public function isTermDatatype($term, $datatype)
     {
-        if (in_array($datatype, $this->data['datatype'])) {
-            return true;
-        }
-        // TODO Manage resource more precisely.
-        if (in_array('resource', $this->data['datatype'])) {
-            return strtok($datatype, ':') === 'resource';
-        }
-        if (in_array('valuesuggest', $this->data['datatype'])) {
-            return in_array(strtok($datatype, ':'), ['valuesuggest', 'valuesuggestall']);
-        }
-        return false;
+        return !empty($this->data['datatype'][$term])
+            && in_array($datatype, $this->data['datatype'][$term]);
     }
 
     /**
-     * @return array
+     * @param string $datatype
+     * @return bool
      */
-    public function datatypes()
+    public function isDefaultDatatype($datatype)
     {
-        return $this->data['datatype'];
+        return in_array($datatype, $this->data['datatypes_default']);
     }
 }

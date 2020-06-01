@@ -166,19 +166,21 @@ class CorrectionController extends AbstractActionController
      * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
-     * properties, and three more keys, corrigible, fillable, and corrections.
+     * properties, and four more keys, corrigible, fillable, datatype and
+     * corrections.
      *
      * <code>
      * array(
      *   {term} => array(
+     *     'template_property' => {ResourceTemplatePropertyRepresentation},
      *     'property' => {PropertyRepresentation},
      *     'alternate_label' => {label},
      *     'alternate_comment' => {comment},
      *     'corrigible' => {bool}
      *     'fillable' => {bool}
+     *     'datatypes' => {array}
      *     'values' => array(
-     *       {ValueRepresentation},
-     *       {ValueRepresentation},
+     *       {ValueRepresentation}, …
      *     ),
      *     'corrections' => array(
      *       array(
@@ -196,7 +198,7 @@ class CorrectionController extends AbstractActionController
      *           '@uri' => {string},
      *           '@label' => {string},
      *         ),
-     *       ),
+     *       ), …
      *     ),
      *   ),
      * )
@@ -219,7 +221,7 @@ class CorrectionController extends AbstractActionController
             'alternate_comment' => null,
             'corrigible' => false,
             'fillable' => false,
-            'datatype' => [],
+            'datatypes' => [],
             'values' => [],
             'corrections' => [],
         ];
@@ -230,8 +232,6 @@ class CorrectionController extends AbstractActionController
         $resourceTemplate = $resource->resourceTemplate();
         $propertyIds = $this->propertyIdsByTerms();
 
-        $defaultField['datatype'] = $editable->datatypes();
-
         // The default template is used when there is no template or when the
         // used one is not configured. $editable has info about that.
 
@@ -241,15 +241,6 @@ class CorrectionController extends AbstractActionController
             foreach ($editable->template()->resourceTemplateProperties() as $templateProperty) {
                 $property = $templateProperty->property();
                 $term = $property->term();
-                $dataType = $templateProperty->dataType();
-                // TODO Improved setting for datatype.
-                if (empty($dataType)) {
-                    $datatypeField = $editable->datatypes();
-                } else {
-                    $datatypeField = $editable->isDatatypeAllowed($dataType)
-                        ? [$dataType]
-                        : [];
-                }
                 $fields[$term] = [
                     'template_property' => $templateProperty,
                     'property' => $property,
@@ -257,7 +248,7 @@ class CorrectionController extends AbstractActionController
                     'alternate_comment' => $templateProperty->alternateComment(),
                     'corrigible' => $editable->isTermCorrigible($term),
                     'fillable' => $editable->isTermFillable($term),
-                    'datatype' => $datatypeField,
+                    'datatypes' => $editable->datatypeTerm($term),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
                     'corrections' => [],
                 ];
@@ -265,12 +256,14 @@ class CorrectionController extends AbstractActionController
 
             // When the resource template is configured, the remaining values
             // are never editable, since they are not in the resource template.
+            // TODO Make the properties that are not in a template editable? Currently no.
             if (!$editable->useDefaultProperties()) {
                 foreach ($values as $term => $valueInfo) {
                     if (!isset($fields[$term])) {
                         $fields[$term] = $valueInfo;
                         $fields[$term]['corrigible'] = false;
                         $fields[$term]['fillable'] = false;
+                        $fields[$term]['datatypes'] = [];
                         $fields[$term]['corrections'] = [];
                         $fields[$term] = array_replace($defaultField, $fields[$term]);
                     }
@@ -288,6 +281,7 @@ class CorrectionController extends AbstractActionController
                     $fields[$term]['template_property'] = null;
                     $fields[$term]['corrigible'] = $editable->isTermCorrigible($term);
                     $fields[$term]['fillable'] = $editable->isTermFillable($term);
+                    $fields[$term]['datatypes'] = $editable->datatypeTerm($term);
                     $fields[$term]['corrections'] = [];
                     $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
@@ -304,7 +298,7 @@ class CorrectionController extends AbstractActionController
                             'alternate_comment' => null,
                             'corrigible' => $editable->isTermCorrigible($term),
                             'fillable' => true,
-                            'datatype' => $editable->datatypes(),
+                            'datatypes' => $editable->datatypeTerm($term),
                             'values' => [],
                             'corrections' => [],
                         ];
@@ -396,7 +390,7 @@ class CorrectionController extends AbstractActionController
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
                 $type = $fieldCorrection['type'];
-                if (!$editable->isDatatypeAllowed($type)) {
+                if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
@@ -471,7 +465,7 @@ class CorrectionController extends AbstractActionController
             foreach ($field['corrections'] as &$fieldCorrection) {
                 $proposed = null;
                 $type = $fieldCorrection['type'];
-                if (!$editable->isDatatypeAllowed($type)) {
+                if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
@@ -561,7 +555,7 @@ class CorrectionController extends AbstractActionController
                 } else {
                     $type = 'literal';
                 }
-                if (!$editable->isDatatypeAllowed($type)) {
+                if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
@@ -664,10 +658,6 @@ class CorrectionController extends AbstractActionController
         // Process only editable keys.
         $editable = $this->editableData($resource);
 
-        if (!count($editable->datatypes())) {
-            return [];
-        }
-
         // Process corrigible properties first.
         $matches = [];
         switch ($editable->corrigibleMode()) {
@@ -690,7 +680,7 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 $type = $value->type();
-                if (!$editable->isDatatypeAllowed($type)) {
+                if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 switch ($type) {
@@ -809,7 +799,7 @@ class CorrectionController extends AbstractActionController
                 } else {
                     $type = 'literal';
                 }
-                if (!$editable->isDatatypeAllowed($type)) {
+                if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 switch ($type) {

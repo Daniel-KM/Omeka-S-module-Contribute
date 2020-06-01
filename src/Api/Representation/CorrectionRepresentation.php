@@ -315,7 +315,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                     }
                 }
 
-                if (!$editable->isDatatypeAllowed($type)) {
+                if (!$editable->isTermDatatype($term, $type)) {
                     $type = null;
                 }
 

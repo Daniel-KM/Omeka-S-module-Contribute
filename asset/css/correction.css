@@ -32,6 +32,9 @@
         border-top-width: 0
     }
 
+    .add-values > div {
+        margin-right: 18px;
+    }
     .button.add-value-new,
     .button.add-value-uri,
     .button.add-value {

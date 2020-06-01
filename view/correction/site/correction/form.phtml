@@ -9,6 +9,8 @@
  * @var string $submitLabel
  */
 
+// See common/resource-values.
+
 $plugins = $this->getHelperPluginManager();
 $translate = $plugins->get('translate');
 $escape = $plugins->get('escapeHtml');
@@ -38,7 +40,7 @@ $labelInfo = $this->setting('property_label_information');
         </div>
     </div>
     <div id="correct_resource_template" class="resource" style="display:none;">
-        <div class="value resource m-2">
+        <div class="value resource">
             <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"><option value=""></option></select>
         </div>
     </div>
@@ -62,7 +64,7 @@ $labelInfo = $this->setting('property_label_information');
     </div>
     <?php if ($hasValueSuggest): ?>
     <div id="correct_valuesuggest_template" class="value_suggest" style="display:none;">
-        <div class="value m-2 value_suggest">
+        <div class="value value_suggest">
             <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" data-data-type="" data-uri="" data-value="" value=""/>
         </div>
     </div>
@@ -130,7 +132,7 @@ $labelInfo = $this->setting('property_label_information');
 
                 $valueType = $fieldCorrection['type'];
 
-                $isValueSuggest = in_array(strtok($valueType, ':'), ['valuesuggest', 'valuesuggestall']);
+                $isValueSuggest = strpos($valueType, 'valuesuggest:') === 0 || strpos($valueType, 'valuesuggestall:') === 0;
                 if ($isValueSuggest && !$hasValueSuggest) continue;
 
                 $isValueResource = strtok($valueType, ':') === 'resource';
@@ -208,8 +210,7 @@ $labelInfo = $this->setting('property_label_information');
                                 ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
                         endif;
                         $element
-                            ->setEmptyOption('Select a resource…')
-                            ->setLabel(' ')
+                            ->setEmptyOption('')
                             ->setAttributes([
                                 'class' => 'form-control input-value chosen-select',
                                 'required' => false,
@@ -293,38 +294,44 @@ $labelInfo = $this->setting('property_label_information');
             <?php if ($field['fillable']): ?>
         <div class="inputs">
             <div class="add-values default-selector" data-next-index="<?= $index ?>" data-next-term="<?= $term ?>">
-                <?php if (in_array('literal', $field['datatype'])): ?>
-                <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
-                <?php endif; ?>
-                <?php if (strtok($valueType, ':') === 'resource' && isset($queries[$term])): ?>
-                <?php // Get the list of options from the core select element.
-                $resourceName = isset($valueTypes[$valueType]) ? $valueTypes[$valueType] : 'items';
-                $element = new \Omeka\Form\Element\ResourceSelect();
-                $element
-                    ->setApiManager($resource->getServiceLocator()->get('Omeka\ApiManager'));
-                $element
-                    ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
-                // The order should be kept, but there is no order in a js array.
-                $valueOptions = [];
-                foreach ($element->getValueOptions() as $k => $v):
-                    $valueOptions[] = ['v' => $k, 't' => $v];
-                endforeach;
+                <?php foreach ($field['datatypes'] as $datatype) switch($datatype):
+                case 'literal': ?>
+                <div class="add-value add-value-new float-left o-icon-add button"><?= $translate('Add value') ?></div>
+                <?php break;
+                case 'resource':
+                case 'resource:item':
+                case 'resource:itemset':
+                case 'resource:media':
+                    if (isset($queries[$term])):
+                        // Get the list of options from the core select element.
+                        $resourceName = $valueTypes[$datatype];
+                        $element = new \Omeka\Form\Element\ResourceSelect();
+                        $element
+                            ->setApiManager($resource->getServiceLocator()->get('Omeka\ApiManager'));
+                        $element
+                            ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
+                        // The order should be kept, but there is no order in a js array.
+                        $valueOptions = [];
+                        foreach ($element->getValueOptions() as $k => $v):
+                            $valueOptions[] = ['v' => $k, 't' => $v];
+                        endforeach;
                 ?>
-                <div class="float-left ml-3 add-value-resource button o-icon-uri" data-type="<?= $valueType ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions)) ?>"><?= $translate('Add linked resource') ?></div>
-                <?php endif; ?>
-                <?php if (in_array('uri', $field['datatype'])): ?>
-                <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>
-                <?php endif; ?>
-                <?php if (in_array(strtok($valueType, ':'), ['valuesuggest', 'valuesuggestall'])): ?>
-                <div class="float-left ml-3 add-value-value-suggest button o-icon-uri" data-type="<?= $valueType ?>"><?= $translate('Add linked data') ?></div>
-                <?php endif; ?>
+                <div class="add-value add-value-resource float-left button o-icon-uri" data-type="<?= $valueType ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions)) ?>"><?= $translate('Add linked resource') ?></div>
+                <?php endif;
+                    break;
+                case 'uri': ?>
+                <div class="add-value add-value-uri float-left button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>
+                <?php break;
+                case strpos($datatype, 'valuesuggest:') === 0 || strpos($datatype, 'valuesuggestall:') === 0: ?>
+                <div class="add-value add-value-value-suggest float-left button o-icon-uri" data-type="<?= $datatype ?>"><?= $translate('Add linked data') ?></div>
+                <?php break;
+                endswitch; ?>
                 <div class="clearfix"></div>
             </div>
         </div>
             <?php endif; ?>
 
         <?php endif; ?>
-        </div>
     </div>
     <?php endforeach; ?>
 
