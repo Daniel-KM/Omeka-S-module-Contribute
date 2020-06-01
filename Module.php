@@ -24,6 +24,21 @@ class Module extends AbstractModule
         $this->addAclRules();
     }
 
+    protected function preInstall()
+    {
+        $services = $this->getServiceLocator();
+        $translator = $services->get('MvcTranslator');
+        $messenger = new Messenger;
+
+        $message = new Message(sprintf(
+            $translator->translate('This module is deprecated and will not receive new improvements an
+y more. The module %1$sContribute%2$s replaces it.'), // @translate
+            '<a href="https://github.com/Daniel-KM/Omeka-S-module-Contribute" target="_blank">', '</a>'
+        ));
+        $message->setEscapeHtml(false);
+        $messenger->addWarning($message);
+    }
+
     protected function postInstall()
     {
         $services = $this->getServiceLocator();

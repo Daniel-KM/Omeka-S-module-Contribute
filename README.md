@@ -1,9 +1,13 @@
-Correction (module for Omeka S)
+Correction (module for Omeka S) [archived]
 ===============================
 
 [Correction] is a module for [Omeka S] that allows visitors to correct, complete
 or translate metadata of the resources without access to the admin board. Access
 to the edit page may be controlled by a token, that you can send to your users.
+
+**IMPORTANT**
+This module is deprecated and replaced by the module [Contribute] in order to
+manage improvements. The upgrade from module [Contribute] is automatic.
 
 
 Installation
@@ -106,6 +110,7 @@ First version of this module was done for [Université de Paris-Saclay].
 
 [Correction]: https://github.com/Daniel-KM/Omeka-S-module-Correction
 [Omeka S]: https://omeka.org/s
+[Contribute]: https://github.com/Daniel-KM/Omeka-S-module-Contribute
 [`Generic`]: https://github.com/Daniel-KM/Omeka-S-module-Generic
 [`Correction.zip`]: https://github.com/Daniel-KM/Omeka-S-module-Correction/releases
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
