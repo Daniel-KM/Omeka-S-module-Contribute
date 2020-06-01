@@ -206,6 +206,10 @@ class EditableData extends AbstractPlugin
         if (in_array($datatype, $this->data['datatype'])) {
             return true;
         }
+        // TODO Manage resource more precisely.
+        if (in_array('resource', $this->data['datatype'])) {
+            return strtok($datatype, ':') === 'resource';
+        }
         if (in_array('valuesuggest', $this->data['datatype'])) {
             return in_array(strtok($datatype, ':'), ['valuesuggest', 'valuesuggestall']);
         }

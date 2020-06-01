@@ -14,10 +14,18 @@ $translate = $plugins->get('translate');
 $escape = $plugins->get('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $formElement = $this->plugin('formElement');
+$setting = $this->plugin('setting');
 
-$form->prepare();
+// Prepare resource selects.
+$valueTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
+$queries = $setting('correction_property_queries', []);
+$resFunction = function ($res) {
+    return mb_substr($res->displayTitle(), 0, 80);
+};
 
 $hasValueSuggest = ($module = $resource->getServiceLocator()->get('Omeka\ModuleManager')->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+
+$form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
 ?>
@@ -27,6 +35,11 @@ $labelInfo = $this->setting('property_label_information');
     <div id="correct_value_template" class="value" style="display:none;">
         <div class="value" lang="">
             <textarea class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"></textarea>
+        </div>
+    </div>
+    <div id="correct_resource_template" class="resource" style="display:none;">
+        <div class="value resource m-2">
+            <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"><option value=""></option></select>
         </div>
     </div>
     <div id="correct_uri_template" class="uri" style="display:none;">
@@ -130,8 +143,9 @@ $labelInfo = $this->setting('property_label_information');
                     $val = strlen($fieldCorrection['proposed']['@value']) ? $escape($fieldCorrection['proposed']['@value']) : $value->asHtml();
                     $class = ['value'];
                     if ($isValueResource):
+                        $resourceValue = $value ? $value->valueResource() : null;
                         $class[] = 'resource';
-                        $class[] = $escape($value->valueResource()->resourceName());
+                        $class[] = $escape($resourceValue->resourceName());
                     elseif ('uri' === $valueType):
                         $class[] = 'uri';
                     endif;
@@ -169,14 +183,52 @@ $labelInfo = $this->setting('property_label_information');
                         <?php
                         break;
 
-                    // Resource are not editable currently.
-                    case strtok($valueType, ':') === 'resource':
-                        if ($value):
+                    case $isValueResource:
                         ?>
+                <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
+                    <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
+                        <?php if ($isPrivate): ?>
+                        <span class="private fa fa-eye-slash" aria-hidden="false" title="<?= $translate('private') ?>"></span>
+                        <?php endif; ?>
+                        <?php // Display the value when no query is set.
+                        if (isset($queries[$term])):
+                        // TODO Manage all resource types. Currently, items is forced when not set.
+                        $resourceValue = $value ? $value->valueResource() : null;
+                        $val = isset($proposed['@resource']) ? $proposed['@resource'] : $original['@resource'];
+                        $resourceName = isset($valueTypes[$valueType]) ? $valueTypes[$valueType] : 'items';
+                        $element = new \Omeka\Form\Element\ResourceSelect($term . '[' . $index . '][@resource]');
+                        $element
+                            ->setApiManager($resource->getServiceLocator()->get('Omeka\ApiManager'));
+                        $element
+                            ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
+                        $valueOptions = $element->getValueOptions();
+                        if ($resourceValue && !isset($valueOptions[$resourceValue->id()])):
+                            $element
+                                ->setOption('prepend_value_options', [$resourceValue->id() => mb_substr($resourceValue->displayTitle(), 0, 80)])
+                                ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
+                        endif;
+                        $element
+                            ->setEmptyOption('Select a resource…')
+                            ->setLabel(' ')
+                            ->setAttributes([
+                                'class' => 'form-control input-value chosen-select',
+                                'required' => false,
+                                'multiple' => false,
+                                'data-value-key' => '@resource',
+                                'aria-labelledby' => 'property-' . $property->id() . '-label',
+                                'data-placeholder' => $translate('Select a resource…'),
+                                'value' => $val,
+                            ]);
+                            echo $this->formElement($element);
+                        ?>
+                        <?php else: ?>
             <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
                 <?= $value ? $value->asHtml() : $proposed['@value'] ?>
             </div>
-                        <?php endif;
+                        <?php endif; ?>
+                    </div>
+                </div>
+                        <?php
                         break;
 
                     case 'uri':
@@ -243,6 +295,22 @@ $labelInfo = $this->setting('property_label_information');
             <div class="add-values default-selector" data-next-index="<?= $index ?>" data-next-term="<?= $term ?>">
                 <?php if (in_array('literal', $field['datatype'])): ?>
                 <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
+                <?php endif; ?>
+                <?php if (strtok($valueType, ':') === 'resource' && isset($queries[$term])): ?>
+                <?php // Get the list of options from the core select element.
+                $resourceName = isset($valueTypes[$valueType]) ? $valueTypes[$valueType] : 'items';
+                $element = new \Omeka\Form\Element\ResourceSelect();
+                $element
+                    ->setApiManager($resource->getServiceLocator()->get('Omeka\ApiManager'));
+                $element
+                    ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
+                // The order should be kept, but there is no order in a js array.
+                $valueOptions = [];
+                foreach ($element->getValueOptions() as $k => $v):
+                    $valueOptions[] = ['v' => $k, 't' => $v];
+                endforeach;
+                ?>
+                <div class="float-left ml-3 add-value-resource button o-icon-uri" data-type="<?= $valueType ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions)) ?>"><?= $translate('Add linked resource') ?></div>
                 <?php endif; ?>
                 <?php if (in_array('uri', $field['datatype'])): ?>
                 <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>

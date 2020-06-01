@@ -18,6 +18,38 @@ $(document).ready(function() {
             $(ev.target.parentElement).data('next-index', index);
         }
 
+        if ($(ev.target).hasClass('add-value-resource')) {
+            new_element = $('#correct_resource_template > .value').clone();
+            term = $(ev.target.parentElement).data('next-term');
+            index = $(ev.target.parentElement).data('next-index');
+            name = term + '[' + index + '][@resource]';
+
+            let select = $(new_element).find('select');
+            select
+                .attr('name', name)
+                .removeAttr('readonly')
+                .addClass('chosen-select')
+                .val('');
+            $.each(JSON.parse($(ev.target).attr('data-value-options')), function (i, item) {
+                select.append($('<option>', {
+                    value: item.v,
+                    text : item.t
+                }));
+            });
+            $(this).find('.values .inputs').before(new_element);
+            var chosenOptions = {
+                allow_single_deselect: true,
+                disable_search_threshold: 10,
+                width: '100%',
+                include_group_label_in_selected: true,
+                placeholder_text_single: $(ev.target).attr('data-placeholder')
+            };
+            select.chosen(chosenOptions);
+
+            index = parseInt(index) + 1;
+            $(ev.target.parentElement).data('next-index', index);
+        }
+
         if ($(ev.target).hasClass('add-value-uri')) {
             new_element = $('#correct_uri_template > .value').clone();
             term = $(ev.target.parentElement).data('next-term');
@@ -54,5 +86,18 @@ $(document).ready(function() {
             index = parseInt(index) + 1;
             $(ev.target.parentElement).data('next-index', index);
         }
+
+        /**
+         * Chosen default options.
+         *
+         * @see https://harvesthq.github.io/chosen/
+         */
+        var chosenOptions = {
+            allow_single_deselect: true,
+            disable_search_threshold: 10,
+            width: '100%',
+            include_group_label_in_selected: true,
+        };
+        $('.chosen-select').chosen(chosenOptions);
     });
 });

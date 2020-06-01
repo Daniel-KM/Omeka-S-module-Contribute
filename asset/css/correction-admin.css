@@ -39,6 +39,10 @@
         margin-left: .5em;
         opacity: .5;
     }
+    .correction table .resource-link .resource-name {
+        margin-left: 0;
+        opacity: 1;
+    }
 
     .corrections .correction-public {
         font-style: italic;

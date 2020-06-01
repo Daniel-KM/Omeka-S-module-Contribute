@@ -376,6 +376,29 @@ class Module extends AbstractModule
         echo '</div></div>';
     }
 
+    public function handleMainSettings(Event $event)
+    {
+        parent::handleMainSettings($event);
+
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $fieldset = $event
+            ->getTarget()
+            ->get('correction');
+
+        $queries = $settings->get('correction_property_queries') ?: [];
+        $value = '';
+        if (is_array($queries)) {
+            foreach ($queries as $term => $query) {
+                $value .= $term . ' = ' . urldecode(http_build_query($query, null, '&', PHP_QUERY_RFC3986)) . "\n";
+            }
+        }
+        $fieldset
+            ->get('correction_property_queries')
+            ->setValue($value);
+    }
+
     public function handleMainSettingsFilters(Event $event)
     {
         $event->getParam('inputFilter')
@@ -415,6 +438,30 @@ class Module extends AbstractModule
             ->add([
                 'name' => 'correction_properties_datatype',
                 'required' => false,
+            ])
+            ->add([
+                'name' => 'correction_property_queries',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => function ($v) {
+                                $result = [];
+                                $q = [];
+                                $w = $this->stringToList($v);
+                                foreach ($w as $vv) {
+                                    list($term, $query) = array_map('trim', explode('=', $vv, 2));
+                                    if ($term) {
+                                        parse_str($query, $q);
+                                        $result[$term] = array_filter($q);
+                                    }
+                                }
+                                return array_filter($result);
+                            },
+                        ],
+                    ],
+                ],
             ])
         ;
     }

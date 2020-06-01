@@ -158,6 +158,7 @@ return [
                 'literal',
                 'uri',
             ],
+            'correction_property_queries' => [],
             'correction_without_token' => false,
             // Days.
             'correction_token_duration' => 60,

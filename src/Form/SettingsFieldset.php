@@ -122,12 +122,31 @@ info@example2.org',
                     'info' => 'Other datatypes are not editable.', // @translate
                     'value_options' => [
                         'literal' => 'Literal', // @translate
+                        'resource' => 'Resource', // @translate
+                        // 'resource:item' => 'Item', // @translate
+                        // 'resource:media' => 'Media', // @translate
+                        // 'resource:itemset' => 'Item set', // @translate
                         'uri' => 'Uri', // @translate
                         'valuesuggest' => 'Value suggest', // @translate
                     ],
                 ],
                 'attributes' => [
                     'id' => 'correction_properties_datatype',
+                ],
+            ])
+
+            ->add([
+                'name' => 'correction_property_queries',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Queries for value resources', // @translate
+                    'info' => 'Allows to limit options in a resource select.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'correction_properties_queries',
+                    'rows' => 5,
+                    'placeholder' => 'dcterms:subject = item_set_id[]=12
+dcterms:creator = resource_class_id[]=94', // @translate
                 ],
             ])
 

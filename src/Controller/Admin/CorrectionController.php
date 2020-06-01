@@ -439,6 +439,7 @@ class CorrectionController extends AbstractActionController
                 // check should be redone.
                 $existingVal = $existingValue->value();
                 $existingUri = $existingValue->uri();
+                $existingResourceId = $existingValue->valueResource() ? $existingValue->valueResource()->id() : null;
                 foreach ($proposal[$term] as $key => $proposition) {
                     if ($hasProposedKey && $proposedKey != $key) {
                         continue;
@@ -451,6 +452,7 @@ class CorrectionController extends AbstractActionController
                     }
 
                     $isUri = array_key_exists('@uri', $proposition['original']);
+                    $isResource = array_key_exists('@resource', $proposition['original']);
                     $isValue = array_key_exists('@value', $proposition['original']);
 
                     if ($isUri) {
@@ -462,6 +464,18 @@ class CorrectionController extends AbstractActionController
                                 case 'update':
                                     $data[$term][$key]['@id'] = $proposition['proposed']['@uri'];
                                     $data[$term][$key]['o:label'] = $proposition['proposed']['@label'];
+                                    break;
+                            }
+                            break;
+                        }
+                    } elseif ($isResource) {
+                        if ($proposition['original']['@resource'] === $existingResourceId) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['value_resource_id'] = $proposition['proposed']['@resource'];
                                     break;
                             }
                             break;
@@ -516,7 +530,13 @@ class CorrectionController extends AbstractActionController
                 if ($typeTemplate) {
                     $type = $typeTemplate;
                 } else {
-                    $type = array_key_exists('@uri', $proposition['original']) ? 'uri' : 'literal';
+                    if (array_key_exists('@uri', $proposition['original'])) {
+                        $type = 'uri';
+                    } elseif (array_key_exists('@resource', $proposition['original'])) {
+                        $type = 'resource';
+                    } else {
+                        $type = 'literal';
+                    }
                 }
 
                 switch ($type) {
@@ -527,6 +547,18 @@ class CorrectionController extends AbstractActionController
                             '@value' => $proposition['proposed']['@value'],
                             'is_public' => true,
                             // '@language' => null,
+                        ];
+                        break;
+                    case 'resource':
+                    case strtok($type, ':') === 'resource';
+                        $data[$term][] = [
+                            'type' => $type,
+                            'property_id' => $propertyId,
+                            'o:label' => null,
+                            'value_resource_id' => $proposition['proposed']['@resource'],
+                            '@id' => null,
+                            'is_public' => true,
+                            '@language' => null,
                         ];
                         break;
                     case 'uri':

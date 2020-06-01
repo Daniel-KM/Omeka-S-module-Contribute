@@ -12,8 +12,10 @@ $translate = $plugins->get('translate');
 $assetUrl = $plugins->get('assetUrl');
 
 $this->headLink()
+    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
     ->appendStylesheet($assetUrl('css/correction.css', 'Correction'));
 $this->headScript()
+    ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
     ->appendFile($assetUrl('js/correction.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
 
 // To check if ValueSuggest is available, just try to get the routed url.

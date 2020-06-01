@@ -186,11 +186,13 @@ class CorrectionController extends AbstractActionController
      *         'original' => array(
      *           'value' => {ValueRepresentation},
      *           '@value' => {string},
+     *           '@resource' => {int}
      *           '@uri' => {string},
      *           '@label' => {string},
      *         ),
      *         'proposed' => array(
      *           '@value' => {string},
+     *           '@resource' => {int}
      *           '@uri' => {string},
      *           '@label' => {string},
      *         ),
@@ -320,9 +322,19 @@ class CorrectionController extends AbstractActionController
                 // TODO No need to check if the datatype is managed?
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     $val = null;
+                    $res = null;
+                    $uri = $value->uri();
                     $label = $value->value();
+                } elseif (strtok($type, ':') === 'resource') {
+                    $vr = $value->valueResource();
+                    $val = null;
+                    $res = $vr ? $vr->id() : null;
+                    $uri = null;
+                    $label = null;
                 } else {
                     $val = $value->value();
+                    $res = null;
+                    $uri = null;
                     $label = null;
                 }
                 $fields[$term]['corrections'][] = [
@@ -331,11 +343,13 @@ class CorrectionController extends AbstractActionController
                     'original' => [
                         'value' => $value,
                         '@value' => $val,
-                        '@uri' => $value->uri(),
+                        '@resource' => $res,
+                        '@uri' => $uri,
                         '@label' => $label,
                     ],
                     'proposed' => [
                         '@value' => null,
+                        '@resource' => null,
                         '@uri' => null,
                         '@label' => null,
                     ],
@@ -356,6 +370,10 @@ class CorrectionController extends AbstractActionController
                     if (($proposal['original']['@uri'] === '' && $proposal['proposed']['@uri'] === '')
                         && ($proposal['original']['@label'] === '' && $proposal['proposed']['@label'] === '')
                     ) {
+                        unset($proposals[$term][$key]);
+                    }
+                } elseif (isset($proposal['proposed']['@resource'])) {
+                    if (!$proposal['original']['@resource'] && !$proposal['proposed']['@resource']) {
                         unset($proposals[$term][$key]);
                     }
                 } else {
@@ -396,12 +414,29 @@ class CorrectionController extends AbstractActionController
                     }
                     $fieldCorrection['proposed'] = [
                         '@value' => null,
+                        '@resource' => null,
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
                 } elseif (strtok($type, ':') === 'resource') {
-                    // TODO Value resource are currently not editable.
-                    continue;
+                    foreach ($proposals[$term] as $keyProposal => $proposal) {
+                        if (isset($proposal['original']['@resource'])
+                            && (int) $proposal['original']['@resource']
+                            && $proposal['original']['@resource'] === $fieldCorrection['original']['@resource']
+                        ) {
+                            $proposed = $proposal['proposed'];
+                            break;
+                        }
+                    }
+                    if (is_null($proposed)) {
+                        continue;
+                    }
+                    $fieldCorrection['proposed'] = [
+                        '@value' => null,
+                        '@resource' => (int) $proposed['@resource'],
+                        '@uri' => null,
+                        '@label' => null,
+                    ];
                 } else {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@value'])
@@ -416,6 +451,7 @@ class CorrectionController extends AbstractActionController
                     }
                     $fieldCorrection['proposed'] = [
                         '@value' => $proposed['@value'],
+                        '@resource' => null,
                         '@uri' => null,
                         '@label' => null,
                     ];
@@ -453,12 +489,29 @@ class CorrectionController extends AbstractActionController
                     }
                     $fieldCorrection['proposed'] = [
                         '@value' => null,
+                        '@resource' => null,
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
                 } elseif (strtok($type, ':') === 'resource') {
-                    // TODO Value resource are currently not editable.
-                    continue;
+                    foreach ($proposals[$term] as $keyProposal => $proposal) {
+                        if (isset($proposal['proposed']['@resource'])
+                            && (int) $proposal['proposed']['@resource']
+                            && $proposal['proposed']['@resource'] === $fieldCorrection['original']['@resource']
+                        ) {
+                            $proposed = $proposal['proposed'];
+                            break;
+                        }
+                    }
+                    if (is_null($proposed)) {
+                        continue;
+                    }
+                    $fieldCorrection['proposed'] = [
+                        '@value' => null,
+                        '@resource' => (int) $proposed['@resource'],
+                        '@uri' => null,
+                        '@label' => null,
+                    ];
                 } else {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@value'])
@@ -473,6 +526,7 @@ class CorrectionController extends AbstractActionController
                     }
                     $fieldCorrection['proposed'] = [
                         '@value' => $proposed['@value'],
+                        '@resource' => null,
                         '@uri' => null,
                         '@label' => null,
                     ];
@@ -500,8 +554,12 @@ class CorrectionController extends AbstractActionController
             foreach ($termProposal as $proposal) {
                 if ($typeTemplate) {
                     $type = $typeTemplate;
+                } elseif (isset($proposal['proposed']['@uri'])) {
+                    $type = 'uri';
+                } elseif (isset($proposal['proposed']['@resource'])) {
+                    $type = 'resource';
                 } else {
-                    $type = isset($proposal['proposed']['@uri']) ? 'uri' : 'literal';
+                    $type = 'literal';
                 }
                 if (!$editable->isDatatypeAllowed($type)) {
                     continue;
@@ -511,14 +569,33 @@ class CorrectionController extends AbstractActionController
                         'type' => $type,
                         'original' => [
                             'value' => null,
+                            '@resource' => null,
                             '@value' => null,
                             '@uri' => null,
                             '@label' => null,
                         ],
                         'proposed' => [
                             '@value' => null,
+                            '@resource' => null,
                             '@uri' => $proposal['proposed']['@uri'],
                             '@label' => $proposal['proposed']['@label'],
+                        ],
+                    ];
+                } elseif (strtok($type, ':') === 'resource') {
+                    $fields[$term]['corrections'][] = [
+                        'type' => $type,
+                        'original' => [
+                            'value' => null,
+                            '@resource' => null,
+                            '@value' => null,
+                            '@uri' => null,
+                            '@label' => null,
+                        ],
+                        'proposed' => [
+                            '@value' => null,
+                            '@resource' => (int) $proposal['proposed']['@resource'],
+                            '@uri' => null,
+                            '@label' => null,
                         ],
                     ];
                 } else {
@@ -526,12 +603,14 @@ class CorrectionController extends AbstractActionController
                         'type' => 'literal',
                         'original' => [
                             'value' => null,
+                            '@resource' => null,
                             '@value' => null,
                             '@uri' => null,
                             '@label' => null,
                         ],
                         'proposed' => [
                             '@value' => $proposal['proposed']['@value'],
+                            '@resource' => null,
                             '@uri' => null,
                             '@label' => null,
                         ],
@@ -568,6 +647,9 @@ class CorrectionController extends AbstractActionController
             foreach ($values as &$value) {
                 if (isset($value['@value'])) {
                     $value['@value'] = trim($value['@value']);
+                }
+                if (isset($value['@resource'])) {
+                    $value['@resource'] = (int) $value['@resource'];
                 }
                 if (isset($value['@uri'])) {
                     $value['@uri'] = trim($value['@uri']);
@@ -622,6 +704,20 @@ class CorrectionController extends AbstractActionController
                             ],
                             'proposed' => [
                                 '@value' => $proposal[$term][$index]['@value'],
+                            ],
+                        ];
+                        break;
+                    case strtok($type, ':') === 'resource':
+                        if (!isset($proposal[$term][$index]['@resource'])) {
+                            continue 2;
+                        }
+                        $vr = $value->valueResource();
+                        $result[$term][] = [
+                            'original' => [
+                                '@resource' => $vr ? $vr->id() : null,
+                            ],
+                            'proposed' => [
+                                '@resource' => (int) $proposal[$term][$index]['@resource'] ?: null,
                             ],
                         ];
                         break;
@@ -706,8 +802,12 @@ class CorrectionController extends AbstractActionController
                 }
                 if ($typeTemplate) {
                     $type = $typeTemplate;
+                } elseif (array_key_exists('@uri', $proposedValue)) {
+                    $type = 'uri';
+                } elseif (array_key_exists('@uri', $proposedValue)) {
+                    $type = 'resource';
                 } else {
-                    $type = array_key_exists('@uri', $proposedValue) ? 'uri' : 'literal';
+                    $type = 'literal';
                 }
                 if (!$editable->isDatatypeAllowed($type)) {
                     continue;
@@ -723,6 +823,19 @@ class CorrectionController extends AbstractActionController
                             ],
                             'proposed' => [
                                 '@value' => $proposedValue['@value'],
+                            ],
+                        ];
+                        break;
+                    case strtok($type, ':') === 'resource':
+                        if (!isset($proposedValue['@resource']) || !(int) $proposedValue['@resource']) {
+                            continue 2;
+                        }
+                        $result[$term][] = [
+                            'original' => [
+                                '@resource' => null,
+                            ],
+                            'proposed' => [
+                                '@resource' => (int) $proposedValue['@resource'],
                             ],
                         ];
                         break;

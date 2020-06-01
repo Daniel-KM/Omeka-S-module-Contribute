@@ -211,6 +211,32 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
+     * Check if a resource value exists in original resource.
+     *
+     * @param string $term
+     * @param string $string
+     * @return \Omeka\Api\Representation\ValueRepresentation|null
+     */
+    public function resourceValueResource($term, $string)
+    {
+        $string = (int) $string;
+        if (!$string) {
+            return null;
+        }
+        $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
+        foreach ($values as $value) {
+            $type = $value->type();
+            if (strtok($type, ':') === 'resource') {
+                $valueResource = $value->valueResource();
+                if ($valueResource->id() === $string) {
+                    return $value;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Check if a uri exists in original resource.
      *
      * @param string $term
@@ -282,6 +308,8 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                 } else {
                     if (array_key_exists('@uri', $proposition['original'])) {
                         $type = 'uri';
+                    } elseif (array_key_exists('@resource', $proposition['original'])) {
+                        $type = 'resource';
                     } elseif (array_key_exists('@value', $proposition['original'])) {
                         $type = 'literal';
                     }
@@ -352,6 +380,72 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                         } else {
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = 'keep';
+                        }
+                        unset($prop);
+                        break;
+
+                    case strtok($type, ':') === 'resource';
+                        $original = $proposition['original']['@resource'];
+                        $proposed = $proposition['proposed']['@resource'];
+
+                        // Nothing to do if there is no proposition and no original.
+                        $hasOriginal = (bool) strlen($original);
+                        $hasProposition = (bool) strlen($proposed);
+                        if (!$hasOriginal && !$hasProposition) {
+                            unset($proposal[$term][$key]);
+                            continue 2;
+                        }
+
+                        // TODO Keep the key order of the value in the list of values of each term to simplify validation.
+
+                        $prop = &$proposal[$term][$key];
+                        if ($original === $proposed) {
+                            $prop['value'] = $this->resourceValueResource($term, $original);
+                            $prop['value_updated'] = $prop['value'];
+                            $prop['validated'] = true;
+                            $prop['process'] = 'keep';
+                        } elseif (!strlen($proposed)) {
+                            // If no proposition, the user wants to remove a value, so check if it still exists.
+                            // Either the value is validated, either it is not (to be removed, corrected or appended).
+                            $prop['value'] = $this->resourceValueResource($term, $original);
+                            $prop['value_updated'] = null;
+                            $prop['validated'] = !$prop['value'];
+                            $prop['process'] = $isCorrigible
+                                ? 'remove'
+                                // A value to remove is not a fillable value.
+                                : 'keep';
+                        } elseif (!strlen($original)
+                            // Even if there is no original, check if a new
+                            // value has been appended.
+                            && !$this->resourceValueResource($term, $proposed)
+                        ) {
+                            // The original value may have been removed or appended:
+                            // this is not really determinable.
+                            $prop['value'] = null;
+                            $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = $isFillable
+                                ? 'append'
+                                // A value to append is not a corrigible value.
+                                : 'keep';
+                        } elseif ($proposedValue = $this->resourceValueResource($term, $proposed)) {
+                            $prop['value'] = $this->resourceValueResource($term, $original);
+                            $prop['value_updated'] = $proposedValue;
+                            $prop['validated'] = true;
+                            $prop['process'] = 'keep';
+                        } elseif ($originalValue = $this->resourceValueResource($term, $original)) {
+                            $prop['value'] = $originalValue;
+                            $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
+                            $prop['validated'] = (bool) $prop['value_updated'];
+                            $prop['process'] = $isCorrigible
+                                ? 'update'
+                                // A value to update is not a fillable value.
+                                : 'keep';
+                        } else {
+                            $prop['value'] = null;
+                            $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = 'keep';
                         }
