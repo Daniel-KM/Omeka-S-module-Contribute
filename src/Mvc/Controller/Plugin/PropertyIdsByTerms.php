@@ -1,7 +1,6 @@
 <?php
 namespace Correction\Mvc\Controller\Plugin;
 
-use Omeka\Mvc\Controller\Plugin\Settings;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
 class PropertyIdsByTerms extends AbstractPlugin

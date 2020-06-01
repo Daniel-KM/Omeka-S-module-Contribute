@@ -7,13 +7,15 @@
  * @var array $fields
  */
 
-$assetUrl = $this->plugin('assetUrl');
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$assetUrl = $plugins->get('assetUrl');
+
 $this->headLink()
     ->appendStylesheet($assetUrl('css/correction.css', 'Correction'));
 $this->headScript()
     ->appendFile($assetUrl('js/correction.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
 
-$translate = $this->plugin('translate');
 $this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource') . ' resource');
 
 $mapLabels = [
@@ -23,16 +25,6 @@ $mapLabels = [
 ];
 ?>
 
-<style>
-.action::before {
-    content: "\00b7";
-    margin: 0 12px;
-}
-.action {
-    display: inline-block;
-    font-style: italic;
-}
-</style>
 <div class="container">
     <h2 class="text-primary my-3"><?= $resource->displayTitle() ?></h2>
     <?= $this->pageTitle(sprintf($translate('Correct %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>

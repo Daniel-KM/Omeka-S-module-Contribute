@@ -193,20 +193,21 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
      *
      * @param string $term
      * @param string $string
-     * @return \Omeka\Api\Representation\ValueRepresentation
+     * @return \Omeka\Api\Representation\ValueRepresentation|null
      */
     public function resourceValue($term, $string)
     {
         if ($string === '') {
-            return;
+            return null;
         }
-        //  TODO Manage correction of non literal values.
+        //  TODO Manage correction of non literal values. Remove uri?
         $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
         foreach ($values as $value) {
             if ($value->value() === $string) {
                 return $value;
             }
         }
+        return null;
     }
 
     /**
@@ -214,12 +215,12 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
      *
      * @param string $term
      * @param string $string
-     * @return \Omeka\Api\Representation\ValueRepresentation
+     * @return \Omeka\Api\Representation\ValueRepresentation|null
      */
-    public function resourceUriValue($term, $string)
+    public function resourceValueUri($term, $string)
     {
         if ($string === '') {
-            return;
+            return null;
         }
         //  TODO Manage correction of non literal values.
         $values = $this->resource()->value($term, ['type' => 'uri', 'all' => true, 'default' => []]);
@@ -228,6 +229,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                 return $value;
             }
         }
+        return null;
     }
 
     /**
@@ -238,7 +240,8 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     public function proposalCheck()
     {
         $services = $this->getServiceLocator();
-        $api = $services->get('ControllerPluginManager')->get('api');
+        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms');
+        $propertyIds = $propertyIds();
 
         $editable = $this->editableData();
 
@@ -252,8 +255,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             }
 
             // In the case that the property was removed.
-            $property = $api->searchOne('properties', ['term' => $term])->getContent();
-            if (empty($property)) {
+            if (!isset($propertyIds[$term])) {
                 unset($proposal[$term]);
                 continue;
             }
@@ -272,24 +274,6 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                 }
 
                 switch ($type) {
-                    default:
-                        $original = isset($proposition['original']['@value']) ? $proposition['original']['@value'] : '';
-
-                        // Nothing to do if there is no original.
-                        $hasOriginal = (bool) strlen($original);
-                        if (!$hasOriginal) {
-                            unset($proposal[$term][$key]);
-                            continue 2;
-                        }
-
-                        $prop = &$proposal[$term][$key];
-                        $prop['value'] = null;
-                        $prop['value_updated'] = null;
-                        $prop['validated'] = false;
-                        $prop['process'] = 'keep';
-                        unset($prop);
-                        break;
-
                     case 'literal':
                         $original = $proposition['original']['@value'];
                         $proposed = $proposition['proposed']['@value'];
@@ -397,12 +381,12 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 ? 'append'
                                 // A value to append is not a corrigible value.
                                 : 'keep';
-                        } elseif ($proposedValue = $this->resourceUriValue($term, $proposedUri)) {
-                            $prop['value'] = $this->resourceUriValue($term, $originalUri);
+                        } elseif ($proposedValue = $this->resourceValueUri($term, $proposedUri)) {
+                            $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = $proposedValue;
                             $prop['validated'] = true;
                             $prop['process'] = 'keep';
-                        } elseif ($originalValue = $this->resourceUriValue($term, $originalUri)) {
+                        } elseif ($originalValue = $this->resourceValueUri($term, $originalUri)) {
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
@@ -416,6 +400,24 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = 'keep';
                         }
+                        unset($prop);
+                        break;
+
+                    default:
+                        $original = isset($proposition['original']['@value']) ? $proposition['original']['@value'] : '';
+
+                        // Nothing to do if there is no original.
+                        $hasOriginal = (bool) strlen($original);
+                        if (!$hasOriginal) {
+                            unset($proposal[$term][$key]);
+                            continue 2;
+                        }
+
+                        $prop = &$proposal[$term][$key];
+                        $prop['value'] = null;
+                        $prop['value_updated'] = null;
+                        $prop['validated'] = false;
+                        $prop['process'] = 'keep';
                         unset($prop);
                         break;
                 }

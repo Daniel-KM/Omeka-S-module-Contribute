@@ -8,9 +8,10 @@ $(document).ready(function() {
             index = $(ev.target.parentElement).data('next-index');
             name = term + '[' + index + '][@value]';
 
-            $(new_element).find('textarea').attr('name', name);
-            $(new_element).find('textarea').removeAttr('readonly');
-            $(new_element).find('textarea').val('');
+            $(new_element).find('textarea')
+                .attr('name', name);
+                .removeAttr('readonly');
+                .val('');
             $(this).find('.values .inputs').before(new_element);
 
             index = parseInt(index) + 1;

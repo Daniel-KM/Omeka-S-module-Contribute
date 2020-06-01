@@ -37,4 +37,13 @@
     .button.add-value {
         cursor: pointer;
     }
+
+    .action::before {
+        content: "\00b7";
+        margin: 0 12px;
+    }
+    .action {
+        display: inline-block;
+        font-style: italic;
+    }
 }

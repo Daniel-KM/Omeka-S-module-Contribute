@@ -238,6 +238,14 @@ class CorrectionController extends AbstractActionController
                 $property = $templateProperty->property();
                 $term = $property->term();
                 $dataType = $templateProperty->dataType();
+                // TODO Improved setting for datatype.
+                if (empty($dataType)) {
+                    $datatypeField = $editable->datatypes();
+                } else {
+                    $datatypeField = $editable->isDatatypeAllowed($dataType)
+                        ? [$dataType]
+                        : [];
+                }
                 $fields[$term] = [
                     'template_property' => $templateProperty,
                     'property' => $property,
@@ -245,10 +253,7 @@ class CorrectionController extends AbstractActionController
                     'alternate_comment' => $templateProperty->alternateComment(),
                     'corrigible' => $editable->isTermCorrigible($term),
                     'fillable' => $editable->isTermFillable($term),
-                    // TODO Improved setting for datatype.
-                    'datatype' => empty($dataType)
-                        ? $editable->datatypes()
-                        : ($editable->isDatatypeAllowed($dataType) ? [$dataType] : []),
+                    'datatype' => $datatypeField,
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
                     'corrections' => [],
                 ];

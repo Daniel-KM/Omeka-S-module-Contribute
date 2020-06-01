@@ -9,20 +9,22 @@
  * @var string $submitLabel
  */
 
-$translate = $this->plugin('translate');
-$escape = $this->plugin('escapeHtml');
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$escape = $plugins->get('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $formElement = $this->plugin('formElement');
+
 $form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
 ?>
 
 <div class="pl-3">
-    <?php // Template for the fields according to the datatype. ?>
-    <div id="correct_value_template" class="uri" style="display:none;">
+    <?php // Templates for the fields according to the datatype. ?>
+    <div id="correct_value_template" class="value" style="display:none;">
         <div class="value" lang="">
-            <textarea data-value-key="@value" name="dcterms:title[__INDEX__][@value]" class="input-value form-control" aria-labelledby="property-__PROPERTYID__-label"></textarea>
+            <textarea class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"></textarea>
         </div>
     </div>
     <div id="correct_uri_template" class="uri" style="display:none;">
@@ -31,13 +33,13 @@ $labelInfo = $this->setting('property_label_information');
                 <div class="input">
                     <label class="value input-container">
                         <?= $translate('URI') ?>:
-                        <input type="text" class="value to-require touched form-control" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
+                        <input type="text" class="form-control value to-require" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
                     </label>
                 </div>
                 <div class="input">
                     <label class="value-label label-container">
                         <?= $translate('Label') ?>:
-                        <textarea class="value-label touched form-control" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
+                        <textarea class="form-control value-label" rows="1" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"></textarea>
                     </label>
                 </div>
             </div>
@@ -137,49 +139,9 @@ $labelInfo = $this->setting('property_label_information');
                 else:
                     // TODO Manage all types of data, in particular custom vocab and value suggest.
                     switch ($valueType):
-                    case 'uri':
-                        $val = isset($proposed['@uri']) ? $proposed['@uri'] : $original['@uri'];
-                        $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
-                        ?>
-            <div class="value uri <?= $isPrivate ? 'private' : '' ?>" data-data-type="uri" role="group" style="display: flex;">
-                <div class="input-body w-100">
-                    <div class="input">
-                        <label class="value input-container">
-                            <?= $translate('URI') ?>:
-                            <input type="text" class="value to-require touched form-control" data-value-key="@id" name="<?= $term . '[' . $index . '][@uri]' ?> " value = "<?= $escapeAttr($val) ?>"/>
-                        </label>
-                    </div>
-                    <div class="input">
-                        <label class="value-label label-container">
-                            <?= $translate('Label') ?>:
-                            <textarea class="value-label touched form-control" rows="1" data-value-key="o:label" name="<?= $term . '[' . $index . '][@label]' ?>"><?= $escape($label) ?></textarea>
-                        </label>
-                    </div>
-                </div>
-            </div>
-                    <?php
-
-                    break;
-                    // Resource are not editable currently.
-                    case strtok($valueType, ':') === 'resource':
-                    default: ?>
-                    <?php if ($value): ?>
-            <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
-                <?= $value ? $value->asHtml() : $proposed['@value'] ?>
-            </div>
-                    <?php endif; ?>
-                    <?php
-
-                    break;
                     case 'literal':
                         $val = isset($proposed['@value']) ? $proposed['@value'] : $original['@value'];
                         $class = ['value'];
-                        if (strtok($valueType, ':') === 'resource'):
-                            $class[] = 'resource';
-                            $class[] = $value ? $escape($value->valueResource()->resourceName()) : '';
-                        elseif ('uri' === $valueType):
-                            $class[] = 'uri';
-                        endif;
                         if ($isPrivate):
                             $class[] = 'private';
                         endif;
@@ -189,10 +151,53 @@ $labelInfo = $this->setting('property_label_information');
                 <?php if ($language): ?>
                 <span class="language"><?= $language ?></span>
                 <?php endif; ?>
-                <textarea data-value-key="@value" name="<?= $term . '[' . $index . '][@value]' ?>" class="input-value form-control" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($val) ?></textarea>
+                <textarea class="form-control input-value" data-value-key="@value" name="<?= $term . '[' . $index . '][@value]' ?>" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($val) ?></textarea>
             </div>
-                    <?php
-                    break;
+                        <?php
+                        break;
+
+                    // Resource are not editable currently.
+                    case strtok($valueType, ':') === 'resource':
+                        if ($value):
+                        ?>
+            <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
+                <?= $value ? $value->asHtml() : $proposed['@value'] ?>
+            </div>
+                        <?php endif;
+                        break;
+
+                    case 'uri':
+                        $val = isset($proposed['@uri']) ? $proposed['@uri'] : $original['@uri'];
+                        $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
+                        ?>
+            <div class="value uri <?= $isPrivate ? 'private' : '' ?>" data-data-type="uri" role="group" style="display: flex;">
+                <div class="input-body w-100">
+                    <div class="input">
+                        <label class="value input-container">
+                            <?= $translate('URI') ?>:
+                            <input type="text" class="form-control value to-require" data-value-key="@id" name="<?= $term . '[' . $index . '][@uri]' ?> " value = "<?= $escapeAttr($val) ?>"/>
+                        </label>
+                    </div>
+                    <div class="input">
+                        <label class="value-label label-container">
+                            <?= $translate('Label') ?>:
+                            <textarea class="form-control value-label" rows="1" data-value-key="o:label" name="<?= $term . '[' . $index . '][@label]' ?>"><?= $escape($label) ?></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+                        <?php
+                        break;
+
+                    // Other datatypes are not editable.
+                    default:
+                        if ($value):
+                        ?>
+            <div class="value resource<?= $isPrivate ? ' private' : '' ?>">
+                <?= $value ? $value->asHtml() : $proposed['@value'] ?>
+            </div>
+                        <?php endif;
+                        break;
                     endswitch;
 
                 endif;
@@ -209,7 +214,7 @@ $labelInfo = $this->setting('property_label_information');
                 <div class="float-left o-icon-add add-value-new button"><?= $translate('Add value') ?></div>
                 <?php endif; ?>
                 <?php if (in_array('uri', $field['datatype'])): ?>
-                <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('URI') ?></div>
+                <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>
                 <?php endif; ?>
                 <div class="clearfix"></div>
             </div>
