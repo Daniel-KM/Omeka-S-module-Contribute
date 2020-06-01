@@ -29,6 +29,7 @@
 namespace Generic;
 
 use Omeka\Api\Exception\NotFoundException;
+use Omeka\Api\Exception\RuntimeException;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
@@ -76,18 +77,30 @@ class InstallResources
                 if ($data['file'] && strpos($data['file'], 'https://') === false && strpos($data['file'], 'http://') === false) {
                     $data['file'] = dirname($filepath) . '/' . $data['file'];
                 }
-                $this->checkVocabulary($data);
+                try {
+                    $this->checkVocabulary($data);
+                } catch (RuntimeException $e) {
+                    throw new ModuleCannotInstallException($e->getMessage());
+                }
             }
         }
 
         // Custom vocabs.
         foreach ($this->listFilesInDir($filepathData . 'custom-vocabs') as $filepath) {
-            $this->checkCustomVocab($filepath);
+            try {
+                $this->checkCustomVocab($filepath);
+            } catch (RuntimeException $e) {
+                throw new ModuleCannotInstallException($e->getMessage());
+            }
         }
 
         // Resource templates.
         foreach ($this->listFilesInDir($filepathData . 'resource-templates') as $filepath) {
-            $this->checkResourceTemplate($filepath);
+            try {
+                $this->checkResourceTemplate($filepath);
+            } catch (RuntimeException $e) {
+                throw new ModuleCannotInstallException($e->getMessage());
+            }
         }
 
         return true;
@@ -119,7 +132,7 @@ class InstallResources
         // Custom vocabs.
         foreach ($this->listFilesInDir($filepathData . 'custom-vocabs') as $filepath) {
             if (!$this->checkCustomVocab($filepath)) {
-                $this->createCustomVocab($filepath);
+                $this->createOrUpdateCustomVocab($filepath);
             }
         }
 
@@ -135,7 +148,7 @@ class InstallResources
      * Check if a vocabulary exists and throws an exception if different.
      *
      * @param array $vocabulary
-     * @throws ModuleCannotInstallException
+     * @throws \Omeka\Api\Exception\RuntimeException
      * @return bool False if not found, true if exists.
      */
     public function checkVocabulary(array $vocabulary)
@@ -145,7 +158,7 @@ class InstallResources
 
         $filepath = $vocabulary['file'];
         if (!file_exists($filepath) || !is_readable($filepath)) {
-            throw new ModuleCannotInstallException(
+            throw new RuntimeException(
                 sprintf(
                     'The file "%s" cannot be read. Check your file system.', // @translate
                     '/data/vocabularies/' . basename($vocabulary['file'])
@@ -171,7 +184,7 @@ class InstallResources
         }
 
         // It is another vocabulary with the same prefix.
-        throw new ModuleCannotInstallException(
+        throw new RuntimeException(
             sprintf(
                 'An error occured when adding the prefix "%s": another vocabulary exists. Resolve the conflict before installing this module.', // @translate
                 $vocabulary['vocabulary']['o:prefix']
@@ -185,7 +198,7 @@ class InstallResources
      * Note: the vocabs of the resource template are not checked currently.
      *
      * @param string $filepath
-     * @throws ModuleCannotInstallException
+     * @throws \Omeka\Api\Exception\RuntimeException
      * @return bool False if not found, true if exists.
      */
     public function checkResourceTemplate($filepath)
@@ -201,7 +214,7 @@ class InstallResources
             return false;
         }
 
-        throw new ModuleCannotInstallException(
+        throw new RuntimeException(
             sprintf(
                 'A resource template named "%s" exists: rename it or remove it before installing this module.', // @translate
                 $label
@@ -213,7 +226,7 @@ class InstallResources
      * Check if a custom vocab exists and throws an exception if different.
      *
      * @param string $filepath
-     * @throws ModuleCannotInstallException
+     * @throws \Omeka\Api\Exception\RuntimeException
      * @return bool False if not found, true if exists.
      */
     public function checkCustomVocab($filepath)
@@ -230,29 +243,28 @@ class InstallResources
         } catch (NotFoundException $e) {
             return false;
         } catch (\Omeka\Api\Exception\BadRequestException $e) {
-            throw new ModuleCannotInstallException(
+            throw new RuntimeException(
                 'The current version of this module requires the module Custom Vocab.' // @translate
             );
         }
 
-        if (implode("\n", $data['o:terms']) !== $customVocab->terms()) {
-            throw new ModuleCannotInstallException(
-                sprintf(
-                    'A custom vocab named "%s" exists and has not the needed terms: rename it or remove it before installing this module.', // @translate
-                    $label,
-                    $data['o:terms']
-                )
-            );
-        }
-
         if ($data['o:lang'] != $customVocab->lang()) {
-            throw new ModuleCannotInstallException(
+            throw new RuntimeException(
                 sprintf(
                     'A custom vocab named "%s" exists and has not the needed language ("%s"): check it or remove it before installing this module.', // @translate
                     $label,
                     $data['o:lang']
                 )
             );
+        }
+
+        $newTerms = $data['o:terms'];
+        $existingTerms = explode("\n", $customVocab->terms());
+        sort($newTerms);
+        sort($existingTerms);
+        if ($newTerms !== $existingTerms) {
+            // To be completed.
+            return false;
         }
 
         return true;
@@ -262,7 +274,7 @@ class InstallResources
      * Create a vocabulary, with a check of its existence before.
      *
      * @param array $vocabulary
-     * @throws ModuleCannotInstallException
+     * @throws \Omeka\Api\Exception\RuntimeException
      * @return bool True if the vocabulary has been created, false if it exists
      * already, so it is not created twice.
      */
@@ -296,7 +308,7 @@ class InstallResources
             }
 
             // It is another vocabulary with the same prefix.
-            throw new ModuleCannotInstallException(
+            throw new RuntimeException(
                 new Message(
                     'An error occured when adding the prefix "%s": another vocabulary exists with the same prefix. Resolve the conflict before installing this module.', // @translate
                     $vocabulary['vocabulary']['o:prefix']
@@ -316,7 +328,7 @@ class InstallResources
                 ]
             );
         } catch (\Omeka\Api\Exception\ValidationException $e) {
-            throw new ModuleCannotInstallException(
+            throw new RuntimeException(
                 new Message(
                     'An error occured when adding the prefix "%s" and the associated properties: %s', // @translate
                     $vocabulary['vocabulary']['o:prefix'],
@@ -335,7 +347,7 @@ class InstallResources
      *
      * @param string $filepath
      * @return \Omeka\Api\Representation\ResourceTemplateRepresentation
-     * @throws ModuleCannotInstallException
+     * @throws \Omeka\Api\Exception\RuntimeException
      */
     public function createResourceTemplate($filepath)
     {
@@ -371,7 +383,7 @@ class InstallResources
                 $customVocab = $api
                     ->read('custom_vocabs', ['label' => $label])->getContent();
             } catch (NotFoundException $e) {
-                throw new ModuleCannotInstallException(
+                throw new RuntimeException(
                     new Message(
                         'The custom vocab named "%s" is not available.', // @translate
                         $label
@@ -383,9 +395,37 @@ class InstallResources
         }
         unset($templateProperty);
 
+        // Check if there are title and description.
+        foreach (['o:title_property', 'o:description_property'] as $property) {
+            if (!empty($data[$property]['vocabulary_namespace_uri'])
+                && !empty($data[$property]['local_name'])
+            ) {
+                $prop = $api->searchOne('properties', $data[$property])->getContent();
+                if ($prop) {
+                    $data[$property]['o:id'] = $prop->id();
+                }
+            }
+        }
+
         // Process import.
+        /** \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
         $resourceTemplate = $api->create('resource_templates', $data)->getContent();
+
         return $resourceTemplate;
+    }
+
+    /**
+     * Create or update a custom vocab.
+     *
+     * @param string $filepath
+     */
+    public function createOrUpdateCustomVocab($filepath)
+    {
+        try {
+            return $this->updateCustomVocab($filepath);
+        } catch (ModuleCannotInstallException $e) {
+            return $this->createCustomVocab($filepath);
+        }
     }
 
     /**
@@ -491,7 +531,7 @@ class InstallResources
      * Update a vocabulary, with a check of its existence before.
      *
      * @param string $filepath
-     * @throws ModuleCannotInstallException
+     * @throws \Omeka\Api\Exception\RuntimeException
      */
     public function updateCustomVocab($filepath)
     {
@@ -504,7 +544,7 @@ class InstallResources
             $customVocab = $api
                 ->read('custom_vocabs', ['label' => $label])->getContent();
         } catch (NotFoundException $e) {
-            throw new ModuleCannotInstallException(
+            throw new RuntimeException(
                 new Message(
                     'The custom vocab named "%s" is not available.', // @translate
                     $label
