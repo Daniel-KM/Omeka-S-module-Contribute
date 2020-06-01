@@ -46,6 +46,9 @@ TODO
 - Make the token optional (allow anybody to edit).
 - Manage the fillable fields with a language, so it will simplify validation of
   translation.
+- Finalize value resources.
+- Finalize select for resources (dynamic api query via chosen-select).
+- Create an admin browse page with all corrections.
 
 
 Warning
@@ -96,7 +99,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019 (see [Daniel-KM] on GitHub)
+* Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitHub)
 
 First version of this module was done for [Université de Paris-Saclay].
 
