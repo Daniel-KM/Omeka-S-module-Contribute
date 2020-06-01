@@ -38,14 +38,14 @@ use Omeka\Entity\Resource;
 /**
  * @Entity
  * @Table(
- *     name="contribute_token",
+ *     name="contribution_token",
  *     indexes={
  *         @Index(
- *             name="contribute_token_idx",
+ *             name="contribution_token_idx",
  *             columns={"token"}
  *         ),
  *         @Index(
- *             name="contribute_expire_idx",
+ *             name="contribution_expire_idx",
  *             columns={"expire"}
  *         )
  *     }

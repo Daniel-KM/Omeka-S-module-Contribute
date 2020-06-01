@@ -48,7 +48,7 @@ use Omeka\Entity\Resource;
  *     }
  * )
  */
-class Contribute extends AbstractEntity
+class Contribution extends AbstractEntity
 {
     /**
      * @var int
@@ -59,7 +59,7 @@ class Contribute extends AbstractEntity
     protected $id;
 
     /**
-     * Contributes are not annotations in this module, so they are deleted.
+     * Contributions are not annotations in this module, so they are deleted.
      *
      * @var \Omeka\Entity\Resource
      * @ManyToOne(
@@ -73,7 +73,7 @@ class Contribute extends AbstractEntity
     protected $resource;
 
     /**
-     * @todo Allow to keep history of all contributes (ManyToOne)?
+     * @todo Allow to keep history of all contributions (ManyToOne)?
      *
      * @var \Contribute\Entity\Token
      * @OneToOne(
@@ -176,7 +176,7 @@ class Contribute extends AbstractEntity
 
     /**
      * @param string|null $email
-     * @return \Contribute\Entity\Contribute
+     * @return \Contribute\Entity\Contribution
      */
     public function setEmail($email = null)
     {
