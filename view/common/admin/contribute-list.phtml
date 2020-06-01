@@ -3,7 +3,7 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Contribute\Api\Representation\ContributeRepresentation[] $contributes
+ * @var \Contribute\Api\Representation\ContributionRepresentation[] $contributions
  * @var \Contribute\Api\Representation\TokenRepresentation[] $unusedTokens
  * @var string $siteSlug
  */
@@ -17,8 +17,8 @@ $labelInfo = $this->setting('property_label_information');
 
 $values = $resource->values();
 ?>
-<div class="contributes">
-    <?php $totalTokens = $api->search('contribute_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
+<div class="contributions">
+    <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
         <?php if (!$this->setting('contribute_without_token')): ?>
     <div class="no-resources no-tokens">
@@ -28,11 +28,11 @@ $values = $resource->values();
     <?php else: ?>
     <?php $totalExpiredTokens = $api
         ->search(
-            'contribute_tokens',
+            'contribution_tokens',
             ['resource_id' => $resource->id(), 'datetime' => [['field' => 'expire', 'type' => 'lt', 'value' => date('Y-m-d H:i:s')]]]
         )
         ->getTotalResults(); ?>
-    <div class="contribute-token">
+    <div class="contribution-token">
         <p><?= sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens) ?></p>
         <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Contribute\Controller\Admin\Contribute', 'expire-tokens')): ?>
         <?= $hyperlink($translate('Expire all tokens'), $this->url('admin/contribute/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']) ?>
@@ -40,9 +40,9 @@ $values = $resource->values();
     </div>
     <?php endif; ?>
 
-<?php if (empty($contributes)): ?>
-    <div class="no-resources no-contributes">
-        <p><?= $translate('There are no contributes for this resource.') ?></p>
+<?php if (empty($contributions)): ?>
+    <div class="no-resources no-contributions">
+        <p><?= $translate('There are no contributions for this resource.') ?></p>
     </div>
 <?php else: ?>
 <?php
@@ -56,40 +56,40 @@ $adapterName = $mapResourceAdapters[$resourceName];
 $batchEditRight = $this->userIsAllowed($adapterName, 'batch-update');
 $editRight = $resource->userIsAllowed('update');
 ?>
-<?php foreach ($contributes as $contribute): ?>
-<?php $token = $contribute->token(); ?>
-<div class="contribute">
+<?php foreach ($contributions as $contribution): ?>
+<?php $token = $contribution->token(); ?>
+<div class="contribution">
 <table class="tablesaw <?php if ($batchEditRight) echo 'batch-edit'; ?>" data-tablesaw-mode="stack">
     <thead>
         <tr>
             <th>
-                <?= $translate('Contribute') ?>
+                <?= $translate('Contribution') ?>
                 <?php /*
-                <span class="contribute-id">#<?= $contribute->id() ?></span>
+                <span class="contribution-id">#<?= $contribution->id() ?></span>
                 */ ?>
-                <?php if ($email = $contribute->email()): ?>
-                <span class="contribute-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
+                <?php if ($email = $contribution->email()): ?>
+                <span class="contribution-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php endif; ?>
-                <span class="contribute-date"><?= $this->i18n()->dateFormat($contribute->created(), 'medium', 'medium') ?></span>
-                <?php if ($contribute->created() != $contribute->modified()): // Don't use !==. ?>
-                <span class="contribute-date-modified"><?= $translate('(modified)') ?></span>
+                <span class="contribution-date"><?= $this->i18n()->dateFormat($contribution->created(), 'medium', 'medium') ?></span>
+                <?php if ($contribution->created() != $contribution->modified()): // Don't use !==. ?>
+                <span class="contribution-date-modified"><?= $translate('(modified)') ?></span>
                 <?php endif; ?>
                 <?php if ($token): ?>
                 <span> / </span>
-                <span class="contribute-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
+                <span class="contribution-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
                 <?php endif; ?>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
                     class="validate o-icon-validate"
-                    data-validate-url="<?= $escape($contribute->url('validate')) ?>"
+                    data-validate-url="<?= $escape($contribution->url('validate')) ?>"
                     data-status="validate"
                     aria-label="<?= $escape($translate('Validate all values')) ?>"
                     title="<?= $escape($translate('Validate all values')) ?>"></a></span>
                 <span class="single actions"><a href="#"
-                    class="status-toggle o-icon-<?= $contribute->reviewed() ? 'reviewed' : 'unreviewed' ?>"
-                    data-status-toggle-url="<?= $escape($contribute->url('toggle-status')) ?>"
-                    data-status="<?= $contribute->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    class="status-toggle o-icon-<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
+                    data-status="<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
                     aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                     title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
                 <?php if ($token && $token->isExpired()): ?>
@@ -97,21 +97,21 @@ $editRight = $resource->userIsAllowed('update');
                 <?php elseif ($token): ?>
                 <span class="single single-action"><a href="#"
                     class="expire-token o-icon-expire-token"
-                    data-expire-token-url="<?= $escape($contribute->url('expire-token')) ?>"
+                    data-expire-token-url="<?= $escape($contribution->url('expire-token')) ?>"
                     aria-label="<?= $escape($translate('Expire token')) ?>"
                     title="<?= $escape($translate('Expire token')) ?>"></a></span>
                 <?php endif; ?>
                 <?php else: ?>
-                <span class="no-action o-icon-<?= $contribute->reviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
+                <span class="no-action o-icon-<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
                 <?php endif; ?>
             </th>
         </tr>
     </thead>
     <tbody>
-        <tr class="contribute-value">
+        <tr class="contribution-value">
             <td>
 
-<?php $proposal = $contribute->proposalCheck(); ?>
+<?php $proposal = $contribution->proposalCheck(); ?>
 <?php foreach ($proposal as $term => $propositions):
     if (isset($values[$term])):
         $propertyData = $values[$term];
@@ -196,7 +196,7 @@ $editRight = $resource->userIsAllowed('update');
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($contribute->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escape($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -249,7 +249,7 @@ $editRight = $resource->userIsAllowed('update');
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($contribute->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escape($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -295,7 +295,7 @@ $editRight = $resource->userIsAllowed('update');
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($contribute->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escape($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>

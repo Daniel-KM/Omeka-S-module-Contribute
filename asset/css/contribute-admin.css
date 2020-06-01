@@ -1,61 +1,61 @@
 @media screen {
-    header nav .contribute:before {
+    header nav .contribution:before {
         content:"\f044"; /* fas fa-edit */
     }
-    #contribute .no-contributes:before,
-    .contribute .no-resources:before {
+    #contribution .no-contributions:before,
+    .contribution .no-resources:before {
         content:"\f044"; /* far fa-edit */
     }
-    #contribute .no-tokens:before {
+    #contribution .no-tokens:before {
         content:""; /* clock */
     }
-    #contributes .property {
+    #contributions .property {
         display: inherit;
     }
-    #resource-contributes .actions {
+    #resource-contributions .actions {
         float: right;
     }
-    #resource-contributes.empty,
-    #resource-contributes+.no-resources {
+    #resource-contributions.empty,
+    #resource-contributions+.no-resources {
         display:none;
     }
-    #resource-contributes.empty+.no-resources {
+    #resource-contributions.empty+.no-resources {
         display:block;
         padding:0 24px;
     }
-    #resource-contributes.empty+.no-resources:before {
+    #resource-contributions.empty+.no-resources:before {
         content:"\f044"; /* far fa-edit */
     }
-    #resource-contributes tr.delete {
+    #resource-contributions tr.delete {
         background-color:#fcc;
     }
-    .contributes .resource-details .contribute-internal-id {
+    .contributions .resource-details .contribution-internal-id {
         font-size: 0.7em;
     }
 
-    .contribute table .resource-name {
+    .contribution table .resource-name {
         display: inline-block;
         vertical-align: bottom;
         margin-left: .5em;
         opacity: .5;
     }
-    .contribute table .resource-link .resource-name {
+    .contribution table .resource-link .resource-name {
         margin-left: 0;
         opacity: 1;
     }
 
-    .contributes .contribute-public {
+    .contributions .contribution-public {
         font-style: italic;
     }
 
-    .contribute .single.actions {
+    .contribution .single.actions {
         float: right;
     }
-    .contribute .single.actions a::before {
+    .contribution .single.actions a::before {
         text-align: inherit;
     }
-    .contribute .o-icon-users,
-    .contribute .no-action::before {
+    .contribution .o-icon-users,
+    .contribution .no-action::before {
         width: 24px;
         height: 24px;
         line-height: 24px;
@@ -65,103 +65,103 @@
         opacity: .5;
         text-align: inherit;
     }
-    .contribute.meta-group .single.actions,
-    .contribute.meta-group .no-action::before {
+    .contribution.meta-group .single.actions,
+    .contribution.meta-group .no-action::before {
         float: right;
     }
 
-    .contribute.meta-group span,
-    .contribute .meta-group span {
+    .contribution.meta-group span,
+    .contribution .meta-group span {
         display: inline;
         hyphens: auto;
         word-wrap: break-word;
     }
 
-    .contribute.meta-group::before,
-    .contribute .status-toggle::before,
-    .contribute .resource-name::before {
+    .contribution.meta-group::before,
+    .contribution .status-toggle::before,
+    .contribution .resource-name::before {
         display: inline-block;
         font-family: "Font Awesome 5 Free";
         padding-left: 3px;
         padding-right: 3px;
         width: 24px;
     }
-    .contribute .resource-name.item-set::before {
+    .contribution .resource-name.item-set::before {
         content: ""; /* item set */
     }
-    .contribute .resource-name.item::before {
+    .contribution .resource-name.item::before {
         content: ""; /* item */
     }
-    .contribute .resource-name.media::before {
+    .contribution .resource-name.media::before {
         content: ""; /* media */
     }
-    .contribute .o-icon-unreviewed::before {
+    .contribution .o-icon-unreviewed::before {
         color: #FF0000;
         content: ""; /* question */
     }
-    .contribute .o-icon-reviewed::before {
+    .contribution .o-icon-reviewed::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .contribute .o-icon-proposed::before {
+    .contribution .o-icon-proposed::before {
         color: #FFA500;
         content: ""; /* question */
     }
-    .contribute .o-icon-approve::before {
+    .contribution .o-icon-approve::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .contribute .o-icon-unvalidated::before,
-    .contribute .o-icon-unapprove::before {
+    .contribution .o-icon-unvalidated::before,
+    .contribution .o-icon-unapprove::before {
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .contribute .o-icon-validate-value::before,
-    .contribute .o-icon-validate::before {
+    .contribution .o-icon-validate-value::before,
+    .contribution .o-icon-validate::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
     }
-    .contribute .o-icon-validate-value.no-right::before,
-    .contribute .o-icon-validate.no-right::before {
+    .contribution .o-icon-validate-value.no-right::before,
+    .contribution .o-icon-validate.no-right::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
     }
-    .contribute .o-icon-validated::before {
+    .contribution .o-icon-validated::before {
         color: #00FF00;
         content: "\f359"; /* arrow left / equal not available iin 5.0.8 */
     }
-    .contribute .o-icon-validated-value::before {
+    .contribution .o-icon-validated-value::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .contribute .o-icon-unvalidated-value::before {
+    .contribution .o-icon-unvalidated-value::before {
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .contribute .o-icon-expire-token::before {
+    .contribution .o-icon-expire-token::before {
         color: #00FF00;
         content: ""; /* clock */
     }
-    .contribute .o-icon-expired-token::before {
+    .contribution .o-icon-expired-token::before {
         color: #FF0000;
         content: ""; /* clock */
         opacity: 0.4;
     }
-    .contribute .o-icon-no-token::before {
+    .contribution .o-icon-no-token::before {
         color: #00FF00;
         content: ""; /* infinity */
         opacity: 0.4;
     }
-    .contribute .o-icon-unknown-value::before,
-    .contribute .o-icon-not-validable-value::before {
+    .contribution .o-icon-unknown-value::before,
+    .contribution .o-icon-not-validable-value::before {
         color: #FF8800;
         content: ""; /* exclamation */
     }
-    .contribute .o-icon-undefined::before {
+    .contribution .o-icon-undefined::before {
         color: #FF0000;
         content: ""; /* exclamation */
     }
-    .contribute .o-icon-none::before {
+    .contribution .o-icon-none::before {
         color: #FFFFFF;
         content: "";
     }
@@ -183,18 +183,18 @@
         box-shadow: none;
     }
 
-    .contribute .contribute-email,
-    .contribute .contribute-date,
-    .contribute .contribute-date-modified {
+    .contribution .contribution-email,
+    .contribution .contribution-date,
+    .contribution .contribution-date-modified {
         opacity: 0.6;
     }
-    .contribute .contribute-id {
+    .contribution .contribution-id {
         opacity: 0.4;
     }
-    .contribute .original-value {
+    .contribution .original-value {
         opacity: 0.6;
     }
-    .contribute .remove-value {
+    .contribution .remove-value {
        text-decoration: line-through;
     }
 
@@ -237,10 +237,10 @@
 }
 
 @media screen and (max-width: 640px) {
-    fieldset.section>#resource-contributes.empty+.no-resources {
+    fieldset.section>#resource-contributions.empty+.no-resources {
         display:none;
     }
-    fieldset.section.mobile-active>#resource-contributes.empty+.no-resources {
+    fieldset.section.mobile-active>#resource-contributions.empty+.no-resources {
         display:block;
         margin-top:48px;
     }

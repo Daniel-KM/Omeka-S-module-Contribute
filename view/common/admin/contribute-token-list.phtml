@@ -30,7 +30,7 @@ $adapterName = $mapResourceAdapters[$resourceName];
 $batchEditRight = $this->userIsAllowed($adapterName, 'batch-update');
 $editRight = $resource->userIsAllowed('update');
 ?>
-<div class="contribute contribute-token">
+<div class="contribution contribution-token">
 <table class="tablesaw <?php if ($batchEditRight) echo 'batch-edit'; ?>" data-tablesaw-mode="stack">
     <thead>
         <tr>
@@ -43,11 +43,11 @@ $editRight = $resource->userIsAllowed('update');
         <?php foreach ($tokens as $token): ?>
         <tr>
             <td>
-                <span class="contribute-token"><?= $token->siteUrl($siteSlug, true) ?></span>
+                <span class="contribution-token"><?= $token->siteUrl($siteSlug, true) ?></span>
                 <?php if ($email = $token->email()): ?>
-                <span class="contribute-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
+                <span class="contribution-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php else: ?>
-                <span class="contribute-email"><?= $translate('[no email]') ?></span>
+                <span class="contribution-email"><?= $translate('[no email]') ?></span>
                 <?php endif; ?>
                 <?php if ($token->isExpired()): ?>
                 <span class="single actions no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>

@@ -3,7 +3,7 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Contribute\Api\Representation\ContributeRepresentation|null $contribute
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribute
  * @var array $fields
  * @var string $action "edit"
  * @var string $submitLabel
@@ -79,7 +79,7 @@ $labelInfo = $this->setting('property_label_information');
         $index = 0;
         $property = $field['property'];
         // Don't display empty values that are not fillable.
-        if (empty($field['contributes']) && !$field['fillable']) continue;
+        if (empty($field['contributions']) && !$field['fillable']) continue;
         ?>
 
     <div class="property mb-3">
@@ -125,7 +125,7 @@ $labelInfo = $this->setting('property_label_information');
         <?php // Editable fields, that may have been edited or not. ?>
         <?php else: ?>
 
-           <?php foreach ($field['contributes'] as $fieldContribute):
+           <?php foreach ($field['contributions'] as $fieldContribute):
                 /** @var \Omeka\Api\Representation\ValueRepresentation $value */
                 $value = $fieldContribute['original']['value'];
                 if (!$value && !$field['fillable']) continue;
