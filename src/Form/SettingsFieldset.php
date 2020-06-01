@@ -146,7 +146,7 @@ info@example2.org',
                     'id' => 'correction_properties_queries',
                     'rows' => 5,
                     'placeholder' => 'dcterms:subject = item_set_id[]=12
-dcterms:creator = resource_class_id[]=94', // @translate
+dcterms:creator = resource_class_id[]=94',
                 ],
             ])
 

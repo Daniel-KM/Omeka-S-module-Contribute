@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-30 00:00+0200\n"
+"POT-Creation-Date: 2020-05-11 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,8 +61,9 @@ msgid "Expired"
 msgstr ""
 
 #: src/Controller/Admin/CorrectionController.php:317
-#: view/common/admin/correction-list.phtml:181
-#: view/common/admin/correction-list.phtml:226
+#: view/common/admin/correction-list.phtml:191
+#: view/common/admin/correction-list.phtml:244
+#: view/common/admin/correction-list.phtml:290
 msgid "Validated"
 msgstr ""
 
@@ -70,15 +71,15 @@ msgstr ""
 msgid "Validated value"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:527
+#: src/Controller/Admin/CorrectionController.php:593
 msgid "Unauthorized access."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:532
+#: src/Controller/Admin/CorrectionController.php:598
 msgid "Resource not found."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:537
+#: src/Controller/Admin/CorrectionController.php:603
 msgid "An internal error occurred."
 msgstr ""
 
@@ -147,23 +148,26 @@ msgstr ""
 msgid "Expire token"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:183
-#: view/common/admin/correction-list.phtml:228
+#: view/common/admin/correction-list.phtml:193
+#: view/common/admin/correction-list.phtml:246
+#: view/common/admin/correction-list.phtml:292
 msgid "Not validable"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:185
-#: view/common/admin/correction-list.phtml:230
+#: view/common/admin/correction-list.phtml:195
+#: view/common/admin/correction-list.phtml:248
+#: view/common/admin/correction-list.phtml:294
 msgid "No right to write"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:191
-#: view/common/admin/correction-list.phtml:236
+#: view/common/admin/correction-list.phtml:201
+#: view/common/admin/correction-list.phtml:254
+#: view/common/admin/correction-list.phtml:300
 #, php-format
 msgid "Validate this value (%s)"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:260
+#: view/common/admin/correction-list.phtml:324
 msgid "Unused tokens"
 msgstr ""
 
@@ -192,16 +196,37 @@ msgstr ""
 msgid "%1$sLogin%2$s or click your token link to correct this record."
 msgstr ""
 
-#: view/correction/site/correction/edit.phtml:38
+#: view/correction/site/correction/edit.phtml:47
 #, php-format
 msgid "Correct %s"
 msgstr ""
 
-#: view/correction/site/correction/edit.phtml:48
+#: view/correction/site/correction/edit.phtml:57
 msgid "Correct"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:230
+#: view/correction/site/correction/form.phtml:193
+msgid "private"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:220
+#: view/correction/site/correction/form.phtml:319
+msgid "Select a resource…"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:319
+msgid "Add linked resource"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:323
+msgid "Add URI"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:326
+msgid "Add linked data"
+msgstr ""
+
+#: view/correction/site/correction/form.phtml:344
 msgid "Go back to resource"
 msgstr ""
 
@@ -300,25 +325,37 @@ msgstr ""
 msgid "Literal"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:125
+#: src/Form/SettingsFieldset.php:129
 msgid "Uri"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:137
+#: src/Form/SettingsFieldset.php:130
+msgid "Value suggest"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:142
+msgid "Queries for value resources"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:143
+msgid "Allows to limit options in a resource select."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:157
 msgid "Allow correction of resources without a token"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:147
+#: src/Form/SettingsFieldset.php:167
 msgid "Days for token to expire"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:148
+#: src/Form/SettingsFieldset.php:168
 msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:154
+#: src/Form/SettingsFieldset.php:174
 msgid "90"
 msgstr ""
 
@@ -351,7 +388,7 @@ msgstr ""
 msgid "A user has corrected resource #%1$d (%2$s)."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:701
+#: src/Controller/Site/CorrectionController.php:890
 msgid "Forbidden access."
 msgstr ""
 
@@ -451,42 +488,35 @@ msgstr ""
 #: src/Generic/InstallResources.php:241
 #, php-format
 msgid ""
-"A custom vocab named \"%s\" exists and has not the needed terms: rename it "
-"or remove it before installing this module."
-msgstr ""
-
-#: src/Generic/InstallResources.php:251
-#, php-format
-msgid ""
 "A custom vocab named \"%s\" exists and has not the needed language (\"%s\"): "
 "check it or remove it before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:291
+#: src/Generic/InstallResources.php:290
 #, php-format
 msgid "The vocabulary \"%s\" was already installed and was kept."
 msgstr ""
 
-#: src/Generic/InstallResources.php:301
+#: src/Generic/InstallResources.php:300
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists "
 "with the same prefix. Resolve the conflict before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:321
+#: src/Generic/InstallResources.php:320
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\" and the associated "
 "properties: %s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:351
+#: src/Generic/InstallResources.php:350
 #, php-format
 msgid "The resource template named \"%s\" is already available and is skipped."
 msgstr ""
 
-#: src/Generic/InstallResources.php:376 src/Generic/InstallResources.php:509
+#: src/Generic/InstallResources.php:375 src/Generic/InstallResources.php:536
 #, php-format
 msgid "The custom vocab named \"%s\" is not available."
 msgstr ""
