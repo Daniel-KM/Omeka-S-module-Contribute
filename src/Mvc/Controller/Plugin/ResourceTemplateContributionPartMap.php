@@ -3,7 +3,7 @@ namespace Contribute\Mvc\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
-class ResourceTemplateContributePartMap extends AbstractPlugin
+class ResourceTemplateContributionPartMap extends AbstractPlugin
 {
     /**
      * Get the contribute mapping of a resource template.

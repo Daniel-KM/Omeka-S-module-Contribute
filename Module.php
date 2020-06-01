@@ -24,27 +24,12 @@ class Module extends AbstractModule
         $this->addAclRules();
     }
 
-    protected function preInstall()
-    {
-        $services = $this->getServiceLocator();
-        $translator = $services->get('MvcTranslator');
-        $messenger = new Messenger;
-
-        $message = new Message(sprintf(
-            $translator->translate('This module is deprecated and will not receive new improvements an
-y more. The module %1$sContribute%2$s replaces it.'), // @translate
-            '<a href="https://github.com/Daniel-KM/Omeka-S-module-Contribute" target="_blank">', '</a>'
-        ));
-        $message->setEscapeHtml(false);
-        $messenger->addWarning($message);
-    }
-
     protected function postInstall()
     {
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
 
-        $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Contribute'])->getContent();
+        $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Contribution'])->getContent();
         $templateData = $settings->get('contribute_resource_template_data', []);
         $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
         $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
@@ -64,7 +49,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $installResources = new \Generic\InstallResources($services);
         $installResources = $installResources();
 
-        $installResources->removeResourceTemplate('Contribute');
+        $installResources->removeResourceTemplate('Contribution');
     }
 
     /**
@@ -75,7 +60,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         /** @var \Omeka\Permissions\Acl $acl */
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
 
-        // Users who can edit resources can update contributes.
+        // Users who can edit resources can update contributions.
         // A check is done on the specific resource for some roles.
         $roles = [
             \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
@@ -97,12 +82,12 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
             ->allow(
                 null,
-                [\Contribute\Api\Adapter\ContributeAdapter::class],
+                [\Contribute\Api\Adapter\ContributionAdapter::class],
                 ['search', 'create', 'read', 'update']
             )
             ->allow(
                 null,
-                [\Contribute\Entity\Contribute::class],
+                [\Contribute\Entity\Contribution::class],
                 ['create', 'read', 'update']
             )
 
@@ -284,17 +269,17 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $translate = $view->plugin('translate');
         $escapeAttr = $view->plugin('escapeHtmlAttr');
         $link = $view->hyperlink(
-            $translate('Create contribute token'), // @translate
+            $translate('Create contribution token'), // @translate
             $view->url('admin/contribute/default', ['action' => 'create-token'], ['query' => $query])
         );
-        $output =  '<div class="meta-group create_contribute">'
+        $output =  '<div class="meta-group create_contribution_token">'
             . '<h4>' . $translate('Contribute') . '</h4>'
-            . '<div class="value" id="create_contribute_token">' . $link . '</div>'
-            . '<div id="create_contribute_token_dialog" class="modal" style="display:none;">'
+            . '<div class="value" id="create_contribution_token">' . $link . '</div>'
+            . '<div id="create_contribution_token_dialog" class="modal" style="display:none;">'
             . '<div class="modal-content">'
-            . '<span class="close" id="create_contribute_token_dialog_close">&times;</span>'
-            . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_contribute_token_dialog_email"/>'
-            . '<input type="button" value="' . $escapeAttr($translate('Create token')) . '" id="create_contribute_token_dialog_go"/>'
+            . '<span class="close" id="create_contribution_token_dialog_close">&times;</span>'
+            . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_contribution_token_dialog_email"/>'
+            . '<input type="button" value="' . $escapeAttr($translate('Create token')) . '" id="create_contribution_token_dialog_go"/>'
             . '</div>'
             . '</div>'
             . '</div>';
@@ -309,7 +294,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
     public function appendTab(Event $event)
     {
         $sectionNav = $event->getParam('section_nav');
-        $sectionNav['contribute'] = 'Contributes'; // @translate
+        $sectionNav['contribution'] = 'Contributions'; // @translate
         $event->setParam('section_nav', $sectionNav);
     }
 
@@ -326,8 +311,8 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
         $resource = $view->resource;
 
-        $contributes = $api
-            ->search('contributes', [
+        $contributions = $api
+            ->search('contributions', [
                 'resource_id' => $resource->id(),
                 'sort_by' => 'modified',
                 'sort_order' => 'DESC',
@@ -335,7 +320,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
             ->getContent();
 
         $unusedTokens = $api
-            ->search('contribute_tokens', [
+            ->search('contribution_tokens', [
                 'resource_id' => $resource->id(),
                 'used' => false,
             ])
@@ -345,10 +330,10 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $siteSlug = $plugins->get('defaultSiteSlug');
         $siteSlug = $siteSlug();
 
-        echo '<div id="contribute" class="section">';
+        echo '<div id="contribution" class="section">';
         echo $view->partial('common/admin/contribute-list', [
             'resource' => $view->resource,
-            'contributes' => $contributes,
+            'contributions' => $contributions,
             'unusedTokens' => $unusedTokens,
             'siteSlug' => $siteSlug,
         ]);
@@ -366,12 +351,12 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $translate = $view->plugin('translate');
         $resource = $event->getParam('entity');
         $total = $view->api()
-            ->search('contributes', [
+            ->search('contributions', [
                 'resource_id' => $resource->id(),
             ])
             ->getTotalResults();
         $totalNotReviewed = $view->api()
-            ->search('contributes', [
+            ->search('contributions', [
                 'resource_id' => $resource->id(),
                 'reviewed' => '0',
             ])
@@ -379,13 +364,13 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
         // TODO
         echo '<div class="meta-group"><h4>'
-            . $translate('Contribute') // @translate
+            . $translate('Contributions') // @translate
             . '</h4><div class="value">';
         if ($total) {
-            echo sprintf($translate('%d contributes (%d not reviewed)'), $total, $totalNotReviewed); // @translate
+            echo sprintf($translate('%d contributions (%d not reviewed)'), $total, $totalNotReviewed); // @translate
         } else {
             echo '<em>'
-                . $translate('No contribute') // @translate
+                . $translate('No contribution') // @translate
                 . '</em>';
         }
         echo '</div></div>';

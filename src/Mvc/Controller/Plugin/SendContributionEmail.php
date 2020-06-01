@@ -9,7 +9,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 /**
  * Send an email.
  */
-class SendContributeEmail extends AbstractPlugin
+class SendContributionEmail extends AbstractPlugin
 {
     /**
      * @var MailerService

@@ -7,7 +7,7 @@ use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
 
-class ContributeAdapter extends AbstractEntityAdapter
+class ContributionAdapter extends AbstractEntityAdapter
 {
     protected $sortFields = [
         'id' => 'id',
@@ -21,29 +21,29 @@ class ContributeAdapter extends AbstractEntityAdapter
 
     public function getResourceName()
     {
-        return 'contributes';
+        return 'contributions';
     }
 
     public function getRepresentationClass()
     {
-        return \Contribute\Api\Representation\ContributeRepresentation::class;
+        return \Contribute\Api\Representation\ContributionRepresentation::class;
     }
 
     public function getEntityClass()
     {
-        return \Contribute\Entity\Contribute::class;
+        return \Contribute\Entity\Contribution::class;
     }
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
     {
         // TODO Use shouldHydrate() and validateEntity().
-        /** @var \Contribute\Entity\Contribute $entity */
+        /** @var \Contribute\Entity\Contribution $entity */
         $data = $request->getContent();
         if (Request::CREATE === $request->getOperation()) {
             $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
             $token = empty($data['o-module-contribute:token'])
                 ? null
-                : $this->getAdapter('contribute_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
+                : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
             $email = empty($data['o:email']) ? null : $data['o:email'];
             $reviewed = !empty($data['o-module-contribute:reviewed']);
             $proposal = empty($data['o-module-contribute:proposal'])

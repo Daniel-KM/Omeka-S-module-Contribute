@@ -20,7 +20,7 @@ class TokenAdapter extends AbstractEntityAdapter
 
     public function getResourceName()
     {
-        return 'contribute_tokens';
+        return 'contribution_tokens';
     }
 
     public function getRepresentationClass()
@@ -116,14 +116,14 @@ class TokenAdapter extends AbstractEntityAdapter
             $resourceAlias = $this->createAlias();
             if ($query['used']) {
                 $qb->innerJoin(
-                    \Contribute\Entity\Contribute::class,
+                    \Contribute\Entity\Contribution::class,
                     $resourceAlias,
                     'WITH',
                     $expr->eq($resourceAlias . '.token', 'omeka_root.id')
                 );
             } else {
                 $qb->leftJoin(
-                    \Contribute\Entity\Contribute::class,
+                    \Contribute\Entity\Contribution::class,
                     $resourceAlias,
                     'WITH',
                     $expr->eq($resourceAlias . '.token', 'omeka_root.id')

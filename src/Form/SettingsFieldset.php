@@ -17,7 +17,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_notify',
                 'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => 'Default emails to notify contributes', // @translate
+                    'label' => 'Default emails to notify contributions', // @translate
                     'info' => 'The list of emails to notify when a user edits a resource, one by row.', // @translate
                 ],
                 'attributes' => [

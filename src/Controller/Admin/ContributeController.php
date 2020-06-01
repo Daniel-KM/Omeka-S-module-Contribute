@@ -1,7 +1,7 @@
 <?php
 namespace Contribute\Controller\Admin;
 
-use Contribute\Api\Representation\ContributeRepresentation;
+use Contribute\Api\Representation\ContributionRepresentation;
 use DateInterval;
 use DateTime;
 use Omeka\Stdlib\Message;
@@ -87,7 +87,7 @@ class ContributeController extends AbstractActionController
         $email = trim($params['email']);
         if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->messenger()->addError(new Message(
-                'You set the optional email "%s" to create a contribute token, but it is not well-formed.', // @translate
+                'You set the optional email "%s" to create a contribution token, but it is not well-formed.', // @translate
                 $email
             ));
             return $params['redirect']
@@ -109,7 +109,7 @@ class ContributeController extends AbstractActionController
             /** @var \Contribute\Api\Representation\TokenRepresentation $token */
             $token = $api
                 ->create(
-                    'contribute_tokens',
+                    'contribution_tokens',
                     [
                         'o:resource' => ['o:id' => $resourceId],
                         'o:email' => $email,
@@ -129,7 +129,7 @@ class ContributeController extends AbstractActionController
         }
 
         $message = new Message(
-            'Created %1$s contribute tokens (email: %2$s, duration: %3$s): %4$s', // @translate
+            'Created %1$s contribution tokens (email: %2$s, duration: %3$s): %4$s', // @translate
             $count,
             $email ?: new Message('none'), // @translate
             $tokenDuration
@@ -161,7 +161,7 @@ class ContributeController extends AbstractActionController
         $resourceType = $resource->getControllerName();
         $response = $api
             ->search(
-                'contribute_tokens',
+                'contribution_tokens',
                 [
                     'resource_id' => $id,
                     'datetime' => [['field' => 'expire', 'type' => 'gte', 'value' => date('Y-m-d H:i:s')], ['joiner' => 'or', 'field' => 'expire', 'type' => 'nex']],
@@ -187,7 +187,7 @@ class ContributeController extends AbstractActionController
 
         $response = $api
             ->batchUpdate(
-                'contribute_tokens',
+                'contribution_tokens',
                 $ids,
                 ['o-module-contribute:expire' => 'now']
             );
@@ -205,8 +205,8 @@ class ContributeController extends AbstractActionController
 
         // Only people who can edit the resource can update the status.
         $id = $this->params('id');
-        /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
-        $contribute = $this->api()->read('contributes', $id)->getContent();
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
+        $contribute = $this->api()->read('contributions', $id)->getContent();
         if (!$contribute->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
@@ -216,7 +216,7 @@ class ContributeController extends AbstractActionController
         $data = [];
         $data['o-module-contribute:reviewed'] = !$isReviewed;
         $response = $this->api()
-            ->update('contributes', $id, $data, [], ['isPartial' => true]);
+            ->update('contributions', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
             return $this->jsonErrorUpdate();
         }
@@ -245,13 +245,13 @@ class ContributeController extends AbstractActionController
                 return $this->jsonErrorNotFound();
             }
             /** @var \Contribute\Api\Representation\TokenRepresentation $token */
-            $token = $this->api()->searchOne('contribute_tokens', ['token' => $token])->getContent();
+            $token = $this->api()->searchOne('contribution_tokens', ['token' => $token])->getContent();
             if (!$token) {
                 return $this->jsonErrorNotFound();
             }
         } else {
-            /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
-            $contribute = $this->api()->read('contributes', $id)->getContent();
+            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
+            $contribute = $this->api()->read('contributions', $id)->getContent();
             $token = $contribute->token();
         }
 
@@ -270,7 +270,7 @@ class ContributeController extends AbstractActionController
 
         if (!$token->isExpired()) {
             $response = $this->api()
-                ->update('contribute_tokens', $token->id(), ['o-module-contribute:expire' => 'now'], [], ['isPartial' => true]);
+                ->update('contribution_tokens', $token->id(), ['o-module-contribute:expire' => 'now'], [], ['isPartial' => true]);
             if (!$response) {
                 return $this->jsonErrorUpdate();
             }
@@ -293,8 +293,8 @@ class ContributeController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
-        $contribute = $this->api()->read('contributes', $id)->getContent();
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
+        $contribute = $this->api()->read('contributions', $id)->getContent();
         if (!$contribute->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
@@ -304,7 +304,7 @@ class ContributeController extends AbstractActionController
         $data = [];
         $data['o-module-contribute:reviewed'] = true;
         $response = $this->api()
-            ->update('contributes', $id, $data, [], ['isPartial' => true]);
+            ->update('contributions', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
             return $this->jsonErrorUpdate();
         }
@@ -331,8 +331,8 @@ class ContributeController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
-        $contribute = $this->api()->read('contributes', $id)->getContent();
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
+        $contribute = $this->api()->read('contributions', $id)->getContent();
         if (!$contribute->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
@@ -369,14 +369,14 @@ class ContributeController extends AbstractActionController
             'fillable' => [],
         ];
 
-        $contributePartMap = $this->resourceTemplateContributePartMap($resourceTemplateId);
-        foreach ($contributePartMap['corrigible'] as $term) {
+        $contributionPartMap = $this->resourceTemplateContributionPartMap($resourceTemplateId);
+        foreach ($contributionPartMap['corrigible'] as $term) {
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if ($property) {
                 $result['corrigible'][$property->id()] = $term;
             }
         }
-        foreach ($contributePartMap['fillable'] as $term) {
+        foreach ($contributionPartMap['fillable'] as $term) {
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if ($property) {
                 $result['fillable'][$property->id()] = $term;
@@ -393,11 +393,11 @@ class ContributeController extends AbstractActionController
      *
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      *
-     * @param ContributeRepresentation $contribute
+     * @param ContributionRepresentation $contribute
      * @param string $term
      * @param int $proposedKey
      */
-    protected function validateContribute(ContributeRepresentation $contribute, $term = null, $proposedKey = null)
+    protected function validateContribute(ContributionRepresentation $contribute, $term = null, $proposedKey = null)
     {
         $editable = $contribute->editableData();
         if (!$editable->isEditable()) {

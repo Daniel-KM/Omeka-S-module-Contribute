@@ -1,7 +1,7 @@
 <?php
 namespace Contribute\Controller\Site;
 
-use Contribute\Api\Representation\ContributeRepresentation;
+use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Form\ContributeForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 // use Omeka\Form\ResourceForm;
@@ -47,12 +47,12 @@ class ContributeController extends AbstractActionController
 
         if ($token) {
             $contribute = $api
-                ->searchOne('contributes', ['resource_id' => $resourceId, 'token_id' => $token->id()])
+                ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
         } else {
             $contribute = $api
-                ->searchOne('contributes', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], true);
         }
@@ -89,20 +89,20 @@ class ContributeController extends AbstractActionController
                         'o-module-contribute:reviewed' => false,
                         'o-module-contribute:proposal' => $proposal,
                     ];
-                    $response = $this->api($form)->create('contributes', $data);
+                    $response = $this->api($form)->create('contributions', $data);
                     if ($response) {
-                        $this->messenger()->addSuccess('Contributes successfully submitted!'); // @translate
-                        $this->prepareContributeEmail($response->getContent());
+                        $this->messenger()->addSuccess('Contributions successfully submitted!'); // @translate
+                        $this->prepareContributionEmail($response->getContent());
                     }
                 } elseif ($proposal !== $contribute->proposal()) {
                     $data = [
                         'o-module-contribute:reviewed' => false,
                         'o-module-contribute:proposal' => $proposal,
                     ];
-                    $response = $this->api($form)->update('contributes', $contribute->id(), $data, [], ['isPartial' => true]);
+                    $response = $this->api($form)->update('contributions', $contribute->id(), $data, [], ['isPartial' => true]);
                     if ($response) {
-                        $this->messenger()->addSuccess('Contributes successfully submitted!'); // @translate
-                        $this->prepareContributeEmail($response->getContent());
+                        $this->messenger()->addSuccess('Contributions successfully submitted!'); // @translate
+                        $this->prepareContributionEmail($response->getContent());
                     }
                 } else {
                     $this->messenger()->addWarning('No change.'); // @translate
@@ -131,7 +131,7 @@ class ContributeController extends AbstractActionController
         ]);
     }
 
-    protected function prepareContributeEmail(ContributeRepresentation $contribute)
+    protected function prepareContributionEmail(ContributionRepresentation $contribute)
     {
         $emails = $this->settings()->get('contribute_notify', []);
         if (empty($emails)) {
@@ -153,7 +153,7 @@ class ContributeController extends AbstractActionController
                 $contribute->resource()->displayTitle()
             ) . '</p>';
         }
-        $this->sendContributeEmail($emails, $this->translate('[Omeka Contribute] New contribute'), $message); // @translate
+        $this->sendContributionEmail($emails, $this->translate('[Omeka Contribute] New contribute'), $message); // @translate
     }
 
     /**
@@ -162,12 +162,12 @@ class ContributeController extends AbstractActionController
      * The order is the one of the resource template, else the order of terms in
      * the database (Dublin Core first, bibo, foaf, then specific terms).
      *
-     * Some contributes may not have the matching fields: it means that the
+     * Some contributions may not have the matching fields: it means that the
      * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
      * properties, and four more keys, corrigible, fillable, datatype and
-     * contributes.
+     * contributions.
      *
      * <code>
      * array(
@@ -182,7 +182,7 @@ class ContributeController extends AbstractActionController
      *     'values' => array(
      *       {ValueRepresentation}, …
      *     ),
-     *     'contributes' => array(
+     *     'contributions' => array(
      *       array(
      *         'type' => {string},
      *         'original' => array(
@@ -207,10 +207,10 @@ class ContributeController extends AbstractActionController
      * @return array
      *
      * @param AbstractResourceEntityRepresentation $resource
-     * @param ContributeRepresentation $contribute
+     * @param ContributionRepresentation $contribute
      * @return array
      */
-    protected function prepareFields(AbstractResourceEntityRepresentation $resource, ContributeRepresentation $contribute = null)
+    protected function prepareFields(AbstractResourceEntityRepresentation $resource, ContributionRepresentation $contribute = null)
     {
         $fields = [];
 
@@ -223,7 +223,7 @@ class ContributeController extends AbstractActionController
             'fillable' => false,
             'datatypes' => [],
             'values' => [],
-            'contributes' => [],
+            'contributions' => [],
         ];
 
         /** @var \Contribute\Mvc\Controller\Plugin\EditableData $editable */
@@ -250,7 +250,7 @@ class ContributeController extends AbstractActionController
                     'fillable' => $editable->isTermFillable($term),
                     'datatypes' => $editable->datatypeTerm($term),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
-                    'contributes' => [],
+                    'contributions' => [],
                 ];
             }
 
@@ -264,7 +264,7 @@ class ContributeController extends AbstractActionController
                         $fields[$term]['corrigible'] = false;
                         $fields[$term]['fillable'] = false;
                         $fields[$term]['datatypes'] = [];
-                        $fields[$term]['contributes'] = [];
+                        $fields[$term]['contributions'] = [];
                         $fields[$term] = array_replace($defaultField, $fields[$term]);
                     }
                 }
@@ -282,7 +282,7 @@ class ContributeController extends AbstractActionController
                     $fields[$term]['corrigible'] = $editable->isTermCorrigible($term);
                     $fields[$term]['fillable'] = $editable->isTermFillable($term);
                     $fields[$term]['datatypes'] = $editable->datatypeTerm($term);
-                    $fields[$term]['contributes'] = [];
+                    $fields[$term]['contributions'] = [];
                     $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
             }
@@ -300,14 +300,14 @@ class ContributeController extends AbstractActionController
                             'fillable' => true,
                             'datatypes' => $editable->datatypeTerm($term),
                             'values' => [],
-                            'contributes' => [],
+                            'contributions' => [],
                         ];
                     }
                 }
             }
         }
 
-        // Initialize contributes with existing values, then append contributes.
+        // Initialize contributions with existing values, then append contributions.
         foreach ($fields as $term => $field) {
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($field['values'] as $value) {
@@ -331,7 +331,7 @@ class ContributeController extends AbstractActionController
                     $uri = null;
                     $label = null;
                 }
-                $fields[$term]['contributes'][] = [
+                $fields[$term]['contributions'][] = [
                     // The type cannot be changed.
                     'type' => $type,
                     'original' => [
@@ -386,12 +386,12 @@ class ContributeController extends AbstractActionController
             return $fields;
         }
 
-        // Fill the proposed contributes, according to the original value.
+        // Fill the proposed contributions, according to the original value.
         foreach ($fields as $term => &$field) {
             if (!isset($proposals[$term])) {
                 continue;
             }
-            foreach ($field['contributes'] as &$fieldContribute) {
+            foreach ($field['contributions'] as &$fieldContribute) {
                 $proposed = null;
                 $type = $fieldContribute['type'];
                 if (!$editable->isTermDatatype($term, $type)) {
@@ -460,13 +460,13 @@ class ContributeController extends AbstractActionController
         unset($field, $fieldContribute);
 
         // Fill the proposed contribute, according to the existing values: some
-        // contributes may have been accepted or the resource updated, so check
-        // if there are remaining contributes that were validated.
+        // contributions may have been accepted or the resource updated, so check
+        // if there are remaining contributions that were validated.
         foreach ($fields as $term => &$field) {
             if (!isset($proposals[$term])) {
                 continue;
             }
-            foreach ($field['contributes'] as &$fieldContribute) {
+            foreach ($field['contributions'] as &$fieldContribute) {
                 $proposed = null;
                 $type = $fieldContribute['type'];
                 if (!$editable->isTermDatatype($term, $type)) {
@@ -534,7 +534,7 @@ class ContributeController extends AbstractActionController
         }
         unset($field, $fieldContribute);
 
-        // Append only remaining contributes that are fillable.
+        // Append only remaining contributions that are fillable.
         // Other ones are related to an older config.
         $proposals = array_intersect_key(array_filter($proposals), $editable->fillableProperties());
         foreach ($proposals as $term => $termProposal) {
@@ -563,7 +563,7 @@ class ContributeController extends AbstractActionController
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
-                    $fields[$term]['contributes'][] = [
+                    $fields[$term]['contributions'][] = [
                         'type' => $type,
                         'original' => [
                             'value' => null,
@@ -580,7 +580,7 @@ class ContributeController extends AbstractActionController
                         ],
                     ];
                 } elseif (strtok($type, ':') === 'resource') {
-                    $fields[$term]['contributes'][] = [
+                    $fields[$term]['contributions'][] = [
                         'type' => $type,
                         'original' => [
                             'value' => null,
@@ -597,7 +597,7 @@ class ContributeController extends AbstractActionController
                         ],
                     ];
                 } else {
-                    $fields[$term]['contributes'][] = [
+                    $fields[$term]['contributions'][] = [
                         'type' => 'literal',
                         'original' => [
                             'value' => null,

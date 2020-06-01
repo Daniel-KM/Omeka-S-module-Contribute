@@ -58,9 +58,9 @@ class EditableData extends AbstractPlugin
 
         if ($resourceTemplate) {
             $this->data['template'] = $resourceTemplate;
-            $contributePartMap = $controller->resourceTemplateContributePartMap($resourceTemplate->id());
-            $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($contributePartMap['corrigible']));
-            $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributePartMap['fillable']));
+            $contributionPartMap = $controller->resourceTemplateContributionPartMap($resourceTemplate->id());
+            $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['corrigible']));
+            $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['fillable']));
             foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
                 $term = $resourceTemplateProperty->property()->term();
                 $datatype = $resourceTemplateProperty->dataType();

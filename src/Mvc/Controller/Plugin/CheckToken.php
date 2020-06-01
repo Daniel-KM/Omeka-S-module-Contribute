@@ -24,14 +24,14 @@ class CheckToken extends AbstractPlugin
 
         /** @var \Contribute\Api\Representation\TokenRepresentation $token */
         $token = $controller->api()
-            ->searchOne('contribute_tokens', ['token' => $token, 'resource_id' => $resource->id()])
+            ->searchOne('contribution_tokens', ['token' => $token, 'resource_id' => $resource->id()])
             ->getContent();
         if (empty($token)) {
             return false;
         }
 
         // Update the token with last accessed time.
-        $controller->api()->update('contribute_tokens', $token->id(), ['o-module-contribute:accessed' => 'now'], [], ['isPartial' => true]);
+        $controller->api()->update('contribution_tokens', $token->id(), ['o-module-contribute:accessed' => 'now'], [], ['isPartial' => true]);
 
         // TODO Add a message for expiration.
         if ($token->isExpired()) {

@@ -3,7 +3,7 @@ namespace Contribute\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
-class ContributeRepresentation extends AbstractEntityRepresentation
+class ContributionRepresentation extends AbstractEntityRepresentation
 {
     public function getControllerName()
     {
@@ -12,7 +12,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
 
     public function getJsonLdType()
     {
-        return 'o-module-contribute:Contribute';
+        return 'o-module-contribute:Contribution';
     }
 
     public function getJsonLd()
@@ -61,7 +61,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
      */
     public function token()
     {
-        return $this->getAdapter('contribute_tokens')
+        return $this->getAdapter('contribution_tokens')
             ->getRepresentation($this->resource->getToken());
     }
 
@@ -106,7 +106,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get all proposed contributes for a term.
+     * Get all proposed contributions for a term.
      *
      * @param string $term
      * @return array
@@ -120,7 +120,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get a specific proposed contribute for a term.
+     * Get a specific proposed contribution for a term.
      *
      * @param string $term
      * @param string $original
@@ -143,7 +143,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get a specific proposed contribute uri for a term.
+     * Get a specific proposed contribution uri for a term.
      *
      * @param string $term
      * @param string $original
@@ -200,7 +200,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
-        //  TODO Manage contribute of non literal values. Remove uri?
+        //  TODO Manage contribution of non literal values. Remove uri?
         $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
         foreach ($values as $value) {
             if ($value->value() === $string) {
@@ -262,7 +262,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Check proposed contribute against the current resource.
+     * Check proposed contribution against the current resource.
      *
      * @return array
      */
@@ -281,7 +281,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
             $isCorrigible = $editable->isTermCorrigible($term);
             $isFillable = $editable->isTermFillable($term);
             if (!$isCorrigible && !$isFillable) {
-                // Skipped in the case options changed between contributes and moderation.
+                // Skipped in the case options changed between contributions and moderation.
                 // continue;
             }
 

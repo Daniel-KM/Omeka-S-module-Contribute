@@ -4,8 +4,8 @@ namespace Contribute;
 return [
     'api_adapters' => [
         'invokables' => [
-            'contributes' => Api\Adapter\ContributeAdapter::class,
-            'contribute_tokens' => Api\Adapter\TokenAdapter::class,
+            'contributions' => Api\Adapter\ContributionAdapter::class,
+            'contribution_tokens' => Api\Adapter\TokenAdapter::class,
         ],
     ],
     'entity_manager' => [
@@ -45,12 +45,12 @@ return [
         'invokables' => [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
             'editableData' => Mvc\Controller\Plugin\EditableData::class,
-            'resourceTemplateContributePartMap' => Mvc\Controller\Plugin\ResourceTemplateContributePartMap::class,
+            'resourceTemplateContributionPartMap' => Mvc\Controller\Plugin\ResourceTemplateContributionPartMap::class,
         ],
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
             'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
-            'sendContributeEmail' => Service\ControllerPlugin\SendContributeEmailFactory::class,
+            'sendContributionEmail' => Service\ControllerPlugin\SendContributionEmailFactory::class,
         ],
     ],
     'router' => [
