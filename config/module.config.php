@@ -126,8 +126,8 @@ return [
         ],
     ],
     'js_translate_strings' => [
-        'Prepare tokens to correct selected', // @translate
-        'Prepare tokens to correct all', // @translate
+        'Prepare tokens to edit selected', // @translate
+        'Prepare tokens to edit all', // @translate
     ],
     'blocksdisposition' => [
         'views' => [

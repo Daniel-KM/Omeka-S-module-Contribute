@@ -18,7 +18,7 @@ class SettingsFieldset extends Fieldset
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Default emails to notify contributes', // @translate
-                    'info' => 'The list of emails to notify when a user corrects a resource, one by row.', // @translate
+                    'info' => 'The list of emails to notify when a user edits a resource, one by row.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'contribute_notify',
@@ -52,7 +52,7 @@ info@example2.org',
                     'label' => 'Default contribute mode', // @translate
                     'info' => 'This option is used only when the template is not configured.', // @translate
                     'value_options' => [
-                        'all' => 'Allow to correct all values', // @translate
+                        'all' => 'Allow to edit all values', // @translate
                         'whitelist' => 'Only specified properties (whitelist)', // @translate
                         'blacklist' => 'All values except properties (blacklist)', // @translate
                     ],
@@ -65,7 +65,7 @@ info@example2.org',
                 'name' => 'contribute_properties_corrigible',
                 'type' => PropertySelect::class,
                 'options' => [
-                    'label' => 'Properties to correct or not when no template is available', // @translate
+                    'label' => 'Properties to edit or not when no template is available', // @translate
                     'info' => 'Only the selected properties will be proposed for public contribute. This list is used only when the resource template is not configured.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,

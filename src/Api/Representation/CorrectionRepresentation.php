@@ -171,7 +171,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
      *
      * @param string $term
      * @param string $original
-     * @return bool|null Null means no value, false if corrected, true if
+     * @return bool|null Null means no value, false if edited, true if
      * approved.
      */
     public function isApprovedValue($term, $original)
@@ -340,7 +340,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
                             $prop['process'] = 'keep';
                         } elseif (!strlen($proposed)) {
                             // If no proposition, the user wants to remove a value, so check if it still exists.
-                            // Either the value is validated, either it is not (to be removed, corrected or appended).
+                            // Either the value is validated, either it is not (to be removed, edited or appended).
                             $prop['value'] = $this->resourceValue($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
@@ -406,7 +406,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
                             $prop['process'] = 'keep';
                         } elseif (!strlen($proposed)) {
                             // If no proposition, the user wants to remove a value, so check if it still exists.
-                            // Either the value is validated, either it is not (to be removed, corrected or appended).
+                            // Either the value is validated, either it is not (to be removed, edited or appended).
                             $prop['value'] = $this->resourceValueResource($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
@@ -478,7 +478,7 @@ class ContributeRepresentation extends AbstractEntityRepresentation
                             $prop['process'] = 'keep';
                         } elseif (!strlen($proposed)) {
                             // If no proposition, the user wants to remove a value, so check if it still exists.
-                            // Either the value is validated, either it is not (to be removed, corrected or appended).
+                            // Either the value is validated, either it is not (to be removed, edited or appended).
                             $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];

@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Entity\User $user
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var bool $canCorrect
+ * @var bool $canEdit
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -14,12 +14,12 @@ $url = $plugins->get('url');
 
 <div id="contribute" class="contribute">
     <h3><?= $translate('Contribute') ?></h3>
-    <?php if ($canCorrect): ?>
-    <?= $this->hyperlink($translate('Correct this record'), $url('site/contribute', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
+    <?php if ($canEdit): ?>
+    <?= $this->hyperlink($translate('Edit this record'), $url('site/contribute', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
     <?php elseif ($user): ?>
-    <?= $translate('Click your token link to correct this record.') ?>
+    <?= $translate('Click your token link to edit this record.') ?>
     <?php else: ?>
     <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
-    <?= sprintf($translate('%1$sLogin%2$s or click your token link to correct this record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
+    <?= sprintf($translate('%1$sLogin%2$s or click your token link to edit this record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
     <?php endif; ?>
 </div>

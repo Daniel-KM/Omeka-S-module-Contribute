@@ -389,7 +389,7 @@ class ContributeController extends AbstractActionController
     }
 
     /**
-     * Correct existing values of the resource with the contribute proposal.
+     * Edit existing values of the resource with the contribute proposal.
      *
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      *

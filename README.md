@@ -1,7 +1,7 @@
 Contribute (module for Omeka S) [archived]
 ===============================
 
-[Contribute] is a module for [Omeka S] that allows visitors to correct, complete
+[Contribute] is a module for [Omeka S] that allows visitors to edit, complete
 or translate metadata of the resources without access to the admin board. Access
 to the edit page may be controlled by a token, that you can send to your users.
 
@@ -31,16 +31,16 @@ the module to `Contribute`.
 Usage
 -----
 
-- Configure the resource templates to select the properties to be corrected or
+- Configure the resource templates to select the properties to be edited or
   filled.
-- For the resources without template, configure the properties to correct by
+- For the resources without template, configure the properties to edit by
   default in the main parameters.
-- Create one or more tokens for the resources you want to correct via the link
+- Create one or more tokens for the resources you want to edit via the link
   in the sidebar of a resource or the bulk process dropdown at the top of the
   resource browse pages.
-- Send emails to your users with the tokens, so they can correct or complete
+- Send emails to your users with the tokens, so they can edit or complete
   metadata of the resources.
-- Go to the resource page of the corrected items and apply changes, or decline
+- Go to the resource page of the edited items and apply changes, or decline
   them. Contributes can be marked as reviewed and token can be made expired.
 
 

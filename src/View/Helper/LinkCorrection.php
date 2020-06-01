@@ -48,7 +48,7 @@ class LinkContribute extends AbstractHelper
         $user = $view->identity();
 
         $helper = $this->checkToken;
-        $canCorrect = (bool) $helper($resource)
+        $canEdit = (bool) $helper($resource)
             || ($user && $view->setting('contribute_without_token'));
 
         $template = $options['template'];
@@ -58,7 +58,7 @@ class LinkContribute extends AbstractHelper
             'site' => $this->currentSite(),
             'user' => $user,
             'resource' => $resource,
-            'canCorrect' => $canCorrect,
+            'canEdit' => $canEdit,
         ] + $options;
 
         return $view->partial($template, $vars);

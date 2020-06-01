@@ -8,7 +8,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 class CheckToken extends AbstractPlugin
 {
     /**
-     * Check if the current user can correct a resource. The token may be updated.
+     * Check if the current user can edit a resource. The token may be updated.
      *
      * @param AbstractResourceEntityRepresentation $resource
      * @return TokenRepresentation|bool

@@ -17,10 +17,10 @@ Omeka.contributeManageSelectedActions = function() {
 
         var batchSelect = $('#batch-form .batch-actions-select');
         batchSelect.append(
-            $('<option class="batch-selected" disabled></option>').val('contribute-selected').html(Omeka.jsTranslate('Prepare tokens to correct selected'))
+            $('<option class="batch-selected" disabled></option>').val('contribute-selected').html(Omeka.jsTranslate('Prepare tokens to edit selected'))
         );
         batchSelect.append(
-            $('<option></option>').val('contribute-all').html(Omeka.jsTranslate('Prepare tokens to correct all'))
+            $('<option></option>').val('contribute-all').html(Omeka.jsTranslate('Prepare tokens to edit all'))
         );
         var batchActions = $('#batch-form .batch-actions');
         batchActions.append(

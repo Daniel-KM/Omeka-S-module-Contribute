@@ -67,7 +67,7 @@ class ContributeController extends AbstractActionController
 
         $editable = $this->editableData($resource);
         if (!$editable->isEditable()) {
-            $this->messenger()->addError('This resource cannot be corrected. Ask the administrator for more information.'); // @translate
+            $this->messenger()->addError('This resource cannot be edited. Ask the administrator for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
             $form->setData($post);
@@ -76,7 +76,7 @@ class ContributeController extends AbstractActionController
                 // TODO Manage file data.
                 // $fileData = $this->getRequest()->getFiles()->toArray();
                 // $data = $form->getData();
-                $data = array_diff_key($post, ['csrf' => null, 'correct-resource-submit' => null]);
+                $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $proposal = $this->prepareProposal($resource, $data);
                 // The resource isn’t updated, but the proposition of contribute
                 // is saved for moderation.
@@ -141,14 +141,14 @@ class ContributeController extends AbstractActionController
         $user = $this->identity();
         if ($user) {
             $message = '<p>' . new Message(
-                'User %1$s has corrected resource #%2$s (%3$s).', // @translate
+                'User %1$s has edited resource #%2$s (%3$s).', // @translate
                 '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
                 '<a href="' . $contribute->resource()->adminUrl('show', true) . '#contribute">' . $contribute->resource()->id() . '</a>',
                 $contribute->resource()->displayTitle()
             ) . '</p>';
         } else {
             $message = '<p>' . new Message(
-                'A user has corrected resource #%1$d (%2$s).', // @translate
+                'A user has edited resource #%1$d (%2$s).', // @translate
                 '<a href="' . $contribute->resource()->adminUrl('show', true) . '#contribute">' . $contribute->resource()->id() . '</a>',
                 $contribute->resource()->displayTitle()
             ) . '</p>';

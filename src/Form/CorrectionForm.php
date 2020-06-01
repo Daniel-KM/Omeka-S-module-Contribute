@@ -13,7 +13,7 @@ class ContributeForm extends Form
                 'name' => 'submit',
                 'type' => Element\Submit::class,
                 'attributes' => [
-                    'value' => 'Correct', // @translate
+                    'value' => 'Edit', // @translate
                 ],
             ])
         ;

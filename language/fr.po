@@ -186,26 +186,26 @@ msgid "Unused token"
 msgstr "Jeton inutilisé"
 
 #: view/common/helper/contribute-link.phtml:18
-msgid "Correct this record"
+msgid "Edit this record"
 msgstr "Corriger cette notice"
 
 #: view/common/helper/contribute-link.phtml:20
-msgid "Click your token link to correct this record."
+msgid "Click your token link to edit this record."
 msgstr "Cliquez sur votre lien pour corriger cette notice."
 
 #: view/common/helper/contribute-link.phtml:23
 #, php-format
-msgid "%1$sLogin%2$s or click your token link to correct this record."
+msgid "%1$sLogin%2$s or click your token link to edit this record."
 msgstr ""
 "%1$sConnectez-vous%2$s ou cliquez sur votre lien pour corriger cette notice."
 
 #: view/contribute/site/contribute/edit.phtml:47
 #, php-format
-msgid "Correct %s"
+msgid "Edit %s"
 msgstr "Corriger le %s"
 
 #: view/contribute/site/contribute/edit.phtml:57
-msgid "Correct"
+msgid "Edit"
 msgstr "Corriger"
 
 #: view/contribute/site/contribute/form.phtml:193
@@ -243,7 +243,7 @@ msgstr "Adresses mails par défaut pour informer des contributes"
 
 #: src/Form/SettingsFieldset.php:21
 msgid ""
-"The list of emails to notify when a user corrects a resource, one by row."
+"The list of emails to notify when a user edits a resource, one by row."
 msgstr ""
 "La liste d’adresses mail à notifier quand un visiteur corrige une ressource, "
 "une par ligne."
@@ -275,7 +275,7 @@ msgstr ""
 "Cette option est utilisée seulement quand le modèle n’est pas configuré."
 
 #: src/Form/SettingsFieldset.php:55
-msgid "Allow to correct all values"
+msgid "Allow to edit all values"
 msgstr "Autoriser la contribute de toutes les valeurs"
 
 #: src/Form/SettingsFieldset.php:56 src/Form/SettingsFieldset.php:91
@@ -287,7 +287,7 @@ msgid "All values except properties (blacklist)"
 msgstr "Toutes les valeurs sauf les propriétés indiquées (liste noire)"
 
 #: src/Form/SettingsFieldset.php:68
-msgid "Properties to correct or not when no template is available"
+msgid "Properties to edit or not when no template is available"
 msgstr "Les propriétés à corriger ou non quand le modèle n’est pas disponible"
 
 #: src/Form/SettingsFieldset.php:69
@@ -378,7 +378,7 @@ msgstr "90"
 
 #: src/Controller/Site/ContributeController.php:70
 msgid ""
-"This resource cannot be corrected. Ask the administrator for more "
+"This resource cannot be edited. Ask the administrator for more "
 "information."
 msgstr ""
 "Cette ressource ne peut pas être corrigée. Merci de contacter "
@@ -387,7 +387,7 @@ msgstr ""
 #: src/Controller/Site/ContributeController.php:94
 #: src/Controller/Site/ContributeController.php:104
 msgid "Contributes successfully submitted!"
-msgstr "Les contributes ont été correctement envoyées !"
+msgstr "Les contributes ont été editement envoyées !"
 
 #: src/Controller/Site/ContributeController.php:108
 msgid "No change."
@@ -399,12 +399,12 @@ msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie."
 
 #: src/Controller/Site/ContributeController.php:144
 #, php-format
-msgid "User %1$s has corrected resource #%2$s (%3$s)."
+msgid "User %1$s has edited resource #%2$s (%3$s)."
 msgstr "L’utilisateur %1$s a corrigé la ressource #%2$s (%3$s)."
 
 #: src/Controller/Site/ContributeController.php:151
 #, php-format
-msgid "A user has corrected resource #%1$d (%2$s)."
+msgid "A user has edited resource #%1$d (%2$s)."
 msgstr "Un utilisateur a corrigé la ressource #%1$d (%2$s)."
 
 #: src/Controller/Site/ContributeController.php:890
@@ -561,11 +561,11 @@ msgid "The custom vocab named \"%s\" is not available."
 msgstr "Le vocabulaire personnalisé nommé \"%s\" n'est pas disponible."
 
 #: config/module.config.php:129
-msgid "Prepare tokens to correct selected"
+msgid "Prepare tokens to edit selected"
 msgstr "Préparer les jetons de contribute pour la sélection"
 
 #: config/module.config.php:130
-msgid "Prepare tokens to correct all"
+msgid "Prepare tokens to edit all"
 msgstr "Préparer des jetons de contributes pour tous"
 
 #~ msgid ""

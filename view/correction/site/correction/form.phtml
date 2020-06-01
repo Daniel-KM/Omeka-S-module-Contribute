@@ -34,17 +34,17 @@ $labelInfo = $this->setting('property_label_information');
 
 <div class="pl-3">
     <?php // Templates for the fields according to the datatype. ?>
-    <div id="correct_value_template" class="value" style="display:none;">
+    <div id="edit_value_template" class="value" style="display:none;">
         <div class="value" lang="">
             <textarea class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"></textarea>
         </div>
     </div>
-    <div id="correct_resource_template" class="resource" style="display:none;">
+    <div id="edit_resource_template" class="resource" style="display:none;">
         <div class="value resource">
             <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"><option value=""></option></select>
         </div>
     </div>
-    <div id="correct_uri_template" class="uri" style="display:none;">
+    <div id="edit_uri_template" class="uri" style="display:none;">
         <div class="value" data-data-type="uri" role="group">
             <div class="input-body w-100">
                 <div class="input">
@@ -63,7 +63,7 @@ $labelInfo = $this->setting('property_label_information');
         </div>
     </div>
     <?php if ($hasValueSuggest): ?>
-    <div id="correct_valuesuggest_template" class="value_suggest" style="display:none;">
+    <div id="edit_valuesuggest_template" class="value_suggest" style="display:none;">
         <div class="value value_suggest">
             <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" data-data-type="" data-uri="" data-value="" value=""/>
         </div>
@@ -74,7 +74,7 @@ $labelInfo = $this->setting('property_label_information');
 
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 
-    <?php // Display the corrected resource, with edited or non-edited fields, plus the non-editable original fields. ?>
+    <?php // Display the edited resource, with edited or non-edited fields, plus the non-editable original fields. ?>
     <?php foreach ($fields as $term => $field):
         $index = 0;
         $property = $field['property'];
@@ -342,7 +342,7 @@ $labelInfo = $this->setting('property_label_information');
     <div id="page-actions">
         <?php // echo $this->cancelButton() ?>
         <?= $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
-        <button type="submit" name="correct-resource-submit" class="btn btn-primary"><?= $escape($submitLabel) ?></button>
+        <button type="submit" name="edit-resource-submit" class="btn btn-primary"><?= $escape($submitLabel) ?></button>
     </div>
 
     <?= $this->form()->closeTag() ?>

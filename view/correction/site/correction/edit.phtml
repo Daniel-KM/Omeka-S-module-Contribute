@@ -44,7 +44,7 @@ $mapLabels = [
 
 <div class="container">
     <h2 class="text-primary my-3"><?= $resource->displayTitle() ?></h2>
-    <?= $this->pageTitle(sprintf($translate('Correct %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>
+    <?= $this->pageTitle(sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>
     <?= $this->messages() ?>
     <?php $this->trigger('view.edit.before'); ?>
     <?php
@@ -54,7 +54,7 @@ $mapLabels = [
         'contribute' => $contribute,
         'fields' => $fields,
         'action' => 'edit',
-        'submitLabel' => $translate('Correct'),
+        'submitLabel' => $translate('Edit'),
     ]);
     ?>
 </div>

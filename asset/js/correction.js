@@ -14,7 +14,7 @@ $(document).ready(function() {
         var newElement, name, namel;
 
         if (target.hasClass('add-value-new')) {
-            newElement = $('#correct_value_template > .value').clone();
+            newElement = $('#edit_value_template > .value').clone();
             name = term + '[' + index + '][@value]';
             $(newElement).find('textarea')
                 .attr('name', name)
@@ -23,7 +23,7 @@ $(document).ready(function() {
         }
 
         if (target.hasClass('add-value-resource')) {
-            newElement = $('#correct_resource_template > .value').clone();
+            newElement = $('#edit_resource_template > .value').clone();
             name = term + '[' + index + '][@resource]';
             let select = $(newElement).find('select');
             select
@@ -48,7 +48,7 @@ $(document).ready(function() {
         }
 
         if (target.hasClass('add-value-uri')) {
-            newElement = $('#correct_uri_template > .value').clone();
+            newElement = $('#edit_uri_template > .value').clone();
             name = term + '[' + index + '][@uri]';
             namel = term + '[' + index + '][@label]';
             $(newElement).find('input').first().attr('name', name);
@@ -58,7 +58,7 @@ $(document).ready(function() {
         }
 
         if (target.hasClass('add-value-value-suggest')) {
-            newElement = $('#correct_valuesuggest_template > .value').clone();
+            newElement = $('#edit_valuesuggest_template > .value').clone();
             name = term + '[' + index + '][@uri]';
             $(newElement).find('input').first().attr('data-data-type', target.attr('data-type'));
             $(newElement).find('input').first().attr('name', name);

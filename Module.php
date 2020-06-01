@@ -120,7 +120,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
-        // Link to correct form on item/show page.
+        // Link to edit form on item/show page.
         $sharedEventManager->attach(
             'Omeka\Controller\Site\Item',
             'view.show.after',
