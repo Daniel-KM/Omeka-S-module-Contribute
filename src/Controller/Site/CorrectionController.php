@@ -361,16 +361,20 @@ class CorrectionController extends AbstractActionController
         foreach ($proposals as $term => $termProposal) {
             foreach ($termProposal as $key => $proposal) {
                 if (isset($proposal['proposed']['@uri'])) {
+                    $proposal['original']['@uri'] = $this->cleanString($proposal['original']['@uri']);
+                    $proposal['original']['@label'] = $this->cleanString($proposal['original']['@label']);
                     if (($proposal['original']['@uri'] === '' && $proposal['proposed']['@uri'] === '')
                         && ($proposal['original']['@label'] === '' && $proposal['proposed']['@label'] === '')
                     ) {
                         unset($proposals[$term][$key]);
                     }
                 } elseif (isset($proposal['proposed']['@resource'])) {
+                    $proposal['original']['@resource'] = (int) $proposal['original']['@resource'];
                     if (!$proposal['original']['@resource'] && !$proposal['proposed']['@resource']) {
                         unset($proposals[$term][$key]);
                     }
                 } else {
+                    $proposal['original']['@value'] = $this->cleanString($proposal['original']['@value']);
                     if ($proposal['original']['@value'] === '' && $proposal['proposed']['@value'] === '') {
                         unset($proposals[$term][$key]);
                     }
@@ -378,7 +382,7 @@ class CorrectionController extends AbstractActionController
             }
         }
         $proposals = array_filter($proposals);
-        if (!$proposals) {
+        if (!count($proposals)) {
             return $fields;
         }
 
@@ -640,16 +644,16 @@ class CorrectionController extends AbstractActionController
             }
             foreach ($values as &$value) {
                 if (isset($value['@value'])) {
-                    $value['@value'] = trim($value['@value']);
+                    $value['@value'] = $this->cleanString($value['@value']);
                 }
                 if (isset($value['@resource'])) {
                     $value['@resource'] = (int) $value['@resource'];
                 }
                 if (isset($value['@uri'])) {
-                    $value['@uri'] = trim($value['@uri']);
+                    $value['@uri'] = $this->cleanString($value['@uri']);
                 }
                 if (isset($value['@label'])) {
-                    $value['@label'] = trim($value['@label']);
+                    $value['@label'] = $this->cleanString($value['@label']);
                 }
             }
         }
@@ -876,6 +880,17 @@ class CorrectionController extends AbstractActionController
         }
 
         return $result;
+    }
+
+    /**
+     * Trim and normalize end of lines of a string.
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function cleanString($string)
+    {
+        return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], trim($string));
     }
 
     /**
