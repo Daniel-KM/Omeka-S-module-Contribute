@@ -46,6 +46,16 @@ class EditableData extends AbstractPlugin
         }
 
         $resourceTemplate = $resource->resourceTemplate();
+        if (!$resourceTemplate) {
+            $resourceTemplateId = (int) $settings->get('correction_template_editable');
+            if ($resourceTemplateId) {
+                try {
+                    $resourceTemplate = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
+                } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                }
+            }
+        }
+
         if ($resourceTemplate) {
             $this->data['template'] = $resourceTemplate;
             $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplate->id());
@@ -56,34 +66,16 @@ class EditableData extends AbstractPlugin
                 $datatype = $resourceTemplateProperty->dataType();
                 $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
             }
-        }
-
-        if (!count($this->data['corrigible']) && !count($this->data['fillable'])) {
-            $resourceTemplateId = (int) $settings->get('correction_template_editable');
-            if ($resourceTemplateId) {
-                try {
-                    $this->data['template'] = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
-                    $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplateId);
-                    $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
-                    $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    $this->data['template'] = null;
-                }
-            } else {
-                $this->data['template'] = null;
+        } else {
+            $this->data['template'] = null;
+            $this->data['default_properties'] = true;
+            $this->data['corrigible_mode'] = $settings->get('correction_properties_corrigible_mode', 'all');
+            if (in_array($this->data['corrigible_mode'], ['blacklist', 'whitelist'])) {
+                $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
             }
-
-            if (!count($this->data['corrigible']) && !count($this->data['fillable'])) {
-                $this->data['template'] = null;
-                $this->data['default_properties'] = true;
-                $this->data['corrigible_mode'] = $settings->get('correction_properties_corrigible_mode', 'all');
-                if (in_array($this->data['corrigible_mode'], ['blacklist', 'whitelist'])) {
-                    $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
-                }
-                $this->data['fillable_mode'] = $settings->get('correction_properties_fillable_mode', 'all');
-                if (in_array($this->data['fillable_mode'], ['blacklist', 'whitelist'])) {
-                    $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
-                }
+            $this->data['fillable_mode'] = $settings->get('correction_properties_fillable_mode', 'all');
+            if (in_array($this->data['fillable_mode'], ['blacklist', 'whitelist'])) {
+                $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
             }
         }
 
