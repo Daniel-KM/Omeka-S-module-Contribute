@@ -37,5 +37,22 @@ $(document).ready(function() {
             $(ev.target.parentElement).data('next-index', index);
         }
 
+        if ($(ev.target).hasClass('add-value-value-suggest')) {
+            new_element = $('#correct_valuesuggest_template > .value').clone();
+            term = $(ev.target.parentElement).data('next-term');
+            index = $(ev.target.parentElement).data('next-index');
+            name = term + '[' + index + '][@uri]';
+
+            $(new_element).find('input').first().attr('data-data-type', $(ev.target).attr('data-type'));
+            $(new_element).find('input').first().attr('name', name);
+            $(new_element).find('input').removeAttr('readonly');
+            $(this).find('.values .inputs').before(new_element);
+
+            let suggestInput = $(this).find('> div:last').prev().find('.valuesuggest-input');
+            valueSuggestAutocomplete(suggestInput);
+
+            index = parseInt(index) + 1;
+            $(ev.target.parentElement).data('next-index', index);
+        }
     });
 });

@@ -17,6 +17,8 @@ $formElement = $this->plugin('formElement');
 
 $form->prepare();
 
+$hasValueSuggest = ($module = $resource->getServiceLocator()->get('Omeka\ModuleManager')->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+
 $labelInfo = $this->setting('property_label_information');
 ?>
 
@@ -45,6 +47,13 @@ $labelInfo = $this->setting('property_label_information');
             </div>
         </div>
     </div>
+    <?php if ($hasValueSuggest): ?>
+    <div id="correct_valuesuggest_template" class="value_suggest" style="display:none;">
+        <div class="value m-2 value_suggest">
+            <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" data-data-type="" data-uri="" data-value="" value=""/>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <?= $this->form()->openTag($form) ?>
 
@@ -107,6 +116,10 @@ $labelInfo = $this->setting('property_label_information');
                 if (!$value && !$field['fillable']) continue;
 
                 $valueType = $fieldCorrection['type'];
+
+                $isValueSuggest = in_array(strtok($valueType, ':'), ['valuesuggest', 'valuesuggestall']);
+                if ($isValueSuggest && !$hasValueSuggest) continue;
+
                 $isValueResource = strtok($valueType, ':') === 'resource';
                 $original = $fieldCorrection['original'];
                 $proposed = $fieldCorrection['proposed'];
@@ -189,6 +202,24 @@ $labelInfo = $this->setting('property_label_information');
                         <?php
                         break;
 
+                    case $isValueSuggest:
+                        $val = isset($proposed['@uri']) ? $proposed['@uri'] : $original['@uri'];
+                        $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
+                        $class = ['value', 'value-suggest'];
+                        if ($isPrivate):
+                            $class[] = 'private';
+                        endif;
+                        $language = isset($proposed['@value']) ? null : ($original['value'] ? $original['value']->lang() : null);
+                        ?>
+            <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
+                <?php if ($language): ?>
+                <span class="language"><?= $language ?></span>
+                <?php endif; ?>
+                <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="<?= $term . '[' . $index . '][@uri]' ?>" data-data-type="<?= $escapeAttr($valueType) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a>"/>
+            </div>
+                        <?php
+                        break;
+
                     // Other datatypes are not editable.
                     default:
                         if ($value):
@@ -215,6 +246,9 @@ $labelInfo = $this->setting('property_label_information');
                 <?php endif; ?>
                 <?php if (in_array('uri', $field['datatype'])): ?>
                 <div class="float-left ml-3 add-value-uri button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>
+                <?php endif; ?>
+                <?php if (in_array(strtok($valueType, ':'), ['valuesuggest', 'valuesuggestall'])): ?>
+                <div class="float-left ml-3 add-value-value-suggest button o-icon-uri" data-type="<?= $valueType ?>"><?= $translate('Add linked data') ?></div>
                 <?php endif; ?>
                 <div class="clearfix"></div>
             </div>

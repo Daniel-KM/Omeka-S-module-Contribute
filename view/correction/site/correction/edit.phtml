@@ -16,6 +16,21 @@ $this->headLink()
 $this->headScript()
     ->appendFile($assetUrl('js/correction.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
 
+// To check if ValueSuggest is available, just try to get the routed url.
+try {
+    $proxyUrl = $this->url('site/value-suggest/proxy', [], true);
+    $this->headLink()
+        ->appendStylesheet($assetUrl('css/value-suggest.css', 'ValueSuggest'));
+    $this->headScript()
+        ->appendFile($assetUrl('js/jQuery-Autocomplete/1.2.26/jquery.autocomplete.min.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
+        ->appendFile($assetUrl('js/value-suggest.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
+        ->appendScript(sprintf(
+            'var valueSuggestProxyUrl = "%s";',
+            $this->escapeJs($proxyUrl)
+        ));
+} catch (\Exception $e) {
+}
+
 $this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource') . ' resource');
 
 $mapLabels = [

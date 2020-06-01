@@ -225,6 +225,8 @@ class CorrectionController extends AbstractActionController
         /** @var \Correction\Mvc\Controller\Plugin\EditableData $editable */
         $editable = $this->editableData($resource);
         $values = $resource->values();
+        $resourceTemplate = $resource->resourceTemplate();
+        $propertyIds = $this->propertyIdsByTerms();
 
         $defaultField['datatype'] = $editable->datatypes();
 
@@ -316,7 +318,7 @@ class CorrectionController extends AbstractActionController
                 // Method value() is label or value depending on type.
                 $type = $value->type();
                 // TODO No need to check if the datatype is managed?
-                if ($type === 'uri') {
+                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     $val = null;
                     $label = $value->value();
                 } else {
@@ -379,7 +381,7 @@ class CorrectionController extends AbstractActionController
                 if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
-                if ($type === 'uri') {
+                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
                             && $proposal['original']['@uri'] === $fieldCorrection['original']['@uri']
@@ -436,7 +438,7 @@ class CorrectionController extends AbstractActionController
                 if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
-                if ($type === 'uri') {
+                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
                             && $proposal['proposed']['@uri'] === $fieldCorrection['original']['@uri']
@@ -484,14 +486,29 @@ class CorrectionController extends AbstractActionController
         // Other ones are related to an older config.
         $proposals = array_intersect_key(array_filter($proposals), $editable->fillableProperties());
         foreach ($proposals as $term => $termProposal) {
+            $propertyId = $propertyIds[$term];
+            if (!isset($propertyIds[$term])) {
+                continue;
+            }
+            $typeTemplate = null;
+            if ($resourceTemplate) {
+                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+                if ($resourceTemplateProperty) {
+                    $typeTemplate = $resourceTemplateProperty->dataType();
+                }
+            }
             foreach ($termProposal as $proposal) {
-                $type = isset($proposal['proposed']['@uri']) ? 'uri' : 'literal';
+                if ($typeTemplate) {
+                    $type = $typeTemplate;
+                } else {
+                    $type = isset($proposal['proposed']['@uri']) ? 'uri' : 'literal';
+                }
                 if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
-                if ($type === 'uri') {
+                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     $fields[$term]['corrections'][] = [
-                        'type' => 'uri',
+                        'type' => $type,
                         'original' => [
                             'value' => null,
                             '@value' => null,
@@ -531,7 +548,7 @@ class CorrectionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Manage all types of data, in particular custom vocab and value suggest.
+     * @todo Manage all types of data, in particular custom vocab.
      * @todo Factorize with \Correction\Admin\CorrectionController::validateCorrection()
      *
      * @param AbstractResourceEntityRepresentation $resource
@@ -570,6 +587,7 @@ class CorrectionController extends AbstractActionController
         }
 
         // Process corrigible properties first.
+        $matches = [];
         switch ($editable->corrigibleMode()) {
             case 'whitelist':
                 $proposalCorrigibleTerms = array_keys(array_intersect_key($proposal, $editable->corrigibleProperties()));
@@ -623,6 +641,29 @@ class CorrectionController extends AbstractActionController
                             ],
                         ];
                         break;
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                        if (!isset($proposal[$term][$index]['@uri'])) {
+                            continue 2;
+                        }
+                        if (!preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                            continue 2;
+                        }
+                        if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
+                            continue 2;
+                        }
+                        $proposal[$term][$index]['@uri'] = $matches[1];
+                        $proposal[$term][$index]['@label'] = $matches[2];
+                        $result[$term][] = [
+                            'original' => [
+                                '@uri' => $value->uri(),
+                                '@label' => $value->value(),
+                            ],
+                            'proposed' => [
+                                '@uri' => $proposal[$term][$index]['@uri'],
+                                '@label' => $proposal[$term][$index]['@label'],
+                            ],
+                        ];
+                        break;
                     default:
                         // Nothing to do.
                         continue 2;
@@ -643,14 +684,31 @@ class CorrectionController extends AbstractActionController
                 $proposalFillableTerms = array_keys($proposal);
                 break;
         }
+        $resourceTemplate = $resource->resourceTemplate();
+        $propertyIds = $this->propertyIdsByTerms();
         foreach ($proposalFillableTerms as $term) {
+            if (!isset($propertyIds[$term])) {
+                continue;
+            }
+            $propertyId = $propertyIds[$term];
+            $typeTemplate = null;
+            if ($resourceTemplate) {
+                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+                if ($resourceTemplateProperty) {
+                    $typeTemplate = $resourceTemplateProperty->dataType();
+                }
+            }
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
                 $values = $resource->value($term, ['all' => true, 'default' => []]);
                 if (isset($values[$index])) {
                     continue;
                 }
-                $type = array_key_exists('@uri', $value) ? 'uri' : 'literal';
+                if ($typeTemplate) {
+                    $type = $typeTemplate;
+                } else {
+                    $type = array_key_exists('@uri', $proposedValue) ? 'uri' : 'literal';
+                }
                 if (!$editable->isDatatypeAllowed($type)) {
                     continue;
                 }
@@ -673,6 +731,29 @@ class CorrectionController extends AbstractActionController
                             continue 2;
                         }
                         $proposedValue += ['@label' => ''];
+                        $result[$term][] = [
+                            'original' => [
+                                '@uri' => null,
+                                '@label' => null,
+                            ],
+                            'proposed' => [
+                                '@uri' => $proposedValue['@uri'],
+                                '@label' => $proposedValue['@label'],
+                            ],
+                        ];
+                        break;
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                        if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
+                            continue 2;
+                        }
+                        if (!preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                            continue 2;
+                        }
+                        if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
+                            continue 2;
+                        }
+                        $proposedValue['@uri'] = $matches[1];
+                        $proposedValue['@label'] = $matches[2];
                         $result[$term][] = [
                             'original' => [
                                 '@uri' => null,

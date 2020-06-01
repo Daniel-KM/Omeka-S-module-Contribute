@@ -406,11 +406,13 @@ class CorrectionController extends AbstractActionController
 
         // Right to update the resource is already checked.
         $resource = $correction->resource();
+        $resourceTemplate = $resource->resourceTemplate();
         $existingValues = $resource->values();
         $proposal = $correction->proposalCheck();
         $hasProposedKey = !is_null($proposedKey);
 
         $api = $this->api();
+        $propertyIds = $this->propertyIdsByTerms();
 
         // TODO How to update only one property to avoid to update unmodified terms?
 
@@ -487,7 +489,19 @@ class CorrectionController extends AbstractActionController
             if (!$editable->isEditable($term)) {
                 continue;
             }
-            $propertyId = $api->searchOne('properties', ['term' => $term])->getContent()->id();
+            $propertyId = isset($propertyIds[$term]) ? $propertyIds[$term] : null;
+            if (!$propertyId) {
+                continue;
+            }
+
+            $typeTemplate = null;
+            if ($resourceTemplate) {
+                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+                if ($resourceTemplateProperty) {
+                    $typeTemplate = $resourceTemplateProperty->dataType();
+                }
+            }
+
             foreach ($propositions as $key => $proposition) {
                 if ($hasProposedKey && $proposedKey != $key) {
                     continue;
@@ -499,22 +513,43 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
 
-                if (array_key_exists("@value", $proposition['original'])) {
-                    $data[$term][] = [
-                        'property_id' => $propertyId,
-                        'type' => 'literal',
-                        '@value' => $proposition['proposed']['@value'],
-                        'is_public' => true,
-                        // '@language' => null,
-                    ];
-                } elseif (array_key_exists("@uri", $proposition['original'])) {
-                    $data[$term][] = [
-                        'type' => 'uri',
-                        'property_id' => $propertyId,
-                        'o:label' => $proposition['proposed']['@label'],
-                        '@id' => $proposition['proposed']['@uri'],
-                        'is_public' => true,
-                    ];
+                if ($typeTemplate) {
+                    $type = $typeTemplate;
+                } else {
+                    $type = array_key_exists('@uri', $proposition['original']) ? 'uri' : 'literal';
+                }
+
+                switch ($type) {
+                    case 'literal':
+                        $data[$term][] = [
+                            'type' => 'literal',
+                            'property_id' => $propertyId,
+                            '@value' => $proposition['proposed']['@value'],
+                            'is_public' => true,
+                            // '@language' => null,
+                        ];
+                        break;
+                    case 'uri':
+                        $data[$term][] = [
+                            'type' => 'uri',
+                            'property_id' => $propertyId,
+                            'o:label' => $proposition['proposed']['@label'],
+                            '@id' => $proposition['proposed']['@uri'],
+                            'is_public' => true,
+                        ];
+                        break;
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                        $data[$term][] = [
+                            'type' => $type,
+                            'property_id' => $propertyId,
+                            'o:label' => $proposition['proposed']['@label'],
+                            '@id' => $proposition['proposed']['@uri'],
+                            'is_public' => true,
+                        ];
+                        break;
+                    default:
+                        // Nothing.
+                        continue 2;
                 }
             }
         }

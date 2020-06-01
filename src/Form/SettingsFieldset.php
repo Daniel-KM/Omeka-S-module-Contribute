@@ -123,6 +123,7 @@ info@example2.org',
                     'value_options' => [
                         'literal' => 'Literal', // @translate
                         'uri' => 'Uri', // @translate
+                        'valuesuggest' => 'Value suggest', // @translate
                     ],
                 ],
                 'attributes' => [

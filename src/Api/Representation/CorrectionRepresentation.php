@@ -222,10 +222,13 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
-        //  TODO Manage correction of non literal values.
-        $values = $this->resource()->value($term, ['type' => 'uri', 'all' => true, 'default' => []]);
+        // To get only uris and value suggest values require to get all values.
+        $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
         foreach ($values as $value) {
-            if ($value->uri() === $string) {
+            $type = $value->type();
+            if (($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']))
+                && $value->uri() === $string
+            ) {
                 return $value;
             }
         }
@@ -245,6 +248,8 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
 
         $editable = $this->editableData();
 
+        $resourceTemplate = $this->resource()->resourceTemplate();
+
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
             $isCorrigible = $editable->isTermCorrigible($term);
@@ -260,13 +265,26 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                 continue;
             }
 
+            $propertyId = $propertyIds[$term];
+            $typeTemplate = null;
+            if ($resourceTemplate) {
+                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+                if ($resourceTemplateProperty) {
+                    $typeTemplate = $resourceTemplateProperty->dataType();
+                }
+            }
+
             foreach ($propositions as $key => $proposition) {
                 // TODO Manage all the cases (custom vocab is literal, value suggest is uri).
                 $type = null;
-                if (array_key_exists('@uri', $proposition['original'])) {
-                    $type = 'uri';
-                } elseif (array_key_exists('@value', $proposition['original'])) {
-                    $type = 'literal';
+                if ($typeTemplate) {
+                    $type = $typeTemplate;
+                } else {
+                    if (array_key_exists('@uri', $proposition['original'])) {
+                        $type = 'uri';
+                    } elseif (array_key_exists('@value', $proposition['original'])) {
+                        $type = 'literal';
+                    }
                 }
 
                 if (!$editable->isDatatypeAllowed($type)) {
@@ -341,6 +359,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                         break;
 
                     case 'uri':
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
                         $originalUri = $proposition['original']['@uri'];
                         $originalLabel = $proposition['original']['@label'];
                         $original = $originalUri . $originalLabel;

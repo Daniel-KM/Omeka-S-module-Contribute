@@ -203,7 +203,13 @@ class EditableData extends AbstractPlugin
      */
     public function isDatatypeAllowed($datatype)
     {
-        return in_array($datatype, $this->data['datatype']);
+        if (in_array($datatype, $this->data['datatype'])) {
+            return true;
+        }
+        if (in_array('valuesuggest', $this->data['datatype'])) {
+            return in_array(strtok($datatype, ':'), ['valuesuggest', 'valuesuggestall']);
+        }
+        return false;
     }
 
     /**
