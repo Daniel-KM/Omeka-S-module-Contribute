@@ -357,14 +357,14 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
 
                         $prop = &$proposal[$term][$key];
                         if ($original === $proposed) {
-                            $prop['value'] = $this->resourceValue($term, $originalUri);
+                            $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = $prop['value'];
                             $prop['validated'] = true;
                             $prop['process'] = 'keep';
                         } elseif (!strlen($proposed)) {
                             // If no proposition, the user wants to remove a value, so check if it still exists.
                             // Either the value is validated, either it is not (to be removed, corrected or appended).
-                            $prop['value'] = $this->resourceValue($term, $originalUri);
+                            $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
                             $prop['process'] = $isCorrigible
@@ -375,7 +375,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             // The original value may have been removed or appended:
                             // this is not really determinable.
                             $prop['value'] = null;
-                            $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
+                            $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isFillable
                                 ? 'append'
@@ -388,7 +388,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                             $prop['process'] = 'keep';
                         } elseif ($originalValue = $this->resourceValueUri($term, $originalUri)) {
                             $prop['value'] = $originalValue;
-                            $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
+                            $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = $isCorrigible
                                 ? 'update'
@@ -396,7 +396,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
                                 : 'keep';
                         } else {
                             $prop['value'] = null;
-                            $prop['value_updated'] = $this->resourceValue($term, $proposedUri);
+                            $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
                             $prop['process'] = 'keep';
                         }
