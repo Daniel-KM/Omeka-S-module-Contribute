@@ -35,6 +35,25 @@ class Module extends AbstractModule
         $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
         $settings->set('contribute_resource_template_data', $templateData);
         $settings->set('contribute_template_editable', $resourceTemplate->id());
+
+        // Upgrade from old module Correction if any.
+        $services = $this->getServiceLocator();
+        $connection = $services->get('Omeka\Connection');
+
+        /** @var \Omeka\Module\Manager $moduleManager */
+        $moduleManager = $services->get('Omeka\ModuleManager');
+        $module = $moduleManager->getModule('Correction');
+        if ($module) {
+            // Check if Correction was really installed.
+            try {
+                $connection->fetchAll('SELECT id FROM correction LIMIT 1;');
+                // So upgrade Correction.
+                $filepath = $this->modulePath() . '/data/scripts/upgrade_from_correction.php';
+                require_once $filepath;
+                return;
+            } catch (\Exception $e) {
+            }
+        }
     }
 
     protected function postUninstall()
