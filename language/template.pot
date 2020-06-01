@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-11 00:00+0000\n"
+"POT-Creation-Date: 2020-06-01 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,30 +17,33 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: Module.php:272
-msgid "Create contribute token"
+#: Module.php:291
+msgid "Create contribution token"
 msgstr ""
 
-#: Module.php:276 Module.php:367 view/common/admin/contribute-list.phtml:66
-#: view/common/helper/contribute-link.phtml:16
+#: Module.php:295 view/common/helper/contribute-link.phtml:16
 msgid "Contribute"
 msgstr ""
 
-#: Module.php:281
+#: Module.php:300
 msgid "Please input optional email…"
 msgstr ""
 
-#: Module.php:282
+#: Module.php:301
 msgid "Create token"
 msgstr ""
 
-#: Module.php:370
-#, php-format
-msgid "%d contributes (%d not reviewed)"
+#: Module.php:386
+msgid "Contributions"
 msgstr ""
 
-#: Module.php:373
-msgid "No contribute"
+#: Module.php:389
+#, php-format
+msgid "%d contributions (%d not reviewed)"
+msgstr ""
+
+#: Module.php:392
+msgid "No contribution"
 msgstr ""
 
 #: src/Controller/Admin/ContributeController.php:229
@@ -84,7 +87,7 @@ msgid "An internal error occurred."
 msgstr ""
 
 #: src/Controller/Site/ContributeController.php:156
-msgid "[Omeka Contribute] New contribute"
+msgid "[Omeka Contribution] New contribution"
 msgstr ""
 
 #: src/Generic/AbstractModule.php:598
@@ -119,7 +122,11 @@ msgid "Expire all tokens"
 msgstr ""
 
 #: view/common/admin/contribute-list.phtml:45
-msgid "There are no contributes for this resource."
+msgid "There are no contributions for this resource."
+msgstr ""
+
+#: view/common/admin/contribute-list.phtml:66
+msgid "Contribution"
 msgstr ""
 
 #: view/common/admin/contribute-list.phtml:75
@@ -201,10 +208,6 @@ msgstr ""
 msgid "Edit %s"
 msgstr ""
 
-#: view/contribute/site/contribute/edit.phtml:57
-msgid "Edit"
-msgstr ""
-
 #: view/contribute/site/contribute/form.phtml:193
 msgid "private"
 msgstr ""
@@ -230,17 +233,17 @@ msgstr ""
 msgid "Go back to resource"
 msgstr ""
 
-#: Module.php:297
-msgid "Contributes"
+#: data/scripts/upgrade_from_correction.php:111
+msgid ""
+"The module Correction was upgraded by module Contribute and uninstalled."
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:20
-msgid "Default emails to notify contributes"
+msgid "Default emails to notify contributions"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:21
-msgid ""
-"The list of emails to notify when a user edits a resource, one by row."
+msgid "The list of emails to notify when a user edits a resource, one by row."
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:35
@@ -361,13 +364,12 @@ msgstr ""
 
 #: src/Controller/Site/ContributeController.php:70
 msgid ""
-"This resource cannot be edited. Ask the administrator for more "
-"information."
+"This resource cannot be edited. Ask the administrator for more information."
 msgstr ""
 
 #: src/Controller/Site/ContributeController.php:94
 #: src/Controller/Site/ContributeController.php:104
-msgid "Contributes successfully submitted!"
+msgid "Contributions successfully submitted!"
 msgstr ""
 
 #: src/Controller/Site/ContributeController.php:108
@@ -388,7 +390,7 @@ msgstr ""
 msgid "A user has edited resource #%1$d (%2$s)."
 msgstr ""
 
-#: src/Controller/Site/ContributeController.php:890
+#: src/Controller/Site/ContributeController.php:905
 msgid "Forbidden access."
 msgstr ""
 
@@ -408,13 +410,13 @@ msgstr ""
 #: src/Controller/Admin/ContributeController.php:90
 #, php-format
 msgid ""
-"You set the optional email \"%s\" to create a contribute token, but it is "
+"You set the optional email \"%s\" to create a contribution token, but it is "
 "not well-formed."
 msgstr ""
 
 #: src/Controller/Admin/ContributeController.php:132
 #, php-format
-msgid "Created %1$s contribute tokens (email: %2$s, duration: %3$s): %4$s"
+msgid "Created %1$s contribution tokens (email: %2$s, duration: %3$s): %4$s"
 msgstr ""
 
 #: src/Controller/Admin/ContributeController.php:134
@@ -443,80 +445,80 @@ msgstr ""
 msgid "Missing term or key."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:51
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:51
 msgid "Email not sent: the subject is missing."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:57
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:57
 #, php-format
 msgid "Email not sent: content is missing (subject: %1$s)."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:63
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:63
 #, php-format
 msgid "Email not sent: no recipient (subject: %1$s)."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:119
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:119
 #, php-format
 msgid "An email was sent to %1$s with subject: %2$s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:150
+#: src/Generic/InstallResources.php:163
 #, php-format
 msgid "The file \"%s\" cannot be read. Check your file system."
 msgstr ""
 
-#: src/Generic/InstallResources.php:176
+#: src/Generic/InstallResources.php:189
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists. "
 "Resolve the conflict before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:206
+#: src/Generic/InstallResources.php:219
 #, php-format
 msgid ""
 "A resource template named \"%s\" exists: rename it or remove it before "
 "installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:234
+#: src/Generic/InstallResources.php:247
 msgid "The current version of this module requires the module Custom Vocab."
 msgstr ""
 
-#: src/Generic/InstallResources.php:241
+#: src/Generic/InstallResources.php:254
 #, php-format
 msgid ""
 "A custom vocab named \"%s\" exists and has not the needed language (\"%s\"): "
 "check it or remove it before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:290
+#: src/Generic/InstallResources.php:303
 #, php-format
 msgid "The vocabulary \"%s\" was already installed and was kept."
 msgstr ""
 
-#: src/Generic/InstallResources.php:300
+#: src/Generic/InstallResources.php:313
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists "
 "with the same prefix. Resolve the conflict before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:320
+#: src/Generic/InstallResources.php:333
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\" and the associated "
 "properties: %s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:350
+#: src/Generic/InstallResources.php:363
 #, php-format
 msgid "The resource template named \"%s\" is already available and is skipped."
 msgstr ""
 
-#: src/Generic/InstallResources.php:375 src/Generic/InstallResources.php:536
+#: src/Generic/InstallResources.php:388 src/Generic/InstallResources.php:549
 #, php-format
 msgid "The custom vocab named \"%s\" is not available."
 msgstr ""

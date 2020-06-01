@@ -6,42 +6,45 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-11 00:00+0000\n"
-"PO-Revision-Date: 2020-05-11 00:00+0000\n"
+"POT-Creation-Date: 2020-06-01 00:00+0000\n"
+"PO-Revision-Date: 2020-06-01 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.3.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: Module.php:272
-msgid "Create contribute token"
-msgstr "Créer un jeton pour la contribute"
+#: Module.php:291
+msgid "Create contribution token"
+msgstr "Créer un jeton pour la contribution"
 
-#: Module.php:276 Module.php:367 view/common/admin/contribute-list.phtml:66
-#: view/common/helper/contribute-link.phtml:16
+#: Module.php:295 view/common/helper/contribute-link.phtml:16
 msgid "Contribute"
-msgstr "Contribute"
+msgstr "Contribuer"
 
-#: Module.php:281
+#: Module.php:300
 msgid "Please input optional email…"
 msgstr "Ajouter un email si besoin…"
 
-#: Module.php:282
+#: Module.php:301
 msgid "Create token"
 msgstr "Créer un jeton"
 
-#: Module.php:370
-#, php-format
-msgid "%d contributes (%d not reviewed)"
-msgstr "%d contributes (%d non relues)"
+#: Module.php:386
+msgid "Contributions"
+msgstr "Contributions"
 
-#: Module.php:373
-msgid "No contribute"
-msgstr "Pas de contribute"
+#: Module.php:389
+#, php-format
+msgid "%d contributions (%d not reviewed)"
+msgstr "%d contributions (%d non relues)"
+
+#: Module.php:392
+msgid "No contribution"
+msgstr "Pas de contribution"
 
 #: src/Controller/Admin/ContributeController.php:229
 msgid "Unreviewed"
@@ -84,8 +87,8 @@ msgid "An internal error occurred."
 msgstr "Une erreur interne s’est produite."
 
 #: src/Controller/Site/ContributeController.php:156
-msgid "[Omeka Contribute] New contribute"
-msgstr "[Omeka Contribute] Nouvelle contribute"
+msgid "[Omeka Contribution] New contribution"
+msgstr "[Omeka Contribution] Nouvelle contribution"
 
 #: src/Generic/AbstractModule.php:598
 #, php-format
@@ -121,8 +124,12 @@ msgid "Expire all tokens"
 msgstr "Expirer tous les jetons"
 
 #: view/common/admin/contribute-list.phtml:45
-msgid "There are no contributes for this resource."
-msgstr "Aucune contribute pour cette ressource."
+msgid "There are no contributions for this resource."
+msgstr "Aucune contribution pour cette ressource."
+
+#: view/common/admin/contribute-list.phtml:66
+msgid "Contribution"
+msgstr "Contribution"
 
 #: view/common/admin/contribute-list.phtml:75
 msgid "(modified)"
@@ -187,26 +194,22 @@ msgstr "Jeton inutilisé"
 
 #: view/common/helper/contribute-link.phtml:18
 msgid "Edit this record"
-msgstr "Corriger cette notice"
+msgstr "Éditer cette notice"
 
 #: view/common/helper/contribute-link.phtml:20
 msgid "Click your token link to edit this record."
-msgstr "Cliquez sur votre lien pour corriger cette notice."
+msgstr "Cliquez sur votre lien pour éditer cette notice."
 
 #: view/common/helper/contribute-link.phtml:23
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to edit this record."
 msgstr ""
-"%1$sConnectez-vous%2$s ou cliquez sur votre lien pour corriger cette notice."
+"%1$sConnectez-vous%2$s ou cliquez sur votre lien pour éditer cette notice."
 
 #: view/contribute/site/contribute/edit.phtml:47
 #, php-format
 msgid "Edit %s"
-msgstr "Corriger le %s"
-
-#: view/contribute/site/contribute/edit.phtml:57
-msgid "Edit"
-msgstr "Corriger"
+msgstr "Éditer le %s"
 
 #: view/contribute/site/contribute/form.phtml:193
 msgid "private"
@@ -233,19 +236,21 @@ msgstr "Ajouter des données liées"
 msgid "Go back to resource"
 msgstr "Revenir au document"
 
-#: Module.php:297
-msgid "Contributes"
-msgstr "Contributes"
+#: data/scripts/upgrade_from_correction.php:111
+msgid ""
+"The module Correction was upgraded by module Contribute and uninstalled."
+msgstr ""
+"Le module Correction a été mis à jour par le module Contribuer et "
+"désinstallé."
 
 #: src/Form/SettingsFieldset.php:20
-msgid "Default emails to notify contributes"
-msgstr "Adresses mails par défaut pour informer des contributes"
+msgid "Default emails to notify contributions"
+msgstr "Adresses mails par défaut pour informer des contributions"
 
 #: src/Form/SettingsFieldset.php:21
-msgid ""
-"The list of emails to notify when a user edits a resource, one by row."
+msgid "The list of emails to notify when a user edits a resource, one by row."
 msgstr ""
-"La liste d’adresses mail à notifier quand un visiteur corrige une ressource, "
+"La liste d’adresses mail à notifier quand un visiteur édite une ressource, "
 "une par ligne."
 
 #: src/Form/SettingsFieldset.php:35
@@ -288,7 +293,7 @@ msgstr "Toutes les valeurs sauf les propriétés indiquées (liste noire)"
 
 #: src/Form/SettingsFieldset.php:68
 msgid "Properties to edit or not when no template is available"
-msgstr "Les propriétés à corriger ou non quand le modèle n’est pas disponible"
+msgstr "Les propriétés à éditer ou non quand le modèle n’est pas disponible"
 
 #: src/Form/SettingsFieldset.php:69
 msgid ""
@@ -296,7 +301,7 @@ msgid ""
 "list is used only when the resource template is not configured."
 msgstr ""
 "Seules les propriétés sélectionnées seront proposées au public pour la "
-"contribute. Cette option est utilisée seulement quand le modèle n‘est pas "
+"contribute. Cette option est utilisée seulement quand le modèle n’est pas "
 "configuré."
 
 #: src/Form/SettingsFieldset.php:79 src/Form/SettingsFieldset.php:113
@@ -334,7 +339,7 @@ msgstr "Types de donnée modifiables"
 
 #: src/Form/SettingsFieldset.php:122
 msgid "Other datatypes are not editable."
-msgstr "Les autres types de données ne sont pas corrigeables."
+msgstr "Les autres types de données ne sont pas éditables."
 
 #: src/Form/SettingsFieldset.php:124
 msgid "Literal"
@@ -378,16 +383,15 @@ msgstr "90"
 
 #: src/Controller/Site/ContributeController.php:70
 msgid ""
-"This resource cannot be edited. Ask the administrator for more "
-"information."
+"This resource cannot be edited. Ask the administrator for more information."
 msgstr ""
-"Cette ressource ne peut pas être corrigée. Merci de contacter "
-"l’administrateur pour plus d’information."
+"Cette ressource ne peut pas être éditée. Merci de contacter l’administrateur "
+"pour plus d’information."
 
 #: src/Controller/Site/ContributeController.php:94
 #: src/Controller/Site/ContributeController.php:104
-msgid "Contributes successfully submitted!"
-msgstr "Les contributes ont été editement envoyées !"
+msgid "Contributions successfully submitted!"
+msgstr "Les contributions ont été correctement envoyées !"
 
 #: src/Controller/Site/ContributeController.php:108
 msgid "No change."
@@ -400,14 +404,14 @@ msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie."
 #: src/Controller/Site/ContributeController.php:144
 #, php-format
 msgid "User %1$s has edited resource #%2$s (%3$s)."
-msgstr "L’utilisateur %1$s a corrigé la ressource #%2$s (%3$s)."
+msgstr "L’utilisateur %1$s a édité la ressource #%2$s (%3$s)."
 
 #: src/Controller/Site/ContributeController.php:151
 #, php-format
 msgid "A user has edited resource #%1$d (%2$s)."
-msgstr "Un utilisateur a corrigé la ressource #%1$d (%2$s)."
+msgstr "Un utilisateur a édité la ressource #%1$d (%2$s)."
 
-#: src/Controller/Site/ContributeController.php:890
+#: src/Controller/Site/ContributeController.php:905
 msgid "Forbidden access."
 msgstr "Accès interdit."
 
@@ -429,17 +433,17 @@ msgstr "Vous devez choisir au moins une ressource pour créer un jeton."
 #: src/Controller/Admin/ContributeController.php:90
 #, php-format
 msgid ""
-"You set the optional email \"%s\" to create a contribute token, but it is "
+"You set the optional email \"%s\" to create a contribution token, but it is "
 "not well-formed."
 msgstr ""
-"Vous avez saisi \"%s\" comme email optionnel pour le jeton de contribute, "
+"Vous avez saisi \"%s\" comme email optionnel pour le jeton de contribution, "
 "mais il n’est pas correctement écrit."
 
 #: src/Controller/Admin/ContributeController.php:132
 #, php-format
-msgid "Created %1$s contribute tokens (email: %2$s, duration: %3$s): %4$s"
+msgid "Created %1$s contribution tokens (email: %2$s, duration: %3$s): %4$s"
 msgstr ""
-"Création de %1$s jetons de contribute (email : %2$s, durée : %3$s) : %4$s"
+"Création de %1$s jetons de contribution (email : %2$s, durée : %3$s) : %4$s"
 
 #: src/Controller/Admin/ContributeController.php:134
 msgid "none"
@@ -467,33 +471,33 @@ msgstr "Tous les jetons de la ressource ont été expirés."
 msgid "Missing term or key."
 msgstr "Terme ou clé manquante."
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:51
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:51
 msgid "Email not sent: the subject is missing."
 msgstr "Mail non envoyé : pas de sujet."
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:57
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:57
 #, php-format
 msgid "Email not sent: content is missing (subject: %1$s)."
 msgstr "Mail non envoyé : pas de contenu (sujet : %1$s)."
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:63
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:63
 #, php-format
 msgid "Email not sent: no recipient (subject: %1$s)."
 msgstr "Mail non envoyé : pas de destinataire (sujet : %1$s)."
 
-#: src/Mvc/Controller/Plugin/SendContributeEmail.php:119
+#: src/Mvc/Controller/Plugin/SendContributionEmail.php:119
 #, php-format
 msgid "An email was sent to %1$s with subject: %2$s"
 msgstr "Un mail a été envoyé à %1$s avec le sujet : %2$s"
 
-#: src/Generic/InstallResources.php:150
+#: src/Generic/InstallResources.php:163
 #, php-format
 msgid "The file \"%s\" cannot be read. Check your file system."
 msgstr ""
 "Le fichier \"%s\" ne peut pas être lu. Merci de vérifier le système de "
 "fichiers."
 
-#: src/Generic/InstallResources.php:176
+#: src/Generic/InstallResources.php:189
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists. "
@@ -502,7 +506,7 @@ msgstr ""
 "Une erreur est survenue en ajoutant le préfixe \"%s\" : un autre vocabulaire "
 "existe. Merci de résoudre le conflit avant d'installer ce module."
 
-#: src/Generic/InstallResources.php:206
+#: src/Generic/InstallResources.php:219
 #, php-format
 msgid ""
 "A resource template named \"%s\" exists: rename it or remove it before "
@@ -511,11 +515,11 @@ msgstr ""
 "Un modèle de ressource nommé \"%s\" existe : merci de le renommer ou de le "
 "supprimer avant d'installer ce module."
 
-#: src/Generic/InstallResources.php:234
+#: src/Generic/InstallResources.php:247
 msgid "The current version of this module requires the module Custom Vocab."
 msgstr "Cette version du module requiert le module Custom Vocab."
 
-#: src/Generic/InstallResources.php:241
+#: src/Generic/InstallResources.php:254
 #, php-format
 msgid ""
 "A custom vocab named \"%s\" exists and has not the needed language (\"%s\"): "
@@ -525,12 +529,12 @@ msgstr ""
 "langue (\"%s\") : merci de vérifier ou de le supprimer avant d'installer ce "
 "module."
 
-#: src/Generic/InstallResources.php:290
+#: src/Generic/InstallResources.php:303
 #, php-format
 msgid "The vocabulary \"%s\" was already installed and was kept."
 msgstr "Le vocabulaire \"%s\" a déjà été installé et a été conservé."
 
-#: src/Generic/InstallResources.php:300
+#: src/Generic/InstallResources.php:313
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists "
@@ -540,7 +544,7 @@ msgstr ""
 "vocabulaire existe avec le même préfixe. Merci de résoudre le conflit avant "
 "d'installer ce module."
 
-#: src/Generic/InstallResources.php:320
+#: src/Generic/InstallResources.php:333
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\" and the associated "
@@ -549,38 +553,21 @@ msgstr ""
 "Une erreur est survenue en ajoutant le préfixe \"%s\" et les propriétés "
 "associées : %s"
 
-#: src/Generic/InstallResources.php:350
+#: src/Generic/InstallResources.php:363
 #, php-format
 msgid "The resource template named \"%s\" is already available and is skipped."
 msgstr ""
 "Le modèle de ressource nommé \"%s\" est déjà disponible et a été conservé."
 
-#: src/Generic/InstallResources.php:375 src/Generic/InstallResources.php:536
+#: src/Generic/InstallResources.php:388 src/Generic/InstallResources.php:549
 #, php-format
 msgid "The custom vocab named \"%s\" is not available."
 msgstr "Le vocabulaire personnalisé nommé \"%s\" n'est pas disponible."
 
 #: config/module.config.php:129
 msgid "Prepare tokens to edit selected"
-msgstr "Préparer les jetons de contribute pour la sélection"
+msgstr "Préparer les jetons de contribution pour la sélection"
 
 #: config/module.config.php:130
 msgid "Prepare tokens to edit all"
-msgstr "Préparer des jetons de contributes pour tous"
-
-#~ msgid ""
-#~ "A custom vocab named \"%s\" exists and has not the needed terms: rename "
-#~ "it or remove it before installing this module."
-#~ msgstr ""
-#~ "Un vocabulaire personnalisé nommé \"%s\" existe et n'a pas les mêmes "
-#~ "termes : merci de le renommer ou de le supprimer avant d'installer ce "
-#~ "module."
-
-#~ msgid "The message has no recipient."
-#~ msgstr "Le message n’a pas de destinataire."
-
-#~ msgid "The message has no subject."
-#~ msgstr "Le message n’a pas de sujet."
-
-#~ msgid "The message has no content."
-#~ msgstr "Le message n’a pas de contenu."
+msgstr "Préparer des jetons de contribution pour tous"
