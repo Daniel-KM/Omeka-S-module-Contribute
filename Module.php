@@ -1,5 +1,5 @@
 <?php
-namespace Correction;
+namespace Contribute;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
@@ -44,12 +44,12 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
 
-        $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Correction'])->getContent();
-        $templateData = $settings->get('correction_resource_template_data', []);
+        $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Contribute'])->getContent();
+        $templateData = $settings->get('contribute_resource_template_data', []);
         $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
         $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
-        $settings->set('correction_resource_template_data', $templateData);
-        $settings->set('correction_template_editable', $resourceTemplate->id());
+        $settings->set('contribute_resource_template_data', $templateData);
+        $settings->set('contribute_template_editable', $resourceTemplate->id());
     }
 
     protected function postUninstall()
@@ -64,7 +64,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $installResources = new \Generic\InstallResources($services);
         $installResources = $installResources();
 
-        $installResources->removeResourceTemplate('Correction');
+        $installResources->removeResourceTemplate('Contribute');
     }
 
     /**
@@ -75,7 +75,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         /** @var \Omeka\Permissions\Acl $acl */
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
 
-        // Users who can edit resources can update corrections.
+        // Users who can edit resources can update contributes.
         // A check is done on the specific resource for some roles.
         $roles = [
             \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
@@ -87,33 +87,33 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $acl
             ->allow(
                 null,
-                ['Correction\Controller\Site\Correction'],
+                ['Contribute\Controller\Site\Contribute'],
                 ['edit']
             )
             ->allow(
                 $roles,
-                ['Correction\Controller\Admin\Correction']
+                ['Contribute\Controller\Admin\Contribute']
             )
 
             ->allow(
                 null,
-                [\Correction\Api\Adapter\CorrectionAdapter::class],
+                [\Contribute\Api\Adapter\ContributeAdapter::class],
                 ['search', 'create', 'read', 'update']
             )
             ->allow(
                 null,
-                [\Correction\Entity\Correction::class],
+                [\Contribute\Entity\Contribute::class],
                 ['create', 'read', 'update']
             )
 
             ->allow(
                 null,
-                [\Correction\Api\Adapter\TokenAdapter::class],
+                [\Contribute\Api\Adapter\TokenAdapter::class],
                 ['search', 'read', 'update']
             )
             ->allow(
                 null,
-                [\Correction\Entity\Token::class],
+                [\Contribute\Entity\Token::class],
                 ['update']
             );
     }
@@ -205,8 +205,8 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
     {
         $data = parent::prepareDataToPopulate($settings, $settingsType);
         if (in_array($settingsType, ['settings'])) {
-            if (isset($data['correction_notify']) && is_array($data['correction_notify'])) {
-                $data['correction_notify'] = implode("\n", $data['correction_notify']);
+            if (isset($data['contribute_notify']) && is_array($data['contribute_notify'])) {
+                $data['contribute_notify'] = implode("\n", $data['contribute_notify']);
             }
         }
         return $data;
@@ -214,7 +214,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
     public function handleViewShowAfterResource(Event $event)
     {
-        echo $event->getTarget()->linkCorrection();
+        echo $event->getTarget()->linkContribute();
     }
 
     public function handleResourceTemplateCreateOrUpdatePost(Event $event)
@@ -231,7 +231,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $requestResourceProperties = isset($requestContent['o:resource_template_property']) ? $requestContent['o:resource_template_property'] : [];
 
         $editables = ['corrigible' => [], 'fillable' => []];
-        foreach (['corrigible' => 'correction_corrigible_part', 'fillable' => 'correction_fillable_part'] as $editableKey => $part) {
+        foreach (['corrigible' => 'contribute_corrigible_part', 'fillable' => 'contribute_fillable_part'] as $editableKey => $part) {
             foreach ($requestResourceProperties as $propertyId => $requestResourceProperty) {
                 if (!isset($requestResourceProperty['data'][$part]) || $requestResourceProperty['data'][$part] != 1) {
                     continue;
@@ -249,11 +249,11 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
         $resourceTemplateId = $response->getContent()->getId();
         $settings = $services->get('Omeka\Settings');
-        $resourceTemplateData = $settings->get('correction_resource_template_data', []);
+        $resourceTemplateData = $settings->get('contribute_resource_template_data', []);
         $resourceTemplateData['corrigible'][$resourceTemplateId] = $editables['corrigible'];
         $resourceTemplateData['fillable'][$resourceTemplateId] = $editables['fillable'];
 
-        $settings->set('correction_resource_template_data', $resourceTemplateData);
+        $settings->set('contribute_resource_template_data', $resourceTemplateData);
     }
 
     public function addHeadersAdmin(Event $event)
@@ -261,16 +261,16 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $view = $event->getTarget();
         $assetUrl = $view->plugin('assetUrl');
         $view->headLink()
-            ->appendStylesheet($assetUrl('css/correction-admin.css', 'Correction'));
+            ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
         $view->headScript()
-            ->appendFile($assetUrl('js/correction-admin.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
+            ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function addHeadersAdminResourceTemplate(Event $event)
     {
         $view = $event->getTarget();
         $view->headScript()
-            ->appendFile($view->assetUrl('js/correction-admin-resource-template.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
+            ->appendFile($view->assetUrl('js/contribute-admin-resource-template.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function adminViewShowSidebar(Event $event)
@@ -284,17 +284,17 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $translate = $view->plugin('translate');
         $escapeAttr = $view->plugin('escapeHtmlAttr');
         $link = $view->hyperlink(
-            $translate('Create correction token'), // @translate
-            $view->url('admin/correction/default', ['action' => 'create-token'], ['query' => $query])
+            $translate('Create contribute token'), // @translate
+            $view->url('admin/contribute/default', ['action' => 'create-token'], ['query' => $query])
         );
-        $output =  '<div class="meta-group create_correction">'
-            . '<h4>' . $translate('Correction') . '</h4>'
-            . '<div class="value" id="create_correction_token">' . $link . '</div>'
-            . '<div id="create_correction_token_dialog" class="modal" style="display:none;">'
+        $output =  '<div class="meta-group create_contribute">'
+            . '<h4>' . $translate('Contribute') . '</h4>'
+            . '<div class="value" id="create_contribute_token">' . $link . '</div>'
+            . '<div id="create_contribute_token_dialog" class="modal" style="display:none;">'
             . '<div class="modal-content">'
-            . '<span class="close" id="create_correction_token_dialog_close">&times;</span>'
-            . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_correction_token_dialog_email"/>'
-            . '<input type="button" value="' . $escapeAttr($translate('Create token')) . '" id="create_correction_token_dialog_go"/>'
+            . '<span class="close" id="create_contribute_token_dialog_close">&times;</span>'
+            . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_contribute_token_dialog_email"/>'
+            . '<input type="button" value="' . $escapeAttr($translate('Create token')) . '" id="create_contribute_token_dialog_go"/>'
             . '</div>'
             . '</div>'
             . '</div>';
@@ -309,7 +309,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
     public function appendTab(Event $event)
     {
         $sectionNav = $event->getParam('section_nav');
-        $sectionNav['correction'] = 'Corrections'; // @translate
+        $sectionNav['contribute'] = 'Contributes'; // @translate
         $event->setParam('section_nav', $sectionNav);
     }
 
@@ -326,8 +326,8 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
         $resource = $view->resource;
 
-        $corrections = $api
-            ->search('corrections', [
+        $contributes = $api
+            ->search('contributes', [
                 'resource_id' => $resource->id(),
                 'sort_by' => 'modified',
                 'sort_order' => 'DESC',
@@ -335,7 +335,7 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
             ->getContent();
 
         $unusedTokens = $api
-            ->search('correction_tokens', [
+            ->search('contribute_tokens', [
                 'resource_id' => $resource->id(),
                 'used' => false,
             ])
@@ -345,10 +345,10 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $siteSlug = $plugins->get('defaultSiteSlug');
         $siteSlug = $siteSlug();
 
-        echo '<div id="correction" class="section">';
-        echo $view->partial('common/admin/correction-list', [
+        echo '<div id="contribute" class="section">';
+        echo $view->partial('common/admin/contribute-list', [
             'resource' => $view->resource,
-            'corrections' => $corrections,
+            'contributes' => $contributes,
             'unusedTokens' => $unusedTokens,
             'siteSlug' => $siteSlug,
         ]);
@@ -366,12 +366,12 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
         $translate = $view->plugin('translate');
         $resource = $event->getParam('entity');
         $total = $view->api()
-            ->search('corrections', [
+            ->search('contributes', [
                 'resource_id' => $resource->id(),
             ])
             ->getTotalResults();
         $totalNotReviewed = $view->api()
-            ->search('corrections', [
+            ->search('contributes', [
                 'resource_id' => $resource->id(),
                 'reviewed' => '0',
             ])
@@ -379,13 +379,13 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
         // TODO
         echo '<div class="meta-group"><h4>'
-            . $translate('Correction') // @translate
+            . $translate('Contribute') // @translate
             . '</h4><div class="value">';
         if ($total) {
-            echo sprintf($translate('%d corrections (%d not reviewed)'), $total, $totalNotReviewed); // @translate
+            echo sprintf($translate('%d contributes (%d not reviewed)'), $total, $totalNotReviewed); // @translate
         } else {
             echo '<em>'
-                . $translate('No correction') // @translate
+                . $translate('No contribute') // @translate
                 . '</em>';
         }
         echo '</div></div>';
@@ -400,9 +400,9 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
 
         $fieldset = $event
             ->getTarget()
-            ->get('correction');
+            ->get('contribute');
 
-        $queries = $settings->get('correction_property_queries') ?: [];
+        $queries = $settings->get('contribute_property_queries') ?: [];
         $value = '';
         if (is_array($queries)) {
             foreach ($queries as $term => $query) {
@@ -410,16 +410,16 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
             }
         }
         $fieldset
-            ->get('correction_property_queries')
+            ->get('contribute_property_queries')
             ->setValue($value);
     }
 
     public function handleMainSettingsFilters(Event $event)
     {
         $event->getParam('inputFilter')
-            ->get('correction')
+            ->get('contribute')
             ->add([
-                'name' => 'correction_notify',
+                'name' => 'contribute_notify',
                 'required' => false,
                 'filters' => [
                     [
@@ -431,31 +431,31 @@ y more. The module %1$sContribute%2$s replaces it.'), // @translate
                 ],
             ])
             ->add([
-                'name' => 'correction_template_editable',
+                'name' => 'contribute_template_editable',
                 'required' => false,
             ])
             ->add([
-                'name' => 'correction_properties_corrigible_mode',
+                'name' => 'contribute_properties_corrigible_mode',
                 'required' => false,
             ])
             ->add([
-                'name' => 'correction_properties_corrigible',
+                'name' => 'contribute_properties_corrigible',
                 'required' => false,
             ])
             ->add([
-                'name' => 'correction_properties_fillable_mode',
+                'name' => 'contribute_properties_fillable_mode',
                 'required' => false,
             ])
             ->add([
-                'name' => 'correction_properties_fillable',
+                'name' => 'contribute_properties_fillable',
                 'required' => false,
             ])
             ->add([
-                'name' => 'correction_properties_datatype',
+                'name' => 'contribute_properties_datatype',
                 'required' => false,
             ])
             ->add([
-                'name' => 'correction_property_queries',
+                'name' => 'contribute_property_queries',
                 'required' => false,
                 'filters' => [
                     [

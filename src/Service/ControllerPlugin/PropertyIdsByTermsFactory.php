@@ -1,7 +1,7 @@
 <?php
-namespace Correction\Service\ControllerPlugin;
+namespace Contribute\Service\ControllerPlugin;
 
-use Correction\Mvc\Controller\Plugin\PropertyIdsByTerms;
+use Contribute\Mvc\Controller\Plugin\PropertyIdsByTerms;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 

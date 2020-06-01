@@ -1,5 +1,5 @@
 <?php
-namespace Correction\Api\Representation;
+namespace Contribute\Api\Representation;
 
 use DateTime;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
@@ -8,12 +8,12 @@ class TokenRepresentation extends AbstractEntityRepresentation
 {
     public function getControllerName()
     {
-        return 'correction';
+        return 'contribute';
     }
 
     public function getJsonLdType()
     {
-        return 'o-module-correction:Token';
+        return 'o-module-contribute:Token';
     }
 
     public function getJsonLd()
@@ -42,11 +42,11 @@ class TokenRepresentation extends AbstractEntityRepresentation
         return [
             'o:id' => $this->id(),
             'o:resource' => $this->resource()->getReference(),
-            'o-module-correction:token' => $this->token(),
+            'o-module-contribute:token' => $this->token(),
             'o:email' => $this->email(),
-            'o-module-correction:expire' => $expire,
+            'o-module-contribute:expire' => $expire,
             'o:created' => $created,
-            'o-module-correction:accessed' => $accessed,
+            'o-module-contribute:accessed' => $accessed,
         ];
     }
 
@@ -110,7 +110,7 @@ class TokenRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * In admin, the token admin url use CorrectionController and the id is "0",
+     * In admin, the token admin url use ContributeController and the id is "0",
      * the token is set in the query.
      *
      * {@inheritDoc}

@@ -3,7 +3,7 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Correction\Api\Representation\CorrectionRepresentation|null $correction
+ * @var \Contribute\Api\Representation\ContributeRepresentation|null $contribute
  * @var array $fields
  */
 
@@ -13,10 +13,10 @@ $assetUrl = $plugins->get('assetUrl');
 
 $this->headLink()
     ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
-    ->appendStylesheet($assetUrl('css/correction.css', 'Correction'));
+    ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
 $this->headScript()
     ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
-    ->appendFile($assetUrl('js/correction.js', 'Correction'), 'text/javascript', ['defer' => 'defer']);
+    ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
 
 // To check if ValueSuggest is available, just try to get the routed url.
 try {
@@ -48,10 +48,10 @@ $mapLabels = [
     <?= $this->messages() ?>
     <?php $this->trigger('view.edit.before'); ?>
     <?php
-    echo $this->partial('correction/site/correction/form.phtml', [
+    echo $this->partial('contribute/site/contribute/form.phtml', [
         'form' => $form,
         'resource' => $resource,
-        'correction' => $correction,
+        'contribute' => $contribute,
         'fields' => $fields,
         'action' => 'edit',
         'submitLabel' => $translate('Correct'),

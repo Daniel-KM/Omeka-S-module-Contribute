@@ -1,7 +1,7 @@
-Correction (module for Omeka S) [archived]
+Contribute (module for Omeka S) [archived]
 ===============================
 
-[Correction] is a module for [Omeka S] that allows visitors to correct, complete
+[Contribute] is a module for [Omeka S] that allows visitors to correct, complete
 or translate metadata of the resources without access to the admin board. Access
 to the edit page may be controlled by a token, that you can send to your users.
 
@@ -19,13 +19,13 @@ See general end user documentation for [installing a module].
 
 * From the zip
 
-Download the last release [`Correction.zip`] from the list of releases, and
+Download the last release [`Contribute.zip`] from the list of releases, and
 uncompress it in the `modules` directory.
 
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
-the module to `Correction`.
+the module to `Contribute`.
 
 
 Usage
@@ -41,7 +41,7 @@ Usage
 - Send emails to your users with the tokens, so they can correct or complete
   metadata of the resources.
 - Go to the resource page of the corrected items and apply changes, or decline
-  them. Corrections can be marked as reviewed and token can be made expired.
+  them. Contributes can be marked as reviewed and token can be made expired.
 
 
 TODO
@@ -52,7 +52,7 @@ TODO
   translation.
 - Finalize value resources.
 - Finalize select for resources (dynamic api query via chosen-select).
-- Create an admin browse page with all corrections.
+- Create an admin browse page with all contributes.
 
 
 Warning
@@ -108,13 +108,13 @@ Copyright
 First version of this module was done for [Université de Paris-Saclay].
 
 
-[Correction]: https://github.com/Daniel-KM/Omeka-S-module-Correction
+[Contribute]: https://github.com/Daniel-KM/Omeka-S-module-Contribute
 [Omeka S]: https://omeka.org/s
 [Contribute]: https://github.com/Daniel-KM/Omeka-S-module-Contribute
 [`Generic`]: https://github.com/Daniel-KM/Omeka-S-module-Generic
-[`Correction.zip`]: https://github.com/Daniel-KM/Omeka-S-module-Correction/releases
+[`Contribute.zip`]: https://github.com/Daniel-KM/Omeka-S-module-Contribute/releases
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
-[module issues]: https://github.com/Daniel-KM/Omeka-S-module-Correction/issues
+[module issues]: https://github.com/Daniel-KM/Omeka-S-module-Contribute/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org

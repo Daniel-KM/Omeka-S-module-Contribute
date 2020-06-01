@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: Module.php:272
-msgid "Create correction token"
+msgid "Create contribute token"
 msgstr ""
 
-#: Module.php:276 Module.php:367 view/common/admin/correction-list.phtml:66
-#: view/common/helper/correction-link.phtml:16
-msgid "Correction"
+#: Module.php:276 Module.php:367 view/common/admin/contribute-list.phtml:66
+#: view/common/helper/contribute-link.phtml:16
+msgid "Contribute"
 msgstr ""
 
 #: Module.php:281
@@ -36,55 +36,55 @@ msgstr ""
 
 #: Module.php:370
 #, php-format
-msgid "%d corrections (%d not reviewed)"
+msgid "%d contributes (%d not reviewed)"
 msgstr ""
 
 #: Module.php:373
-msgid "No correction"
+msgid "No contribute"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:229
+#: src/Controller/Admin/ContributeController.php:229
 msgid "Unreviewed"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:229
-#: src/Controller/Admin/CorrectionController.php:320
+#: src/Controller/Admin/ContributeController.php:229
+#: src/Controller/Admin/ContributeController.php:320
 msgid "Reviewed"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:266
+#: src/Controller/Admin/ContributeController.php:266
 msgid "No token"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:283
+#: src/Controller/Admin/ContributeController.php:283
 msgid "Expired"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:317
-#: view/common/admin/correction-list.phtml:191
-#: view/common/admin/correction-list.phtml:244
-#: view/common/admin/correction-list.phtml:290
+#: src/Controller/Admin/ContributeController.php:317
+#: view/common/admin/contribute-list.phtml:191
+#: view/common/admin/contribute-list.phtml:244
+#: view/common/admin/contribute-list.phtml:290
 msgid "Validated"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:353
+#: src/Controller/Admin/ContributeController.php:353
 msgid "Validated value"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:593
+#: src/Controller/Admin/ContributeController.php:593
 msgid "Unauthorized access."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:598
+#: src/Controller/Admin/ContributeController.php:598
 msgid "Resource not found."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:603
+#: src/Controller/Admin/ContributeController.php:603
 msgid "An internal error occurred."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:156
-msgid "[Omeka Correction] New correction"
+#: src/Controller/Site/ContributeController.php:156
+msgid "[Omeka Contribute] New contribute"
 msgstr ""
 
 #: src/Generic/AbstractModule.php:598
@@ -104,138 +104,138 @@ msgid ""
 "unavailable."
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:25
-#: view/common/admin/correction-token-list.phtml:17
+#: view/common/admin/contribute-list.phtml:25
+#: view/common/admin/contribute-token-list.phtml:17
 msgid "There are no tokens for this resource."
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:36
+#: view/common/admin/contribute-list.phtml:36
 #, php-format
 msgid "There are %d tokens for this resource (%d expired)."
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:38
+#: view/common/admin/contribute-list.phtml:38
 msgid "Expire all tokens"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:45
-msgid "There are no corrections for this resource."
+#: view/common/admin/contribute-list.phtml:45
+msgid "There are no contributes for this resource."
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:75
+#: view/common/admin/contribute-list.phtml:75
 msgid "(modified)"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:87
-#: view/common/admin/correction-list.phtml:88
+#: view/common/admin/contribute-list.phtml:87
+#: view/common/admin/contribute-list.phtml:88
 msgid "Validate all values"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:93
-#: view/common/admin/correction-list.phtml:94
+#: view/common/admin/contribute-list.phtml:93
+#: view/common/admin/contribute-list.phtml:94
 msgid "Toggle status reviewed/unreviewed"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:96
-#: view/common/admin/correction-token-list.phtml:53
+#: view/common/admin/contribute-list.phtml:96
+#: view/common/admin/contribute-token-list.phtml:53
 msgid "Expired token"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:101
-#: view/common/admin/correction-list.phtml:102
-#: view/common/admin/correction-token-list.phtml:59
-#: view/common/admin/correction-token-list.phtml:60
+#: view/common/admin/contribute-list.phtml:101
+#: view/common/admin/contribute-list.phtml:102
+#: view/common/admin/contribute-token-list.phtml:59
+#: view/common/admin/contribute-token-list.phtml:60
 msgid "Expire token"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:193
-#: view/common/admin/correction-list.phtml:246
-#: view/common/admin/correction-list.phtml:292
+#: view/common/admin/contribute-list.phtml:193
+#: view/common/admin/contribute-list.phtml:246
+#: view/common/admin/contribute-list.phtml:292
 msgid "Not validable"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:195
-#: view/common/admin/correction-list.phtml:248
-#: view/common/admin/correction-list.phtml:294
+#: view/common/admin/contribute-list.phtml:195
+#: view/common/admin/contribute-list.phtml:248
+#: view/common/admin/contribute-list.phtml:294
 msgid "No right to write"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:201
-#: view/common/admin/correction-list.phtml:254
-#: view/common/admin/correction-list.phtml:300
+#: view/common/admin/contribute-list.phtml:201
+#: view/common/admin/contribute-list.phtml:254
+#: view/common/admin/contribute-list.phtml:300
 #, php-format
 msgid "Validate this value (%s)"
 msgstr ""
 
-#: view/common/admin/correction-list.phtml:324
+#: view/common/admin/contribute-list.phtml:324
 msgid "Unused tokens"
 msgstr ""
 
-#: view/common/admin/correction-token-list.phtml:38
+#: view/common/admin/contribute-token-list.phtml:38
 msgid "Token"
 msgstr ""
 
-#: view/common/admin/correction-token-list.phtml:50
+#: view/common/admin/contribute-token-list.phtml:50
 msgid "[no email]"
 msgstr ""
 
-#: view/common/admin/correction-token-list.phtml:62
+#: view/common/admin/contribute-token-list.phtml:62
 msgid "Unused token"
 msgstr ""
 
-#: view/common/helper/correction-link.phtml:18
+#: view/common/helper/contribute-link.phtml:18
 msgid "Correct this record"
 msgstr ""
 
-#: view/common/helper/correction-link.phtml:20
+#: view/common/helper/contribute-link.phtml:20
 msgid "Click your token link to correct this record."
 msgstr ""
 
-#: view/common/helper/correction-link.phtml:23
+#: view/common/helper/contribute-link.phtml:23
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to correct this record."
 msgstr ""
 
-#: view/correction/site/correction/edit.phtml:47
+#: view/contribute/site/contribute/edit.phtml:47
 #, php-format
 msgid "Correct %s"
 msgstr ""
 
-#: view/correction/site/correction/edit.phtml:57
+#: view/contribute/site/contribute/edit.phtml:57
 msgid "Correct"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:193
+#: view/contribute/site/contribute/form.phtml:193
 msgid "private"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:220
-#: view/correction/site/correction/form.phtml:319
+#: view/contribute/site/contribute/form.phtml:220
+#: view/contribute/site/contribute/form.phtml:319
 msgid "Select a resource…"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:319
+#: view/contribute/site/contribute/form.phtml:319
 msgid "Add linked resource"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:323
+#: view/contribute/site/contribute/form.phtml:323
 msgid "Add URI"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:326
+#: view/contribute/site/contribute/form.phtml:326
 msgid "Add linked data"
 msgstr ""
 
-#: view/correction/site/correction/form.phtml:344
+#: view/contribute/site/contribute/form.phtml:344
 msgid "Go back to resource"
 msgstr ""
 
 #: Module.php:297
-msgid "Corrections"
+msgid "Contributes"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:20
-msgid "Default emails to notify corrections"
+msgid "Default emails to notify contributes"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:21
@@ -258,7 +258,7 @@ msgid "Select a resource template…"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:52
-msgid "Default correction mode"
+msgid "Default contribute mode"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:53 src/Form/SettingsFieldset.php:88
@@ -283,7 +283,7 @@ msgstr ""
 
 #: src/Form/SettingsFieldset.php:69
 msgid ""
-"Only the selected properties will be proposed for public correction. This "
+"Only the selected properties will be proposed for public contribute. This "
 "list is used only when the resource template is not configured."
 msgstr ""
 
@@ -342,7 +342,7 @@ msgid "Allows to limit options in a resource select."
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:157
-msgid "Allow correction of resources without a token"
+msgid "Allow contribute of resources without a token"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:167
@@ -359,105 +359,105 @@ msgstr ""
 msgid "90"
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:70
+#: src/Controller/Site/ContributeController.php:70
 msgid ""
 "This resource cannot be corrected. Ask the administrator for more "
 "information."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:94
-#: src/Controller/Site/CorrectionController.php:104
-msgid "Corrections successfully submitted!"
+#: src/Controller/Site/ContributeController.php:94
+#: src/Controller/Site/ContributeController.php:104
+msgid "Contributes successfully submitted!"
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:108
+#: src/Controller/Site/ContributeController.php:108
 msgid "No change."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:121
+#: src/Controller/Site/ContributeController.php:121
 msgid "An error occurred: check your input."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:144
+#: src/Controller/Site/ContributeController.php:144
 #, php-format
 msgid "User %1$s has corrected resource #%2$s (%3$s)."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:151
+#: src/Controller/Site/ContributeController.php:151
 #, php-format
 msgid "A user has corrected resource #%1$d (%2$s)."
 msgstr ""
 
-#: src/Controller/Site/CorrectionController.php:890
+#: src/Controller/Site/ContributeController.php:890
 msgid "Forbidden access."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:47
+#: src/Controller/Admin/ContributeController.php:47
 msgid "You can create token only for items, media and item sets."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:55
+#: src/Controller/Admin/ContributeController.php:55
 #: src/Api/Representation/TokenRepresentation.php:149
 msgid "A site is required to create a public token."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:81
+#: src/Controller/Admin/ContributeController.php:81
 msgid "You must select at least one resource to create a token."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:90
+#: src/Controller/Admin/ContributeController.php:90
 #, php-format
 msgid ""
-"You set the optional email \"%s\" to create a correction token, but it is "
+"You set the optional email \"%s\" to create a contribute token, but it is "
 "not well-formed."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:132
+#: src/Controller/Admin/ContributeController.php:132
 #, php-format
-msgid "Created %1$s correction tokens (email: %2$s, duration: %3$s): %4$s"
+msgid "Created %1$s contribute tokens (email: %2$s, duration: %3$s): %4$s"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:134
+#: src/Controller/Admin/ContributeController.php:134
 msgid "none"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:136
+#: src/Controller/Admin/ContributeController.php:136
 #, php-format
 msgid "%d days"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:137
+#: src/Controller/Admin/ContributeController.php:137
 msgid "unlimited"
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:174
+#: src/Controller/Admin/ContributeController.php:174
 #, php-format
 msgid "Resource #%s has no tokens to expire."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:195
+#: src/Controller/Admin/ContributeController.php:195
 msgid "All tokens of the resource were expired."
 msgstr ""
 
-#: src/Controller/Admin/CorrectionController.php:343
+#: src/Controller/Admin/ContributeController.php:343
 msgid "Missing term or key."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:51
+#: src/Mvc/Controller/Plugin/SendContributeEmail.php:51
 msgid "Email not sent: the subject is missing."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:57
+#: src/Mvc/Controller/Plugin/SendContributeEmail.php:57
 #, php-format
 msgid "Email not sent: content is missing (subject: %1$s)."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:63
+#: src/Mvc/Controller/Plugin/SendContributeEmail.php:63
 #, php-format
 msgid "Email not sent: no recipient (subject: %1$s)."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendCorrectionEmail.php:119
+#: src/Mvc/Controller/Plugin/SendContributeEmail.php:119
 #, php-format
 msgid "An email was sent to %1$s with subject: %2$s"
 msgstr ""

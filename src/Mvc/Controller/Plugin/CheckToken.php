@@ -1,7 +1,7 @@
 <?php
-namespace Correction\Mvc\Controller\Plugin;
+namespace Contribute\Mvc\Controller\Plugin;
 
-use Correction\Api\Representation\TokenRepresentation;
+use Contribute\Api\Representation\TokenRepresentation;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
@@ -22,16 +22,16 @@ class CheckToken extends AbstractPlugin
             return false;
         }
 
-        /** @var \Correction\Api\Representation\TokenRepresentation $token */
+        /** @var \Contribute\Api\Representation\TokenRepresentation $token */
         $token = $controller->api()
-            ->searchOne('correction_tokens', ['token' => $token, 'resource_id' => $resource->id()])
+            ->searchOne('contribute_tokens', ['token' => $token, 'resource_id' => $resource->id()])
             ->getContent();
         if (empty($token)) {
             return false;
         }
 
         // Update the token with last accessed time.
-        $controller->api()->update('correction_tokens', $token->id(), ['o-module-correction:accessed' => 'now'], [], ['isPartial' => true]);
+        $controller->api()->update('contribute_tokens', $token->id(), ['o-module-contribute:accessed' => 'now'], [], ['isPartial' => true]);
 
         // TODO Add a message for expiration.
         if ($token->isExpired()) {

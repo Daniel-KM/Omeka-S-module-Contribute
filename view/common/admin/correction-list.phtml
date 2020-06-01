@@ -3,8 +3,8 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Correction\Api\Representation\CorrectionRepresentation[] $corrections
- * @var \Correction\Api\Representation\TokenRepresentation[] $unusedTokens
+ * @var \Contribute\Api\Representation\ContributeRepresentation[] $contributes
+ * @var \Contribute\Api\Representation\TokenRepresentation[] $unusedTokens
  * @var string $siteSlug
  */
 
@@ -17,10 +17,10 @@ $labelInfo = $this->setting('property_label_information');
 
 $values = $resource->values();
 ?>
-<div class="corrections">
-    <?php $totalTokens = $api->search('correction_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
+<div class="contributes">
+    <?php $totalTokens = $api->search('contribute_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
-        <?php if (!$this->setting('correction_without_token')): ?>
+        <?php if (!$this->setting('contribute_without_token')): ?>
     <div class="no-resources no-tokens">
         <p><?= $translate('There are no tokens for this resource.') ?></p>
     </div>
@@ -28,21 +28,21 @@ $values = $resource->values();
     <?php else: ?>
     <?php $totalExpiredTokens = $api
         ->search(
-            'correction_tokens',
+            'contribute_tokens',
             ['resource_id' => $resource->id(), 'datetime' => [['field' => 'expire', 'type' => 'lt', 'value' => date('Y-m-d H:i:s')]]]
         )
         ->getTotalResults(); ?>
-    <div class="correction-token">
+    <div class="contribute-token">
         <p><?= sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens) ?></p>
-        <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Correction\Controller\Admin\Correction', 'expire-tokens')): ?>
-        <?= $hyperlink($translate('Expire all tokens'), $this->url('admin/correction/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']) ?>
+        <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Contribute\Controller\Admin\Contribute', 'expire-tokens')): ?>
+        <?= $hyperlink($translate('Expire all tokens'), $this->url('admin/contribute/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']) ?>
         <?php endif; ?>
     </div>
     <?php endif; ?>
 
-<?php if (empty($corrections)): ?>
-    <div class="no-resources no-corrections">
-        <p><?= $translate('There are no corrections for this resource.') ?></p>
+<?php if (empty($contributes)): ?>
+    <div class="no-resources no-contributes">
+        <p><?= $translate('There are no contributes for this resource.') ?></p>
     </div>
 <?php else: ?>
 <?php
@@ -56,40 +56,40 @@ $adapterName = $mapResourceAdapters[$resourceName];
 $batchEditRight = $this->userIsAllowed($adapterName, 'batch-update');
 $editRight = $resource->userIsAllowed('update');
 ?>
-<?php foreach ($corrections as $correction): ?>
-<?php $token = $correction->token(); ?>
-<div class="correction">
+<?php foreach ($contributes as $contribute): ?>
+<?php $token = $contribute->token(); ?>
+<div class="contribute">
 <table class="tablesaw <?php if ($batchEditRight) echo 'batch-edit'; ?>" data-tablesaw-mode="stack">
     <thead>
         <tr>
             <th>
-                <?= $translate('Correction') ?>
+                <?= $translate('Contribute') ?>
                 <?php /*
-                <span class="correction-id">#<?= $correction->id() ?></span>
+                <span class="contribute-id">#<?= $contribute->id() ?></span>
                 */ ?>
-                <?php if ($email = $correction->email()): ?>
-                <span class="correction-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
+                <?php if ($email = $contribute->email()): ?>
+                <span class="contribute-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php endif; ?>
-                <span class="correction-date"><?= $this->i18n()->dateFormat($correction->created(), 'medium', 'medium') ?></span>
-                <?php if ($correction->created() != $correction->modified()): // Don't use !==. ?>
-                <span class="correction-date-modified"><?= $translate('(modified)') ?></span>
+                <span class="contribute-date"><?= $this->i18n()->dateFormat($contribute->created(), 'medium', 'medium') ?></span>
+                <?php if ($contribute->created() != $contribute->modified()): // Don't use !==. ?>
+                <span class="contribute-date-modified"><?= $translate('(modified)') ?></span>
                 <?php endif; ?>
                 <?php if ($token): ?>
                 <span> / </span>
-                <span class="correction-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
+                <span class="contribute-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
                 <?php endif; ?>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
                     class="validate o-icon-validate"
-                    data-validate-url="<?= $escape($correction->url('validate')) ?>"
+                    data-validate-url="<?= $escape($contribute->url('validate')) ?>"
                     data-status="validate"
                     aria-label="<?= $escape($translate('Validate all values')) ?>"
                     title="<?= $escape($translate('Validate all values')) ?>"></a></span>
                 <span class="single actions"><a href="#"
-                    class="status-toggle o-icon-<?= $correction->reviewed() ? 'reviewed' : 'unreviewed' ?>"
-                    data-status-toggle-url="<?= $escape($correction->url('toggle-status')) ?>"
-                    data-status="<?= $correction->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    class="status-toggle o-icon-<?= $contribute->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    data-status-toggle-url="<?= $escape($contribute->url('toggle-status')) ?>"
+                    data-status="<?= $contribute->reviewed() ? 'reviewed' : 'unreviewed' ?>"
                     aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                     title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
                 <?php if ($token && $token->isExpired()): ?>
@@ -97,27 +97,27 @@ $editRight = $resource->userIsAllowed('update');
                 <?php elseif ($token): ?>
                 <span class="single single-action"><a href="#"
                     class="expire-token o-icon-expire-token"
-                    data-expire-token-url="<?= $escape($correction->url('expire-token')) ?>"
+                    data-expire-token-url="<?= $escape($contribute->url('expire-token')) ?>"
                     aria-label="<?= $escape($translate('Expire token')) ?>"
                     title="<?= $escape($translate('Expire token')) ?>"></a></span>
                 <?php endif; ?>
                 <?php else: ?>
-                <span class="no-action o-icon-<?= $correction->reviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
+                <span class="no-action o-icon-<?= $contribute->reviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
                 <?php endif; ?>
             </th>
         </tr>
     </thead>
     <tbody>
-        <tr class="correction-value">
+        <tr class="contribute-value">
             <td>
 
-<?php $proposal = $correction->proposalCheck(); ?>
+<?php $proposal = $contribute->proposalCheck(); ?>
 <?php foreach ($proposal as $term => $propositions):
     if (isset($values[$term])):
         $propertyData = $values[$term];
     else:
         $property = $api->searchOne('properties', ['term' => $term])->getContent();
-        // In the case the property was removed after the correction.
+        // In the case the property was removed after the contribute.
         if (empty($property)) continue;
         $propertyData = [
             'property' => $property,
@@ -196,7 +196,7 @@ $editRight = $resource->userIsAllowed('update');
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escape($contribute->url('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -249,7 +249,7 @@ $editRight = $resource->userIsAllowed('update');
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escape($contribute->url('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -295,7 +295,7 @@ $editRight = $resource->userIsAllowed('update');
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($correction->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escape($contribute->url('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -322,7 +322,7 @@ $editRight = $resource->userIsAllowed('update');
 
 <?php if ($unusedTokens): ?>
 <h4><?= $translate('Unused tokens') ?></h4>
-<?= $this->partial('common/admin/correction-token-list', [
+<?= $this->partial('common/admin/contribute-token-list', [
     'resource' => $resource,
     'tokens' => $unusedTokens,
     'siteSlug' => $siteSlug,

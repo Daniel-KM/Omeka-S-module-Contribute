@@ -1,5 +1,5 @@
 <?php
-namespace Correction\Mvc\Controller\Plugin;
+namespace Contribute\Mvc\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 

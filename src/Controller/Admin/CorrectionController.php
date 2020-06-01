@@ -1,7 +1,7 @@
 <?php
-namespace Correction\Controller\Admin;
+namespace Contribute\Controller\Admin;
 
-use Correction\Api\Representation\CorrectionRepresentation;
+use Contribute\Api\Representation\ContributeRepresentation;
 use DateInterval;
 use DateTime;
 use Omeka\Stdlib\Message;
@@ -9,7 +9,7 @@ use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 
-class CorrectionController extends AbstractActionController
+class ContributeController extends AbstractActionController
 {
     /**
      * Create a token for a list of resources.
@@ -66,9 +66,9 @@ class CorrectionController extends AbstractActionController
             ? (is_array($params['resource_ids']) ? $params['resource_ids'] : explode(',', $params['resource_ids']))
             : [];
         $params['resource_ids'] = $resourceIds;
-        $params['batch_action'] = $params['batch_action'] === 'correction-all' ? 'correction-all' : 'correction-selected';
+        $params['batch_action'] = $params['batch_action'] === 'contribute-all' ? 'contribute-all' : 'contribute-selected';
 
-        if ($params['batch_action'] === 'correction-all') {
+        if ($params['batch_action'] === 'contribute-all') {
             // Derive the query, removing limiting and sorting params.
             $query = json_decode($params['query'] ?: [], true);
             unset($query['submit'], $query['page'], $query['per_page'], $query['limit'],
@@ -87,7 +87,7 @@ class CorrectionController extends AbstractActionController
         $email = trim($params['email']);
         if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->messenger()->addError(new Message(
-                'You set the optional email "%s" to create a correction token, but it is not well-formed.', // @translate
+                'You set the optional email "%s" to create a contribute token, but it is not well-formed.', // @translate
                 $email
             ));
             return $params['redirect']
@@ -96,7 +96,7 @@ class CorrectionController extends AbstractActionController
         }
 
         // $expire = $params['expire'];
-        $tokenDuration = $this->settings()->get('correction_token_duration');
+        $tokenDuration = $this->settings()->get('contribute_token_duration');
         $expire = $tokenDuration > 0
             ? (new DateTime('now'))->add(new DateInterval('PT' . ($tokenDuration * 86400) . 'S'))
             : null;
@@ -106,14 +106,14 @@ class CorrectionController extends AbstractActionController
         $urlHelper = $this->viewHelpers()->get('url');
         $urls = [];
         foreach ($resourceIds as $resourceId) {
-            /** @var \Correction\Api\Representation\TokenRepresentation $token */
+            /** @var \Contribute\Api\Representation\TokenRepresentation $token */
             $token = $api
                 ->create(
-                    'correction_tokens',
+                    'contribute_tokens',
                     [
                         'o:resource' => ['o:id' => $resourceId],
                         'o:email' => $email,
-                        'o-module-correction:expire' => $expire,
+                        'o-module-contribute:expire' => $expire,
                     ]
                 )
                 ->getContent();
@@ -129,7 +129,7 @@ class CorrectionController extends AbstractActionController
         }
 
         $message = new Message(
-            'Created %1$s correction tokens (email: %2$s, duration: %3$s): %4$s', // @translate
+            'Created %1$s contribute tokens (email: %2$s, duration: %3$s): %4$s', // @translate
             $count,
             $email ?: new Message('none'), // @translate
             $tokenDuration
@@ -161,7 +161,7 @@ class CorrectionController extends AbstractActionController
         $resourceType = $resource->getControllerName();
         $response = $api
             ->search(
-                'correction_tokens',
+                'contribute_tokens',
                 [
                     'resource_id' => $id,
                     'datetime' => [['field' => 'expire', 'type' => 'gte', 'value' => date('Y-m-d H:i:s')], ['joiner' => 'or', 'field' => 'expire', 'type' => 'nex']],
@@ -187,9 +187,9 @@ class CorrectionController extends AbstractActionController
 
         $response = $api
             ->batchUpdate(
-                'correction_tokens',
+                'contribute_tokens',
                 $ids,
-                ['o-module-correction:expire' => 'now']
+                ['o-module-contribute:expire' => 'now']
             );
 
         $message = 'All tokens of the resource were expired.'; // @translate
@@ -205,18 +205,18 @@ class CorrectionController extends AbstractActionController
 
         // Only people who can edit the resource can update the status.
         $id = $this->params('id');
-        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
-        $correction = $this->api()->read('corrections', $id)->getContent();
-        if (!$correction->resource()->userIsAllowed('update')) {
+        /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
+        $contribute = $this->api()->read('contributes', $id)->getContent();
+        if (!$contribute->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $isReviewed = $correction->reviewed();
+        $isReviewed = $contribute->reviewed();
 
         $data = [];
-        $data['o-module-correction:reviewed'] = !$isReviewed;
+        $data['o-module-contribute:reviewed'] = !$isReviewed;
         $response = $this->api()
-            ->update('corrections', $id, $data, [], ['isPartial' => true]);
+            ->update('contributes', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
             return $this->jsonErrorUpdate();
         }
@@ -244,19 +244,19 @@ class CorrectionController extends AbstractActionController
             if (empty($token)) {
                 return $this->jsonErrorNotFound();
             }
-            /** @var \Correction\Api\Representation\TokenRepresentation $token */
-            $token = $this->api()->searchOne('correction_tokens', ['token' => $token])->getContent();
+            /** @var \Contribute\Api\Representation\TokenRepresentation $token */
+            $token = $this->api()->searchOne('contribute_tokens', ['token' => $token])->getContent();
             if (!$token) {
                 return $this->jsonErrorNotFound();
             }
         } else {
-            /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
-            $correction = $this->api()->read('corrections', $id)->getContent();
-            $token = $correction->token();
+            /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
+            $contribute = $this->api()->read('contributes', $id)->getContent();
+            $token = $contribute->token();
         }
 
         if (!$token) {
-            if (!$this->settings()->get('correction_without_token')) {
+            if (!$this->settings()->get('contribute_without_token')) {
                 return $this->jsonErrorUnauthorized();
             }
             return new JsonModel([
@@ -270,7 +270,7 @@ class CorrectionController extends AbstractActionController
 
         if (!$token->isExpired()) {
             $response = $this->api()
-                ->update('correction_tokens', $token->id(), ['o-module-correction:expire' => 'now'], [], ['isPartial' => true]);
+                ->update('contribute_tokens', $token->id(), ['o-module-contribute:expire' => 'now'], [], ['isPartial' => true]);
             if (!$response) {
                 return $this->jsonErrorUpdate();
             }
@@ -293,18 +293,18 @@ class CorrectionController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
-        $correction = $this->api()->read('corrections', $id)->getContent();
-        if (!$correction->resource()->userIsAllowed('update')) {
+        /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
+        $contribute = $this->api()->read('contributes', $id)->getContent();
+        if (!$contribute->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $this->validateCorrection($correction);
+        $this->validateContribute($contribute);
 
         $data = [];
-        $data['o-module-correction:reviewed'] = true;
+        $data['o-module-contribute:reviewed'] = true;
         $response = $this->api()
-            ->update('corrections', $id, $data, [], ['isPartial' => true]);
+            ->update('contributes', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
             return $this->jsonErrorUpdate();
         }
@@ -331,9 +331,9 @@ class CorrectionController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Correction\Api\Representation\CorrectionRepresentation $correction */
-        $correction = $this->api()->read('corrections', $id)->getContent();
-        if (!$correction->resource()->userIsAllowed('update')) {
+        /** @var \Contribute\Api\Representation\ContributeRepresentation $contribute */
+        $contribute = $this->api()->read('contributes', $id)->getContent();
+        if (!$contribute->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
@@ -343,7 +343,7 @@ class CorrectionController extends AbstractActionController
             return $this->returnError('Missing term or key.'); // @translate
         }
 
-        $this->validateCorrection($correction, $term, $key);
+        $this->validateContribute($contribute, $term, $key);
 
         return new JsonModel([
             'status' => Response::STATUS_CODE_200,
@@ -369,14 +369,14 @@ class CorrectionController extends AbstractActionController
             'fillable' => [],
         ];
 
-        $correctionPartMap = $this->resourceTemplateCorrectionPartMap($resourceTemplateId);
-        foreach ($correctionPartMap['corrigible'] as $term) {
+        $contributePartMap = $this->resourceTemplateContributePartMap($resourceTemplateId);
+        foreach ($contributePartMap['corrigible'] as $term) {
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if ($property) {
                 $result['corrigible'][$property->id()] = $term;
             }
         }
-        foreach ($correctionPartMap['fillable'] as $term) {
+        foreach ($contributePartMap['fillable'] as $term) {
             $property = $api->searchOne('properties', ['term' => $term])->getContent();
             if ($property) {
                 $result['fillable'][$property->id()] = $term;
@@ -389,26 +389,26 @@ class CorrectionController extends AbstractActionController
     }
 
     /**
-     * Correct existing values of the resource with the correction proposal.
+     * Correct existing values of the resource with the contribute proposal.
      *
-     * @todo Factorize with \Correction\Site\CorrectionController::prepareProposal()
+     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      *
-     * @param CorrectionRepresentation $correction
+     * @param ContributeRepresentation $contribute
      * @param string $term
      * @param int $proposedKey
      */
-    protected function validateCorrection(CorrectionRepresentation $correction, $term = null, $proposedKey = null)
+    protected function validateContribute(ContributeRepresentation $contribute, $term = null, $proposedKey = null)
     {
-        $editable = $correction->editableData();
+        $editable = $contribute->editableData();
         if (!$editable->isEditable()) {
             return;
         }
 
         // Right to update the resource is already checked.
-        $resource = $correction->resource();
+        $resource = $contribute->resource();
         $resourceTemplate = $resource->resourceTemplate();
         $existingValues = $resource->values();
-        $proposal = $correction->proposalCheck();
+        $proposal = $contribute->proposalCheck();
         $hasProposedKey = !is_null($proposedKey);
 
         $api = $this->api();

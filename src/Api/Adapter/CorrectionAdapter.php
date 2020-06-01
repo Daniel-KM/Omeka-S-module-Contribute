@@ -1,5 +1,5 @@
 <?php
-namespace Correction\Api\Adapter;
+namespace Contribute\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
@@ -7,7 +7,7 @@ use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
 
-class CorrectionAdapter extends AbstractEntityAdapter
+class ContributeAdapter extends AbstractEntityAdapter
 {
     protected $sortFields = [
         'id' => 'id',
@@ -21,34 +21,34 @@ class CorrectionAdapter extends AbstractEntityAdapter
 
     public function getResourceName()
     {
-        return 'corrections';
+        return 'contributes';
     }
 
     public function getRepresentationClass()
     {
-        return \Correction\Api\Representation\CorrectionRepresentation::class;
+        return \Contribute\Api\Representation\ContributeRepresentation::class;
     }
 
     public function getEntityClass()
     {
-        return \Correction\Entity\Correction::class;
+        return \Contribute\Entity\Contribute::class;
     }
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
     {
         // TODO Use shouldHydrate() and validateEntity().
-        /** @var \Correction\Entity\Correction $entity */
+        /** @var \Contribute\Entity\Contribute $entity */
         $data = $request->getContent();
         if (Request::CREATE === $request->getOperation()) {
             $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
-            $token = empty($data['o-module-correction:token'])
+            $token = empty($data['o-module-contribute:token'])
                 ? null
-                : $this->getAdapter('correction_tokens')->findEntity($data['o-module-correction:token']['o:id']);
+                : $this->getAdapter('contribute_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
             $email = empty($data['o:email']) ? null : $data['o:email'];
-            $reviewed = !empty($data['o-module-correction:reviewed']);
-            $proposal = empty($data['o-module-correction:proposal'])
+            $reviewed = !empty($data['o-module-contribute:reviewed']);
+            $proposal = empty($data['o-module-contribute:proposal'])
                 ? []
-                : $data['o-module-correction:proposal'];
+                : $data['o-module-contribute:proposal'];
             $entity
                 ->setResource($resource)
                 ->setToken($token)
@@ -57,15 +57,15 @@ class CorrectionAdapter extends AbstractEntityAdapter
                 ->setProposal($proposal);
             ;
         } elseif (Request::UPDATE === $request->getOperation()) {
-            if ($this->shouldHydrate($request, 'o-module-correction:reviewed', $data)) {
-                $reviewed = !empty($data['o-module-correction:reviewed']);
+            if ($this->shouldHydrate($request, 'o-module-contribute:reviewed', $data)) {
+                $reviewed = !empty($data['o-module-contribute:reviewed']);
                 $entity
                     ->setReviewed($reviewed);
             }
-            if ($this->shouldHydrate($request, 'o-module-correction:proposal', $data)) {
-                $proposal = empty($data['o-module-correction:proposal'])
+            if ($this->shouldHydrate($request, 'o-module-contribute:proposal', $data)) {
+                $proposal = empty($data['o-module-contribute:proposal'])
                     ? []
-                    : $data['o-module-correction:proposal'];
+                    : $data['o-module-contribute:proposal'];
                 $entity
                     ->setProposal($proposal);
             }

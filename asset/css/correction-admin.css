@@ -1,61 +1,61 @@
 @media screen {
-    header nav .correction:before {
+    header nav .contribute:before {
         content:"\f044"; /* fas fa-edit */
     }
-    #correction .no-corrections:before,
-    .correction .no-resources:before {
+    #contribute .no-contributes:before,
+    .contribute .no-resources:before {
         content:"\f044"; /* far fa-edit */
     }
-    #correction .no-tokens:before {
+    #contribute .no-tokens:before {
         content:""; /* clock */
     }
-    #corrections .property {
+    #contributes .property {
         display: inherit;
     }
-    #resource-corrections .actions {
+    #resource-contributes .actions {
         float: right;
     }
-    #resource-corrections.empty,
-    #resource-corrections+.no-resources {
+    #resource-contributes.empty,
+    #resource-contributes+.no-resources {
         display:none;
     }
-    #resource-corrections.empty+.no-resources {
+    #resource-contributes.empty+.no-resources {
         display:block;
         padding:0 24px;
     }
-    #resource-corrections.empty+.no-resources:before {
+    #resource-contributes.empty+.no-resources:before {
         content:"\f044"; /* far fa-edit */
     }
-    #resource-corrections tr.delete {
+    #resource-contributes tr.delete {
         background-color:#fcc;
     }
-    .corrections .resource-details .correction-internal-id {
+    .contributes .resource-details .contribute-internal-id {
         font-size: 0.7em;
     }
 
-    .correction table .resource-name {
+    .contribute table .resource-name {
         display: inline-block;
         vertical-align: bottom;
         margin-left: .5em;
         opacity: .5;
     }
-    .correction table .resource-link .resource-name {
+    .contribute table .resource-link .resource-name {
         margin-left: 0;
         opacity: 1;
     }
 
-    .corrections .correction-public {
+    .contributes .contribute-public {
         font-style: italic;
     }
 
-    .correction .single.actions {
+    .contribute .single.actions {
         float: right;
     }
-    .correction .single.actions a::before {
+    .contribute .single.actions a::before {
         text-align: inherit;
     }
-    .correction .o-icon-users,
-    .correction .no-action::before {
+    .contribute .o-icon-users,
+    .contribute .no-action::before {
         width: 24px;
         height: 24px;
         line-height: 24px;
@@ -65,103 +65,103 @@
         opacity: .5;
         text-align: inherit;
     }
-    .correction.meta-group .single.actions,
-    .correction.meta-group .no-action::before {
+    .contribute.meta-group .single.actions,
+    .contribute.meta-group .no-action::before {
         float: right;
     }
 
-    .correction.meta-group span,
-    .correction .meta-group span {
+    .contribute.meta-group span,
+    .contribute .meta-group span {
         display: inline;
         hyphens: auto;
         word-wrap: break-word;
     }
 
-    .correction.meta-group::before,
-    .correction .status-toggle::before,
-    .correction .resource-name::before {
+    .contribute.meta-group::before,
+    .contribute .status-toggle::before,
+    .contribute .resource-name::before {
         display: inline-block;
         font-family: "Font Awesome 5 Free";
         padding-left: 3px;
         padding-right: 3px;
         width: 24px;
     }
-    .correction .resource-name.item-set::before {
+    .contribute .resource-name.item-set::before {
         content: ""; /* item set */
     }
-    .correction .resource-name.item::before {
+    .contribute .resource-name.item::before {
         content: ""; /* item */
     }
-    .correction .resource-name.media::before {
+    .contribute .resource-name.media::before {
         content: ""; /* media */
     }
-    .correction .o-icon-unreviewed::before {
+    .contribute .o-icon-unreviewed::before {
         color: #FF0000;
         content: ""; /* question */
     }
-    .correction .o-icon-reviewed::before {
+    .contribute .o-icon-reviewed::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .correction .o-icon-proposed::before {
+    .contribute .o-icon-proposed::before {
         color: #FFA500;
         content: ""; /* question */
     }
-    .correction .o-icon-approve::before {
+    .contribute .o-icon-approve::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .correction .o-icon-unvalidated::before,
-    .correction .o-icon-unapprove::before {
+    .contribute .o-icon-unvalidated::before,
+    .contribute .o-icon-unapprove::before {
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .correction .o-icon-validate-value::before,
-    .correction .o-icon-validate::before {
+    .contribute .o-icon-validate-value::before,
+    .contribute .o-icon-validate::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
     }
-    .correction .o-icon-validate-value.no-right::before,
-    .correction .o-icon-validate.no-right::before {
+    .contribute .o-icon-validate-value.no-right::before,
+    .contribute .o-icon-validate.no-right::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
     }
-    .correction .o-icon-validated::before {
+    .contribute .o-icon-validated::before {
         color: #00FF00;
         content: "\f359"; /* arrow left / equal not available iin 5.0.8 */
     }
-    .correction .o-icon-validated-value::before {
+    .contribute .o-icon-validated-value::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .correction .o-icon-unvalidated-value::before {
+    .contribute .o-icon-unvalidated-value::before {
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .correction .o-icon-expire-token::before {
+    .contribute .o-icon-expire-token::before {
         color: #00FF00;
         content: ""; /* clock */
     }
-    .correction .o-icon-expired-token::before {
+    .contribute .o-icon-expired-token::before {
         color: #FF0000;
         content: ""; /* clock */
         opacity: 0.4;
     }
-    .correction .o-icon-no-token::before {
+    .contribute .o-icon-no-token::before {
         color: #00FF00;
         content: ""; /* infinity */
         opacity: 0.4;
     }
-    .correction .o-icon-unknown-value::before,
-    .correction .o-icon-not-validable-value::before {
+    .contribute .o-icon-unknown-value::before,
+    .contribute .o-icon-not-validable-value::before {
         color: #FF8800;
         content: ""; /* exclamation */
     }
-    .correction .o-icon-undefined::before {
+    .contribute .o-icon-undefined::before {
         color: #FF0000;
         content: ""; /* exclamation */
     }
-    .correction .o-icon-none::before {
+    .contribute .o-icon-none::before {
         color: #FFFFFF;
         content: "";
     }
@@ -183,24 +183,24 @@
         box-shadow: none;
     }
 
-    .correction .correction-email,
-    .correction .correction-date,
-    .correction .correction-date-modified {
+    .contribute .contribute-email,
+    .contribute .contribute-date,
+    .contribute .contribute-date-modified {
         opacity: 0.6;
     }
-    .correction .correction-id {
+    .contribute .contribute-id {
         opacity: 0.4;
     }
-    .correction .original-value {
+    .contribute .original-value {
         opacity: 0.6;
     }
-    .correction .remove-value {
+    .contribute .remove-value {
        text-decoration: line-through;
     }
 
     /* Modal */
     /* Modal background */
-    .create_correction .modal {
+    .create_contribute .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
@@ -214,7 +214,7 @@
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
     }
     /* Modal content */
-    .create_correction .modal-content {
+    .create_contribute .modal-content {
         background-color: #fefefe;
         margin: auto;
         padding: 20px;
@@ -222,14 +222,14 @@
         width: 60%;
     }
     /* Mocal close button */
-    .create_correction .close {
+    .create_contribute .close {
         color: #aaaaaa;
         float: right;
         font-size: 28px;
         font-weight: bold;
     }
-    .create_correction .close:hover,
-    .create_correction .close:focus {
+    .create_contribute .close:hover,
+    .create_contribute .close:focus {
         color: #000;
         text-decoration: none;
         cursor: pointer;
@@ -237,10 +237,10 @@
 }
 
 @media screen and (max-width: 640px) {
-    fieldset.section>#resource-corrections.empty+.no-resources {
+    fieldset.section>#resource-contributes.empty+.no-resources {
         display:none;
     }
-    fieldset.section.mobile-active>#resource-corrections.empty+.no-resources {
+    fieldset.section.mobile-active>#resource-contributes.empty+.no-resources {
         display:block;
         margin-top:48px;
     }

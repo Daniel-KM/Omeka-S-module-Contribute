@@ -1,5 +1,5 @@
 <?php
-namespace Correction\Api\Adapter;
+namespace Contribute\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
@@ -20,30 +20,30 @@ class TokenAdapter extends AbstractEntityAdapter
 
     public function getResourceName()
     {
-        return 'correction_tokens';
+        return 'contribute_tokens';
     }
 
     public function getRepresentationClass()
     {
-        return \Correction\Api\Representation\TokenRepresentation::class;
+        return \Contribute\Api\Representation\TokenRepresentation::class;
     }
 
     public function getEntityClass()
     {
-        return \Correction\Entity\Token::class;
+        return \Contribute\Entity\Token::class;
     }
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
     {
-        /** @var \Correction\Entity\Token $entity */
+        /** @var \Contribute\Entity\Token $entity */
         $data = $request->getContent();
         if (Request::CREATE === $request->getOperation()) {
             $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
-            $token = empty($data['o-module-correction:token'])
+            $token = empty($data['o-module-contribute:token'])
                 ? $this->createToken()
-                : $data['o-module-correction:token'];
+                : $data['o-module-contribute:token'];
             $email = empty($data['o:email']) ? null : $data['o:email'];
-            $expire = empty($data['o-module-correction:expire']) ? null : $data['o-module-correction:expire'];
+            $expire = empty($data['o-module-contribute:expire']) ? null : $data['o-module-contribute:expire'];
             $entity
                 ->setResource($resource)
                 ->setToken($token)
@@ -53,16 +53,16 @@ class TokenAdapter extends AbstractEntityAdapter
                 ->setAccessed(null);
             ;
         } elseif (Request::UPDATE === $request->getOperation()) {
-            if (array_key_exists('o-module-correction:expire', $data)) {
-                $expire = strtotime($data['o-module-correction:expire'])
-                    ? $data['o-module-correction:expire']
+            if (array_key_exists('o-module-contribute:expire', $data)) {
+                $expire = strtotime($data['o-module-contribute:expire'])
+                    ? $data['o-module-contribute:expire']
                     : null;
                 $entity
                     ->setExpire(new \DateTime($expire));
             }
-            if (array_key_exists('o-module-correction:accessed', $data)) {
-                $accessed = strtotime($data['o-module-correction:accessed'])
-                    ? $data['o-module-correction:accessed']
+            if (array_key_exists('o-module-contribute:accessed', $data)) {
+                $accessed = strtotime($data['o-module-contribute:accessed'])
+                    ? $data['o-module-contribute:accessed']
                     : 'now';
                 $entity
                     ->setAccessed(new \DateTime($accessed));
@@ -116,14 +116,14 @@ class TokenAdapter extends AbstractEntityAdapter
             $resourceAlias = $this->createAlias();
             if ($query['used']) {
                 $qb->innerJoin(
-                    \Correction\Entity\Correction::class,
+                    \Contribute\Entity\Contribute::class,
                     $resourceAlias,
                     'WITH',
                     $expr->eq($resourceAlias . '.token', 'omeka_root.id')
                 );
             } else {
                 $qb->leftJoin(
-                    \Correction\Entity\Correction::class,
+                    \Contribute\Entity\Contribute::class,
                     $resourceAlias,
                     'WITH',
                     $expr->eq($resourceAlias . '.token', 'omeka_root.id')
@@ -142,8 +142,8 @@ class TokenAdapter extends AbstractEntityAdapter
         $rawData = $request->getContent();
         $data = parent::preprocessBatchUpdate($data, $request);
 
-        if (isset($rawData['o-module-correction:expire'])) {
-            $data['o-module-correction:expire'] = $rawData['o-module-correction:expire'];
+        if (isset($rawData['o-module-contribute:expire'])) {
+            $data['o-module-contribute:expire'] = $rawData['o-module-contribute:expire'];
         }
 
         return $data;

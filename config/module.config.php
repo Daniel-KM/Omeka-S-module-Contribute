@@ -1,11 +1,11 @@
 <?php
-namespace Correction;
+namespace Contribute;
 
 return [
     'api_adapters' => [
         'invokables' => [
-            'corrections' => Api\Adapter\CorrectionAdapter::class,
-            'correction_tokens' => Api\Adapter\TokenAdapter::class,
+            'contributes' => Api\Adapter\ContributeAdapter::class,
+            'contribute_tokens' => Api\Adapter\TokenAdapter::class,
         ],
     ],
     'entity_manager' => [
@@ -26,38 +26,38 @@ return [
     ],
     'view_helpers' => [
         'factories' => [
-            'linkCorrection' => Service\ViewHelper\LinkCorrectionFactory::class,
+            'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,
         ],
     ],
     'form_elements' => [
         'invokables' => [
-            Form\CorrectionForm::class => Form\CorrectionForm::class,
+            Form\ContributeForm::class => Form\ContributeForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
     ],
     'controllers' => [
         'invokables' => [
-            'Correction\Controller\Admin\Correction' => Controller\Admin\CorrectionController::class,
-            'Correction\Controller\Site\Correction' => Controller\Site\CorrectionController::class,
+            'Contribute\Controller\Admin\Contribute' => Controller\Admin\ContributeController::class,
+            'Contribute\Controller\Site\Contribute' => Controller\Site\ContributeController::class,
         ],
     ],
     'controller_plugins' => [
         'invokables' => [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
             'editableData' => Mvc\Controller\Plugin\EditableData::class,
-            'resourceTemplateCorrectionPartMap' => Mvc\Controller\Plugin\ResourceTemplateCorrectionPartMap::class,
+            'resourceTemplateContributePartMap' => Mvc\Controller\Plugin\ResourceTemplateContributePartMap::class,
         ],
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
             'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
-            'sendCorrectionEmail' => Service\ControllerPlugin\SendCorrectionEmailFactory::class,
+            'sendContributeEmail' => Service\ControllerPlugin\SendContributeEmailFactory::class,
         ],
     ],
     'router' => [
         'routes' => [
             'site' => [
                 'child_routes' => [
-                    'correction' => [
+                    'contribute' => [
                         'type' => \Zend\Router\Http\Segment::class,
                         'options' => [
                             // TODO Use controller delegator or override the default site route?
@@ -68,8 +68,8 @@ return [
                                 'id' => '\d+',
                             ],
                             'defaults' => [
-                                '__NAMESPACE__' => 'Correction\Controller\Site',
-                                'controller' => 'correction',
+                                '__NAMESPACE__' => 'Contribute\Controller\Site',
+                                'controller' => 'contribute',
                                 'action' => 'edit',
                             ],
                         ],
@@ -78,13 +78,13 @@ return [
             ],
             'admin' => [
                 'child_routes' => [
-                    'correction' => [
+                    'contribute' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
-                            'route' => '/correction',
+                            'route' => '/contribute',
                             'defaults' => [
-                                '__NAMESPACE__' => 'Correction\Controller\Admin',
-                                'controller' => 'correction',
+                                '__NAMESPACE__' => 'Contribute\Controller\Admin',
+                                'controller' => 'contribute',
                                 'action' => 'browse',
                             ],
                         ],
@@ -133,37 +133,37 @@ return [
         'views' => [
             /* No event currently.
              'item_set_show' => [
-                'Correction',
+                'Contribute',
             ],
             */
             'item_show' => [
-                'Correction',
+                'Contribute',
             ],
             /* No event currently.
              'media_show' => [
-                'Correction',
+                'Contribute',
             ],
             */
         ],
     ],
-    'correction' => [
+    'contribute' => [
         'settings' => [
-            'correction_notify' => [],
-            'correction_template_editable' => null,
-            'correction_properties_corrigible_mode' => 'all',
-            'correction_properties_corrigible' => [],
-            'correction_properties_fillable_mode' => 'all',
-            'correction_properties_fillable' => [],
-            'correction_properties_datatype' => [
+            'contribute_notify' => [],
+            'contribute_template_editable' => null,
+            'contribute_properties_corrigible_mode' => 'all',
+            'contribute_properties_corrigible' => [],
+            'contribute_properties_fillable_mode' => 'all',
+            'contribute_properties_fillable' => [],
+            'contribute_properties_datatype' => [
                 'literal',
                 'uri',
             ],
-            'correction_property_queries' => [],
-            'correction_without_token' => false,
+            'contribute_property_queries' => [],
+            'contribute_without_token' => false,
             // Days.
-            'correction_token_duration' => 60,
+            'contribute_token_duration' => 60,
             // Where the config of resource templates are stored.
-            'correction_resource_template_data' => [],
+            'contribute_resource_template_data' => [],
         ],
     ],
 ];

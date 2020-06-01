@@ -1,16 +1,16 @@
 <?php
-namespace Correction\View\Helper;
+namespace Contribute\View\Helper;
 
-use Correction\Mvc\Controller\Plugin\CheckToken;
+use Contribute\Mvc\Controller\Plugin\CheckToken;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Zend\View\Helper\AbstractHelper;
 
-class LinkCorrection extends AbstractHelper
+class LinkContribute extends AbstractHelper
 {
     /**
      * The default partial view script.
      */
-    const PARTIAL_NAME = 'common/helper/correction-link';
+    const PARTIAL_NAME = 'common/helper/contribute-link';
 
     /**
      * @var CheckToken
@@ -23,7 +23,7 @@ class LinkCorrection extends AbstractHelper
     }
 
     /**
-     * Get the link to the correction page.
+     * Get the link to the contribute page.
      *
      * @param AbstractResourceEntityRepresentation $resource
      * @param array $options Options for the template
@@ -49,7 +49,7 @@ class LinkCorrection extends AbstractHelper
 
         $helper = $this->checkToken;
         $canCorrect = (bool) $helper($resource)
-            || ($user && $view->setting('correction_without_token'));
+            || ($user && $view->setting('contribute_without_token'));
 
         $template = $options['template'];
         unset($options['template']);

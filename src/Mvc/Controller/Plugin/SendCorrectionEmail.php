@@ -1,5 +1,5 @@
 <?php
-namespace Correction\Mvc\Controller\Plugin;
+namespace Contribute\Mvc\Controller\Plugin;
 
 use Omeka\Stdlib\Message;
 use Omeka\Stdlib\Mailer as MailerService;
@@ -9,7 +9,7 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 /**
  * Send an email.
  */
-class SendCorrectionEmail extends AbstractPlugin
+class SendContributeEmail extends AbstractPlugin
 {
     /**
      * @var MailerService

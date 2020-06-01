@@ -27,7 +27,7 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-namespace Correction\Entity;
+namespace Contribute\Entity;
 
 use DateTime;
 use Omeka\Entity\AbstractEntity;
@@ -38,17 +38,17 @@ use Omeka\Entity\Resource;
  * @Table(
  *     indexes={
  *         @Index(
- *             name="correction_email_idx",
+ *             name="contribute_email_idx",
  *             columns={"email"}
  *         ),
  *         @Index(
- *             name="correction_modified_idx",
+ *             name="contribute_modified_idx",
  *             columns={"modified"}
  *         )
  *     }
  * )
  */
-class Correction extends AbstractEntity
+class Contribute extends AbstractEntity
 {
     /**
      * @var int
@@ -59,7 +59,7 @@ class Correction extends AbstractEntity
     protected $id;
 
     /**
-     * Corrections are not annotations in this module, so they are deleted.
+     * Contributes are not annotations in this module, so they are deleted.
      *
      * @var \Omeka\Entity\Resource
      * @ManyToOne(
@@ -73,9 +73,9 @@ class Correction extends AbstractEntity
     protected $resource;
 
     /**
-     * @todo Allow to keep history of all corrections (ManyToOne)?
+     * @todo Allow to keep history of all contributes (ManyToOne)?
      *
-     * @var \Correction\Entity\Token
+     * @var \Contribute\Entity\Token
      * @OneToOne(
      *     targetEntity="Token"
      * )
@@ -167,7 +167,7 @@ class Correction extends AbstractEntity
     }
 
     /**
-     * @return \Correction\Entity\Token
+     * @return \Contribute\Entity\Token
      */
     public function getToken()
     {
@@ -176,7 +176,7 @@ class Correction extends AbstractEntity
 
     /**
      * @param string|null $email
-     * @return \Correction\Entity\Correction
+     * @return \Contribute\Entity\Contribute
      */
     public function setEmail($email = null)
     {

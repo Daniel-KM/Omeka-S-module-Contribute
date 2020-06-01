@@ -1,18 +1,18 @@
 <?php
-namespace Correction\Api\Representation;
+namespace Contribute\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
-class CorrectionRepresentation extends AbstractEntityRepresentation
+class ContributeRepresentation extends AbstractEntityRepresentation
 {
     public function getControllerName()
     {
-        return 'correction';
+        return 'contribute';
     }
 
     public function getJsonLdType()
     {
-        return 'o-module-correction:Correction';
+        return 'o-module-contribute:Contribute';
     }
 
     public function getJsonLd()
@@ -38,10 +38,10 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         return [
             'o:id' => $this->id(),
             'o:resource' => $this->resource()->getReference(),
-            'o-module-correction:token' => $token,
+            'o-module-contribute:token' => $token,
             'o:email' => $this->email(),
-            'o-module-correction:reviewed' => $this->reviewed(),
-            'o-module-correction:proposal' => $this->proposal(),
+            'o-module-contribute:reviewed' => $this->reviewed(),
+            'o-module-contribute:proposal' => $this->proposal(),
             'o:created' => $created,
             'o:modified' => $modified,
         ];
@@ -57,11 +57,11 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * @return \Correction\Api\Representation\TokenRepresentation
+     * @return \Contribute\Api\Representation\TokenRepresentation
      */
     public function token()
     {
-        return $this->getAdapter('correction_tokens')
+        return $this->getAdapter('contribute_tokens')
             ->getRepresentation($this->resource->getToken());
     }
 
@@ -106,7 +106,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get all proposed corrections for a term.
+     * Get all proposed contributes for a term.
      *
      * @param string $term
      * @return array
@@ -120,7 +120,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get a specific proposed correction for a term.
+     * Get a specific proposed contribute for a term.
      *
      * @param string $term
      * @param string $original
@@ -143,7 +143,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get a specific proposed correction uri for a term.
+     * Get a specific proposed contribute uri for a term.
      *
      * @param string $term
      * @param string $original
@@ -200,7 +200,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
-        //  TODO Manage correction of non literal values. Remove uri?
+        //  TODO Manage contribute of non literal values. Remove uri?
         $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
         foreach ($values as $value) {
             if ($value->value() === $string) {
@@ -262,7 +262,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Check proposed correction against the current resource.
+     * Check proposed contribute against the current resource.
      *
      * @return array
      */
@@ -281,7 +281,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
             $isCorrigible = $editable->isTermCorrigible($term);
             $isFillable = $editable->isTermFillable($term);
             if (!$isCorrigible && !$isFillable) {
-                // Skipped in the case options changed between corrections and moderation.
+                // Skipped in the case options changed between contributes and moderation.
                 // continue;
             }
 
@@ -550,7 +550,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
      * Get the editable data (corrigible, fillable, etc.) of a resource.
      *
      * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return \Correction\Mvc\Controller\Plugin\EditableData
+     * @return \Contribute\Mvc\Controller\Plugin\EditableData
      */
     public function editableData()
     {
@@ -567,7 +567,7 @@ class CorrectionRepresentation extends AbstractEntityRepresentation
         }
         $url = $this->getViewHelper('Url');
         return $url(
-            'site/correction',
+            'site/contribute',
             [
                 'site-slug' => $siteSlug,
                 'resource' => $this->resource()->getControllerName(),

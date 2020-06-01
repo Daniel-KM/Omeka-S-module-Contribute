@@ -27,7 +27,7 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-namespace Correction\Entity;
+namespace Contribute\Entity;
 
 use DateTime;
 // @todo Use @HasLifecycleCallbacks? (see User/Resource)?
@@ -38,14 +38,14 @@ use Omeka\Entity\Resource;
 /**
  * @Entity
  * @Table(
- *     name="correction_token",
+ *     name="contribute_token",
  *     indexes={
  *         @Index(
- *             name="correction_token_idx",
+ *             name="contribute_token_idx",
  *             columns={"token"}
  *         ),
  *         @Index(
- *             name="correction_expire_idx",
+ *             name="contribute_expire_idx",
  *             columns={"expire"}
  *         )
  *     }

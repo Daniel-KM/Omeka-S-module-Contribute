@@ -1,13 +1,13 @@
 {
-    "o:label": "Correction",
+    "o:label": "Contribute",
     "o:resource_template_property": [
         {
             "o:alternate_label": null,
             "o:alternate_comment": null,
             "o:is_required": false,
             "o:is_private": false,
-            "o-module-correction:corrigible": true,
-            "o-module-correction:fillable": true,
+            "o-module-contribute:corrigible": true,
+            "o-module-contribute:fillable": true,
             "data_type_name": null,
             "data_type_label": null,
             "vocabulary_namespace_uri": "http:\/\/purl.org\/dc\/terms\/",
@@ -20,8 +20,8 @@
             "o:alternate_comment": null,
             "o:is_required": false,
             "o:is_private": false,
-            "o-module-correction:corrigible": true,
-            "o-module-correction:fillable": true,
+            "o-module-contribute:corrigible": true,
+            "o-module-contribute:fillable": true,
             "data_type_name": null,
             "data_type_label": null,
             "vocabulary_namespace_uri": "http:\/\/purl.org\/dc\/terms\/",

@@ -1,5 +1,5 @@
 // Kept as long as pull request #1260 is not passed.
-Omeka.correctionManageSelectedActions = function() {
+Omeka.contributeManageSelectedActions = function() {
     var selectedOptions = $('[value="update-selected"], [value="delete-selected"], #batch-form .batch-inputs .batch-selected');
     if ($('.batch-edit td input[type="checkbox"]:checked').length > 0) {
         selectedOptions.removeAttr('disabled');
@@ -17,17 +17,17 @@ Omeka.correctionManageSelectedActions = function() {
 
         var batchSelect = $('#batch-form .batch-actions-select');
         batchSelect.append(
-            $('<option class="batch-selected" disabled></option>').val('correction-selected').html(Omeka.jsTranslate('Prepare tokens to correct selected'))
+            $('<option class="batch-selected" disabled></option>').val('contribute-selected').html(Omeka.jsTranslate('Prepare tokens to correct selected'))
         );
         batchSelect.append(
-            $('<option></option>').val('correction-all').html(Omeka.jsTranslate('Prepare tokens to correct all'))
+            $('<option></option>').val('contribute-all').html(Omeka.jsTranslate('Prepare tokens to correct all'))
         );
         var batchActions = $('#batch-form .batch-actions');
         batchActions.append(
-            $('<input type="submit" class="correction-selected" formaction="correction/create-token">').val(Omeka.jsTranslate('Go'))
+            $('<input type="submit" class="contribute-selected" formaction="contribute/create-token">').val(Omeka.jsTranslate('Go'))
         );
         batchActions.append(
-            $('<input type="submit" class="correction-all" formaction="correction/create-token">').val(Omeka.jsTranslate('Go'))
+            $('<input type="submit" class="contribute-all" formaction="contribute/create-token">').val(Omeka.jsTranslate('Go'))
         );
         var resourceType = window.location.pathname.split("/").pop();
         batchActions.append(
@@ -36,10 +36,10 @@ Omeka.correctionManageSelectedActions = function() {
 
         // Kept as long as pull request #1260 is not passed.
         $('.select-all').change(function() {
-            Omeka.correctionManageSelectedActions();
+            Omeka.contributeManageSelectedActions();
         });
         $('.batch-edit td input[type="checkbox"]').change(function() {
-            Omeka.correctionManageSelectedActions();
+            Omeka.contributeManageSelectedActions();
         });
 
     });
@@ -48,10 +48,10 @@ Omeka.correctionManageSelectedActions = function() {
 
 $(document).ready(function() {
 
-    var correctionInfo = function() {
+    var contributeInfo = function() {
         return `
             <div class="field">
-                <h3>` + Omeka.jsTranslate('Correction options') + `</h3>
+                <h3>` + Omeka.jsTranslate('Contribute options') + `</h3>
                 <div class="option">
                     <label for="is-corrigible">
                         ` + Omeka.jsTranslate('Corrigible') + `
@@ -67,23 +67,23 @@ $(document).ready(function() {
             </div>
         `;
     }
-    $('#edit-sidebar .confirm-main').append(correctionInfo());
+    $('#edit-sidebar .confirm-main').append(contributeInfo());
 
     // Manage the modal to create the token.
     // Get the modal.
-    var modal = document.getElementById('create_correction_token_dialog');
+    var modal = document.getElementById('create_contribute_token_dialog');
     // Get the button that opens the modal.
-    var btn = document.getElementById('create_correction_token_dialog_go');
+    var btn = document.getElementById('create_contribute_token_dialog_go');
     // Get the <span> element that closes the modal.
-    var span = document.getElementById('create_correction_token_dialog_close');
+    var span = document.getElementById('create_contribute_token_dialog_close');
 
     // When the user clicks the button, open the modal.
     if (btn) {
         btn.onclick = function() {
-            var href = $('#create_correction_token a').attr('href');
-            var email = $('#create_correction_token_dialog_email').val();
+            var href = $('#create_contribute_token a').attr('href');
+            var email = $('#create_contribute_token_dialog_email').val();
             if (email !== '' && !validateEmail(email)) {
-                $('#create_correction_token_dialog_email').css('color', 'red');
+                $('#create_contribute_token_dialog_email').css('color', 'red');
                 return;
             }
             href = href + '&email=' + email;
@@ -106,13 +106,13 @@ $(document).ready(function() {
     //     }
     // }
 
-    $('#create_correction_token').on('click', function(ev){
+    $('#create_contribute_token').on('click', function(ev){
         modal.style.display = 'block';
         ev.preventDefault();
     })
 
-    // Mark a correction reviewed/unreviewed.
-    $('#content').on('click', '.correction a.status-toggle', function(e) {
+    // Mark a contribute reviewed/unreviewed.
+    $('#content').on('click', '.contribute a.status-toggle', function(e) {
         e.preventDefault();
 
         var button = $(this);
@@ -148,7 +148,7 @@ $(document).ready(function() {
     });
 
     // Expire a token
-    $('#content').on('click', '.correction a.expire-token', function(e) {
+    $('#content').on('click', '.contribute a.expire-token', function(e) {
         e.preventDefault();
 
         var button = $(this);
@@ -182,8 +182,8 @@ $(document).ready(function() {
         });
     });
 
-    // Validate all values of a correction.
-    $('#content').on('click', '.correction a.validate', function(e) {
+    // Validate all values of a contribute.
+    $('#content').on('click', '.contribute a.validate', function(e) {
         e.preventDefault();
 
         var button = $(this);
@@ -199,7 +199,7 @@ $(document).ready(function() {
             if (!data.content) {
                 alert(Omeka.jsTranslate('Something went wrong'));
             } else {
-                // Set the correction reviewed in all cases.
+                // Set the contribute reviewed in all cases.
                 var content = data.content.reviewed;
                 status = content.status;
                 buttonReviewed = button.closest('th').find('a.status-toggle');
@@ -213,7 +213,7 @@ $(document).ready(function() {
                 // button.attr('aria-label', statusLabel);
 
                 // Reload the page to update the default show view.
-                // TODO Dynamically update default show view after correction.
+                // TODO Dynamically update default show view after contribute.
                 location.reload();
             }
         })
@@ -229,8 +229,8 @@ $(document).ready(function() {
         });
     });
 
-    // Validate a specific value of a correction.
-    $('#content').on('click', '.correction a.validate-value', function(e) {
+    // Validate a specific value of a contribute.
+    $('#content').on('click', '.contribute a.validate-value', function(e) {
         e.preventDefault();
 
         var button = $(this);

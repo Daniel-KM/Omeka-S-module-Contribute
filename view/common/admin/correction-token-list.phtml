@@ -2,7 +2,7 @@
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Correction\Api\Representation\TokenRepresentation[] $tokens
+ * @var \Contribute\Api\Representation\TokenRepresentation[] $tokens
  * @var string $siteSlug
  */
 
@@ -30,7 +30,7 @@ $adapterName = $mapResourceAdapters[$resourceName];
 $batchEditRight = $this->userIsAllowed($adapterName, 'batch-update');
 $editRight = $resource->userIsAllowed('update');
 ?>
-<div class="correction correction-token">
+<div class="contribute contribute-token">
 <table class="tablesaw <?php if ($batchEditRight) echo 'batch-edit'; ?>" data-tablesaw-mode="stack">
     <thead>
         <tr>
@@ -43,11 +43,11 @@ $editRight = $resource->userIsAllowed('update');
         <?php foreach ($tokens as $token): ?>
         <tr>
             <td>
-                <span class="correction-token"><?= $token->siteUrl($siteSlug, true) ?></span>
+                <span class="contribute-token"><?= $token->siteUrl($siteSlug, true) ?></span>
                 <?php if ($email = $token->email()): ?>
-                <span class="correction-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
+                <span class="contribute-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php else: ?>
-                <span class="correction-email"><?= $translate('[no email]') ?></span>
+                <span class="contribute-email"><?= $translate('[no email]') ?></span>
                 <?php endif; ?>
                 <?php if ($token->isExpired()): ?>
                 <span class="single actions no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>

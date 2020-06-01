@@ -12,10 +12,10 @@ $translate = $plugins->get('translate');
 $url = $plugins->get('url');
 ?>
 
-<div id="correction" class="correction">
-    <h3><?= $translate('Correction') ?></h3>
+<div id="contribute" class="contribute">
+    <h3><?= $translate('Contribute') ?></h3>
     <?php if ($canCorrect): ?>
-    <?= $this->hyperlink($translate('Correct this record'), $url('site/correction', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
+    <?= $this->hyperlink($translate('Correct this record'), $url('site/contribute', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
     <?php elseif ($user): ?>
     <?= $translate('Click your token link to correct this record.') ?>
     <?php else: ?>

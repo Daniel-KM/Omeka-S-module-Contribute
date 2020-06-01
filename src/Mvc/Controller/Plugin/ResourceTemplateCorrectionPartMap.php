@@ -1,12 +1,12 @@
 <?php
-namespace Correction\Mvc\Controller\Plugin;
+namespace Contribute\Mvc\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
-class ResourceTemplateCorrectionPartMap extends AbstractPlugin
+class ResourceTemplateContributePartMap extends AbstractPlugin
 {
     /**
-     * Get the correction mapping of a resource template.
+     * Get the contribute mapping of a resource template.
      *
      * @todo Add these values directly in the json of the resource template via an event.
      *
@@ -17,7 +17,7 @@ class ResourceTemplateCorrectionPartMap extends AbstractPlugin
     {
         $settings = $this->getController()->settings();
 
-        $mapping = $settings->get('correction_resource_template_data', []);
+        $mapping = $settings->get('contribute_resource_template_data', []);
 
         $corrigible = empty($mapping['corrigible'][$resourceTemplateId])
             ? []

@@ -1,5 +1,5 @@
 <?php
-namespace Correction\Mvc\Controller\Plugin;
+namespace Contribute\Mvc\Controller\Plugin;
 
 use ArrayObject;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
@@ -38,7 +38,7 @@ class EditableData extends AbstractPlugin
         $controller = $this->getController();
         $propertyIdsByTerms = $controller->propertyIdsByTerms();
         $settings = $controller->settings();
-        $this->data['datatypes_default'] = $settings->get('correction_properties_datatype', []);
+        $this->data['datatypes_default'] = $settings->get('contribute_properties_datatype', []);
 
         // TODO Manage valuesuggest differently, because it is not a datatype.
         if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
@@ -47,7 +47,7 @@ class EditableData extends AbstractPlugin
 
         $resourceTemplate = $resource->resourceTemplate();
         if (!$resourceTemplate) {
-            $resourceTemplateId = (int) $settings->get('correction_template_editable');
+            $resourceTemplateId = (int) $settings->get('contribute_template_editable');
             if ($resourceTemplateId) {
                 try {
                     $resourceTemplate = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
@@ -58,9 +58,9 @@ class EditableData extends AbstractPlugin
 
         if ($resourceTemplate) {
             $this->data['template'] = $resourceTemplate;
-            $correctionPartMap = $controller->resourceTemplateCorrectionPartMap($resourceTemplate->id());
-            $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['corrigible']));
-            $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($correctionPartMap['fillable']));
+            $contributePartMap = $controller->resourceTemplateContributePartMap($resourceTemplate->id());
+            $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($contributePartMap['corrigible']));
+            $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributePartMap['fillable']));
             foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
                 $term = $resourceTemplateProperty->property()->term();
                 $datatype = $resourceTemplateProperty->dataType();
@@ -69,13 +69,13 @@ class EditableData extends AbstractPlugin
         } else {
             $this->data['template'] = null;
             $this->data['default_properties'] = true;
-            $this->data['corrigible_mode'] = $settings->get('correction_properties_corrigible_mode', 'all');
+            $this->data['corrigible_mode'] = $settings->get('contribute_properties_corrigible_mode', 'all');
             if (in_array($this->data['corrigible_mode'], ['blacklist', 'whitelist'])) {
-                $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_corrigible', [])));
+                $this->data['corrigible'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('contribute_properties_corrigible', [])));
             }
-            $this->data['fillable_mode'] = $settings->get('correction_properties_fillable_mode', 'all');
+            $this->data['fillable_mode'] = $settings->get('contribute_properties_fillable_mode', 'all');
             if (in_array($this->data['fillable_mode'], ['blacklist', 'whitelist'])) {
-                $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('correction_properties_fillable', [])));
+                $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('contribute_properties_fillable', [])));
             }
         }
 

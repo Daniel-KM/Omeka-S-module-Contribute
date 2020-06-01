@@ -1,15 +1,15 @@
 <?php
-namespace Correction\Controller\Site;
+namespace Contribute\Controller\Site;
 
-use Correction\Api\Representation\CorrectionRepresentation;
-use Correction\Form\CorrectionForm;
+use Contribute\Api\Representation\ContributeRepresentation;
+use Contribute\Form\ContributeForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 // use Omeka\Form\ResourceForm;
 use Omeka\Stdlib\Message;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
-class CorrectionController extends AbstractActionController
+class ContributeController extends AbstractActionController
 {
     public function editAction()
     {
@@ -41,29 +41,29 @@ class CorrectionController extends AbstractActionController
         $user = $this->identity();
 
         $token = $this->checkToken($resource);
-        if (!$token && !($user && $settings->get('correction_without_token'))) {
+        if (!$token && !($user && $settings->get('contribute_without_token'))) {
             return $this->viewError403();
         }
 
         if ($token) {
-            $correction = $api
-                ->searchOne('corrections', ['resource_id' => $resourceId, 'token_id' => $token->id()])
+            $contribute = $api
+                ->searchOne('contributes', ['resource_id' => $resourceId, 'token_id' => $token->id()])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
         } else {
-            $correction = $api
-                ->searchOne('corrections', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+            $contribute = $api
+                ->searchOne('contributes', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], true);
         }
 
-        /** @var \Correction\Form\CorrectionForm $form */
-        $form = $this->getForm(CorrectionForm::class)
+        /** @var \Contribute\Form\ContributeForm $form */
+        $form = $this->getForm(ContributeForm::class)
             ->setAttribute('action', $currentUrl)
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
-        $fields = $this->prepareFields($resource, $correction);
+        $fields = $this->prepareFields($resource, $contribute);
 
         $editable = $this->editableData($resource);
         if (!$editable->isEditable()) {
@@ -78,31 +78,31 @@ class CorrectionController extends AbstractActionController
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'correct-resource-submit' => null]);
                 $proposal = $this->prepareProposal($resource, $data);
-                // The resource isn’t updated, but the proposition of correction
+                // The resource isn’t updated, but the proposition of contribute
                 // is saved for moderation.
                 $response = null;
-                if (empty($correction)) {
+                if (empty($contribute)) {
                     $data = [
                         'o:resource' => ['o:id' => $resourceId],
-                        'o-module-correction:token' => $token ? ['o:id' => $token->id()] : null,
+                        'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
                         'o:email' => $token ? $token->email() : $user->getEmail(),
-                        'o-module-correction:reviewed' => false,
-                        'o-module-correction:proposal' => $proposal,
+                        'o-module-contribute:reviewed' => false,
+                        'o-module-contribute:proposal' => $proposal,
                     ];
-                    $response = $this->api($form)->create('corrections', $data);
+                    $response = $this->api($form)->create('contributes', $data);
                     if ($response) {
-                        $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
-                        $this->prepareCorrectionEmail($response->getContent());
+                        $this->messenger()->addSuccess('Contributes successfully submitted!'); // @translate
+                        $this->prepareContributeEmail($response->getContent());
                     }
-                } elseif ($proposal !== $correction->proposal()) {
+                } elseif ($proposal !== $contribute->proposal()) {
                     $data = [
-                        'o-module-correction:reviewed' => false,
-                        'o-module-correction:proposal' => $proposal,
+                        'o-module-contribute:reviewed' => false,
+                        'o-module-contribute:proposal' => $proposal,
                     ];
-                    $response = $this->api($form)->update('corrections', $correction->id(), $data, [], ['isPartial' => true]);
+                    $response = $this->api($form)->update('contributes', $contribute->id(), $data, [], ['isPartial' => true]);
                     if ($response) {
-                        $this->messenger()->addSuccess('Corrections successfully submitted!'); // @translate
-                        $this->prepareCorrectionEmail($response->getContent());
+                        $this->messenger()->addSuccess('Contributes successfully submitted!'); // @translate
+                        $this->prepareContributeEmail($response->getContent());
                     }
                 } else {
                     $this->messenger()->addWarning('No change.'); // @translate
@@ -110,8 +110,8 @@ class CorrectionController extends AbstractActionController
                 }
                 if ($response) {
                     $eventManager = $this->getEventManager();
-                    $eventManager->trigger('correction.submit', $this, [
-                        'correction' => $correction,
+                    $eventManager->trigger('contribute.submit', $this, [
+                        'contribute' => $contribute,
                         'resource' => $resource,
                         'data' => $data,
                     ]);
@@ -126,14 +126,14 @@ class CorrectionController extends AbstractActionController
         return new ViewModel([
             'form' => $form,
             'resource' => $resource,
-            'correction' => $correction,
+            'contribute' => $contribute,
             'fields' => $fields,
         ]);
     }
 
-    protected function prepareCorrectionEmail(CorrectionRepresentation $correction)
+    protected function prepareContributeEmail(ContributeRepresentation $contribute)
     {
-        $emails = $this->settings()->get('correction_notify', []);
+        $emails = $this->settings()->get('contribute_notify', []);
         if (empty($emails)) {
             return;
         }
@@ -143,17 +143,17 @@ class CorrectionController extends AbstractActionController
             $message = '<p>' . new Message(
                 'User %1$s has corrected resource #%2$s (%3$s).', // @translate
                 '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                '<a href="' . $correction->resource()->adminUrl('show', true) . '#correction">' . $correction->resource()->id() . '</a>',
-                $correction->resource()->displayTitle()
+                '<a href="' . $contribute->resource()->adminUrl('show', true) . '#contribute">' . $contribute->resource()->id() . '</a>',
+                $contribute->resource()->displayTitle()
             ) . '</p>';
         } else {
             $message = '<p>' . new Message(
                 'A user has corrected resource #%1$d (%2$s).', // @translate
-                '<a href="' . $correction->resource()->adminUrl('show', true) . '#correction">' . $correction->resource()->id() . '</a>',
-                $correction->resource()->displayTitle()
+                '<a href="' . $contribute->resource()->adminUrl('show', true) . '#contribute">' . $contribute->resource()->id() . '</a>',
+                $contribute->resource()->displayTitle()
             ) . '</p>';
         }
-        $this->sendCorrectionEmail($emails, $this->translate('[Omeka Correction] New correction'), $message); // @translate
+        $this->sendContributeEmail($emails, $this->translate('[Omeka Contribute] New contribute'), $message); // @translate
     }
 
     /**
@@ -162,12 +162,12 @@ class CorrectionController extends AbstractActionController
      * The order is the one of the resource template, else the order of terms in
      * the database (Dublin Core first, bibo, foaf, then specific terms).
      *
-     * Some corrections may not have the matching fields: it means that the
+     * Some contributes may not have the matching fields: it means that the
      * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
      * properties, and four more keys, corrigible, fillable, datatype and
-     * corrections.
+     * contributes.
      *
      * <code>
      * array(
@@ -182,7 +182,7 @@ class CorrectionController extends AbstractActionController
      *     'values' => array(
      *       {ValueRepresentation}, …
      *     ),
-     *     'corrections' => array(
+     *     'contributes' => array(
      *       array(
      *         'type' => {string},
      *         'original' => array(
@@ -207,10 +207,10 @@ class CorrectionController extends AbstractActionController
      * @return array
      *
      * @param AbstractResourceEntityRepresentation $resource
-     * @param CorrectionRepresentation $correction
+     * @param ContributeRepresentation $contribute
      * @return array
      */
-    protected function prepareFields(AbstractResourceEntityRepresentation $resource, CorrectionRepresentation $correction = null)
+    protected function prepareFields(AbstractResourceEntityRepresentation $resource, ContributeRepresentation $contribute = null)
     {
         $fields = [];
 
@@ -223,10 +223,10 @@ class CorrectionController extends AbstractActionController
             'fillable' => false,
             'datatypes' => [],
             'values' => [],
-            'corrections' => [],
+            'contributes' => [],
         ];
 
-        /** @var \Correction\Mvc\Controller\Plugin\EditableData $editable */
+        /** @var \Contribute\Mvc\Controller\Plugin\EditableData $editable */
         $editable = $this->editableData($resource);
         $values = $resource->values();
         $resourceTemplate = $resource->resourceTemplate();
@@ -250,7 +250,7 @@ class CorrectionController extends AbstractActionController
                     'fillable' => $editable->isTermFillable($term),
                     'datatypes' => $editable->datatypeTerm($term),
                     'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
-                    'corrections' => [],
+                    'contributes' => [],
                 ];
             }
 
@@ -264,7 +264,7 @@ class CorrectionController extends AbstractActionController
                         $fields[$term]['corrigible'] = false;
                         $fields[$term]['fillable'] = false;
                         $fields[$term]['datatypes'] = [];
-                        $fields[$term]['corrections'] = [];
+                        $fields[$term]['contributes'] = [];
                         $fields[$term] = array_replace($defaultField, $fields[$term]);
                     }
                 }
@@ -282,7 +282,7 @@ class CorrectionController extends AbstractActionController
                     $fields[$term]['corrigible'] = $editable->isTermCorrigible($term);
                     $fields[$term]['fillable'] = $editable->isTermFillable($term);
                     $fields[$term]['datatypes'] = $editable->datatypeTerm($term);
-                    $fields[$term]['corrections'] = [];
+                    $fields[$term]['contributes'] = [];
                     $fields[$term] = array_replace($defaultField, $fields[$term]);
                 }
             }
@@ -300,14 +300,14 @@ class CorrectionController extends AbstractActionController
                             'fillable' => true,
                             'datatypes' => $editable->datatypeTerm($term),
                             'values' => [],
-                            'corrections' => [],
+                            'contributes' => [],
                         ];
                     }
                 }
             }
         }
 
-        // Initialize corrections with existing values, then append corrections.
+        // Initialize contributes with existing values, then append contributes.
         foreach ($fields as $term => $field) {
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($field['values'] as $value) {
@@ -331,7 +331,7 @@ class CorrectionController extends AbstractActionController
                     $uri = null;
                     $label = null;
                 }
-                $fields[$term]['corrections'][] = [
+                $fields[$term]['contributes'][] = [
                     // The type cannot be changed.
                     'type' => $type,
                     'original' => [
@@ -351,11 +351,11 @@ class CorrectionController extends AbstractActionController
             }
         }
 
-        if (!$correction) {
+        if (!$contribute) {
             return $fields;
         }
 
-        $proposals = $correction->proposal();
+        $proposals = $contribute->proposal();
 
         // Clean old proposals.
         foreach ($proposals as $term => $termProposal) {
@@ -386,22 +386,22 @@ class CorrectionController extends AbstractActionController
             return $fields;
         }
 
-        // Fill the proposed corrections, according to the original value.
+        // Fill the proposed contributes, according to the original value.
         foreach ($fields as $term => &$field) {
             if (!isset($proposals[$term])) {
                 continue;
             }
-            foreach ($field['corrections'] as &$fieldCorrection) {
+            foreach ($field['contributes'] as &$fieldContribute) {
                 $proposed = null;
-                $type = $fieldCorrection['type'];
+                $type = $fieldContribute['type'];
                 if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
-                            && $proposal['original']['@uri'] === $fieldCorrection['original']['@uri']
-                            && $proposal['original']['@label'] === $fieldCorrection['original']['@label']
+                            && $proposal['original']['@uri'] === $fieldContribute['original']['@uri']
+                            && $proposal['original']['@label'] === $fieldContribute['original']['@label']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -410,7 +410,7 @@ class CorrectionController extends AbstractActionController
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldCorrection['proposed'] = [
+                    $fieldContribute['proposed'] = [
                         '@value' => null,
                         '@resource' => null,
                         '@uri' => $proposed['@uri'],
@@ -420,7 +420,7 @@ class CorrectionController extends AbstractActionController
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@resource'])
                             && (int) $proposal['original']['@resource']
-                            && $proposal['original']['@resource'] === $fieldCorrection['original']['@resource']
+                            && $proposal['original']['@resource'] === $fieldContribute['original']['@resource']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -429,7 +429,7 @@ class CorrectionController extends AbstractActionController
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldCorrection['proposed'] = [
+                    $fieldContribute['proposed'] = [
                         '@value' => null,
                         '@resource' => (int) $proposed['@resource'],
                         '@uri' => null,
@@ -438,7 +438,7 @@ class CorrectionController extends AbstractActionController
                 } else {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@value'])
-                            && $proposal['original']['@value'] === $fieldCorrection['original']['@value']
+                            && $proposal['original']['@value'] === $fieldContribute['original']['@value']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -447,7 +447,7 @@ class CorrectionController extends AbstractActionController
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldCorrection['proposed'] = [
+                    $fieldContribute['proposed'] = [
                         '@value' => $proposed['@value'],
                         '@resource' => null,
                         '@uri' => null,
@@ -457,26 +457,26 @@ class CorrectionController extends AbstractActionController
                 unset($proposals[$term][$keyProposal]);
             }
         }
-        unset($field, $fieldCorrection);
+        unset($field, $fieldContribute);
 
-        // Fill the proposed correction, according to the existing values: some
-        // corrections may have been accepted or the resource updated, so check
-        // if there are remaining corrections that were validated.
+        // Fill the proposed contribute, according to the existing values: some
+        // contributes may have been accepted or the resource updated, so check
+        // if there are remaining contributes that were validated.
         foreach ($fields as $term => &$field) {
             if (!isset($proposals[$term])) {
                 continue;
             }
-            foreach ($field['corrections'] as &$fieldCorrection) {
+            foreach ($field['contributes'] as &$fieldContribute) {
                 $proposed = null;
-                $type = $fieldCorrection['type'];
+                $type = $fieldContribute['type'];
                 if (!$editable->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
-                            && $proposal['proposed']['@uri'] === $fieldCorrection['original']['@uri']
-                            && $proposal['proposed']['@label'] === $fieldCorrection['original']['@label']
+                            && $proposal['proposed']['@uri'] === $fieldContribute['original']['@uri']
+                            && $proposal['proposed']['@label'] === $fieldContribute['original']['@label']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -485,7 +485,7 @@ class CorrectionController extends AbstractActionController
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldCorrection['proposed'] = [
+                    $fieldContribute['proposed'] = [
                         '@value' => null,
                         '@resource' => null,
                         '@uri' => $proposed['@uri'],
@@ -495,7 +495,7 @@ class CorrectionController extends AbstractActionController
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@resource'])
                             && (int) $proposal['proposed']['@resource']
-                            && $proposal['proposed']['@resource'] === $fieldCorrection['original']['@resource']
+                            && $proposal['proposed']['@resource'] === $fieldContribute['original']['@resource']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -504,7 +504,7 @@ class CorrectionController extends AbstractActionController
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldCorrection['proposed'] = [
+                    $fieldContribute['proposed'] = [
                         '@value' => null,
                         '@resource' => (int) $proposed['@resource'],
                         '@uri' => null,
@@ -513,7 +513,7 @@ class CorrectionController extends AbstractActionController
                 } else {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@value'])
-                            && $proposal['proposed']['@value'] === $fieldCorrection['original']['@value']
+                            && $proposal['proposed']['@value'] === $fieldContribute['original']['@value']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -522,7 +522,7 @@ class CorrectionController extends AbstractActionController
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldCorrection['proposed'] = [
+                    $fieldContribute['proposed'] = [
                         '@value' => $proposed['@value'],
                         '@resource' => null,
                         '@uri' => null,
@@ -532,9 +532,9 @@ class CorrectionController extends AbstractActionController
                 unset($proposals[$term][$keyProposal]);
             }
         }
-        unset($field, $fieldCorrection);
+        unset($field, $fieldContribute);
 
-        // Append only remaining corrections that are fillable.
+        // Append only remaining contributes that are fillable.
         // Other ones are related to an older config.
         $proposals = array_intersect_key(array_filter($proposals), $editable->fillableProperties());
         foreach ($proposals as $term => $termProposal) {
@@ -563,7 +563,7 @@ class CorrectionController extends AbstractActionController
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
-                    $fields[$term]['corrections'][] = [
+                    $fields[$term]['contributes'][] = [
                         'type' => $type,
                         'original' => [
                             'value' => null,
@@ -580,7 +580,7 @@ class CorrectionController extends AbstractActionController
                         ],
                     ];
                 } elseif (strtok($type, ':') === 'resource') {
-                    $fields[$term]['corrections'][] = [
+                    $fields[$term]['contributes'][] = [
                         'type' => $type,
                         'original' => [
                             'value' => null,
@@ -597,7 +597,7 @@ class CorrectionController extends AbstractActionController
                         ],
                     ];
                 } else {
-                    $fields[$term]['corrections'][] = [
+                    $fields[$term]['contributes'][] = [
                         'type' => 'literal',
                         'original' => [
                             'value' => null,
@@ -626,7 +626,7 @@ class CorrectionController extends AbstractActionController
      * The check is done comparing the keys of original values and the new ones.
      *
      * @todo Manage all types of data, in particular custom vocab.
-     * @todo Factorize with \Correction\Admin\CorrectionController::validateCorrection()
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribute()
      *
      * @param AbstractResourceEntityRepresentation $resource
      * @param array $proposal

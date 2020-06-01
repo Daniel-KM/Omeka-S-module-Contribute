@@ -1,5 +1,5 @@
 <?php
-namespace Correction;
+namespace Contribute;
 
 /**
  * @var Module $this
@@ -24,23 +24,23 @@ if (version_compare($oldVersion, '3.0.10', '<')) {
     $this->checkAllResourcesToInstall();
 
     $sql = <<<'SQL'
-ALTER TABLE correction_token
+ALTER TABLE contribute_token
     CHANGE email email VARCHAR(190) DEFAULT NULL,
     CHANGE expire expire DATETIME DEFAULT NULL,
     CHANGE accessed accessed DATETIME DEFAULT NULL;
-DROP INDEX token_idx ON correction_token;
-CREATE INDEX correction_token_idx ON correction_token (token);
-DROP INDEX expire_idx ON correction_token;
-CREATE INDEX correction_expire_idx ON correction_token (expire);
+DROP INDEX token_idx ON contribute_token;
+CREATE INDEX contribute_token_idx ON contribute_token (token);
+DROP INDEX expire_idx ON contribute_token;
+CREATE INDEX contribute_expire_idx ON contribute_token (expire);
 
-ALTER TABLE correction
+ALTER TABLE contribute
     CHANGE token_id token_id INT DEFAULT NULL,
     CHANGE email email VARCHAR(190) DEFAULT NULL,
     CHANGE modified modified DATETIME DEFAULT NULL;
-DROP INDEX email_idx ON correction;
-CREATE INDEX correction_email_idx ON correction (email);
-DROP INDEX modified_idx ON correction;
-CREATE INDEX correction_modified_idx ON correction (modified);
+DROP INDEX email_idx ON contribute;
+CREATE INDEX contribute_email_idx ON contribute (email);
+DROP INDEX modified_idx ON contribute;
+CREATE INDEX contribute_modified_idx ON contribute (modified);
 SQL;
 
     // Use single statements for execution.
@@ -52,12 +52,12 @@ SQL;
 
     $this->installAllResources();
 
-    $resourceTemplate = $api->read('resource_templates', ['label' => 'Correction'])->getContent();
-    $templateData = $settings->get('correction_resource_template_data', []);
+    $resourceTemplate = $api->read('resource_templates', ['label' => 'Contribute'])->getContent();
+    $templateData = $settings->get('contribute_resource_template_data', []);
     $templateData['corrigible'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
     $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
-    $settings->set('correction_resource_template_data', $templateData);
-    $settings->set('correction_template_editable', $resourceTemplate->id());
+    $settings->set('contribute_resource_template_data', $templateData);
+    $settings->set('contribute_template_editable', $resourceTemplate->id());
 }
 
 $translator = $serviceLocator->get('MvcTranslator');

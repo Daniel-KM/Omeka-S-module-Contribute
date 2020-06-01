@@ -1,10 +1,10 @@
 <?php
-namespace Correction\Form;
+namespace Contribute\Form;
 
 use Zend\Form\Element;
 use Zend\Form\Form;
 
-class CorrectionForm extends Form
+class ContributeForm extends Form
 {
     public function init()
     {

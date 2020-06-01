@@ -3,7 +3,7 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Correction\Api\Representation\CorrectionRepresentation|null $correction
+ * @var \Contribute\Api\Representation\ContributeRepresentation|null $contribute
  * @var array $fields
  * @var string $action "edit"
  * @var string $submitLabel
@@ -20,7 +20,7 @@ $setting = $this->plugin('setting');
 
 // Prepare resource selects.
 $valueTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
-$queries = $setting('correction_property_queries', []);
+$queries = $setting('contribute_property_queries', []);
 $resFunction = function ($res) {
     return mb_substr($res->displayTitle(), 0, 80);
 };
@@ -79,7 +79,7 @@ $labelInfo = $this->setting('property_label_information');
         $index = 0;
         $property = $field['property'];
         // Don't display empty values that are not fillable.
-        if (empty($field['corrections']) && !$field['fillable']) continue;
+        if (empty($field['contributes']) && !$field['fillable']) continue;
         ?>
 
     <div class="property mb-3">
@@ -125,24 +125,24 @@ $labelInfo = $this->setting('property_label_information');
         <?php // Editable fields, that may have been edited or not. ?>
         <?php else: ?>
 
-           <?php foreach ($field['corrections'] as $fieldCorrection):
+           <?php foreach ($field['contributes'] as $fieldContribute):
                 /** @var \Omeka\Api\Representation\ValueRepresentation $value */
-                $value = $fieldCorrection['original']['value'];
+                $value = $fieldContribute['original']['value'];
                 if (!$value && !$field['fillable']) continue;
 
-                $valueType = $fieldCorrection['type'];
+                $valueType = $fieldContribute['type'];
 
                 $isValueSuggest = strpos($valueType, 'valuesuggest:') === 0 || strpos($valueType, 'valuesuggestall:') === 0;
                 if ($isValueSuggest && !$hasValueSuggest) continue;
 
                 $isValueResource = strtok($valueType, ':') === 'resource';
-                $original = $fieldCorrection['original'];
-                $proposed = $fieldCorrection['proposed'];
+                $original = $fieldContribute['original'];
+                $proposed = $fieldContribute['proposed'];
                 $isPrivate = $value && method_exists($value, 'isPublic') && !$value->isPublic();
 
                 // Value that is not corrigible.
                 if ($value && !$field['corrigible']):
-                    $val = strlen($fieldCorrection['proposed']['@value']) ? $escape($fieldCorrection['proposed']['@value']) : $value->asHtml();
+                    $val = strlen($fieldContribute['proposed']['@value']) ? $escape($fieldContribute['proposed']['@value']) : $value->asHtml();
                     $class = ['value'];
                     if ($isValueResource):
                         $resourceValue = $value ? $value->valueResource() : null;

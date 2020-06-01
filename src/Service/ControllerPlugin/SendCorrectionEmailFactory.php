@@ -1,15 +1,15 @@
 <?php
-namespace Correction\Service\ControllerPlugin;
+namespace Contribute\Service\ControllerPlugin;
 
-use Correction\Mvc\Controller\Plugin\SendCorrectionEmail;
+use Contribute\Mvc\Controller\Plugin\SendContributeEmail;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
-class SendCorrectionEmailFactory implements FactoryInterface
+class SendContributeEmailFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedNamed, array $options = null)
     {
-        return new SendCorrectionEmail(
+        return new SendContributeEmail(
             $services->get('Omeka\Mailer'),
             $services->get('Omeka\Logger')
         );
