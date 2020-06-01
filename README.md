@@ -1,19 +1,15 @@
-Contribute (module for Omeka S) [archived]
+Contribute (module for Omeka S)
 ===============================
 
-[Contribute] is a module for [Omeka S] that allows visitors to edit, complete
-or translate metadata of the resources without access to the admin board. Access
-to the edit page may be controlled by a token, that you can send to your users.
-
-**IMPORTANT**
-This module is deprecated and replaced by the module [Contribute] in order to
-manage improvements. The upgrade from module [Contribute] is automatic.
+[Contribute] is a module for [Omeka S] that allows visitors to edit, complete or
+translate metadata of the resources without access to the admin board. Access to
+the edit page may be controlled by a token, that you can send to your users.
 
 
 Installation
 ------------
 
-This module requires the module [`Generic`] (version >= 3.0.16) installed first.
+Install the optional module [`Generic`] (version >= 3.0.16) first.
 
 See general end user documentation for [installing a module].
 
@@ -106,6 +102,7 @@ Copyright
 * Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitHub)
 
 First version of this module was done for [Université de Paris-Saclay].
+Improvements were done for [Enssib].
 
 
 [Contribute]: https://github.com/Daniel-KM/Omeka-S-module-Contribute
@@ -120,4 +117,5 @@ First version of this module was done for [Université de Paris-Saclay].
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
 [Université de Paris-Saclay]: https://www.universite-paris-saclay.fr
+[Enssib]: https://www.enssib.fr
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
