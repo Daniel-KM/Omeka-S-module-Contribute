@@ -46,12 +46,12 @@ class ContributeController extends AbstractActionController
         }
 
         if ($token) {
-            $contribute = $api
+            $contribution = $api
                 ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
         } else {
-            $contribute = $api
+            $contribution = $api
                 ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], true);
@@ -63,7 +63,7 @@ class ContributeController extends AbstractActionController
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
-        $fields = $this->prepareFields($resource, $contribute);
+        $fields = $this->prepareFields($resource, $contribution);
 
         $contributive = $this->contributiveData($resource);
         if (!$contributive->isContributive()) {
@@ -81,7 +81,7 @@ class ContributeController extends AbstractActionController
                 // The resource isn’t updated, but the proposition of contribute
                 // is saved for moderation.
                 $response = null;
-                if (empty($contribute)) {
+                if (empty($contribution)) {
                     $data = [
                         'o:resource' => ['o:id' => $resourceId],
                         'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
@@ -94,12 +94,12 @@ class ContributeController extends AbstractActionController
                         $this->messenger()->addSuccess('Contributions successfully submitted!'); // @translate
                         $this->prepareContributionEmail($response->getContent());
                     }
-                } elseif ($proposal !== $contribute->proposal()) {
+                } elseif ($proposal !== $contribution->proposal()) {
                     $data = [
                         'o-module-contribute:reviewed' => false,
                         'o-module-contribute:proposal' => $proposal,
                     ];
-                    $response = $this->api($form)->update('contributions', $contribute->id(), $data, [], ['isPartial' => true]);
+                    $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
                     if ($response) {
                         $this->messenger()->addSuccess('Contributions successfully submitted!'); // @translate
                         $this->prepareContributionEmail($response->getContent());
@@ -111,7 +111,7 @@ class ContributeController extends AbstractActionController
                 if ($response) {
                     $eventManager = $this->getEventManager();
                     $eventManager->trigger('contribute.submit', $this, [
-                        'contribute' => $contribute,
+                        'contribution' => $contribution,
                         'resource' => $resource,
                         'data' => $data,
                     ]);
@@ -126,12 +126,12 @@ class ContributeController extends AbstractActionController
         return new ViewModel([
             'form' => $form,
             'resource' => $resource,
-            'contribute' => $contribute,
+            'contribution' => $contribution,
             'fields' => $fields,
         ]);
     }
 
-    protected function prepareContributionEmail(ContributionRepresentation $contribute)
+    protected function prepareContributionEmail(ContributionRepresentation $contribution)
     {
         $emails = $this->settings()->get('contribute_notify', []);
         if (empty($emails)) {
@@ -143,17 +143,17 @@ class ContributeController extends AbstractActionController
             $message = '<p>' . new Message(
                 'User %1$s has edited resource #%2$s (%3$s).', // @translate
                 '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                '<a href="' . $contribute->resource()->adminUrl('show', true) . '#contribute">' . $contribute->resource()->id() . '</a>',
-                $contribute->resource()->displayTitle()
+                '<a href="' . $contribution->resource()->adminUrl('show', true) . '#contribution">' . $contribution->resource()->id() . '</a>',
+                $contribution->resource()->displayTitle()
             ) . '</p>';
         } else {
             $message = '<p>' . new Message(
                 'A user has edited resource #%1$d (%2$s).', // @translate
-                '<a href="' . $contribute->resource()->adminUrl('show', true) . '#contribute">' . $contribute->resource()->id() . '</a>',
-                $contribute->resource()->displayTitle()
+                '<a href="' . $contribution->resource()->adminUrl('show', true) . '#contribution">' . $contribution->resource()->id() . '</a>',
+                $contribution->resource()->displayTitle()
             ) . '</p>';
         }
-        $this->sendContributionEmail($emails, $this->translate('[Omeka Contribute] New contribute'), $message); // @translate
+        $this->sendContributionEmail($emails, $this->translate('[Omeka Contribution] New contribution'), $message); // @translate
     }
 
     /**
@@ -207,10 +207,10 @@ class ContributeController extends AbstractActionController
      * @return array
      *
      * @param AbstractResourceEntityRepresentation $resource
-     * @param ContributionRepresentation $contribute
+     * @param ContributionRepresentation $contribution
      * @return array
      */
-    protected function prepareFields(AbstractResourceEntityRepresentation $resource, ContributionRepresentation $contribute = null)
+    protected function prepareFields(AbstractResourceEntityRepresentation $resource, ContributionRepresentation $contribution = null)
     {
         $fields = [];
 
@@ -351,11 +351,11 @@ class ContributeController extends AbstractActionController
             }
         }
 
-        if (!$contribute) {
+        if (!$contribution) {
             return $fields;
         }
 
-        $proposals = $contribute->proposal();
+        $proposals = $contribution->proposal();
 
         // Clean old proposals.
         foreach ($proposals as $term => $termProposal) {

@@ -3,7 +3,7 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribute
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
  */
 
@@ -51,7 +51,7 @@ $mapLabels = [
     echo $this->partial('contribute/site/contribute/form.phtml', [
         'form' => $form,
         'resource' => $resource,
-        'contribute' => $contribute,
+        'contribution' => $contribution,
         'fields' => $fields,
         'action' => 'edit',
         'submitLabel' => $translate('Edit'),

@@ -205,13 +205,13 @@ class ContributeController extends AbstractActionController
 
         // Only people who can edit the resource can update the status.
         $id = $this->params('id');
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
-        $contribute = $this->api()->read('contributions', $id)->getContent();
-        if (!$contribute->resource()->userIsAllowed('update')) {
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        $contribution = $this->api()->read('contributions', $id)->getContent();
+        if (!$contribution->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $isReviewed = $contribute->reviewed();
+        $isReviewed = $contribution->reviewed();
 
         $data = [];
         $data['o-module-contribute:reviewed'] = !$isReviewed;
@@ -250,9 +250,9 @@ class ContributeController extends AbstractActionController
                 return $this->jsonErrorNotFound();
             }
         } else {
-            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
-            $contribute = $this->api()->read('contributions', $id)->getContent();
-            $token = $contribute->token();
+            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+            $contribution = $this->api()->read('contributions', $id)->getContent();
+            $token = $contribution->token();
         }
 
         if (!$token) {
@@ -293,13 +293,13 @@ class ContributeController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
-        $contribute = $this->api()->read('contributions', $id)->getContent();
-        if (!$contribute->resource()->userIsAllowed('update')) {
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        $contribution = $this->api()->read('contributions', $id)->getContent();
+        if (!$contribution->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $this->validateContribute($contribute);
+        $this->validateContribution($contribution);
 
         $data = [];
         $data['o-module-contribute:reviewed'] = true;
@@ -331,9 +331,9 @@ class ContributeController extends AbstractActionController
 
         // Only people who can edit the resource can validate.
         $id = $this->params('id');
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribute */
-        $contribute = $this->api()->read('contributions', $id)->getContent();
-        if (!$contribute->resource()->userIsAllowed('update')) {
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        $contribution = $this->api()->read('contributions', $id)->getContent();
+        if (!$contribution->resource()->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
@@ -343,7 +343,7 @@ class ContributeController extends AbstractActionController
             return $this->returnError('Missing term or key.'); // @translate
         }
 
-        $this->validateContribute($contribute, $term, $key);
+        $this->validateContribution($contribution, $term, $key);
 
         return new JsonModel([
             'status' => Response::STATUS_CODE_200,
@@ -393,22 +393,22 @@ class ContributeController extends AbstractActionController
      *
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      *
-     * @param ContributionRepresentation $contribute
+     * @param ContributionRepresentation $contribution
      * @param string $term
      * @param int $proposedKey
      */
-    protected function validateContribute(ContributionRepresentation $contribute, $term = null, $proposedKey = null)
+    protected function validateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null)
     {
-        $contributive = $contribute->contributiveData();
+        $contributive = $contribution->contributiveData();
         if (!$contributive->isContributive()) {
             return;
         }
 
         // Right to update the resource is already checked.
-        $resource = $contribute->resource();
+        $resource = $contribution->resource();
         $resourceTemplate = $resource->resourceTemplate();
         $existingValues = $resource->values();
-        $proposal = $contribute->proposalCheck();
+        $proposal = $contribution->proposalCheck();
         $hasProposedKey = !is_null($proposedKey);
 
         $api = $this->api();
