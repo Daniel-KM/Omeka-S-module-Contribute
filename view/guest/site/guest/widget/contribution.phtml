@@ -1,0 +1,23 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ */
+
+$translate = $this->plugin('translate');
+$url = $this->plugin('url');
+$hyperlink = $this->plugin('hyperlink');
+?>
+
+<ul>
+    <li>
+        <?= $hyperlink(
+            $translate('See contributions'), // @translate
+            $url('site/guest/contribution', [], true)
+        ) ?>
+    </li>
+    <?php if ($this->setting('contribute_without_token')): ?>
+    <li>
+        <?= $hyperlink($translate('Add a new record'), $url('site/contribute', [], true)) ?>
+    </li>
+    <?php endif; ?>
+</ul>

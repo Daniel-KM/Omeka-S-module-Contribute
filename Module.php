@@ -79,15 +79,24 @@ class Module extends AbstractModule
         /** @var \Omeka\Permissions\Acl $acl */
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
 
+        // Since Omeka 1.4, modules are ordered, so Guest come after Selection.
+        // See \Guest\Module::onBootstrap().
+        if (!$acl->hasRole('guest')) {
+            $acl->addRole('guest');
+        }
+
         // Users who can edit resources can update contributions.
         // A check is done on the specific resource for some roles.
-        $roles = [
+        $validators = [
             \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
             \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
             \Omeka\Permissions\Acl::ROLE_EDITOR,
             \Omeka\Permissions\Acl::ROLE_REVIEWER,
         ];
 
+        $roles = $acl->getRoles();
+
+        // TODO Limit rights to self contribution (IsSelfAssertion).
         $acl
             ->allow(
                 null,
@@ -95,7 +104,7 @@ class Module extends AbstractModule
                 ['edit']
             )
             ->allow(
-                $roles,
+                $validators,
                 ['Contribute\Controller\Admin\Contribution']
             )
 
@@ -119,7 +128,14 @@ class Module extends AbstractModule
                 null,
                 [\Contribute\Entity\Token::class],
                 ['update']
-            );
+            )
+            ->allow(
+                $roles,
+                [
+                    'Contribute\Controller\Site\GuestBoard',
+                ]
+            )
+       ;
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
@@ -134,6 +150,13 @@ class Module extends AbstractModule
             'Omeka\Controller\Site\Item',
             'view.browse.after',
             [$this, 'handleViewShowAfter']
+        );
+
+        // Guest integration.
+        $sharedEventManager->attach(
+            \Guest\Controller\Site\GuestController::class,
+            'guest.widgets',
+            [$this, 'handleGuestWidgets']
         );
 
         $controllers = [
@@ -230,6 +253,21 @@ class Module extends AbstractModule
     public function handleViewShowAfter(Event $event)
     {
         echo $event->getTarget()->linkContribute();
+    }
+
+    public function handleGuestWidgets(Event $event)
+    {
+        $widgets = $event->getParam('widgets');
+        $helpers = $this->getServiceLocator()->get('ViewHelperManager');
+        $translate = $helpers->get('translate');
+        $partial = $helpers->get('partial');
+
+        $widget = [];
+        $widget['label'] = $translate('Contributions'); // @translate
+        $widget['content'] = $partial('guest/site/guest/widget/contribution');
+        $widgets['selection'] = $widget;
+
+        $event->setParam('widgets', $widgets);
     }
 
     public function handleResourceTemplateCreateOrUpdatePost(Event $event)

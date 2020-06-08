@@ -40,6 +40,7 @@ return [
         'invokables' => [
             'Contribute\Controller\Admin\Contribution' => Controller\Admin\ContributionController::class,
             'Contribute\Controller\Site\Contribute' => Controller\Site\ContributeController::class,
+            'Contribute\Controller\Site\GuestBoard' => Controller\Site\GuestBoardController::class,
         ],
     ],
     'controller_plugins' => [
@@ -110,6 +111,29 @@ return [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',
                                 'controller' => 'contribute',
                                 'action' => 'edit',
+                            ],
+                        ],
+                    ],
+                    'guest' => [
+                        // The default values for the guest user route are kept
+                        // to avoid issues for visitors when an upgrade of
+                        // module Guest occurs or when it is disabled.
+                        'type' => \Zend\Router\Http\Literal::class,
+                        'options' => [
+                            'route' => '/guest',
+                        ],
+                        'may_terminate' => true,
+                        'child_routes' => [
+                            'contribution' => [
+                                'type' => \Zend\Router\Http\Literal::class,
+                                'options' => [
+                                    'route' => '/contribution',
+                                    'defaults' => [
+                                        '__NAMESPACE__' => 'Contribute\Controller\Site',
+                                        'controller' => 'GuestBoard',
+                                        'action' => 'show',
+                                    ],
+                                ],
                             ],
                         ],
                     ],
