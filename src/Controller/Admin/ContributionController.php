@@ -9,7 +9,7 @@ use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 
-class ContributeController extends AbstractActionController
+class ContributionController extends AbstractActionController
 {
     /**
      * Create a token for a list of resources.

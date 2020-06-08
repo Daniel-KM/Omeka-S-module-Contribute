@@ -37,7 +37,7 @@ return [
     ],
     'controllers' => [
         'invokables' => [
-            'Contribute\Controller\Admin\Contribute' => Controller\Admin\ContributeController::class,
+            'Contribute\Controller\Admin\Contribution' => Controller\Admin\ContributionController::class,
             'Contribute\Controller\Site\Contribute' => Controller\Site\ContributeController::class,
         ],
     ],
@@ -78,13 +78,13 @@ return [
             ],
             'admin' => [
                 'child_routes' => [
-                    'contribute' => [
+                    'contribution' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
-                            'route' => '/contribute',
+                            'route' => '/contribution',
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Admin',
-                                'controller' => 'contribute',
+                                'controller' => 'contribution',
                                 'action' => 'browse',
                             ],
                         ],
@@ -106,6 +106,9 @@ return [
                                     'constraints' => [
                                         'id' => '\d+',
                                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                    ],
+                                    'defaults' => [
+                                        'action' => 'show',
                                     ],
                                 ],
                             ],

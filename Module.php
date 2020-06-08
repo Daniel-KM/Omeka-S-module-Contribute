@@ -96,7 +96,7 @@ class Module extends AbstractModule
             )
             ->allow(
                 $roles,
-                ['Contribute\Controller\Admin\Contribute']
+                ['Contribute\Controller\Admin\Contribution']
             )
 
             ->allow(
@@ -289,7 +289,7 @@ class Module extends AbstractModule
         $escapeAttr = $view->plugin('escapeHtmlAttr');
         $link = $view->hyperlink(
             $translate('Create contribution token'), // @translate
-            $view->url('admin/contribute/default', ['action' => 'create-token'], ['query' => $query])
+            $view->url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
         );
         $output =  '<div class="meta-group create_contribution_token">'
             . '<h4>' . $translate('Contribute') . '</h4>'

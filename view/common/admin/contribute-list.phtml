@@ -35,7 +35,7 @@ $values = $resource->values();
     <div class="contribution-token">
         <p><?= sprintf($translate('There are %d tokens for this resource (%d expired).'), $totalTokens, $totalExpiredTokens) ?></p>
         <?php if (($totalTokens - $totalExpiredTokens) && $this->userIsAllowed('Contribute\Controller\Admin\Contribute', 'expire-tokens')): ?>
-        <?= $hyperlink($translate('Expire all tokens'), $this->url('admin/contribute/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']) ?>
+        <?= $hyperlink($translate('Expire all tokens'), $this->url('admin/contribution/id', ['action' => 'expire-tokens', 'id' => $resource->id()]), ['class' => 'button']) ?>
         <?php endif; ?>
     </div>
     <?php endif; ?>

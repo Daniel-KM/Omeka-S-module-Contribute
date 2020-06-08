@@ -7,7 +7,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 {
     public function getControllerName()
     {
-        return 'contribute';
+        return 'contribution';
     }
 
     public function getJsonLdType()
