@@ -27,6 +27,7 @@ return [
     'view_helpers' => [
         'factories' => [
             'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,
+            'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
         ],
     ],
     'form_elements' => [
