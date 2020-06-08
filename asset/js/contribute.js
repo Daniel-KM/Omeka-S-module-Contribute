@@ -10,7 +10,7 @@ $(document).ready(function() {
         var selector = target.closest('.default-selector');
         var term = selector.data('next-term');
         var index = selector.data('next-index');
-        var inputs = target.closest('.values .inputs');
+        var inputs = target.closest('.property').find('.values').first();
         var newElement, name, namel;
 
         if (target.hasClass('add-value-new')) {
@@ -66,7 +66,7 @@ $(document).ready(function() {
             valueSuggestAutocomplete($(newElement).find('input').first());
         }
 
-        inputs.before(newElement);
+        inputs.append(newElement);
         index = parseInt(index) + 1;
         selector.data('next-index', index);
     });
