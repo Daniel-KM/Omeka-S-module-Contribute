@@ -4,6 +4,7 @@ namespace Contribute\Controller\Site;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Form\ContributeForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+// TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
 use Omeka\Stdlib\Message;
 use Zend\Mvc\Controller\AbstractActionController;
@@ -11,6 +12,92 @@ use Zend\View\Model\ViewModel;
 
 class ContributeController extends AbstractActionController
 {
+    public function addAction()
+    {
+        $resourceType = $this->params('resource');
+
+        $resourceTypeMap = [
+            'item' => 'items',
+            'media' => 'media',
+            'item-set' => 'item_sets',
+        ];
+        // Useless, because managed by route, but the config may be overridden.
+        if (!isset($resourceTypeMap[$resourceType])) {
+            return $this->notFoundAction();
+        }
+        // $resourceName = $resourceTypeMap[$resourceType];
+
+        $settings = $this->settings();
+        $user = $this->identity();
+
+        // TODO Allow to use a token to add a resource.
+        // $token = $this->checkToken($resource);
+        $token = null;
+        if (!$token && !($user && $settings->get('contribute_without_token'))) {
+            return $this->viewError403();
+        }
+
+        $currentUrl = $this->url()->fromRoute(null, [], true);
+
+        /** @var \Contribute\Form\ContributeForm $form */
+        $form = $this->getForm(ContributeForm::class)
+            ->setAttribute('action', $currentUrl)
+            ->setAttribute('enctype', 'multipart/form-data')
+            ->setAttribute('id', 'edit-resource');
+        $form->get('submit')->setLabel('Add'); // @translate
+
+        $contributive = $this->contributiveData();
+        if (!$contributive->isContributive()) {
+            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
+        } elseif ($this->getRequest()->isPost()) {
+            $post = $this->params()->fromPost();
+            $form->setData($post);
+            // TODO There is no check currently (html form), except the csrf.
+            if ($form->isValid()) {
+                // TODO Manage file data.
+                // $fileData = $this->getRequest()->getFiles()->toArray();
+                // $data = $form->getData();
+                $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
+                $proposal = $this->prepareProposal($data);
+                // The resource isn’t updated, but the proposition of contribute
+                // is saved for moderation.
+                $data = [
+                    'o:resource' => null,
+                    'o:owner' => $user ? ['o:id' => $user->getId()] : null,
+                    'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
+                    'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                    'o-module-contribute:reviewed' => false,
+                    'o-module-contribute:proposal' => $proposal,
+                ];
+                $response = $this->api($form)->create('contributions', $data);
+                if ($response) {
+                    $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
+                    $this->prepareContributionEmail($response->getContent());
+                    $eventManager = $this->getEventManager();
+                    $eventManager->trigger('contribute.submit', $this, [
+                        'contribution' => $response->getContent(),
+                        'resource' => null,
+                        'data' => $data,
+                    ]);
+                    return $this->redirect()->toUrl($currentUrl);
+                }
+            } else {
+                $this->messenger()->addError('An error occurred: check your input.'); // @translate
+                $this->messenger()->addFormErrors($form);
+            }
+        }
+
+        $contributionFields = $this->viewHelpers()->get('contributionFields');
+
+        return new ViewModel([
+            'site' => $this->currentSite(),
+            'form' => $form,
+            'resource' => null,
+            'contribution' => null,
+            'fields' => $contributionFields(),
+        ]);
+    }
+
     public function editAction()
     {
         $api = $this->api();
@@ -63,7 +150,7 @@ class ContributeController extends AbstractActionController
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
-        $contributive = $this->contributiveData($resource);
+        $contributive = $this->contributiveData($resource->resourceTemplate());
         if (!$contributive->isContributive()) {
             $this->messenger()->addError('This resource cannot be edited. Ask the administrator for more information.'); // @translate
         } elseif ($this->getRequest()->isPost()) {
@@ -75,7 +162,7 @@ class ContributeController extends AbstractActionController
                 // $fileData = $this->getRequest()->getFiles()->toArray();
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
-                $proposal = $this->prepareProposal($resource, $data);
+                $proposal = $this->prepareProposal($data, $resource);
                 // The resource isn’t updated, but the proposition of contribute
                 // is saved for moderation.
                 $response = null;
@@ -90,7 +177,7 @@ class ContributeController extends AbstractActionController
                     ];
                     $response = $this->api($form)->create('contributions', $data);
                     if ($response) {
-                        $this->messenger()->addSuccess('Contributions successfully submitted!'); // @translate
+                        $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
                         $this->prepareContributionEmail($response->getContent());
                     }
                 } elseif ($proposal !== $contribution->proposal()) {
@@ -100,7 +187,7 @@ class ContributeController extends AbstractActionController
                     ];
                     $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
                     if ($response) {
-                        $this->messenger()->addSuccess('Contributions successfully submitted!'); // @translate
+                        $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
                         $this->prepareContributionEmail($response->getContent());
                     }
                 } else {
@@ -125,6 +212,7 @@ class ContributeController extends AbstractActionController
         $contributionFields = $this->viewHelpers()->get('contributionFields');
 
         return new ViewModel([
+            'site' => $this->currentSite(),
             'form' => $form,
             'resource' => $resource,
             'contribution' => $contribution,
@@ -163,13 +251,13 @@ class ContributeController extends AbstractActionController
      * The check is done comparing the keys of original values and the new ones.
      *
      * @todo Manage all types of data, in particular custom vocab.
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribute()
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
      *
-     * @param AbstractResourceEntityRepresentation $resource
      * @param array $proposal
+     * @param AbstractResourceEntityRepresentation|null $resource
      * @return array
      */
-    protected function prepareProposal(AbstractResourceEntityRepresentation $resource, array $proposal)
+    protected function prepareProposal(array $proposal, AbstractResourceEntityRepresentation $resource = null)
     {
         $result = [];
 
@@ -197,7 +285,8 @@ class ContributeController extends AbstractActionController
         unset($values, $value);
 
         // Process only editable keys.
-        $contributive = $this->contributiveData($resource);
+        $resourceTemplate = $resource ? $resource->resourceTemplate() : null;
+        $contributive = $this->contributiveData($resourceTemplate);
 
         // Process editable properties first.
         $matches = [];
@@ -215,7 +304,7 @@ class ContributeController extends AbstractActionController
         }
         foreach ($proposalEditableTerms as $term) {
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
-            $values = $resource->value($term, ['all' => true, 'default' => []]);
+            $values = $resource ? $resource->value($term, ['all' => true, 'default' => []]) : [];
             foreach ($values as $index => $value) {
                 if (!isset($proposal[$term][$index])) {
                     continue;
@@ -311,7 +400,6 @@ class ContributeController extends AbstractActionController
                 $proposalFillableTerms = array_keys($proposal);
                 break;
         }
-        $resourceTemplate = $resource->resourceTemplate();
         $propertyIds = $this->propertyIdsByTerms();
         foreach ($proposalFillableTerms as $term) {
             if (!isset($propertyIds[$term])) {
@@ -327,7 +415,7 @@ class ContributeController extends AbstractActionController
             }
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
-                $values = $resource->value($term, ['all' => true, 'default' => []]);
+                $values = $resource ? $resource->value($term, ['all' => true, 'default' => []]) : [];
                 if (isset($values[$index])) {
                     continue;
                 }

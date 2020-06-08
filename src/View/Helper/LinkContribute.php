@@ -23,9 +23,10 @@ class LinkContribute extends AbstractHelper
     }
 
     /**
-     * Get the link to the contribute page.
+     * Get the link to the contribute page (add if no resource, else edit).
      *
-     * @param AbstractResourceEntityRepresentation $resource
+     * @param AbstractResourceEntityRepresentation $resource If empty, the view
+     * is checked.
      * @param array $options Options for the template
      * @return string
      */
@@ -35,9 +36,6 @@ class LinkContribute extends AbstractHelper
 
         if (empty($resource)) {
             $resource = $view->resource;
-            if (empty($resource)) {
-                return '';
-            }
         }
 
         $defaultOptions = [
@@ -48,7 +46,7 @@ class LinkContribute extends AbstractHelper
         $user = $view->identity();
 
         $helper = $this->checkToken;
-        $canEdit = (bool) $helper($resource)
+        $canEdit = ($resource && $helper($resource))
             || ($user && $view->setting('contribute_without_token'));
 
         $template = $options['template'];

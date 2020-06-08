@@ -128,7 +128,12 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             'Omeka\Controller\Site\Item',
             'view.show.after',
-            [$this, 'handleViewShowAfterResource']
+            [$this, 'handleViewShowAfter']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Site\Item',
+            'view.browse.after',
+            [$this, 'handleViewShowAfter']
         );
 
         $controllers = [
@@ -222,7 +227,7 @@ class Module extends AbstractModule
         return $data;
     }
 
-    public function handleViewShowAfterResource(Event $event)
+    public function handleViewShowAfter(Event $event)
     {
         echo $event->getTarget()->linkContribute();
     }

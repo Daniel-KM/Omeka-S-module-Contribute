@@ -2,7 +2,6 @@
 namespace Contribute\Mvc\Controller\Plugin;
 
 use ArrayObject;
-use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
 class ContributiveData extends AbstractPlugin
@@ -13,15 +12,15 @@ class ContributiveData extends AbstractPlugin
     protected $data;
 
     /**
-     * Get the contributive data (editable, fillable, etc.) of a resource.
+     * Get contributive data (editable, fillable, etc.) of a resource template.
      *
      *  The list come from the resource template if it is configured, else the
      *  default list is used.
      *
-     * @param AbstractResourceEntityRepresentation $resource
+     * @param \Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
      * @return self
      */
-    public function __invoke(AbstractResourceEntityRepresentation $resource)
+    public function __invoke($resourceTemplate = null)
     {
         $this->data = new ArrayObject([
             'is_contributive' => false,
@@ -45,7 +44,8 @@ class ContributiveData extends AbstractPlugin
             unset($this->data['datatypes_default'][$has]);
         }
 
-        $resourceTemplate = $resource->resourceTemplate();
+        $resourceTemplate = $this->resourceTemplate($resourceTemplate);
+
         if (!$resourceTemplate) {
             $resourceTemplateId = (int) $settings->get('contribute_template_editable');
             if ($resourceTemplateId) {
@@ -256,5 +256,32 @@ class ContributiveData extends AbstractPlugin
     public function isDefaultDatatype($datatype)
     {
         return in_array($datatype, $this->data['datatypes_default']);
+    }
+
+    /**
+     * Get the resource template.
+     *
+     * @var \Omeka\Api\Representation\ResourceTemplateRepresentation|int|string|null $resourceTemplate
+     * @return \Omeka\Api\Representation\ResourceTemplateRepresentation|null
+     */
+    protected function resourceTemplate($resourceTemplate)
+    {
+        if (empty($resourceTemplate) || is_object($resourceTemplate)) {
+            return $resourceTemplate;
+        }
+
+        if (is_numeric($resourceTemplate)) {
+            try {
+                return $this->getView()->api()->read('resource_templates', ['id' => $resourceTemplate])->getContent();
+            } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                return null;
+            }
+        }
+
+        if (is_string($resourceTemplate)) {
+            return $this->getView()->api()->searchOne('resource_templates', ['label' => $resourceTemplate])->getContent();
+        }
+
+        return null;
     }
 }

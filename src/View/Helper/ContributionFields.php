@@ -80,11 +80,11 @@ class ContributionFields extends AbstractHelper
      *
      * @return array
      *
-     * @param AbstractResourceEntityRepresentation $resource
+     * @param AbstractResourceEntityRepresentation|null $resource
      * @param ContributionRepresentation|null $contribution
      * @return array
      */
-    public function __invoke(AbstractResourceEntityRepresentation $resource, ContributionRepresentation $contribution = null)
+    public function __invoke(AbstractResourceEntityRepresentation $resource = null, ContributionRepresentation $contribution = null)
     {
         $view = $this->getView();
         $fields = [];
@@ -101,9 +101,14 @@ class ContributionFields extends AbstractHelper
             'contributions' => [],
         ];
 
-        $contributive = $this->contributiveData->__invoke($resource);
-        $values = $resource->values();
-        $resourceTemplate = $resource->resourceTemplate();
+        if ($resource) {
+            $resourceTemplate = $resource->resourceTemplate();
+            $values = $resource->values();
+        } else {
+            $resourceTemplate = null;
+            $values = [];
+        }
+        $contributive = $this->contributiveData->__invoke($resourceTemplate);
 
         // The default template is used when there is no template or when the
         // used one is not configured. $contributive has info about that.

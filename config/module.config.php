@@ -84,6 +84,21 @@ return [
                     'contribute' => [
                         'type' => \Zend\Router\Http\Segment::class,
                         'options' => [
+                            'route' => '/:resource/add',
+                            'constraints' => [
+                                'resource' => 'item|media|item-set',
+                            ],
+                            'defaults' => [
+                                '__NAMESPACE__' => 'Contribute\Controller\Site',
+                                'controller' => 'contribute',
+                                'resource' => 'item',
+                                'action' => 'add',
+                            ],
+                        ],
+                    ],
+                    'contribute-id' => [
+                        'type' => \Zend\Router\Http\Segment::class,
+                        'options' => [
                             // TODO Use controller delegator or override the default site route?
                             // Overrides core public site resources only for edit.
                             'route' => '/:resource/:id/edit',
@@ -171,6 +186,9 @@ return [
                 'Contribute',
             ],
             */
+            'item_browse' => [
+                'Contribute',
+            ],
         ],
     ],
     'contribute' => [

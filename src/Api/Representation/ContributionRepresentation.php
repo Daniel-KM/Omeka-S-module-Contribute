@@ -573,7 +573,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     {
         $contributiveData = $this->getServiceLocator()->get('ControllerPluginManager')
             ->get('contributiveData');
-        return $contributiveData($this->resource());
+        $res = $this->resource();
+        $template = $res ? $res->resourceTemplate() : null;
+        return $contributiveData($template);
     }
 
     /**
@@ -720,6 +722,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
     }
 
+    /**
+     * There is no page for the contribution, so it is the link to the resource
+     * add/edition page.
+     *
+     * {@inheritDoc}
+     * @see \Omeka\Api\Representation\AbstractResourceRepresentation::siteUrl()
+     */
     public function siteUrl($siteSlug = null, $canonical = false)
     {
         if (!$siteSlug) {
@@ -727,12 +736,25 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 ->getMvcEvent()->getRouteMatch()->getParam('site-slug');
         }
         $url = $this->getViewHelper('Url');
+        $resource = $this->resource();
+        if (!$resource) {
+            return $url(
+                'site/contribute',
+                [
+                    'site-slug' => $siteSlug,
+                    // TODO Support any new resources, not only item.
+                    'resource' => 'item',
+                ],
+                ['force_canonical' => $canonical]
+            );
+        }
+
         return $url(
-            'site/contribute',
+            'site/contribute-id',
             [
                 'site-slug' => $siteSlug,
-                'resource' => $this->resource()->getControllerName(),
-                'id' => $this->id(),
+                'resource' => $resource->getControllerName(),
+                'id' => $resource->id(),
             ],
             ['force_canonical' => $canonical]
         );

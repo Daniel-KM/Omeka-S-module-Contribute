@@ -1,11 +1,12 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Form\ResourceForm $form
- * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
- * @var string $action "edit"
+ * @var string $action "add" or "edit"
  * @var string $submitLabel
  */
 
@@ -25,7 +26,9 @@ $resFunction = function ($res) {
     return mb_substr($res->displayTitle(), 0, 80);
 };
 
-$hasValueSuggest = ($module = $resource->getServiceLocator()->get('Omeka\ModuleManager')->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+// The api manager is needed to create some form elements (resource select).
+$apiManager = $site->getServiceLocator()->get('Omeka\ApiManager');
+$hasValueSuggest = ($module = $site->getServiceLocator()->get('Omeka\ModuleManager')->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
 
 $form->prepare();
 
@@ -200,7 +203,7 @@ $labelInfo = $this->setting('property_label_information');
                             $resourceName = isset($valueTypes[$valueType]) ? $valueTypes[$valueType] : 'items';
                             $element = new \Omeka\Form\Element\ResourceSelect($term . '[' . $index . '][@resource]');
                             $element
-                                ->setApiManager($resource->getServiceLocator()->get('Omeka\ApiManager'));
+                                ->setApiManager($apiManager);
                             $element
                                 ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
                             $valueOptions = $element->getValueOptions();
@@ -306,7 +309,7 @@ $labelInfo = $this->setting('property_label_information');
                         $resourceName = $valueTypes[$datatype];
                         $element = new \Omeka\Form\Element\ResourceSelect();
                         $element
-                            ->setApiManager($resource->getServiceLocator()->get('Omeka\ApiManager'));
+                            ->setApiManager($apiManager);
                         $element
                             ->setResourceValueOptions($resourceName, $resFunction, $queries[$term]);
                         // The order should be kept, but there is no order in a js array.
@@ -339,8 +342,12 @@ $labelInfo = $this->setting('property_label_information');
     <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
     <div id="page-actions">
-        <?php // echo $this->cancelButton() ?>
+        <?php if ($resource): ?>
         <?= $this->hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <?php else: ?>
+        <?php // echo $this->cancelButton() ?>
+        <?= $this->hyperlink($translate('Cancel'), $this->url('site/resource', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'browse'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <?php endif; ?>
         <button type="submit" name="edit-resource-submit" class="btn btn-primary"><?= $escape($submitLabel) ?></button>
     </div>
 

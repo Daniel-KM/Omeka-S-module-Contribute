@@ -50,7 +50,7 @@ class ContributionController extends AbstractActionController
         $contribution = $response->getContent();
         $res = $contribution->resource();
         if (!$res) {
-            $message = new Message('This contribution has no resource.'); // @translate
+            $message = new Message('This contribution is a new resource or has no resource.'); // @translate
             $this->messenger()->addError($message);
             $params['action'] = 'browse';
             return $this->forward()->dispatch(__CLASS__, $params);
@@ -555,8 +555,8 @@ class ContributionController extends AbstractActionController
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      *
      * @param ContributionRepresentation $contribution
-     * @param string $term
-     * @param int $proposedKey
+     * @param string|null $term Validate only a specific term.
+     * @param int|null $proposedKey Validate only a specific key.
      */
     protected function validateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null)
     {
