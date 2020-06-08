@@ -20,13 +20,15 @@ class ContributionController extends AbstractActionController
         $this->paginator($response->getTotalResults());
 
         /** @var \Omeka\Form\ConfirmForm $formDeleteSelected */
-        $formDeleteSelected = $this->getForm(ConfirmForm::class)
+        $formDeleteSelected = $this->getForm(ConfirmForm::class);
+        $formDeleteSelected
             ->setAttribute('id', 'confirm-delete-selected')
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'batch-delete'], true))
             ->setButtonLabel('Confirm Delete'); // @translate
 
         /** @var \Omeka\Form\ConfirmForm $formDeleteAll */
-        $formDeleteAll = $this->getForm(ConfirmForm::class)
+        $formDeleteAll = $this->getForm(ConfirmForm::class);
+        $this->getForm(ConfirmForm::class)
             ->setAttribute('id', 'confirm-delete-all')
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'batch-delete-all'], true))
             ->setButtonLabel('Confirm Delete'); // @translate
