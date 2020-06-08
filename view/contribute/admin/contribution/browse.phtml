@@ -93,10 +93,7 @@ $sortHeadings = [
                 <?php if ($contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
                 <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
                 <?php endif; ?>
-                <?= $contribution->linkPrettyResource() ?>
-                <?php if (!$contribution->isPublic()): ?>
-                    <span class="o-icon-private" aria-label="<?= $translate('Private') ?>"></span>
-                <?php endif; ?>
+                <?= $contribution->linkResource($contribution->displayTitle()) ?>
                 <ul class="actions">
                     <?php if ($contribution->userIsAllowed('update')): ?>
                     <li><?= $this->hyperlink('', '#', [

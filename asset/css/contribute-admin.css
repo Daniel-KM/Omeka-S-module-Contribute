@@ -234,6 +234,14 @@
         text-decoration: none;
         cursor: pointer;
     }
+
+    .resource-details .contribution dd {
+        margin-left: 0;
+        opacity: .5;
+    }
+    .resource-details .contribution dt {
+        margin-bottom: .5em;
+    }
 }
 
 @media screen and (max-width: 640px) {

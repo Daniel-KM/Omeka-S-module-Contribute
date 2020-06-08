@@ -43,6 +43,61 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    public function showAction()
+    {
+        $params = $this->params()->fromRoute();
+        $response = $this->api()->read('contributions', $this->params('id'));
+        $contribution = $response->getContent();
+        $res = $contribution->resource();
+        if (!$res) {
+            $message = new Message('This contribution has no resource.'); // @translate
+            $this->messenger()->addError($message);
+            $params['action'] = 'browse';
+            return $this->forward()->dispatch(__CLASS__, $params);
+        }
+
+        $params = [];
+        $params['controller'] = $res->getControllerName();
+        $params['action'] = 'show';
+        $params['id'] = $res->id();
+        $url = $this->url()->fromRoute('admin/id', $params, ['fragment' => 'contribution']);
+        return $this->redirect()->toUrl($url);
+    }
+
+    public function showDetailsAction()
+    {
+        $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
+        $response = $this->api()->read('contributions', $this->params('id'));
+        $contribution = $response->getContent();
+
+        $view = new ViewModel([
+            'linkTitle' => $linkTitle,
+            'resource' => $contribution,
+            'values' => json_encode([]),
+        ]);
+        return $view
+            ->setTerminal(true);
+    }
+
+    public function deleteConfirmAction()
+    {
+        $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
+        $response = $this->api()->read('contributions', $this->params('id'));
+        $contribution = $response->getContent();
+
+        $view = new ViewModel([
+            'contribution' => $contribution,
+            'resource' => $contribution,
+            'resourceLabel' => 'contribution', // @translate
+            'partialPath' => 'omeka/admin/contribution/show-details',
+            'linkTitle' => $linkTitle,
+            'values' => json_encode([]),
+        ]);
+        return $view
+            ->setTerminal(true)
+            ->setTemplate('common/delete-confirm-details');
+    }
+
     public function deleteAction()
     {
         if ($this->getRequest()->isPost()) {

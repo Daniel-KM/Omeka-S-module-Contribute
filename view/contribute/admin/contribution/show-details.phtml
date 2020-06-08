@@ -1,0 +1,53 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Contribute\Api\Representation\ContributionRepresentation $resource
+ * @var bool $linkTitle
+ * @var array $values Empty array
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+ ?>
+
+<div class="resource-details" data-resource-values="<?= $escape($values) ?>">
+    <?php if ($linkTitle): ?>
+    <h3 class="o-title"><?= $resource->link($resource->displayTitle()) ?></h3>
+    <?php else: ?>
+    <h3 class="o-title"><?= $escape($resource->linkPrettyResource()) ?></h3>
+    <?php endif; ?>
+    <div class="meta-group">
+        <h4><?= $escape($translate('Owner')) ?></h4>
+        <div class="value"><?= $resource->owner() ? $resource->owner()->adminUrl() : $resource->email() ?></div>
+    </div>
+    <div class="meta-group contribution">
+        <h4><?= $escape($translate('Proposal')) ?></h4>
+        <?php $proposal = $resource->proposal(); ?>
+        <?php if (count($proposal)): ?>
+        <ul>
+            <?php foreach ($proposal as $term => $propositions): ?>
+            <li>
+                <strong><?= $term ?></strong>
+                <dl>
+                <?php foreach ($propositions as $proposition): ?>
+                    <?php if (array_key_exists('@uri', $proposition['original'])): ?>
+                    <dd><?= $proposition['original']['@uri'] ?> / <?= $proposition['original']['@label'] ?></dd>
+                    <dt><?= $proposition['proposed']['@uri'] ?> / <?= $proposition['original']['@label'] ?></dt>
+                    <?php elseif (array_key_exists('@resource', $proposition['original'])): ?>
+                    <dd><?= $proposition['original']['@resource'] ?></dd>
+                    <dt><?= $proposition['proposed']['@resource'] ?></dt>
+                    <?php else: ?>
+                    <dd><?= $proposition['original']['@value'] ?></dd>
+                    <dt><?= $proposition['proposed']['@value'] ?></dt>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+                </dl>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php else: ?>
+        <p><?= $translate('Empty proposal.') // @translate ?></p>
+        <?php endif; ?>
+    </div>
+    <?php $this->trigger('view.details', array('entity' => $resource)); ?>
+</div>
