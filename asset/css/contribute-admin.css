@@ -2,6 +2,7 @@
     header nav .contribution:before {
         content:"\f044"; /* fas fa-edit */
     }
+    .contributions .no-resources:before,
     #contribution .no-contributions:before,
     .contribution .no-resources:before {
         content:"\f044"; /* far fa-edit */

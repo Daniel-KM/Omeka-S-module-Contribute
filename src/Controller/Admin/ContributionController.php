@@ -76,6 +76,7 @@ class ContributionController extends AbstractActionController
             'values' => json_encode([]),
         ]);
         return $view
+            ->setTemplate('contribute/admin/contribution/show-details')
             ->setTerminal(true);
     }
 
@@ -89,7 +90,7 @@ class ContributionController extends AbstractActionController
             'contribution' => $contribution,
             'resource' => $contribution,
             'resourceLabel' => 'contribution', // @translate
-            'partialPath' => 'omeka/admin/contribution/show-details',
+            'partialPath' => 'contribute/admin/contribution/show-details',
             'linkTitle' => $linkTitle,
             'values' => json_encode([]),
         ]);

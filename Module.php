@@ -175,6 +175,12 @@ class Module extends AbstractModule
             );
         }
 
+        $sharedEventManager->attach(
+            'Contribute\Controller\Admin\Contribution',
+            'view.browse.before',
+            [$this, 'addHeadersAdmin']
+        );
+
         // Manage resource template.
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\ResourceTemplate',
