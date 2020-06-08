@@ -35,9 +35,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             ];
         }
 
+        $resource = $this->resource();
+
         return [
             'o:id' => $this->id(),
-            'o:resource' => $this->resource()->getReference(),
+            'o:resource' => $resource ? $resource->getReference() : null,
             'o-module-contribute:token' => $token,
             'o:email' => $this->email(),
             'o-module-contribute:reviewed' => $this->reviewed(),
@@ -48,7 +50,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation
+     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null
      */
     public function resource()
     {

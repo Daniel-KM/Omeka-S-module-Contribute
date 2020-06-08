@@ -59,15 +59,16 @@ class Contribution extends AbstractEntity
     protected $id;
 
     /**
-     * Contributions are not annotations in this module, so they are deleted.
+     * Contributions are not annotations in this module; nevertheless it can be
+     * a new resource and they are now kept when resource is deleted.
      *
      * @var \Omeka\Entity\Resource
      * @ManyToOne(
      *     targetEntity="\Omeka\Entity\Resource"
      * )
      * @JoinColumn(
-     *     nullable=false,
-     *     onDelete="CASCADE"
+     *     nullable=true,
+     *     onDelete="SET NULL"
      * )
      */
     protected $resource;
@@ -142,7 +143,7 @@ class Contribution extends AbstractEntity
      * @param Resource $resource
      * @return self
      */
-    public function setResource(Resource $resource)
+    public function setResource(Resource $resource = null)
     {
         $this->resource = $resource;
         return $this;

@@ -191,7 +191,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setResource(\Omeka\Entity\Resource $resource)
+    public function setResource(\Omeka\Entity\Resource $resource = NULL)
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResource', [$resource]);

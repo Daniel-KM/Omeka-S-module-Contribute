@@ -1,6 +1,6 @@
 CREATE TABLE contribution (
     id INT AUTO_INCREMENT NOT NULL,
-    resource_id INT NOT NULL,
+    resource_id INT DEFAULT NULL,
     token_id INT DEFAULT NULL,
     email VARCHAR(190) DEFAULT NULL,
     reviewed TINYINT(1) NOT NULL,
@@ -26,6 +26,6 @@ CREATE TABLE contribution_token (
     INDEX contribution_expire_idx (expire),
     PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
-ALTER TABLE contribution ADD CONSTRAINT FK_EA351E1589329D25 FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;
+ALTER TABLE contribution ADD CONSTRAINT FK_EA351E1589329D25 FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE SET NULL;
 ALTER TABLE contribution ADD CONSTRAINT FK_EA351E1541DEE7B9 FOREIGN KEY (token_id) REFERENCES contribution_token (id) ON DELETE SET NULL;
 ALTER TABLE contribution_token ADD CONSTRAINT FK_3A44AA8989329D25 FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;

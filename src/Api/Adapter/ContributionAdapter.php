@@ -40,7 +40,9 @@ class ContributionAdapter extends AbstractEntityAdapter
         /** @var \Contribute\Entity\Contribution $entity */
         $data = $request->getContent();
         if (Request::CREATE === $request->getOperation()) {
-            $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+            $resource = empty($data['o:resource']['o:id'])
+                ? null
+                : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
             $token = empty($data['o-module-contribute:token'])
                 ? null
                 : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
