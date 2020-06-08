@@ -576,6 +576,150 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return $contributiveData($this->resource());
     }
 
+    /**
+     * A contribution is never public and is managed only by admins and owner.
+     *
+     * This method is added only to simplify views.
+     *
+     * @return bool
+     */
+    public function isPublic()
+    {
+        return false;
+    }
+
+    /**
+     * Get the resource name of the corresponding entity API adapter.
+     *
+     * @return string
+     */
+    public function resourceName()
+    {
+        return 'contributions';
+    }
+
+    /**
+     * Get the thumbnail of this resource (the contributed one)..
+     *
+     * @return \Omeka\Api\Representation\AssetRepresentation|null
+     */
+    public function thumbnail()
+    {
+        $res = $this->resource();
+        return $res
+            ? $res->thumbnail()
+            : null;
+    }
+
+    /**
+     * Get the title of this resource (the contributed one).
+     *
+     * @return string
+     */
+    public function title()
+    {
+        $res = $this->resource();
+        return $res
+            ? $res->getTitle()
+            : '';
+    }
+
+    /**
+     * Get the display title for this resource (the contributed one).
+     *
+     * @param string|null $default
+     * @return string|null
+     */
+    public function displayTitle($default = null)
+    {
+        $res = $this->resource();
+        if ($res) {
+            return $res->displayTitle($default);
+        }
+
+        if ($default === null) {
+            $translator = $this->getServiceLocator()->get('MvcTranslator');
+            $default = $translator->translate('[Untitled]');
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get an HTML link to a resource (the contributed one).
+     *
+     * @param string $text The text to be linked
+     * @param string $action
+     * @param array $attributes HTML attributes, key and value
+     * @return string
+     */
+    public function linkResource($text, $action = null, $attributes = [])
+    {
+        $res = $this->resource();
+        if (!$res) {
+            return $text;
+        }
+        $link = $res->link($text, $action, $attributes);
+        // TODO Improve the way to append the fragment.
+        return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
+    }
+
+    /**
+     * Get a "pretty" link to this resource containing a thumbnail and
+     * display title.
+     *
+     * @param string $thumbnailType Type of thumbnail to show
+     * @param string|null $titleDefault See $default param for displayTitle()
+     * @param string|null $action Action to link to (see link() and linkRaw())
+     * @param array $attributes HTML attributes, key and value
+     * @return string
+     */
+    public function linkPretty(
+        $thumbnailType = 'square',
+        $titleDefault = null,
+        $action = null,
+        array $attributes = null
+    ) {
+        $escape = $this->getViewHelper('escapeHtml');
+        $thumbnail = $this->getViewHelper('thumbnail');
+        $linkContent = sprintf(
+            '%s<span class="resource-name">%s</span>',
+            $thumbnail($this, $thumbnailType),
+            $escape($this->displayTitle($titleDefault))
+        );
+        if (empty($attributes['class'])) {
+            $attributes['class'] = 'resource-link';
+        } else {
+            $attributes['class'] .= ' resource-link';
+        }
+        return $this->linkRaw($linkContent, $action, $attributes);
+    }
+
+    /**
+     * Get a "pretty" link to this resource containing a thumbnail and
+     * display title.
+     *
+     * @param string $thumbnailType Type of thumbnail to show
+     * @param string|null $titleDefault See $default param for displayTitle()
+     * @param string|null $action Action to link to (see link() and linkRaw())
+     * @param array $attributes HTML attributes, key and value
+     * @return string
+     */
+    public function linkPrettyResource(
+        $thumbnailType = 'square',
+        $titleDefault = null,
+        $action = null,
+        array $attributes = null
+    ) {
+        $res = $this->resource();
+        if (!$res) {
+            return $this->displayTitle($titleDefault);
+        }
+        $link = $res->linkPretty($thumbnailType, $titleDefault, $action, $attributes);
+        // TODO Improve the way to append the fragment.
+        return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
+    }
+
     public function siteUrl($siteSlug = null, $canonical = false)
     {
         if (!$siteSlug) {

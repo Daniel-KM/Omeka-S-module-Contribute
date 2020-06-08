@@ -1,0 +1,217 @@
+<?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation[] $contributions
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation[] $resources
+ * @var \Omeka\Form\ConfirmForm $formDeleteSelected
+ * @var \Omeka\Form\ConfirmForm $formDeleteAll
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$i18n = $this->plugin('i18n');
+
+$this->htmlElement('body')->appendAttribute('class', 'contributions browse');
+$sortHeadings = [
+    [
+        'label' => $translate('Title'),
+        'value' => 'resource_title',
+    ],
+    [
+        'label' => $translate('User'),
+        'value' => 'email',
+    ],
+    [
+        'label' => $translate('Created'),
+        'value' => 'created',
+    ],
+];
+?>
+
+<?= $this->pageTitle($translate('Contributions')) ?>
+
+<?= $this->searchFilters() ?>
+
+<div class="browse-controls">
+    <?= $this->pagination() ?>
+    <?php //= $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
+    <?= $this->sortSelector($sortHeadings) ?>
+</div>
+
+<div id="page-actions">
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+<?php if ($contributions): ?>
+<form method="post" id="batch-form" class="disable-unsaved-warning">
+    <?php if (false && $this->userIsAllowed(\Contribute\Api\Adapter\ContributionAdapter::class, 'batch_update')): ?>
+    <div class="batch-inputs">
+        <select class="batch-actions-select" aria-label="<?= $translate('Batch actions') ?>">
+            <option value="default"><?= $translate('Batch actions') ?></option>
+            <option value="read-selected" disabled="true"><?= $translate('Set status checked') ?></option>
+            <option value="read-all"><?= $translate('Set status checked all') ?></option>
+            <option value="unread-selected" disabled="true"><?= $translate('Set status unchecked') ?></option>
+            <option value="unread-all"><?= $translate('Set status unchecked all') ?></option>
+            <option value="validate-selected" disabled="true"><?= $translate('Validate selected') ?></option>
+            <option value="validate-all"><?= $translate('Validate all') ?></option>
+            <option value="delete-selected" disabled="true"><?= $translate('Delete selected') ?></option>
+            <option value="delete-all"><?= $translate('Delete all') ?></option>
+        </select>
+        <div class="batch-actions">
+            <button type="button" class="default active" disabled="true"><?= $translate('Go') ?></button>
+            <input type="submit" class="validate-selected" name="validate_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($this->url(null, ['action' => 'batch-edit'], true)) ?>">
+            <input type="submit" class="validate-all" name="validate_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($this->url(null, ['action' => 'batch-edit-all'], true)) ?>">
+            <input type="hidden" name="query" class="batch-query" value="<?= $escape(json_encode($this->params()->fromQuery())) ?>">
+            <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
+            <a class="delete button sidebar-content delete-all" data-sidebar-selector="#sidebar-delete-all"><?= $translate('Go') ?></a>
+        </div>
+    </div>
+    <?php endif; ?>
+
+<table class="tablesaw batch-edit" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
+            <th><?= $translate('Contributor') ?></th>
+            <th><?= $translate('Created') ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($contributions as $contribution): ?>
+        <?php
+        if ($owner = $contribution->owner()) {
+            $ownerText = $this->hyperlink(
+                $owner->name(),
+                $this->url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()])
+            );
+        } else {
+            $ownerText = $contribution->email() ?: $translate('[no owner]');
+        }
+        ?>
+        <tr>
+            <td>
+                <?php if ($contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
+                <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
+                <?php endif; ?>
+                <?= $contribution->linkPrettyResource() ?>
+                <?php if (!$contribution->isPublic()): ?>
+                    <span class="o-icon-private" aria-label="<?= $translate('Private') ?>"></span>
+                <?php endif; ?>
+                <ul class="actions">
+                    <?php if ($contribution->userIsAllowed('update')): ?>
+                    <li><?= $this->hyperlink('', '#', [
+                        'class' => 'no-action o-icon-' . ($contribution->reviewed() ? 'reviewed' : 'unreviewed'),
+                        'title' => $translate('Review'),
+                    ]) ?></li>
+                    <li><?= $contribution->linkResource('', 'show', [
+                        'class' => 'o-icon-edit',
+                        'title' => $translate('Edit'),
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <?php if ($contribution->userIsAllowed('delete')): ?>
+                    <li><?= $this->hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $contribution->url('delete-confirm'),
+                        'class' => 'o-icon-delete sidebar-content',
+                        'title' => $translate('Delete'),
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <li><?= $this->hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $contribution->url('show-details'),
+                        'class' => 'o-icon-more sidebar-content',
+                        'title' => $translate('Details'),
+                    ]) ?></li>
+                </ul>
+            </td>
+            <td><?= $ownerText ?></td>
+            <td><?= $escape($i18n->dateFormat($contribution->created())) ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+</form>
+
+<?php $this->trigger('view.browse.after'); ?>
+<div class="browse-controls">
+    <?= $this->pagination() ?>
+</div>
+
+<div id="sidebar" class="sidebar">
+    <?= $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content"></div>
+</div>
+<div id="sidebar-delete-selected" class="sidebar">
+    <?= $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?= $translate('Delete contributions') ?></h3>
+            <p><?= $translate('Are you sure you would like to delete the selected contributions?') ?></p>
+            <p class="error"><?= sprintf(
+                $translate('%1$s: this action will permanently delete %2$s contributions and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                '<strong><span id="delete-selected-count"></span></strong>'
+            ) ?></p>
+            <?= $this->form($this->formDeleteSelected) ?>
+        </div>
+    </div>
+</div>
+<div id="sidebar-delete-all" class="sidebar">
+    <?= $this->hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?= $translate('Delete contributions') ?></h3>
+            <p><?= $translate('Are you sure you would like to delete all contributions on all pages of this result?') ?></p>
+            <p class="error"><?= sprintf(
+                $translate('%1$s: this action will permanently delete %2$s contributions and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                sprintf('<strong>%s</strong>', number_format($this->pagination()->getPaginator()->getTotalCount()))
+            ) ?></p>
+            <label><input type="checkbox" name="confirm-delete-all-check"> <?= $translate('Are you sure?') ?></label>
+            <?= $this->form($this->formDeleteAll) ?>
+        </div>
+    </div>
+</div>
+
+<script>
+// Complete the batch delete form after confirmation.
+$('#confirm-delete-selected, #confirm-delete-all').on('submit', function(e) {
+    var confirmForm = $(this);
+    if ('confirm-delete-all' === this.id) {
+        confirmForm.append($('.batch-query').clone());
+    } else {
+        $('#batch-form').find('input[name="resource_ids[]"]:checked').each(function() {
+            confirmForm.append($(this).clone().prop('disabled', false).attr('type', 'hidden'));
+        });
+    }
+});
+$('.delete-all').on('click', function(e) {
+    Omeka.closeSidebar($('#sidebar-delete-selected'));
+});
+$('.delete-selected').on('click', function(e) {
+    Omeka.closeSidebar($('#sidebar-delete-all'));
+    var inputs = $('input[name="resource_ids[]"]');
+    $('#delete-selected-count').text(inputs.filter(':checked').length);
+});
+$('#sidebar-delete-all').on('click', 'input[name="confirm-delete-all-check"]', function(e) {
+    $('#confirm-delete-all input[type="submit"]').prop('disabled', this.checked ? false : true);
+});
+</script>
+
+<?php else: ?>
+
+<div class="no-resources">
+    <p><?= $translate('Omeka could not find any contributions.') ?></p>
+</div>
+
+<?php endif; ?>

@@ -4,13 +4,118 @@ namespace Contribute\Controller\Admin;
 use Contribute\Api\Representation\ContributionRepresentation;
 use DateInterval;
 use DateTime;
+use Omeka\Form\ConfirmForm;
 use Omeka\Stdlib\Message;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
+use Zend\View\Model\ViewModel;
 
 class ContributionController extends AbstractActionController
 {
+    public function browseAction()
+    {
+        $this->setBrowseDefaults('created');
+        $response = $this->api()->search('contributions', $this->params()->fromQuery());
+        $this->paginator($response->getTotalResults());
+
+        /** @var \Omeka\Form\ConfirmForm $formDeleteSelected */
+        $formDeleteSelected = $this->getForm(ConfirmForm::class)
+            ->setAttribute('id', 'confirm-delete-selected')
+            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'batch-delete'], true))
+            ->setButtonLabel('Confirm Delete'); // @translate
+
+        /** @var \Omeka\Form\ConfirmForm $formDeleteAll */
+        $formDeleteAll = $this->getForm(ConfirmForm::class)
+            ->setAttribute('id', 'confirm-delete-all')
+            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'batch-delete-all'], true))
+            ->setButtonLabel('Confirm Delete'); // @translate
+        $formDeleteAll
+            ->get('submit')->setAttribute('disabled', true);
+
+        $contributions = $response->getContent();
+
+        return new ViewModel([
+            'contributions' => $contributions,
+            'resources' =>  $contributions,
+            'formDeleteSelected' => $formDeleteSelected,
+            'formDeleteAll' => $formDeleteAll,
+        ]);
+    }
+
+    public function deleteAction()
+    {
+        if ($this->getRequest()->isPost()) {
+            $form = $this->getForm(ConfirmForm::class);
+            $form->setData($this->getRequest()->getPost());
+            if ($form->isValid()) {
+                $response = $this->api($form)->delete('contributions', $this->params('id'));
+                if ($response) {
+                    $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
+                }
+            } else {
+                $this->messenger()->addFormErrors($form);
+            }
+        }
+        return $this->redirect()->toRoute(
+            'admin/contribution',
+            ['action' => 'browse'],
+            true
+        );
+    }
+
+    public function batchDeleteAction()
+    {
+        if (!$this->getRequest()->isPost()) {
+            return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+        }
+
+        $resourceIds = $this->params()->fromPost('resource_ids', []);
+        if (!$resourceIds) {
+            $this->messenger()->addError('You must select at least one contribution to batch delete.'); // @translate
+            return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+        }
+
+        $form = $this->getForm(ConfirmForm::class);
+        $form->setData($this->getRequest()->getPost());
+        if ($form->isValid()) {
+            $response = $this->api($form)->batchDelete('contributions', $resourceIds, [], ['continueOnError' => true]);
+            if ($response) {
+                $this->messenger()->addSuccess('Contributions successfully deleted'); // @translate
+            }
+        } else {
+            $this->messenger()->addFormErrors($form);
+        }
+        return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+    }
+
+    public function batchDeleteAllAction()
+    {
+        if (!$this->getRequest()->isPost()) {
+            return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+        }
+
+        // Derive the query, removing limiting and sorting params.
+        $query = json_decode($this->params()->fromPost('query', []), true);
+        unset($query['submit'], $query['page'], $query['per_page'], $query['limit'],
+            $query['offset'], $query['sort_by'], $query['sort_order']);
+
+        $form = $this->getForm(ConfirmForm::class);
+        $form->setData($this->getRequest()->getPost());
+        if ($form->isValid()) {
+            $this->jobDispatcher()->dispatch(\Omeka\Job\BatchDelete::class, [
+                'resource' => 'contributions',
+                'query' => $query,
+            ]);
+            $this->messenger()->addSuccess('Deleting contributions. This may take a while.'); // @translate
+        } else {
+            $this->messenger()->addFormErrors($form);
+        }
+        return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+    }
+
+    /* Ajax */
+
     /**
      * Create a token for a list of resources.
      */

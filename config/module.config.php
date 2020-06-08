@@ -53,6 +53,29 @@ return [
             'sendContributionEmail' => Service\ControllerPlugin\SendContributionEmailFactory::class,
         ],
     ],
+    'navigation' => [
+        'AdminResource' => [
+            'contribution' => [
+                'label' => 'Contributions', // @translate
+                'class' => 'contributions far fa-edit',
+                'route' => 'admin/contribution',
+                // 'resource' => Controller\Admin\ContributionController::class,
+                // 'privilege' => 'browse',
+                'pages' => [
+                    [
+                        'route' => 'admin/contribution/id',
+                        'controller' => Controller\Admin\ContributionController::class,
+                        'visible' => false,
+                    ],
+                    [
+                        'route' => 'admin/annotation/default',
+                        'controller' => Controller\Admin\ContributionController::class,
+                        'visible' => false,
+                    ],
+                ],
+            ],
+        ],
+    ],
     'router' => [
         'routes' => [
             'site' => [
@@ -104,8 +127,8 @@ return [
                                 'options' => [
                                     'route' => '/:id[/:action]',
                                     'constraints' => [
-                                        'id' => '\d+',
                                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                        'id' => '\d+',
                                     ],
                                     'defaults' => [
                                         'action' => 'show',
