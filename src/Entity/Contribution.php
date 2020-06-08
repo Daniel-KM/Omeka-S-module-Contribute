@@ -32,6 +32,7 @@ namespace Contribute\Entity;
 use DateTime;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\Resource;
+use Omeka\Entity\User;
 
 /**
  * @Entity
@@ -74,18 +75,14 @@ class Contribution extends AbstractEntity
     protected $resource;
 
     /**
-     * @todo Allow to keep history of all contributions (ManyToOne)?
-     *
-     * @var \Contribute\Entity\Token
-     * @OneToOne(
-     *     targetEntity="Token"
+     * @ManyToOne(
+     *     targetEntity="Omeka\Entity\User"
      * )
      * @JoinColumn(
-     *     nullable=true,
      *     onDelete="SET NULL"
      * )
      */
-    protected $token;
+    protected $owner;
 
     /**
      * The email is saved in the case the token is deleted, so it will be still
@@ -116,6 +113,20 @@ class Contribution extends AbstractEntity
      * )
      */
     protected $proposal;
+
+    /**
+     * @todo Allow to keep history of all contributions (ManyToOne)?
+     *
+     * @var \Contribute\Entity\Token
+     * @OneToOne(
+     *     targetEntity="Token"
+     * )
+     * @JoinColumn(
+     *     nullable=true,
+     *     onDelete="SET NULL"
+     * )
+     */
+    protected $token;
 
     /**
      * @var DateTime
@@ -158,21 +169,22 @@ class Contribution extends AbstractEntity
     }
 
     /**
-     * @param Token|null $token
+     * @param User $owner
      * @return self
      */
-    public function setToken(Token $token = null)
+    public function setOwner(User $owner = null)
     {
-        $this->token = $token;
+        $this->owner = $owner;
         return $this;
     }
 
+
     /**
-     * @return \Contribute\Entity\Token
+     * @return \Omeka\Entity\User
      */
-    public function getToken()
+    public function getOwner()
     {
-        return $this->token;
+        return $this->owner;
     }
 
     /**
@@ -227,6 +239,24 @@ class Contribution extends AbstractEntity
     public function getProposal()
     {
         return $this->proposal;
+    }
+
+    /**
+     * @param Token|null $token
+     * @return self
+     */
+    public function setToken(Token $token = null)
+    {
+        $this->token = $token;
+        return $this;
+    }
+
+    /**
+     * @return \Contribute\Entity\Token
+     */
+    public function getToken()
+    {
+        return $this->token;
     }
 
     /**

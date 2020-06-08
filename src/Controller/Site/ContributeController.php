@@ -84,8 +84,9 @@ class ContributeController extends AbstractActionController
                 if (empty($contribution)) {
                     $data = [
                         'o:resource' => ['o:id' => $resourceId],
+                        'o:owner' => $user ? ['o:id' => $user->getId()] : null,
                         'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
-                        'o:email' => $token ? $token->email() : $user->getEmail(),
+                        'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
                         'o-module-contribute:reviewed' => false,
                         'o-module-contribute:proposal' => $proposal,
                     ];

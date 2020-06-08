@@ -64,10 +64,10 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'resource', 'token', 'email', 'reviewed', 'proposal', 'created', 'modified'];
+            return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'reviewed', 'proposal', 'token', 'created', 'modified'];
         }
 
-        return ['__isInitialized__', 'id', 'resource', 'token', 'email', 'reviewed', 'proposal', 'created', 'modified'];
+        return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'reviewed', 'proposal', 'token', 'created', 'modified'];
     }
 
     /**
@@ -213,23 +213,23 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setToken(\Contribute\Entity\Token $token = NULL)
+    public function setOwner(\Omeka\Entity\User $owner = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setToken', [$token]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOwner', [$owner]);
 
-        return parent::setToken($token);
+        return parent::setOwner($owner);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getToken()
+    public function getOwner()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getToken', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOwner', []);
 
-        return parent::getToken();
+        return parent::getOwner();
     }
 
     /**
@@ -296,6 +296,28 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProposal', []);
 
         return parent::getProposal();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setToken(\Contribute\Entity\Token $token = NULL)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setToken', [$token]);
+
+        return parent::setToken($token);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getToken()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getToken', []);
+
+        return parent::getToken();
     }
 
     /**

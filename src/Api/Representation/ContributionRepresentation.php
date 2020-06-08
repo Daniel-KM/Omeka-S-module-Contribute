@@ -35,15 +35,17 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             ];
         }
 
-        $resource = $this->resource();
+        $res = $this->resource();
+        $owner = $this->owner();
 
         return [
             'o:id' => $this->id(),
-            'o:resource' => $resource ? $resource->getReference() : null,
-            'o-module-contribute:token' => $token,
-            'o:email' => $this->email(),
+            'o:resource' => $res ? $res->getReference() : null,
+            'o:owner' => $owner ? $owner->getReference() : null,
+            'o:email' => $owner ? null : $this->email(),
             'o-module-contribute:reviewed' => $this->reviewed(),
             'o-module-contribute:proposal' => $this->proposal(),
+            'o-module-contribute:token' => $token,
             'o:created' => $created,
             'o:modified' => $modified,
         ];
@@ -54,17 +56,21 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function resource()
     {
-        return $this->getAdapter('resources')
-            ->getRepresentation($this->resource->getResource());
+        $res = $this->resource->getResource();
+        return $res
+            ? $this->getAdapter('resources')->getRepresentation($res)
+            : null;
     }
 
     /**
-     * @return \Contribute\Api\Representation\TokenRepresentation
+     * Get the owner representation of this resource.
+     *
+     * @return \Omeka\Api\Representation\UserRepresentation
      */
-    public function token()
+    public function owner()
     {
-        return $this->getAdapter('contribution_tokens')
-            ->getRepresentation($this->resource->getToken());
+        return $this->getAdapter('users')
+            ->getRepresentation($this->resource->getOwner());
     }
 
     /**
@@ -89,6 +95,15 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     public function proposal()
     {
         return $this->resource->getProposal();
+    }
+
+    /**
+     * @return \Contribute\Api\Representation\TokenRepresentation
+     */
+    public function token()
+    {
+        return $this->getAdapter('contribution_tokens')
+            ->getRepresentation($this->resource->getToken());
     }
 
     /**

@@ -12,9 +12,10 @@ class ContributionAdapter extends AbstractEntityAdapter
     protected $sortFields = [
         'id' => 'id',
         'resource' => 'resource',
-        'token' => 'token',
+        'owner' => 'owner',
         'email' => 'email',
         'reviewed' => 'reviewed',
+        'token' => 'token',
         'created' => 'created',
         'modified' => 'modified',
     ];
@@ -40,6 +41,7 @@ class ContributionAdapter extends AbstractEntityAdapter
         /** @var \Contribute\Entity\Contribution $entity */
         $data = $request->getContent();
         if (Request::CREATE === $request->getOperation()) {
+            $this->hydrateOwner($request, $entity);
             $resource = empty($data['o:resource']['o:id'])
                 ? null
                 : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
@@ -59,6 +61,15 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ->setProposal($proposal);
             ;
         } elseif (Request::UPDATE === $request->getOperation()) {
+            if (!$entity->getResource() && $this->shouldHydrate($request, 'o:resource', $data)) {
+                $resource = empty($data['o:resource']['o:id'])
+                    ? null
+                    : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+                if ($resource) {
+                    $entity
+                        ->setResource($resource);
+                }
+            }
             if ($this->shouldHydrate($request, 'o-module-contribute:reviewed', $data)) {
                 $reviewed = !empty($data['o-module-contribute:reviewed']);
                 $entity
@@ -104,19 +115,16 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['token_id'])) {
-            if (!is_array($query['token_id'])) {
-                $query['token_id'] = [$query['token_id']];
-            }
-            $resourceAlias = $this->createAlias();
+        if (isset($query['owner_id']) && is_numeric($query['owner_id'])) {
+            $userAlias = $this->createAlias();
             $qb->innerJoin(
-                $alias . '.token',
-                $resourceAlias
+                $alias . '.owner',
+                $userAlias
             );
             $qb->andWhere($expr->eq(
-                $resourceAlias . '.id',
-                $this->createNamedParameter($qb, $query['token_id'])
-            ));
+                "$userAlias.id",
+                $this->createNamedParameter($qb, $query['owner_id']))
+            );
         }
 
         if (isset($query['email'])) {
@@ -130,6 +138,21 @@ class ContributionAdapter extends AbstractEntityAdapter
             $qb->andWhere($expr->eq(
                 $alias . '.reviewed',
                 $this->createNamedParameter($qb, (bool) $query['reviewed'])
+            ));
+        }
+
+        if (isset($query['token_id'])) {
+            if (!is_array($query['token_id'])) {
+                $query['token_id'] = [$query['token_id']];
+            }
+            $resourceAlias = $this->createAlias();
+            $qb->innerJoin(
+                $alias . '.token',
+                $resourceAlias
+            );
+            $qb->andWhere($expr->eq(
+                $resourceAlias . '.id',
+                $this->createNamedParameter($qb, $query['token_id'])
             ));
         }
 
