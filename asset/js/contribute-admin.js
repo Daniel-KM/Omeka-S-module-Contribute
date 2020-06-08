@@ -183,9 +183,45 @@ $(document).ready(function() {
     });
 
     // Validate all values of a contribution.
+    $('#content').on('click', '.contribution .actions .o-icon-add', function(e) {
+        e.preventDefault();
+        var button = $(this);
+        var url = button.attr('href');
+        var status = 'add';
+        $.ajax({
+            url: url,
+            beforeSend: function() {
+                button.removeClass('o-icon-' + status).addClass('fas fa-sync fa-spin');
+            }
+        })
+        .done(function(data) {
+            if (data.status !== 'success') {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            } else {
+                button.closest('td').find('span.title')
+                    .wrap('<a href="' + data.content.url + '"></a>');
+                let newButton = '<a class="o-icon-edit"'
+                    + ' title="'+ Omeka.jsTranslate('Edit') + '"'
+                    + ' href="' + data.content.url + '"'
+                    + ' aria-label="' + Omeka.jsTranslate('Edit') + '"></a>';
+                button.replaceWith(newButton);
+            }
+        })
+        .fail(function(jqXHR, textStatus) {
+            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                alert(jqXHR.responseJSON.message);
+            } else {
+                alert(Omeka.jsTranslate('Something went wrong'));
+            }
+        })
+        .always(function () {
+            button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
+        });
+    });
+
+    // Validate all values of a contribution.
     $('#content').on('click', '.contribution a.validate', function(e) {
         e.preventDefault();
-
         var button = $(this);
         var url = button.data('validate-url');
         var status = button.data('status');

@@ -723,6 +723,27 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
+     * Return the admin URL to this resource.
+     *
+     * @param string $action The route action
+     * @param bool $canonical Whether to return an absolute URL
+     * @return string
+     */
+    public function adminUrl($action = null, $canonical = false)
+    {
+        $url = $this->getViewHelper('Url');
+        return $url(
+            'admin/id',
+            [
+                'controller' => $this->getControllerName(),
+                'action' => $action,
+                'id' => $this->id(),
+            ],
+            ['force_canonical' => $canonical]
+        );
+    }
+
+    /**
      * There is no page for the contribution, so it is the link to the resource
      * add/edition page.
      *

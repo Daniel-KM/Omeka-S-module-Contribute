@@ -18,7 +18,22 @@ $escape = $this->plugin('escapeHtml');
     <?php endif; ?>
     <div class="meta-group">
         <h4><?= $escape($translate('Owner')) ?></h4>
-        <div class="value"><?= $resource->owner() ? $resource->owner()->adminUrl() : $resource->email() ?></div>
+        <?php
+        if ($owner = $resource->owner()) {
+            $ownerText = $this->hyperlink($owner->name(), $this->url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]));
+        } else {
+            $ownerText = $resource->email() ?: $translate('[no owner]');
+        }
+        ?>
+        <div class="value"><?= $ownerText ?></div>
+    </div>
+    <div class="meta-group">
+        <h4><?= $escape($translate('Resource')) ?></h4>
+        <?php if ($resource->resource()): ?>
+        <div class="value"><?= $resource->resource()->linkPretty() ?></div>
+        <?php else: ?>
+        <p><?= $translate('New resource or no more resource.') ?></p>
+        <?php endif; ?>
     </div>
     <div class="meta-group contribution">
         <h4><?= $escape($translate('Proposal')) ?></h4>

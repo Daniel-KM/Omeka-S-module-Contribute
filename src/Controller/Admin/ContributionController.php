@@ -50,7 +50,7 @@ class ContributionController extends AbstractActionController
         $contribution = $response->getContent();
         $res = $contribution->resource();
         if (!$res) {
-            $message = new Message('This contribution is a new resource or has no resource.'); // @translate
+            $message = new Message('This contribution is a new resource or has no more resource.'); // @translate
             $this->messenger()->addError($message);
             $params['action'] = 'browse';
             return $this->forward()->dispatch(__CLASS__, $params);
@@ -446,6 +446,49 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    public function createResourceAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jsonErrorNotFound();
+        }
+
+        // Only people who can edit the resource can validate.
+        $id = $this->params('id');
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        $contribution = $this->api()->read('contributions', $id)->getContent();
+
+        // If there is a resource, it can't be created.
+        $resource = $contribution->resource();
+        if ($resource) {
+            return $this->jsonErrorUpdate();
+        }
+
+        $acl = $contribution->getServiceLocator()->get('Omeka\Acl');
+        if (!$acl->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create')) {
+            return $this->jsonErrorUnauthorized();
+        }
+
+        $owner = $contribution->owner() ?: null;
+        $resource = $this->api()->create('items', ['o:owner' => $owner ? ['o:id' => $owner->id()] : null])->getContent();
+
+        $data = [];
+        $data['o-module-contribute:reviewed'] = false;
+        $data['o:resource'] = ['o:id' => $resource->id()];
+        $response = $this->api()
+            ->update('contributions', $id, $data, [], ['isPartial' => true]);
+        if (!$response) {
+            return $this->jsonErrorUpdate();
+        }
+
+        return new JsonModel([
+            'status' => 'success',
+            'content' => [
+                'contribution' => $contribution,
+                'url' => $contribution->adminUrl(),
+            ],
+        ]);
+    }
+
     public function validateAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
@@ -456,7 +499,13 @@ class ContributionController extends AbstractActionController
         $id = $this->params('id');
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $this->api()->read('contributions', $id)->getContent();
-        if (!$contribution->resource()->userIsAllowed('update')) {
+
+        $resource = $contribution->resource();
+        if (!$resource) {
+            return $this->jsonErrorUpdate();
+        }
+
+        if (!$resource->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
@@ -494,7 +543,13 @@ class ContributionController extends AbstractActionController
         $id = $this->params('id');
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $this->api()->read('contributions', $id)->getContent();
-        if (!$contribution->resource()->userIsAllowed('update')) {
+
+        $resource = $contribution->resource();
+        if (!$resource) {
+            return $this->jsonErrorUpdate();
+        }
+
+        if (!$resource->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
@@ -550,7 +605,7 @@ class ContributionController extends AbstractActionController
     }
 
     /**
-     * Edit existing values of the resource with the contribute proposal.
+     * Update existing values of the contributed resource with the proposal.
      *
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      *
@@ -567,8 +622,13 @@ class ContributionController extends AbstractActionController
 
         // Right to update the resource is already checked.
         $resource = $contribution->resource();
-        $resourceTemplate = $resource->resourceTemplate();
-        $existingValues = $resource->values();
+        if ($resource) {
+            $resourceTemplate = $resource->resourceTemplate();
+            $existingValues = $resource->values();
+        } else {
+            $resourceTemplate = null;
+            $existingValues = [];
+        }
         $proposal = $contribution->proposalCheck();
         $hasProposedKey = !is_null($proposedKey);
 

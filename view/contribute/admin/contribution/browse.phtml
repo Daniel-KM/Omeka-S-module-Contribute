@@ -10,6 +10,7 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $i18n = $this->plugin('i18n');
+$url = $this->plugin('url');
 
 $this->htmlElement('body')->appendAttribute('class', 'contributions browse');
 $sortHeadings = [
@@ -88,22 +89,35 @@ $sortHeadings = [
             $ownerText = $contribution->email() ?: $translate('[no owner]');
         }
         ?>
-        <tr>
+        <tr class="contribution">
             <td>
                 <?php if ($contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
                 <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
                 <?php endif; ?>
-                <?= $contribution->linkResource($contribution->displayTitle()) ?>
+                <span class="title"><?= $contribution->linkResource($contribution->displayTitle()) ?></span>
                 <ul class="actions">
                     <?php if ($contribution->userIsAllowed('update')): ?>
-                    <li><?= $this->hyperlink('', '#', [
-                        'class' => 'no-action o-icon-' . ($contribution->reviewed() ? 'reviewed' : 'unreviewed'),
-                        'title' => $translate('Review'),
-                    ]) ?></li>
-                    <li><?= $contribution->linkResource('', 'show', [
+                    <li><span class="single actions"><a href="#"
+                        class="status-toggle o-icon-<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                        data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
+                        data-status="<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                        aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
+                        title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
+                    </span></li>
+                    <li>
+                    <?php if ($contribution->resource()): ?>
+                    <?= $contribution->linkResource('', 'show', [
                         'class' => 'o-icon-edit',
                         'title' => $translate('Edit'),
-                    ]) ?></li>
+                    ]) ?>
+                    <?php else: ?>
+                    <?= $this->hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
+                        'class' => 'o-icon-add',
+                        'data-id' => $contribution->id(),
+                        'title' => $translate('Create resource to be validated'),
+                    ]) ?>
+                    <?php endif; ?>
+                    </li>
                     <?php endif; ?>
                     <?php if ($contribution->userIsAllowed('delete')): ?>
                     <li><?= $this->hyperlink('', '#', [
