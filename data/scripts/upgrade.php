@@ -19,3 +19,24 @@ $connection = $services->get('Omeka\Connection');
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 // $space = strtolower(__NAMESPACE__);
+
+if (version_compare($oldVersion, '3.0.13', '<')) {
+    $sql = <<<'SQL'
+ALTER TABLE `contribution`
+CHANGE `resource_id` `resource_id` int(11) NULL AFTER `id`,
+ADD `owner_id` int(11) NULL AFTER `resource_id`;
+
+ALTER TABLE `contribution`
+DROP FOREIGN KEY `FK_EA351E1589329D25`,
+ADD FOREIGN KEY (`FK_EA351E1589329D25`) REFERENCES `resource` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `contribution`
+ADD CONSTRAINT `FK_EA351E157E3C61F9` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+SQL;
+    // Use single statements for execution.
+    // See core commit #2689ce92f.
+    $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
+    foreach ($sqls as $sql) {
+        $connection->exec($sql);
+    }
+}
