@@ -423,7 +423,7 @@ class InstallResources
     {
         try {
             return $this->updateCustomVocab($filepath);
-        } catch (ModuleCannotInstallException $e) {
+        } catch (RuntimeException $e) {
             return $this->createCustomVocab($filepath);
         }
     }
