@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-01 00:00+0000\n"
-"PO-Revision-Date: 2020-06-01 00:00+0000\n"
+"POT-Creation-Date: 2020-06-15 00:00+0000\n"
+"PO-Revision-Date: 2020-06-15 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
 "Language: fr\n"
@@ -17,90 +17,91 @@ msgstr ""
 "X-Generator: Poedit 2.3.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: Module.php:291
-msgid "Create contribution token"
-msgstr "Créer un jeton pour la contribution"
-
-#: Module.php:295 view/common/helper/contribute-link.phtml:16
-msgid "Contribute"
-msgstr "Contribuer"
-
-#: Module.php:300
-msgid "Please input optional email…"
-msgstr "Ajouter un email si besoin…"
-
-#: Module.php:301
-msgid "Create token"
-msgstr "Créer un jeton"
-
-#: Module.php:386
+#: Module.php:266 Module.php:435
+#: view/contribute/admin/contribution/browse.phtml:32
 msgid "Contributions"
 msgstr "Contributions"
 
-#: Module.php:389
+#: Module.php:340
+msgid "Create contribution token"
+msgstr "Créer un jeton pour la contribution"
+
+#: Module.php:344 view/common/helper/contribute-link.phtml:16
+msgid "Contribute"
+msgstr "Contribuer"
+
+#: Module.php:349
+msgid "Please input optional email…"
+msgstr "Ajouter un email si besoin…"
+
+#: Module.php:350
+msgid "Create token"
+msgstr "Créer un jeton"
+
+#: Module.php:438
 #, php-format
 msgid "%d contributions (%d not reviewed)"
 msgstr "%d contributions (%d non relues)"
 
-#: Module.php:392
+#: Module.php:441
 msgid "No contribution"
 msgstr "Pas de contribution"
 
-#: src/Controller/Admin/ContributeController.php:229
+#: src/Controller/Admin/ContributionController.php:392
 msgid "Unreviewed"
 msgstr "Non relu"
 
-#: src/Controller/Admin/ContributeController.php:229
-#: src/Controller/Admin/ContributeController.php:320
+#: src/Controller/Admin/ContributionController.php:392
+#: src/Controller/Admin/ContributionController.php:532
 msgid "Reviewed"
 msgstr "Relu"
 
-#: src/Controller/Admin/ContributeController.php:266
+#: src/Controller/Admin/ContributionController.php:429
 msgid "No token"
 msgstr "Pas de jeton"
 
-#: src/Controller/Admin/ContributeController.php:283
+#: src/Controller/Admin/ContributionController.php:446
 msgid "Expired"
 msgstr "Expiré"
 
-#: src/Controller/Admin/ContributeController.php:317
+#: src/Controller/Admin/ContributionController.php:529
 #: view/common/admin/contribute-list.phtml:191
 #: view/common/admin/contribute-list.phtml:244
 #: view/common/admin/contribute-list.phtml:290
 msgid "Validated"
 msgstr "Validé"
 
-#: src/Controller/Admin/ContributeController.php:353
+#: src/Controller/Admin/ContributionController.php:571
 msgid "Validated value"
 msgstr "Valeur validée"
 
-#: src/Controller/Admin/ContributeController.php:593
+#: src/Controller/Admin/ContributionController.php:816
 msgid "Unauthorized access."
 msgstr "Accès interdit."
 
-#: src/Controller/Admin/ContributeController.php:598
+#: src/Controller/Admin/ContributionController.php:821
 msgid "Resource not found."
 msgstr "Ressource non trouvée."
 
-#: src/Controller/Admin/ContributeController.php:603
+#: src/Controller/Admin/ContributionController.php:826
 msgid "An internal error occurred."
 msgstr "Une erreur interne s’est produite."
 
-#: src/Controller/Site/ContributeController.php:156
+#: src/Controller/Site/ContributeController.php:245
 msgid "[Omeka Contribution] New contribution"
 msgstr "[Omeka Contribution] Nouvelle contribution"
 
-#: src/Generic/AbstractModule.php:598
+#: src/Generic/AbstractModule.php:601
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr "Ce module requiert le module \"%s\"."
 
-#: src/Generic/AbstractModule.php:618
+#: src/Generic/AbstractModule.php:621
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr "Ce module requiert les modules \"%s\"."
 
-#: src/Generic/AbstractModule.php:686
+#: src/Generic/AbstractModule.php:689
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -128,6 +129,7 @@ msgid "There are no contributions for this resource."
 msgstr "Aucune contribution pour cette ressource."
 
 #: view/common/admin/contribute-list.phtml:66
+#: view/guest/site/guest/contribution.phtml:20
 msgid "Contribution"
 msgstr "Contribution"
 
@@ -142,6 +144,8 @@ msgstr "Valider toutes les valeurs"
 
 #: view/common/admin/contribute-list.phtml:93
 #: view/common/admin/contribute-list.phtml:94
+#: view/contribute/admin/contribution/browse.phtml:104
+#: view/contribute/admin/contribution/browse.phtml:105
 msgid "Toggle status reviewed/unreviewed"
 msgstr "Inverser le statut relu/non-relu"
 
@@ -192,49 +196,164 @@ msgstr "[pas d’email]"
 msgid "Unused token"
 msgstr "Jeton inutilisé"
 
-#: view/common/helper/contribute-link.phtml:18
+#: view/common/helper/contribute-link.phtml:19
 msgid "Edit this record"
 msgstr "Éditer cette notice"
 
-#: view/common/helper/contribute-link.phtml:20
+#: view/common/helper/contribute-link.phtml:21
 msgid "Click your token link to edit this record."
 msgstr "Cliquez sur votre lien pour éditer cette notice."
 
-#: view/common/helper/contribute-link.phtml:23
+#: view/common/helper/contribute-link.phtml:24
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to edit this record."
 msgstr ""
 "%1$sConnectez-vous%2$s ou cliquez sur votre lien pour éditer cette notice."
 
-#: view/contribute/site/contribute/edit.phtml:47
+#: view/common/helper/contribute-link.phtml:28
+#: view/guest/site/guest/widget/contribution.phtml:20
+msgid "Add a new record"
+msgstr "Ajouter une nouvelle notice"
+
+#: view/common/helper/contribute-link.phtml:30
+msgid "Click your token link to add a new record."
+msgstr "Cliquez sur votre lien pour ajouter une nouvelle notice."
+
+#: view/common/helper/contribute-link.phtml:33
+#, php-format
+msgid "%1$sLogin%2$s or click your token link to add a new record."
+msgstr ""
+"%1$sConnectez-vous%2$s ou cliquez sur votre lien pour ajouter une nouvelle "
+"notice."
+
+#: view/contribute/admin/contribution/browse.phtml:52
+msgid "Set status checked"
+msgstr "Marquer le statut vérifié"
+
+#: view/contribute/admin/contribution/browse.phtml:53
+msgid "Set status checked all"
+msgstr "Marquer le statut vérifié pour tous"
+
+#: view/contribute/admin/contribution/browse.phtml:54
+msgid "Set status unchecked"
+msgstr "Marquer le statut non vérifié"
+
+#: view/contribute/admin/contribution/browse.phtml:55
+msgid "Set status unchecked all"
+msgstr "Marquer le statut non vérifié pour tous"
+
+#: view/contribute/admin/contribution/browse.phtml:56
+msgid "Validate selected"
+msgstr "Valider la sélection"
+
+#: view/contribute/admin/contribution/browse.phtml:57
+msgid "Validate all"
+msgstr "Tout valider"
+
+#: view/contribute/admin/contribution/browse.phtml:95
+msgid "Select contribution"
+msgstr "Choisir une contribution"
+
+#: view/contribute/admin/contribution/browse.phtml:117
+msgid "Create resource to be validated"
+msgstr "Choisir une ressource à valider"
+
+#: view/contribute/admin/contribution/browse.phtml:166
+#: view/contribute/admin/contribution/browse.phtml:184
+msgid "Delete contributions"
+msgstr "Supprimer les contributions"
+
+#: view/contribute/admin/contribution/browse.phtml:167
+msgid "Are you sure you would like to delete the selected contributions?"
+msgstr ""
+"Êtes-vous certain de vouloir supprimer toutes les contributions "
+"sélectionnées ?"
+
+#: view/contribute/admin/contribution/browse.phtml:169
+#: view/contribute/admin/contribution/browse.phtml:187
+#, php-format
+msgid ""
+"%1$s: this action will permanently delete %2$s contributions and cannot be "
+"undone."
+msgstr ""
+"%1$s : cette action supprimera %2$s contributions de manière définitive et "
+"ne pourra pas être annulée.."
+
+#: view/contribute/admin/contribution/browse.phtml:185
+msgid ""
+"Are you sure you would like to delete all contributions on all pages of this "
+"result?"
+msgstr ""
+"Êtes-vous certain de vouloir supprimer toutes les contributions de toutes "
+"les pages de ce résultats ?"
+
+#: view/contribute/admin/contribution/browse.phtml:225
+msgid "Omeka could not find any contributions."
+msgstr "Omeka ne trouve pas de contributions."
+
+#: view/contribute/admin/contribution/show-details.phtml:35
+msgid "New resource or no more resource."
+msgstr "Nouvelle ressource ou plus de ressource."
+
+#: view/contribute/admin/contribution/show-details.phtml:39
+msgid "Proposal"
+msgstr "Proposition"
+
+#: view/contribute/admin/contribution/show-details.phtml:64
+msgid "Empty proposal."
+msgstr "Proposition vide."
+
+#: view/contribute/site/contribute/add.phtml:45
+msgid "New resource"
+msgstr "Nouvelle ressource"
+
+#: view/contribute/site/contribute/add.phtml:46
+#, php-format
+msgid "Add %s"
+msgstr "Ajouter %s"
+
+#: view/contribute/site/contribute/edit.phtml:48
 #, php-format
 msgid "Edit %s"
 msgstr "Éditer le %s"
 
-#: view/contribute/site/contribute/form.phtml:193
+#: view/contribute/site/contribute/form.phtml:196
 msgid "private"
 msgstr "privé"
 
-#: view/contribute/site/contribute/form.phtml:220
-#: view/contribute/site/contribute/form.phtml:319
+#: view/contribute/site/contribute/form.phtml:223
+#: view/contribute/site/contribute/form.phtml:321
 msgid "Select a resource…"
 msgstr "Choisir une ressource…"
 
-#: view/contribute/site/contribute/form.phtml:319
+#: view/contribute/site/contribute/form.phtml:321
 msgid "Add linked resource"
 msgstr "Ajouter des ressources liées"
 
-#: view/contribute/site/contribute/form.phtml:323
+#: view/contribute/site/contribute/form.phtml:325
 msgid "Add URI"
 msgstr "Ajouter une URI"
 
-#: view/contribute/site/contribute/form.phtml:326
+#: view/contribute/site/contribute/form.phtml:328
 msgid "Add linked data"
 msgstr "Ajouter des données liées"
 
-#: view/contribute/site/contribute/form.phtml:344
+#: view/contribute/site/contribute/form.phtml:346
 msgid "Go back to resource"
 msgstr "Revenir au document"
+
+#: view/guest/site/guest/contribution.phtml:23
+#, php-format
+msgid "%d contributions"
+msgstr "%d contributions"
+
+#: view/guest/site/guest/contribution.phtml:38
+msgid "There are no contributions."
+msgstr "Il n’y a pas de contribution."
+
+#: view/guest/site/guest/widget/contribution.phtml:14
+msgid "See contributions"
+msgstr "Voir les contributions"
 
 #: data/scripts/upgrade_from_correction.php:111
 msgid ""
@@ -363,7 +482,7 @@ msgstr "Permet de limiter les options dans un sélecteur."
 
 #: src/Form/SettingsFieldset.php:157
 msgid "Allow contribute of resources without a token"
-msgstr "Autoriser la contribute des ressources sans jeton"
+msgstr "Autoriser la contribution des ressources sans jeton"
 
 #: src/Form/SettingsFieldset.php:167
 msgid "Days for token to expire"
@@ -381,56 +500,89 @@ msgstr ""
 msgid "90"
 msgstr "90"
 
-#: src/Controller/Site/ContributeController.php:70
+#: src/Controller/Site/ContributeController.php:51
+msgid "No resource can be added. Ask the administrator for more information."
+msgstr ""
+"Aucune ressource ne peut être ajoutée. Merci de contacter l’administrateur "
+"pour plus d’information."
+
+#: src/Controller/Site/ContributeController.php:74
+#: src/Controller/Site/ContributeController.php:180
+#: src/Controller/Site/ContributeController.php:190
+msgid "Contribution successfully submitted!"
+msgstr "La contribution a été correctement envoyée !"
+
+#: src/Controller/Site/ContributeController.php:85
+#: src/Controller/Site/ContributeController.php:207
+msgid "An error occurred: check your input."
+msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie."
+
+#: src/Controller/Site/ContributeController.php:155
 msgid ""
 "This resource cannot be edited. Ask the administrator for more information."
 msgstr ""
 "Cette ressource ne peut pas être éditée. Merci de contacter l’administrateur "
 "pour plus d’information."
 
-#: src/Controller/Site/ContributeController.php:94
-#: src/Controller/Site/ContributeController.php:104
-msgid "Contributions successfully submitted!"
-msgstr "Les contributions ont été correctement envoyées !"
-
-#: src/Controller/Site/ContributeController.php:108
+#: src/Controller/Site/ContributeController.php:194
 msgid "No change."
 msgstr "Pas de changement."
 
-#: src/Controller/Site/ContributeController.php:121
-msgid "An error occurred: check your input."
-msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie."
-
-#: src/Controller/Site/ContributeController.php:144
+#: src/Controller/Site/ContributeController.php:233
 #, php-format
 msgid "User %1$s has edited resource #%2$s (%3$s)."
 msgstr "L’utilisateur %1$s a édité la ressource #%2$s (%3$s)."
 
-#: src/Controller/Site/ContributeController.php:151
+#: src/Controller/Site/ContributeController.php:240
 #, php-format
 msgid "A user has edited resource #%1$d (%2$s)."
 msgstr "Un utilisateur a édité la ressource #%1$d (%2$s)."
 
-#: src/Controller/Site/ContributeController.php:905
+#: src/Controller/Site/ContributeController.php:530
 msgid "Forbidden access."
 msgstr "Accès interdit."
 
-#: src/Controller/Admin/ContributeController.php:47
+#: src/Controller/Admin/ContributionController.php:55
+msgid "This contribution is a new resource or has no more resource."
+msgstr ""
+"Cette contribution est une nouvelle ressource ou n’a plus de ressource."
+
+#: src/Controller/Admin/ContributionController.php:94
+msgid "contribution"
+msgstr "contribution"
+
+#: src/Controller/Admin/ContributionController.php:112
+msgid "Contribution successfully deleted"
+msgstr "La contribution a été correctement supprimée"
+
+#: src/Controller/Admin/ContributionController.php:133
+msgid "You must select at least one contribution to batch delete."
+msgstr "Vous devez choisir au moins une contribution pour supprimer en lot."
+
+#: src/Controller/Admin/ContributionController.php:142
+msgid "Contributions successfully deleted"
+msgstr "Les contributions ont été correctement supprimées"
+
+#: src/Controller/Admin/ContributionController.php:168
+msgid "Deleting contributions. This may take a while."
+msgstr "Suppression des contributions en cours. Cela peut prendre un moment."
+
+#: src/Controller/Admin/ContributionController.php:210
 msgid "You can create token only for items, media and item sets."
 msgstr ""
 "Vous pouvez créer un jeton seulement pour les contenus, les médias et les "
 "collections."
 
-#: src/Controller/Admin/ContributeController.php:55
+#: src/Controller/Admin/ContributionController.php:218
 #: src/Api/Representation/TokenRepresentation.php:149
 msgid "A site is required to create a public token."
 msgstr "Un site est nécessaire pour créer un jeton public."
 
-#: src/Controller/Admin/ContributeController.php:81
+#: src/Controller/Admin/ContributionController.php:244
 msgid "You must select at least one resource to create a token."
 msgstr "Vous devez choisir au moins une ressource pour créer un jeton."
 
-#: src/Controller/Admin/ContributeController.php:90
+#: src/Controller/Admin/ContributionController.php:253
 #, php-format
 msgid ""
 "You set the optional email \"%s\" to create a contribution token, but it is "
@@ -439,35 +591,35 @@ msgstr ""
 "Vous avez saisi \"%s\" comme email optionnel pour le jeton de contribution, "
 "mais il n’est pas correctement écrit."
 
-#: src/Controller/Admin/ContributeController.php:132
+#: src/Controller/Admin/ContributionController.php:295
 #, php-format
 msgid "Created %1$s contribution tokens (email: %2$s, duration: %3$s): %4$s"
 msgstr ""
 "Création de %1$s jetons de contribution (email : %2$s, durée : %3$s) : %4$s"
 
-#: src/Controller/Admin/ContributeController.php:134
+#: src/Controller/Admin/ContributionController.php:297
 msgid "none"
 msgstr "aucun"
 
-#: src/Controller/Admin/ContributeController.php:136
+#: src/Controller/Admin/ContributionController.php:299
 #, php-format
 msgid "%d days"
 msgstr "%d jours"
 
-#: src/Controller/Admin/ContributeController.php:137
+#: src/Controller/Admin/ContributionController.php:300
 msgid "unlimited"
 msgstr "illimité"
 
-#: src/Controller/Admin/ContributeController.php:174
+#: src/Controller/Admin/ContributionController.php:337
 #, php-format
 msgid "Resource #%s has no tokens to expire."
 msgstr "La ressource #%s n’a pas de jeton à expirer."
 
-#: src/Controller/Admin/ContributeController.php:195
+#: src/Controller/Admin/ContributionController.php:358
 msgid "All tokens of the resource were expired."
 msgstr "Tous les jetons de la ressource ont été expirés."
 
-#: src/Controller/Admin/ContributeController.php:343
+#: src/Controller/Admin/ContributionController.php:561
 msgid "Missing term or key."
 msgstr "Terme ou clé manquante."
 
@@ -564,10 +716,10 @@ msgstr ""
 msgid "The custom vocab named \"%s\" is not available."
 msgstr "Le vocabulaire personnalisé nommé \"%s\" n'est pas disponible."
 
-#: config/module.config.php:129
+#: config/module.config.php:195
 msgid "Prepare tokens to edit selected"
 msgstr "Préparer les jetons de contribution pour la sélection"
 
-#: config/module.config.php:130
+#: config/module.config.php:196
 msgid "Prepare tokens to edit all"
 msgstr "Préparer des jetons de contribution pour tous"
