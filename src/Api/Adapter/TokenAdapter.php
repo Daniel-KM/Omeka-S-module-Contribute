@@ -51,7 +51,6 @@ class TokenAdapter extends AbstractEntityAdapter
                 ->setExpire($expire)
                 ->setCreated(new \DateTime('now'))
                 ->setAccessed(null);
-            ;
         } elseif (Request::UPDATE === $request->getOperation()) {
             if (array_key_exists('o-module-contribute:expire', $data)) {
                 $expire = strtotime($data['o-module-contribute:expire'])

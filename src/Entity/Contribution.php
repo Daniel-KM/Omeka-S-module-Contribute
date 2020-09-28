@@ -178,7 +178,6 @@ class Contribution extends AbstractEntity
         return $this;
     }
 
-
     /**
      * @return \Omeka\Entity\User
      */

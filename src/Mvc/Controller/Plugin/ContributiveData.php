@@ -160,7 +160,7 @@ class ContributiveData extends AbstractPlugin
         return $this->data['fillable'];
     }
 
-   /**
+    /**
      * @return array
      */
     public function datatypeProperties()

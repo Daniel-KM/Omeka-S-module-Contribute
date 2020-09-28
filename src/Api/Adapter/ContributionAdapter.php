@@ -59,7 +59,6 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ->setEmail($email)
                 ->setReviewed($reviewed)
                 ->setProposal($proposal);
-            ;
         } elseif (Request::UPDATE === $request->getOperation()) {
             if (!$entity->getResource() && $this->shouldHydrate($request, 'o:resource', $data)) {
                 $resource = empty($data['o:resource']['o:id'])

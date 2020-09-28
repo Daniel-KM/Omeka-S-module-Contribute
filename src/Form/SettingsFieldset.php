@@ -169,7 +169,7 @@ dcterms:creator = resource_class_id[]=94',
                 ],
                 'attributes' => [
                     'id' => 'contribute_token_duration',
-                    'min'  => '0',
+                    'min' => '0',
                     'step' => '1',
                     'data-placeholder' => '90', // @translate
                 ],

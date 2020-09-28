@@ -1,8 +1,8 @@
 <?php
 namespace Contribute\Mvc\Controller\Plugin;
 
-use Omeka\Stdlib\Message;
 use Omeka\Stdlib\Mailer as MailerService;
+use Omeka\Stdlib\Message;
 use Zend\Log\Logger;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 

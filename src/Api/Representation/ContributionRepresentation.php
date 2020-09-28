@@ -401,7 +401,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         unset($prop);
                         break;
 
-                    case strtok($type, ':') === 'resource';
+                    case strtok($type, ':') === 'resource':
                         $original = $proposition['original']['@resource'];
                         $proposed = $proposition['proposed']['@resource'];
 
@@ -468,7 +468,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
 
                     case 'uri':
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
                         $originalUri = $proposition['original']['@uri'];
                         $originalLabel = $proposition['original']['@label'];
                         $original = $originalUri . $originalLabel;

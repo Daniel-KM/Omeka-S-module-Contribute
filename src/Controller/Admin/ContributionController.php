@@ -39,7 +39,7 @@ class ContributionController extends AbstractActionController
 
         return new ViewModel([
             'contributions' => $contributions,
-            'resources' =>  $contributions,
+            'resources' => $contributions,
             'formDeleteSelected' => $formDeleteSelected,
             'formDeleteAll' => $formDeleteAll,
         ]);
@@ -642,7 +642,7 @@ class ContributionController extends AbstractActionController
         $data = [];
         foreach ($existingValues as $term => $propertyData) {
             // Keep all existing values.
-            $data[$term] = array_map(function($v) {
+            $data[$term] = array_map(function ($v) {
                 return $v->jsonSerialize();
             }, $propertyData['values']);
             if (!$contributive->isTermContributive($term)) {
@@ -772,7 +772,7 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case 'resource':
-                    case strtok($type, ':') === 'resource';
+                    case strtok($type, ':') === 'resource':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -792,7 +792,7 @@ class ContributionController extends AbstractActionController
                             'is_public' => true,
                         ];
                         break;
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,

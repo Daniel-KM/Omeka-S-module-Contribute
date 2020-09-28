@@ -357,7 +357,7 @@ class ContributeController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
@@ -474,7 +474,7 @@ class ContributeController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']);
+                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }

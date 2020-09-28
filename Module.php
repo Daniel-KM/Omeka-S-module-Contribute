@@ -79,7 +79,7 @@ class Module extends AbstractModule
         /** @var \Omeka\Permissions\Acl $acl */
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
 
-        // Since Omeka 1.4, modules are ordered, so Guest come after Selection.
+        // Since Omeka 1.4, modules are ordered, so Guest come after Contribute.
         // See \Guest\Module::onBootstrap().
         if (!$acl->hasRole('guest')) {
             $acl->addRole('guest');
@@ -340,7 +340,7 @@ class Module extends AbstractModule
             $translate('Create contribution token'), // @translate
             $view->url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
         );
-        $output =  '<div class="meta-group create_contribution_token">'
+        $output = '<div class="meta-group create_contribution_token">'
             . '<h4>' . $translate('Contribute') . '</h4>'
             . '<div class="value" id="create_contribution_token">' . $link . '</div>'
             . '<div id="create_contribution_token_dialog" class="modal" style="display:none;">'
