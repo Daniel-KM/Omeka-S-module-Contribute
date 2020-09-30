@@ -70,7 +70,7 @@ $(document).ready(function() {
         }
 
         if ($('#resourcetemplateform #properties').length > 0 || $('#content #properties').length > 0)
-        var resourceTemplateDataUrl = baseUrl + '/contribute/resource-template-data';
+        var resourceTemplateDataUrl = baseUrl + '/contribution/resource-template-data';
         $.get(resourceTemplateDataUrl, {resource_template_id: resourceTemplateId})
             .done(function(data) {
                 propertyList.find('li.property').each(function() {
