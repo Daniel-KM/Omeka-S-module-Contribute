@@ -18,7 +18,7 @@ $labelInfo = $this->setting('property_label_information');
 $values = $resource->values();
 ?>
 <div class="contributions">
-    <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id()])->getTotalResults(); ?>
+    <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id(), 'limit' => 0])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
         <?php if (!$this->setting('contribute_without_token')): ?>
     <div class="no-resources no-tokens">

@@ -218,7 +218,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return null;
         }
         //  TODO Manage contribution of non literal values. Remove uri?
-        $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
+        $values = $this->resource()->value($term, ['all' => true]);
         foreach ($values as $value) {
             if ($value->value() === $string) {
                 return $value;
@@ -240,7 +240,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         if (!$string) {
             return null;
         }
-        $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
+        $values = $this->resource()->value($term, ['all' => true]);
         foreach ($values as $value) {
             $type = $value->type();
             if (strtok($type, ':') === 'resource') {
@@ -266,7 +266,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return null;
         }
         // To get only uris and value suggest values require to get all values.
-        $values = $this->resource()->value($term, ['all' => true, 'default' => []]);
+        $values = $this->resource()->value($term, ['all' => true]);
         foreach ($values as $value) {
             $type = $value->type();
             if (($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']))

@@ -304,7 +304,7 @@ class ContributeController extends AbstractActionController
         }
         foreach ($proposalEditableTerms as $term) {
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
-            $values = $resource ? $resource->value($term, ['all' => true, 'default' => []]) : [];
+            $values = $resource ? $resource->value($term, ['all' => true]) : [];
             foreach ($values as $index => $value) {
                 if (!isset($proposal[$term][$index])) {
                     continue;
@@ -415,7 +415,7 @@ class ContributeController extends AbstractActionController
             }
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
-                $values = $resource ? $resource->value($term, ['all' => true, 'default' => []]) : [];
+                $values = $resource ? $resource->value($term, ['all' => true]) : [];
                 if (isset($values[$index])) {
                     continue;
                 }

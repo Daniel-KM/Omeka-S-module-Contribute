@@ -71,16 +71,7 @@ class TokenAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
-        $isOldOmeka = \Omeka\Module::VERSION < 2;
-        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
-
-        if (isset($query['id'])) {
-            $qb->andWhere($expr->eq(
-                $alias . '.id',
-                $this->createNamedParameter($qb, $query['id'])
-            ));
-        }
 
         if (isset($query['resource_id'])) {
             if (!is_array($query['resource_id'])) {
@@ -88,7 +79,7 @@ class TokenAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                $alias . '.resource',
+                'omeka_root.resource',
                 $resourceAlias
             );
             $qb->andWhere($expr->in(
@@ -99,14 +90,14 @@ class TokenAdapter extends AbstractEntityAdapter
 
         if (isset($query['token'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.token',
+                'omeka_root.token',
                 $this->createNamedParameter($qb, $query['token'])
             ));
         }
 
         if (isset($query['email'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.email',
+                'omeka_root.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
@@ -182,8 +173,6 @@ class TokenAdapter extends AbstractEntityAdapter
         }
 
         $adapter = $this;
-        $isOldOmeka = \Omeka\Module::VERSION < 2;
-        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
 
         $where = '';
@@ -203,14 +192,14 @@ class TokenAdapter extends AbstractEntityAdapter
                         $value = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->gt($alias . '.' . $field, $param);
+                    $predicateExpr = $expr->gt('omeka_root.' . $field, $param);
                     break;
                 case 'gte':
                     if (mb_strlen($value) < 19) {
                         $value = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->gte($alias . '.' . $field, $param);
+                    $predicateExpr = $expr->gte('omeka_root.' . $field, $param);
                     break;
                 case 'eq':
                     if (mb_strlen($value) < 19) {
@@ -218,10 +207,10 @@ class TokenAdapter extends AbstractEntityAdapter
                         $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
-                        $predicateExpr = $expr->between($alias . '.' . $field, $paramFrom, $paramTo);
+                        $predicateExpr = $expr->between('omeka_root.' . $field, $paramFrom, $paramTo);
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
-                        $predicateExpr = $expr->eq($alias . '.' . $field, $param);
+                        $predicateExpr = $expr->eq('omeka_root.' . $field, $param);
                     }
                     break;
                 case 'neq':
@@ -231,11 +220,11 @@ class TokenAdapter extends AbstractEntityAdapter
                         $paramFrom = $adapter->createNamedParameter($qb, $valueFrom);
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
                         $predicateExpr = $expr->not(
-                            $expr->between($alias . '.' . $field, $paramFrom, $paramTo)
+                            $expr->between('omeka_root.' . $field, $paramFrom, $paramTo)
                             );
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
-                        $predicateExpr = $expr->neq($alias . '.' . $field, $param);
+                        $predicateExpr = $expr->neq('omeka_root.' . $field, $param);
                     }
                     break;
                 case 'lte':
@@ -243,20 +232,20 @@ class TokenAdapter extends AbstractEntityAdapter
                         $value = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->lte($alias . '.' . $field, $param);
+                    $predicateExpr = $expr->lte('omeka_root.' . $field, $param);
                     break;
                 case 'lt':
                     if (mb_strlen($value) < 19) {
                         $value = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
                     }
                     $param = $adapter->createNamedParameter($qb, $value);
-                    $predicateExpr = $expr->lt($alias . '.' . $field, $param);
+                    $predicateExpr = $expr->lt('omeka_root.' . $field, $param);
                     break;
                 case 'ex':
-                    $predicateExpr = $expr->isNotNull($alias . '.' . $field);
+                    $predicateExpr = $expr->isNotNull('omeka_root.' . $field);
                     break;
                 case 'nex':
-                    $predicateExpr = $expr->isNull($alias . '.' . $field);
+                    $predicateExpr = $expr->isNull('omeka_root.' . $field);
                     break;
                 default:
                     continue 2;

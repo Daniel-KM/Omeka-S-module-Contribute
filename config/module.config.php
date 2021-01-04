@@ -33,6 +33,7 @@ return [
     'form_elements' => [
         'invokables' => [
             Form\ContributeForm::class => Form\ContributeForm::class,
+            Form\Element\ArrayQueryTextarea::class => Form\Element\ArrayQueryTextarea::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
     ],

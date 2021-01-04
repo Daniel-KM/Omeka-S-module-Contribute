@@ -38,13 +38,13 @@ class Module extends AbstractModule
 
         // Upgrade from old module Correction if any.
         $services = $this->getServiceLocator();
-        $connection = $services->get('Omeka\Connection');
 
         /** @var \Omeka\Module\Manager $moduleManager */
         $moduleManager = $services->get('Omeka\ModuleManager');
         $module = $moduleManager->getModule('Correction');
         if ($module) {
             // Check if Correction was really installed.
+            $connection = $services->get('Omeka\Connection');
             try {
                 $connection->fetchAll('SELECT id FROM correction LIMIT 1;');
                 // So upgrade Correction.
@@ -239,17 +239,6 @@ class Module extends AbstractModule
         );
     }
 
-    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType): ?array
-    {
-        $data = parent::prepareDataToPopulate($settings, $settingsType);
-        if (in_array($settingsType, ['settings'])) {
-            if (isset($data['contribute_notify']) && is_array($data['contribute_notify'])) {
-                $data['contribute_notify'] = implode("\n", $data['contribute_notify']);
-            }
-        }
-        return $data;
-    }
-
     public function handleViewShowAfter(Event $event): void
     {
         echo $event->getTarget()->linkContribute();
@@ -330,28 +319,36 @@ class Module extends AbstractModule
     {
         $view = $event->getTarget();
         $resource = $view->resource;
-        $query = [];
-        $query['resource_type'] = $resource->resourceName();
-        $query['resource_ids'] = [$resource->id()];
-        $query['redirect'] = $this->getCurrentUrl($view);
+        $query = [
+            'resource_type' => $resource->resourceName(),
+            'resource_ids' => [$resource->id()],
+            'redirect' => $this->getCurrentUrl($view),
+        ];
         $translate = $view->plugin('translate');
         $escapeAttr = $view->plugin('escapeHtmlAttr');
         $link = $view->hyperlink(
             $translate('Create contribution token'), // @translate
             $view->url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
         );
-        $output = '<div class="meta-group create_contribution_token">'
-            . '<h4>' . $translate('Contribute') . '</h4>'
-            . '<div class="value" id="create_contribution_token">' . $link . '</div>'
-            . '<div id="create_contribution_token_dialog" class="modal" style="display:none;">'
-            . '<div class="modal-content">'
-            . '<span class="close" id="create_contribution_token_dialog_close">&times;</span>'
-            . '<input type="text" value="" placeholder="' . $escapeAttr($translate('Please input optional email…')) . '" id="create_contribution_token_dialog_email"/>'
-            . '<input type="button" value="' . $escapeAttr($translate('Create token')) . '" id="create_contribution_token_dialog_go"/>'
-            . '</div>'
-            . '</div>'
-            . '</div>';
-        echo $output;
+        $htmlText = [
+            'contritube' => $translate('Contribute'), // @translate
+            'email' => $escapeAttr($translate('Please input optional email…')), // @translate
+            'token' => $escapeAttr($translate('Create token')), // @translate
+        ];
+        echo <<<HTML
+<div class="meta-group create_contribution_token">
+    <h4>{$htmlText['contritube']}</h4>
+    <div class="value" id="create_contribution_token">$link</div>
+    <div id="create_contribution_token_dialog" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" id="create_contribution_token_dialog_close">&times;</span>
+            <input type="text" value="" placeholder="{$htmlText['email']}" id="create_contribution_token_dialog_email"/>
+            <input type="button" value="{$htmlText['token']}" id="create_contribution_token_dialog_go"/>
+        </div>
+    </div>
+</div>
+
+HTML;
     }
 
     /**
@@ -429,60 +426,25 @@ class Module extends AbstractModule
                 'reviewed' => '0',
             ])
             ->getTotalResults();
+        $contributions = $translate('Contributions'); // @translat
+        $message = $total
+            ? sprintf($translate('%d contributions (%d not reviewed)'), $total, $totalNotReviewed) // @translate
+            : 'No contribution'; // @translate
+        echo <<<HTML
+<div class="meta-group">
+    <h4>$contributions</h4>
+    <div class="value">
+        $message
+    </div>
+</div>
 
-        // TODO
-        echo '<div class="meta-group"><h4>'
-            . $translate('Contributions') // @translate
-            . '</h4><div class="value">';
-        if ($total) {
-            echo sprintf($translate('%d contributions (%d not reviewed)'), $total, $totalNotReviewed); // @translate
-        } else {
-            echo '<em>'
-                . $translate('No contribution') // @translate
-                . '</em>';
-        }
-        echo '</div></div>';
-    }
-
-    public function handleMainSettings(Event $event): void
-    {
-        parent::handleMainSettings($event);
-
-        $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
-
-        $fieldset = $event
-            ->getTarget()
-            ->get('contribute');
-
-        $queries = $settings->get('contribute_property_queries') ?: [];
-        $value = '';
-        if (is_array($queries)) {
-            foreach ($queries as $term => $query) {
-                $value .= $term . ' = ' . urldecode(http_build_query($query, null, '&', PHP_QUERY_RFC3986)) . "\n";
-            }
-        }
-        $fieldset
-            ->get('contribute_property_queries')
-            ->setValue($value);
+HTML;
     }
 
     public function handleMainSettingsFilters(Event $event): void
     {
         $event->getParam('inputFilter')
             ->get('contribute')
-            ->add([
-                'name' => 'contribute_notify',
-                'required' => false,
-                'filters' => [
-                    [
-                        'name' => \Laminas\Filter\Callback::class,
-                        'options' => [
-                            'callback' => [$this, 'stringToList'],
-                        ],
-                    ],
-                ],
-            ])
             ->add([
                 'name' => 'contribute_template_editable',
                 'required' => false,
@@ -510,26 +472,6 @@ class Module extends AbstractModule
             ->add([
                 'name' => 'contribute_property_queries',
                 'required' => false,
-                'filters' => [
-                    [
-                        'name' => \Laminas\Filter\Callback::class,
-                        'options' => [
-                            'callback' => function ($v) {
-                                $result = [];
-                                $q = [];
-                                $w = $this->stringToList($v);
-                                foreach ($w as $vv) {
-                                    list($term, $query) = array_map('trim', explode('=', $vv, 2));
-                                    if ($term) {
-                                        parse_str($query, $q);
-                                        $result[$term] = array_filter($q);
-                                    }
-                                }
-                                return array_filter($result);
-                            },
-                        ],
-                    ],
-                ],
             ])
         ;
     }

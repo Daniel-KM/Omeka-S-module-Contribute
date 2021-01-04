@@ -88,16 +88,7 @@ class ContributionAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
-        $isOldOmeka = \Omeka\Module::VERSION < 2;
-        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
-
-        if (isset($query['id'])) {
-            $qb->andWhere($expr->eq(
-                $alias . '.id',
-                $this->createNamedParameter($qb, $query['id'])
-            ));
-        }
 
         if (isset($query['resource_id'])) {
             if (!is_array($query['resource_id'])) {
@@ -105,7 +96,7 @@ class ContributionAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                $alias . '.resource',
+                'omeka_root.resource',
                 $resourceAlias
             );
             $qb->andWhere($expr->in(
@@ -117,7 +108,7 @@ class ContributionAdapter extends AbstractEntityAdapter
         if (isset($query['owner_id']) && is_numeric($query['owner_id'])) {
             $userAlias = $this->createAlias();
             $qb->innerJoin(
-                $alias . '.owner',
+                'omeka_root.owner',
                 $userAlias
             );
             $qb->andWhere($expr->eq(
@@ -128,14 +119,14 @@ class ContributionAdapter extends AbstractEntityAdapter
 
         if (isset($query['email'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.email',
+                'omeka_root.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
 
         if (isset($query['reviewed']) && is_numeric($query['reviewed'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.reviewed',
+                'omeka_root.reviewed',
                 $this->createNamedParameter($qb, (bool) $query['reviewed'])
             ));
         }
@@ -146,7 +137,7 @@ class ContributionAdapter extends AbstractEntityAdapter
             }
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
-                $alias . '.token',
+                'omeka_root.token',
                 $resourceAlias
             );
             $qb->andWhere($expr->eq(
@@ -158,14 +149,14 @@ class ContributionAdapter extends AbstractEntityAdapter
         // TODO Add time comparison (see modules AdvancedSearchPlus or Next).
         if (isset($query['created'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.created',
+                'omeka_root.created',
                 $this->createNamedParameter($qb, $query['created'])
             ));
         }
 
         if (isset($query['modified'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.modified',
+                'omeka_root.modified',
                 $this->createNamedParameter($qb, $query['modified'])
             ));
         }

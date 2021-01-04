@@ -15,7 +15,7 @@ class PropertyIdsByTermsFactory implements FactoryInterface
         $qb
             ->select([
                 'DISTINCT property.id AS id',
-                "CONCAT(vocabulary.prefix, ':', property.local_name) AS term",
+                'CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
             ])
             ->from('property', 'property')
             ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')

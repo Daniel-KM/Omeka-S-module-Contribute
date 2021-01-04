@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Form;
 
+use Contribute\Form\Element\ArrayQueryTextarea;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
+use Omeka\Form\Element\ArrayTextarea;
 use Omeka\Form\Element\PropertySelect;
 use Omeka\Form\Element\ResourceTemplateSelect;
 
@@ -15,7 +18,7 @@ class SettingsFieldset extends Fieldset
         $this
             ->add([
                 'name' => 'contribute_notify',
-                'type' => Element\Textarea::class,
+                'type' => ArrayTextarea::class,
                 'options' => [
                     'label' => 'Default emails to notify contributions', // @translate
                     'info' => 'The list of emails to notify when a user edits a resource, one by row.', // @translate
@@ -137,10 +140,11 @@ info@example2.org',
 
             ->add([
                 'name' => 'contribute_property_queries',
-                'type' => Element\Textarea::class,
+                'type' => ArrayQueryTextarea::class,
                 'options' => [
                     'label' => 'Queries for value resources', // @translate
                     'info' => 'Allows to limit options in a resource select.', // @translate
+                    'as_key_value' => true,
                 ],
                 'attributes' => [
                     'id' => 'contribute_properties_queries',

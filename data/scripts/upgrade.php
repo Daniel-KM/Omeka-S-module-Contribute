@@ -3,7 +3,7 @@ namespace Contribute;
 
 /**
  * @var Module $this
- * @var \Laminas\ServiceManager\ServiceLocatorInterface $serviceLocator
+ * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
  * @var string $newVersion
  * @var string $oldVersion
  *
@@ -11,7 +11,6 @@ namespace Contribute;
  * @var \Doctrine\ORM\EntityManager $entityManager
  * @var \Omeka\Api\Manager $api
  */
-$services = $serviceLocator;
 $settings = $services->get('Omeka\Settings');
 // $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
 $connection = $services->get('Omeka\Connection');
