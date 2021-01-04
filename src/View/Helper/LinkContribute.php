@@ -3,7 +3,7 @@ namespace Contribute\View\Helper;
 
 use Contribute\Mvc\Controller\Plugin\CheckToken;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Zend\View\Helper\AbstractHelper;
+use Laminas\View\Helper\AbstractHelper;
 
 class LinkContribute extends AbstractHelper
 {
@@ -72,6 +72,6 @@ class LinkContribute extends AbstractHelper
         $view = $this->getView();
         return isset($view->site)
             ? $view->site
-            : $view->getHelperPluginManager()->get('Zend\View\Helper\ViewModel')->getRoot()->getVariable('site');
+            : $view->getHelperPluginManager()->get('Laminas\View\Helper\ViewModel')->getRoot()->getVariable('site');
     }
 }

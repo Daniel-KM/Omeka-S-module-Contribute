@@ -83,7 +83,7 @@ return [
             'site' => [
                 'child_routes' => [
                     'contribute' => [
-                        'type' => \Zend\Router\Http\Segment::class,
+                        'type' => \Laminas\Router\Http\Segment::class,
                         'options' => [
                             'route' => '/:resource/add',
                             'constraints' => [
@@ -98,7 +98,7 @@ return [
                         ],
                     ],
                     'contribute-id' => [
-                        'type' => \Zend\Router\Http\Segment::class,
+                        'type' => \Laminas\Router\Http\Segment::class,
                         'options' => [
                             // TODO Use controller delegator or override the default site route?
                             // Overrides core public site resources only for edit.
@@ -118,14 +118,14 @@ return [
                         // The default values for the guest user route are kept
                         // to avoid issues for visitors when an upgrade of
                         // module Guest occurs or when it is disabled.
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/guest',
                         ],
                         'may_terminate' => true,
                         'child_routes' => [
                             'contribution' => [
-                                'type' => \Zend\Router\Http\Literal::class,
+                                'type' => \Laminas\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/contribution',
                                     'defaults' => [
@@ -142,7 +142,7 @@ return [
             'admin' => [
                 'child_routes' => [
                     'contribution' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/contribution',
                             'defaults' => [
@@ -154,7 +154,7 @@ return [
                         'may_terminate' => true,
                         'child_routes' => [
                             'default' => [
-                                'type' => \Zend\Router\Http\Segment::class,
+                                'type' => \Laminas\Router\Http\Segment::class,
                                 'options' => [
                                     'route' => '/:action',
                                     'constraints' => [
@@ -163,7 +163,7 @@ return [
                                 ],
                             ],
                             'id' => [
-                                'type' => \Zend\Router\Http\Segment::class,
+                                'type' => \Laminas\Router\Http\Segment::class,
                                 'options' => [
                                     'route' => '/:id[/:action]',
                                     'constraints' => [

@@ -1,7 +1,7 @@
 <?php
 namespace Contribute\Mvc\Controller\Plugin;
 
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 
 /**
  * Get the default site slug, or the first one.

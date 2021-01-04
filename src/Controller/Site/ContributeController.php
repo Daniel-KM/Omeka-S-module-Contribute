@@ -7,8 +7,8 @@ use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 // TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
 use Omeka\Stdlib\Message;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
 class ContributeController extends AbstractActionController
 {
@@ -521,7 +521,7 @@ class ContributeController extends AbstractActionController
     /**
      * Helper to return a message of error as normal view.
      *
-     * @return \Zend\View\Model\ViewModel
+     * @return \Laminas\View\Model\ViewModel
      */
     protected function viewError403()
     {
@@ -529,7 +529,7 @@ class ContributeController extends AbstractActionController
         // throw new \Omeka\Api\Exception\PermissionDeniedException('Forbidden access.');
         $message = 'Forbidden access.'; // @translate
         $this->getResponse()
-            ->setStatusCode(\Zend\Http\Response::STATUS_CODE_403);
+            ->setStatusCode(\Laminas\Http\Response::STATUS_CODE_403);
         $view = new ViewModel;
         return $view
             ->setTemplate('error/403')

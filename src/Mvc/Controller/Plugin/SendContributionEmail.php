@@ -3,8 +3,8 @@ namespace Contribute\Mvc\Controller\Plugin;
 
 use Omeka\Stdlib\Mailer as MailerService;
 use Omeka\Stdlib\Message;
-use Zend\Log\Logger;
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Log\Logger;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 
 /**
  * Send an email.

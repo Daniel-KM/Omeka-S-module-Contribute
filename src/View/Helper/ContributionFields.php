@@ -4,7 +4,7 @@ namespace Contribute\View\Helper;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Mvc\Controller\Plugin\ContributiveData;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Zend\View\Helper\AbstractHelper;
+use Laminas\View\Helper\AbstractHelper;
 
 class ContributionFields extends AbstractHelper
 {

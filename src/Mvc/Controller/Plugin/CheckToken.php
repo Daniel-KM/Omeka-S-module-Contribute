@@ -3,7 +3,7 @@ namespace Contribute\Mvc\Controller\Plugin;
 
 use Contribute\Api\Representation\TokenRepresentation;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 
 class CheckToken extends AbstractPlugin
 {

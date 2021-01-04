@@ -2,7 +2,7 @@
 namespace Contribute\Mvc\Controller\Plugin;
 
 use ArrayObject;
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 
 class ContributiveData extends AbstractPlugin
 {

@@ -3,7 +3,7 @@ namespace Contribute\Service\ControllerPlugin;
 
 use Contribute\Mvc\Controller\Plugin\SendContributionEmail;
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class SendContributionEmailFactory implements FactoryInterface
 {

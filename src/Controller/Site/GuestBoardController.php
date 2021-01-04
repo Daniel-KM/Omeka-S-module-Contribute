@@ -1,8 +1,8 @@
 <?php
 namespace Contribute\Controller\Site;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
 class GuestBoardController extends AbstractActionController
 {
