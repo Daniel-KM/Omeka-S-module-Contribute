@@ -40,3 +40,12 @@ SQL;
         $connection->exec($sql);
     }
 }
+
+if (version_compare($oldVersion, '3.3.13.0', '<')) {
+    // @link https://www.doctrine-project.org/projects/doctrine-dbal/en/2.6/reference/types.html#array-types
+    $sql = <<<'SQL'
+ALTER TABLE `contribution`
+CHANGE `proposal` `proposal` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
+SQL;
+    $connection->exec($sql);
+}

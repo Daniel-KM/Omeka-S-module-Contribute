@@ -5,7 +5,7 @@ CREATE TABLE contribution (
     token_id INT DEFAULT NULL,
     email VARCHAR(190) DEFAULT NULL,
     reviewed TINYINT(1) NOT NULL,
-    proposal LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)',
+    proposal LONGTEXT NOT NULL COMMENT '(DC2Type:json)',
     created DATETIME NOT NULL,
     modified DATETIME DEFAULT NULL,
     INDEX IDX_EA351E1589329D25 (resource_id),
