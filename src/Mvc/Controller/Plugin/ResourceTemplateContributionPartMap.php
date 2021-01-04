@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Mvc\Controller\Plugin;
 
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;

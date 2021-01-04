@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -35,7 +35,7 @@ class ContributionAdapter extends AbstractEntityAdapter
         return \Contribute\Entity\Contribution::class;
     }
 
-    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
+    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
     {
         // TODO Use shouldHydrate() and validateEntity().
         /** @var \Contribute\Entity\Contribution $entity */
@@ -86,7 +86,7 @@ class ContributionAdapter extends AbstractEntityAdapter
         $this->updateTimestamps($request, $entity);
     }
 
-    public function buildQuery(QueryBuilder $qb, array $query)
+    public function buildQuery(QueryBuilder $qb, array $query): void
     {
         $isOldOmeka = \Omeka\Module::VERSION < 2;
         $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';

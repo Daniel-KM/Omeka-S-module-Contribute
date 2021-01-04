@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\View\Helper;
 
 use Contribute\Mvc\Controller\Plugin\CheckToken;
-use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Laminas\View\Helper\AbstractHelper;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 
 class LinkContribute extends AbstractHelper
 {

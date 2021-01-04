@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
@@ -540,7 +540,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
 
                     default:
-                        $original = isset($proposition['original']['@value']) ? $proposition['original']['@value'] : '';
+                        $original = $proposition['original']['@value'] ?? '';
 
                         // Nothing to do if there is no original.
                         $hasOriginal = (bool) strlen($original);

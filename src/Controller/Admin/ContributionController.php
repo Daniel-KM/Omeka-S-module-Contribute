@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Controller\Admin;
 
 use Contribute\Api\Representation\ContributionRepresentation;
 use DateInterval;
 use DateTime;
-use Omeka\Form\ConfirmForm;
-use Omeka\Stdlib\Message;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use Omeka\Form\ConfirmForm;
+use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
 {
@@ -615,7 +615,7 @@ class ContributionController extends AbstractActionController
      * @param string|null $term Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key.
      */
-    protected function validateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null)
+    protected function validateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null): void
     {
         $contributive = $contribution->contributiveData();
         if (!$contributive->isContributive()) {
@@ -725,7 +725,7 @@ class ContributionController extends AbstractActionController
             if (!$contributive->isTermContributive($term)) {
                 continue;
             }
-            $propertyId = isset($propertyIds[$term]) ? $propertyIds[$term] : null;
+            $propertyId = $propertyIds[$term] ?? null;
             if (!$propertyId) {
                 continue;
             }

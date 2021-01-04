@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -33,7 +33,7 @@ class TokenAdapter extends AbstractEntityAdapter
         return \Contribute\Entity\Token::class;
     }
 
-    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore)
+    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
     {
         /** @var \Contribute\Entity\Token $entity */
         $data = $request->getContent();
@@ -69,7 +69,7 @@ class TokenAdapter extends AbstractEntityAdapter
         }
     }
 
-    public function buildQuery(QueryBuilder $qb, array $query)
+    public function buildQuery(QueryBuilder $qb, array $query): void
     {
         $isOldOmeka = \Omeka\Module::VERSION < 2;
         $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
@@ -174,7 +174,7 @@ class TokenAdapter extends AbstractEntityAdapter
      * @param QueryBuilder $qb
      * @param array $query
      */
-    protected function searchDateTime(QueryBuilder $qb, array $query)
+    protected function searchDateTime(QueryBuilder $qb, array $query): void
     {
         $query = $this->normalizeDateTime($query);
         if (empty($query['datetime'])) {
@@ -375,9 +375,9 @@ class TokenAdapter extends AbstractEntityAdapter
             ? function () {
                 return sha1(mt_rand());
             }
-            : function () {
-                return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10);
-            };
+        : function () {
+            return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10);
+        };
 
         // Check if the token is unique.
         do {

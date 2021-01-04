@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Mvc\Controller\Plugin;
 
-use Omeka\Stdlib\Mailer as MailerService;
-use Omeka\Stdlib\Message;
 use Laminas\Log\Logger;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use Omeka\Stdlib\Mailer as MailerService;
+use Omeka\Stdlib\Message;
 
 /**
  * Send an email.

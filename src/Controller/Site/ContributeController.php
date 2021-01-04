@@ -1,14 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Controller\Site;
 
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Form\ContributeForm;
-use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Laminas\Mvc\Controller\AbstractActionController;
 // TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
-use Omeka\Stdlib\Message;
-use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Stdlib\Message;
 
 class ContributeController extends AbstractActionController
 {
@@ -220,7 +220,7 @@ class ContributeController extends AbstractActionController
         ]);
     }
 
-    protected function prepareContributionEmail(ContributionRepresentation $contribution)
+    protected function prepareContributionEmail(ContributionRepresentation $contribution): void
     {
         $emails = $this->settings()->get('contribute_notify', []);
         if (empty($emails)) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\Service\ViewHelper;
 
 use Contribute\View\Helper\ContributionFields;

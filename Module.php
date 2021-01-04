@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
@@ -8,23 +8,23 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
-use Omeka\Settings\SettingsInterface;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Renderer\PhpRenderer;
+use Omeka\Settings\SettingsInterface;
 
 class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    public function onBootstrap(MvcEvent $event)
+    public function onBootstrap(MvcEvent $event): void
     {
         parent::onBootstrap($event);
         $this->addAclRules();
     }
 
-    protected function postInstall()
+    protected function postInstall(): void
     {
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
@@ -56,7 +56,7 @@ class Module extends AbstractModule
         }
     }
 
-    protected function postUninstall()
+    protected function postUninstall(): void
     {
         if (!class_exists(\Generic\InstallResources::class)) {
             require_once file_exists(dirname(__DIR__) . '/Generic/InstallResources.php')
@@ -74,7 +74,7 @@ class Module extends AbstractModule
     /**
      * Add ACL rules for this module.
      */
-    protected function addAclRules()
+    protected function addAclRules(): void
     {
         /** @var \Omeka\Permissions\Acl $acl */
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
@@ -138,7 +138,7 @@ class Module extends AbstractModule
        ;
     }
 
-    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
         // Link to edit form on item/show page.
         $sharedEventManager->attach(
@@ -250,12 +250,12 @@ class Module extends AbstractModule
         return $data;
     }
 
-    public function handleViewShowAfter(Event $event)
+    public function handleViewShowAfter(Event $event): void
     {
         echo $event->getTarget()->linkContribute();
     }
 
-    public function handleGuestWidgets(Event $event)
+    public function handleGuestWidgets(Event $event): void
     {
         $widgets = $event->getParam('widgets');
         $helpers = $this->getServiceLocator()->get('ViewHelperManager');
@@ -270,7 +270,7 @@ class Module extends AbstractModule
         $event->setParam('widgets', $widgets);
     }
 
-    public function handleResourceTemplateCreateOrUpdatePost(Event $event)
+    public function handleResourceTemplateCreateOrUpdatePost(Event $event): void
     {
         // The acl are already checked via the api.
         $request = $event->getParam('request');
@@ -281,7 +281,7 @@ class Module extends AbstractModule
         $api = $viewHelpers->get('api');
 
         $requestContent = $request->getContent();
-        $requestResourceProperties = isset($requestContent['o:resource_template_property']) ? $requestContent['o:resource_template_property'] : [];
+        $requestResourceProperties = $requestContent['o:resource_template_property'] ?? [];
 
         $contributives = ['editable' => [], 'fillable' => []];
         foreach (['editable' => 'contribution_editable_part', 'fillable' => 'contribution_fillable_part'] as $editableKey => $part) {
@@ -309,7 +309,7 @@ class Module extends AbstractModule
         $settings->set('contribute_resource_template_data', $resourceTemplateData);
     }
 
-    public function addHeadersAdmin(Event $event)
+    public function addHeadersAdmin(Event $event): void
     {
         $view = $event->getTarget();
         $assetUrl = $view->plugin('assetUrl');
@@ -319,14 +319,14 @@ class Module extends AbstractModule
             ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
-    public function addHeadersAdminResourceTemplate(Event $event)
+    public function addHeadersAdminResourceTemplate(Event $event): void
     {
         $view = $event->getTarget();
         $view->headScript()
             ->appendFile($view->assetUrl('js/contribute-admin-resource-template.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
-    public function adminViewShowSidebar(Event $event)
+    public function adminViewShowSidebar(Event $event): void
     {
         $view = $event->getTarget();
         $resource = $view->resource;
@@ -359,7 +359,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function appendTab(Event $event)
+    public function appendTab(Event $event): void
     {
         $sectionNav = $event->getParam('section_nav');
         $sectionNav['contribution'] = 'Contributions'; // @translate
@@ -371,7 +371,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function displayTab(Event $event)
+    public function displayTab(Event $event): void
     {
         $services = $this->getServiceLocator();
         $api = $services->get('Omeka\ApiManager');
@@ -413,7 +413,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function viewDetails(Event $event)
+    public function viewDetails(Event $event): void
     {
         $view = $event->getTarget();
         $translate = $view->plugin('translate');
@@ -444,7 +444,7 @@ class Module extends AbstractModule
         echo '</div></div>';
     }
 
-    public function handleMainSettings(Event $event)
+    public function handleMainSettings(Event $event): void
     {
         parent::handleMainSettings($event);
 
@@ -467,7 +467,7 @@ class Module extends AbstractModule
             ->setValue($value);
     }
 
-    public function handleMainSettingsFilters(Event $event)
+    public function handleMainSettingsFilters(Event $event): void
     {
         $event->getParam('inputFilter')
             ->get('contribute')

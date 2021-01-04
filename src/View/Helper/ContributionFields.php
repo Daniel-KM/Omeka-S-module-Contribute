@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Contribute\View\Helper;
 
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Mvc\Controller\Plugin\ContributiveData;
-use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Laminas\View\Helper\AbstractHelper;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 
 class ContributionFields extends AbstractHelper
 {
@@ -127,7 +127,7 @@ class ContributionFields extends AbstractHelper
                     'editable' => $contributive->isTermEditable($term),
                     'fillable' => $contributive->isTermFillable($term),
                     'datatypes' => $contributive->datatypeTerm($term),
-                    'values' => isset($values[$term]['values']) ? $values[$term]['values'] : [],
+                    'values' => $values[$term]['values'] ?? [],
                     'contributions' => [],
                 ];
             }
