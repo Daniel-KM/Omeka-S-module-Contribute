@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Mvc\Controller\Plugin;
 
 use ArrayObject;
@@ -14,10 +15,10 @@ class ContributiveData extends AbstractPlugin
     /**
      * Get contributive data (editable, fillable, etc.) of a resource template.
      *
-     *  The list come from the resource template if it is configured, else the
+     *  The list comes from the resource template if it is configured, else the
      *  default list is used.
      *
-     * @param \Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
+     * @param \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|\Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
      * @return self
      */
     public function __invoke($resourceTemplate = null)
@@ -47,24 +48,33 @@ class ContributiveData extends AbstractPlugin
         $resourceTemplate = $this->resourceTemplate($resourceTemplate);
 
         if (!$resourceTemplate) {
-            $resourceTemplateId = (int) $settings->get('contribute_template_editable');
+            $resourceTemplateId = (int) $settings->get('contribute_template_default');
             if ($resourceTemplateId) {
-                try {
-                    $resourceTemplate = $controller->api()->read('resource_templates', ['id' => $resourceTemplateId])->getContent();
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                }
+                $resourceTemplate = $controller->api()->searchOne('resource_templates', ['id' => $resourceTemplateId])->getContent();
             }
         }
 
         if ($resourceTemplate) {
             $this->data['template'] = $resourceTemplate;
-            $contributionPartMap = $controller->resourceTemplateContributionPartMap($resourceTemplate->id());
-            $this->data['editable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['editable']));
-            $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($contributionPartMap['fillable']));
+            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
             foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
-                $term = $resourceTemplateProperty->property()->term();
+                $property = $resourceTemplateProperty->property();
+                $propertyId = $property->id();
+                $term = $property->term();
                 $datatype = $resourceTemplateProperty->dataType();
                 $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
+                $rtpData = $resourceTemplateProperty->data();
+                // TODO Manage repeatable property.
+                $rtpData = reset($rtpData);
+                if (!$rtpData) {
+                    continue;
+                }
+                if ($rtpData->dataValue('editable', false)) {
+                    $this->data['editable'][$term] = $propertyId;
+                }
+                if ($rtpData->dataValue('fillable', false)) {
+                    $this->data['fillable'][$term] = $propertyId;
+                }
             }
         } else {
             $this->data['template'] = null;

@@ -107,6 +107,9 @@ foreach ($sqls as $sql) {
 
 // Convert the settings.
 
+// Upgrade to the last version.
+require_once __DIR__ . '/upgrade.php';
+
 $message = new \Omeka\Stdlib\Message(
     'The module Correction was upgraded by module Contribute and uninstalled.' // @translate
 );

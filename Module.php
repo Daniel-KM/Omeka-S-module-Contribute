@@ -12,11 +12,12 @@ use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Renderer\PhpRenderer;
-use Omeka\Settings\SettingsInterface;
 
 class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
+
+    protected $dependency = 'AdvancedResourceTemplate';
 
     public function onBootstrap(MvcEvent $event): void
     {
@@ -24,17 +25,24 @@ class Module extends AbstractModule
         $this->addAclRules();
     }
 
+    protected function preInstall(): void
+    {
+        $services = $this->getServiceLocator();
+        $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
+        if ($module && version_compare($module->getIni('version'), '3.3.27', '<')) {
+            $translator = $services->get('MvcTranslator');
+            $message = new \Omeka\Stdlib\Message(
+                $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
+                'Generic', '3.3.27'
+            );
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        }
+    }
+
     protected function postInstall(): void
     {
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
-
-        $resourceTemplate = $services->get('Omeka\ApiManager')->read('resource_templates', ['label' => 'Contribution'])->getContent();
-        $templateData = $settings->get('contribute_resource_template_data', []);
-        $templateData['editable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
-        $templateData['fillable'][(string) $resourceTemplate->id()] = ['dcterms:title', 'dcterms:description'];
-        $settings->set('contribute_resource_template_data', $templateData);
-        $settings->set('contribute_template_editable', $resourceTemplate->id());
 
         // Upgrade from old module Correction if any.
         $services = $this->getServiceLocator();
@@ -209,23 +217,6 @@ class Module extends AbstractModule
             [$this, 'addHeadersAdmin']
         );
 
-        // Manage resource template.
-        $sharedEventManager->attach(
-            'Omeka\Controller\Admin\ResourceTemplate',
-            'view.layout',
-            [$this, 'addHeadersAdminResourceTemplate']
-        );
-        $sharedEventManager->attach(
-            \Omeka\Api\Adapter\ResourceTemplateAdapter::class,
-            'api.create.post',
-            [$this, 'handleResourceTemplateCreateOrUpdatePost']
-        );
-        $sharedEventManager->attach(
-            \Omeka\Api\Adapter\ResourceTemplateAdapter::class,
-            'api.update.post',
-            [$this, 'handleResourceTemplateCreateOrUpdatePost']
-        );
-
         // Handle main settings.
         $sharedEventManager->attach(
             \Omeka\Form\SettingForm::class,
@@ -236,6 +227,13 @@ class Module extends AbstractModule
             \Omeka\Form\SettingForm::class,
             'form.add_input_filters',
             [$this, 'handleMainSettingsFilters']
+        );
+
+        $sharedEventManager->attach(
+            // \Omeka\Form\ResourceTemplatePropertyFieldset::class,
+            \AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset::class,
+            'form.add_elements',
+            [$this, 'addResourceTemplatePropertyFieldsetElements']
         );
     }
 
@@ -259,45 +257,6 @@ class Module extends AbstractModule
         $event->setParam('widgets', $widgets);
     }
 
-    public function handleResourceTemplateCreateOrUpdatePost(Event $event): void
-    {
-        // The acl are already checked via the api.
-        $request = $event->getParam('request');
-        $response = $event->getParam('response');
-        $services = $this->getServiceLocator();
-
-        $viewHelpers = $services->get('ViewHelperManager');
-        $api = $viewHelpers->get('api');
-
-        $requestContent = $request->getContent();
-        $requestResourceProperties = $requestContent['o:resource_template_property'] ?? [];
-
-        $contributives = ['editable' => [], 'fillable' => []];
-        foreach (['editable' => 'contribution_editable_part', 'fillable' => 'contribution_fillable_part'] as $editableKey => $part) {
-            foreach ($requestResourceProperties as $propertyId => $requestResourceProperty) {
-                if (!isset($requestResourceProperty['data'][$part]) || $requestResourceProperty['data'][$part] != 1) {
-                    continue;
-                }
-                try {
-                    /** @var \Omeka\Api\Representation\PropertyRepresentation $property */
-                    $property = $api->read('properties', $propertyId)->getContent();
-                    // $term = $api->searchOne('properties', ['id' => $propertyId])->getContent()->term();
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    continue;
-                }
-                $contributives[$editableKey][] = $property->term();
-            }
-        }
-
-        $resourceTemplateId = $response->getContent()->getId();
-        $settings = $services->get('Omeka\Settings');
-        $resourceTemplateData = $settings->get('contribute_resource_template_data', []);
-        $resourceTemplateData['editable'][$resourceTemplateId] = $contributives['editable'];
-        $resourceTemplateData['fillable'][$resourceTemplateId] = $contributives['fillable'];
-
-        $settings->set('contribute_resource_template_data', $resourceTemplateData);
-    }
-
     public function addHeadersAdmin(Event $event): void
     {
         $view = $event->getTarget();
@@ -306,13 +265,6 @@ class Module extends AbstractModule
             ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
         $view->headScript()
             ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
-    }
-
-    public function addHeadersAdminResourceTemplate(Event $event): void
-    {
-        $view = $event->getTarget();
-        $view->headScript()
-            ->appendFile($view->assetUrl('js/contribute-admin-resource-template.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function adminViewShowSidebar(Event $event): void
@@ -446,7 +398,7 @@ HTML;
         $event->getParam('inputFilter')
             ->get('contribute')
             ->add([
-                'name' => 'contribute_template_editable',
+                'name' => 'contribute_template_default',
                 'required' => false,
             ])
             ->add([
@@ -474,6 +426,37 @@ HTML;
                 'required' => false,
             ])
         ;
+    }
+
+    public function addResourceTemplatePropertyFieldsetElements(Event $event): void
+    {
+        /** @var \AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset $fieldset */
+        $fieldset = $event->getTarget();
+        $fieldset
+            ->add([
+                'name' => 'editable',
+                'type' => \Laminas\Form\Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Editable by contributor', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'editable',
+                    'class' => 'setting',
+                    'data-setting-key' => 'editable',
+                ],
+            ])
+            ->add([
+                'name' => 'fillable',
+                'type' => \Laminas\Form\Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Fillable by contributor', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'fillable',
+                    'class' => 'setting',
+                    'data-setting-key' => 'fillable',
+                ],
+            ]);
     }
 
     /**

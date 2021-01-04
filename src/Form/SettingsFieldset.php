@@ -32,7 +32,7 @@ info@example2.org',
             ])
 
             ->add([
-                'name' => 'contribute_template_editable',
+                'name' => 'contribute_template_default',
                 'type' => ResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Template to use for default edit form', // @translate
@@ -40,7 +40,7 @@ info@example2.org',
                     'empty_option' => '',
                 ],
                 'attributes' => [
-                    'id' => 'contribute_template_editable',
+                    'id' => 'contribute_template_default',
                     'multiple' => false,
                     'required' => false,
                     'class' => 'chosen-select',

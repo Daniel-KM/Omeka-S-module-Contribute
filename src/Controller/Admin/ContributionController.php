@@ -573,39 +573,6 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
-    public function resourceTemplateDataAction()
-    {
-        if (!$this->getRequest()->isXmlHttpRequest()) {
-            throw new \Omeka\Mvc\Exception\NotFoundException;
-        }
-
-        $api = $this->api();
-        $resourceTemplateId = $this->params()->fromQuery('resource_template_id');
-
-        $result = [
-            'editable' => [],
-            'fillable' => [],
-        ];
-
-        $contributionPartMap = $this->resourceTemplateContributionPartMap($resourceTemplateId);
-        foreach ($contributionPartMap['editable'] as $term) {
-            $property = $api->searchOne('properties', ['term' => $term])->getContent();
-            if ($property) {
-                $result['editable'][$property->id()] = $term;
-            }
-        }
-        foreach ($contributionPartMap['fillable'] as $term) {
-            $property = $api->searchOne('properties', ['term' => $term])->getContent();
-            if ($property) {
-                $result['fillable'][$property->id()] = $term;
-            }
-        }
-
-        // No default values here.
-
-        return new JsonModel($result);
-    }
-
     /**
      * Update existing values of the contributed resource with the proposal.
      *

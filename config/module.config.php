@@ -48,7 +48,6 @@ return [
         'invokables' => [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
             'contributiveData' => Mvc\Controller\Plugin\ContributiveData::class,
-            'resourceTemplateContributionPartMap' => Mvc\Controller\Plugin\ResourceTemplateContributionPartMap::class,
         ],
         'factories' => [
             'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
@@ -219,7 +218,7 @@ return [
     'contribute' => [
         'settings' => [
             'contribute_notify' => [],
-            'contribute_template_editable' => null,
+            'contribute_template_default' => null,
             'contribute_properties_editable_mode' => 'all',
             'contribute_properties_editable' => [],
             'contribute_properties_fillable_mode' => 'all',
@@ -232,8 +231,6 @@ return [
             'contribute_without_token' => false,
             // Days.
             'contribute_token_duration' => 60,
-            // Where the config of resource templates are stored.
-            'contribute_resource_template_data' => [],
         ],
     ],
 ];
