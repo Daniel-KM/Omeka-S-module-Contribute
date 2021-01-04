@@ -504,8 +504,8 @@ class ContributionFields extends AbstractHelper
      * @param string $string
      * @return string
      */
-    protected function cleanString($string)
+    protected function cleanString($string): string
     {
-        return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], trim($string));
+        return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], trim((string) $string));
     }
 }

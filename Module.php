@@ -239,7 +239,7 @@ class Module extends AbstractModule
         );
     }
 
-    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
+    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType): ?array
     {
         $data = parent::prepareDataToPopulate($settings, $settingsType);
         if (in_array($settingsType, ['settings'])) {
