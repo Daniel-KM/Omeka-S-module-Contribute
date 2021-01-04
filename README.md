@@ -1,6 +1,9 @@
 Contribute (module for Omeka S)
 ===============================
 
+> __New versions of this module and support for Omeka S version 3.0 and above
+> are available on [GitLab], which seems to respect users and privacy better.__
+
 [Contribute] is a module for [Omeka S] that allows visitors to edit, complete or
 translate metadata of the resources without access to the admin board. Access to
 the edit page may be controlled by a token, that you can send to your users.
@@ -118,4 +121,5 @@ Improvements were done for [Enssib].
 [OSI]: http://opensource.org
 [Université de Paris-Saclay]: https://www.universite-paris-saclay.fr
 [Enssib]: https://www.enssib.fr
+[GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
