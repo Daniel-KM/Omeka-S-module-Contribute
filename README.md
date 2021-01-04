@@ -2,7 +2,8 @@ Contribute (module for Omeka S)
 ===============================
 
 > __New versions of this module and support for Omeka S version 3.0 and above
-> are available on [GitLab], which seems to respect users and privacy better.__
+> are available on [GitLab], which seems to respect users and privacy better
+> than the previous repository.__
 
 [Contribute] is a module for [Omeka S] that allows visitors to edit, complete or
 translate metadata of the resources without access to the admin board. Access to
@@ -12,7 +13,7 @@ the edit page may be controlled by a token, that you can send to your users.
 Installation
 ------------
 
-Install the optional module [`Generic`] (version >= 3.0.16) first.
+Install the optional module [`Generic`] (version >= 3.3.27) first.
 
 See general end user documentation for [installing a module].
 
@@ -46,12 +47,12 @@ Usage
 TODO
 ----
 
-- Make the token optional (allow anybody to edit).
-- Manage the fillable fields with a language, so it will simplify validation of
-  translation.
-- Finalize value resources.
-- Finalize select for resources (dynamic api query via chosen-select).
-- Create an admin browse page with all contributes.
+- [ ] Make the token optional (allow anybody to edit; review all rights).
+- [ ] Manage the fillable fields with a language, so it will simplify validation of translation (use advanced resource template).
+- [ ] Finalize value resources.
+- [ ] Finalize select for resources (dynamic api query via chosen-select).
+- [x] Create an admin browse page with all contributes.
+- [ ] Remove the fallback contribution settings to simplify config and move all settings to advanced resource template.
 
 
 Warning
