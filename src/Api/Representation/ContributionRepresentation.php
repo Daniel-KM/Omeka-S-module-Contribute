@@ -336,8 +336,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
                 switch ($type) {
                     case 'literal':
-                        $original = $proposition['original']['@value'];
-                        $proposed = $proposition['proposed']['@value'];
+                        $original = $proposition['original']['@value'] ?? '';
+                        $proposed = $proposition['proposed']['@value'] ?? '';
 
                         // Nothing to do if there is no proposition and no original.
                         $hasOriginal = (bool) strlen($original);
@@ -469,12 +469,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
                     case 'uri':
                     case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
-                        $originalUri = $proposition['original']['@uri'];
-                        $originalLabel = $proposition['original']['@label'];
+                        $originalUri = $proposition['original']['@uri'] ?? '';
+                        $originalLabel = $proposition['original']['@label'] ?? '';
                         $original = $originalUri . $originalLabel;
 
-                        $proposedUri = $proposition['proposed']['@uri'];
-                        $proposedLabel = $proposition['proposed']['@label'];
+                        $proposedUri = $proposition['proposed']['@uri'] ?? '';
+                        $proposedLabel = $proposition['proposed']['@label'] ?? '';
                         $proposed = $proposedUri . $proposedLabel;
 
                         // Nothing to do if there is no proposition and no original.
