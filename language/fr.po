@@ -391,7 +391,7 @@ msgstr "Choisir un modèle de ressource…"
 
 #: src/Form/SettingsFieldset.php:52
 msgid "Default contribute mode"
-msgstr "Mode de contribute par défaut"
+msgstr "Mode de contribution par défaut"
 
 #: src/Form/SettingsFieldset.php:53 src/Form/SettingsFieldset.php:88
 msgid "This option is used only when the template is not configured."
@@ -400,7 +400,7 @@ msgstr ""
 
 #: src/Form/SettingsFieldset.php:55
 msgid "Allow to edit all values"
-msgstr "Autoriser la contribute de toutes les valeurs"
+msgstr "Autoriser la contribution de toutes les valeurs"
 
 #: src/Form/SettingsFieldset.php:56 src/Form/SettingsFieldset.php:91
 msgid "Only specified properties (whitelist)"
@@ -420,7 +420,7 @@ msgid ""
 "list is used only when the resource template is not configured."
 msgstr ""
 "Seules les propriétés sélectionnées seront proposées au public pour la "
-"contribute. Cette option est utilisée seulement quand le modèle n’est pas "
+"contribution. Cette option est utilisée seulement quand le modèle n’est pas "
 "configuré."
 
 #: src/Form/SettingsFieldset.php:79 src/Form/SettingsFieldset.php:113
