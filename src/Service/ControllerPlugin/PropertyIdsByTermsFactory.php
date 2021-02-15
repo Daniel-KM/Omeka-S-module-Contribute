@@ -24,7 +24,7 @@ class PropertyIdsByTermsFactory implements FactoryInterface
         $stmt = $connection->executeQuery($qb);
         // Fetch by key pair is not supported by doctrine 2.0.
         $properties = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        $properties = array_column($properties, 'id', 'term');
+        $properties = array_map('intval', array_column($properties, 'id', 'term'));
         return new PropertyIdsByTerms($properties);
     }
 }
