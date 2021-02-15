@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Controller\Site;
 
 use Contribute\Api\Representation\ContributionRepresentation;
@@ -530,9 +531,10 @@ class ContributeController extends AbstractActionController
         $message = 'Forbidden access.'; // @translate
         $this->getResponse()
             ->setStatusCode(\Laminas\Http\Response::STATUS_CODE_403);
-        $view = new ViewModel;
+        $view = new ViewModel([
+            'message' => $message,
+        ]);
         return $view
-            ->setTemplate('error/403')
-            ->setVariable('message', $message);
+            ->setTemplate('error/403');
     }
 }

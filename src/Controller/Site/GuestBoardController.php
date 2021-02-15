@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Controller\Site;
 
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -23,11 +24,12 @@ class GuestBoardController extends AbstractActionController
 
             $contributions = $this->api()->search('contributions', $query)->getContent();
 
-            $view = new ViewModel;
+            $view = new ViewModel([
+                'site' => $this->currentSite(),
+                'contributions' => $contributions,
+            ]);
             return $view
-                ->setTemplate('guest/site/guest/contribution')
-                ->setVariable('site', $this->currentSite())
-                ->setVariable('contributions', $contributions);
+                ->setTemplate('guest/site/guest/contribution');
         }
     }
 }
