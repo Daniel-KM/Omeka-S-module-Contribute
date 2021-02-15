@@ -30,11 +30,17 @@ class ContributeController extends AbstractActionController
 
         $settings = $this->settings();
         $user = $this->identity();
+        $contributeMode = $settings->get('contribute_mode');
 
         // TODO Allow to use a token to add a resource.
         // $token = $this->checkToken($resource);
         $token = null;
-        if (!$token && !($user && $settings->get('contribute_without_token'))) {
+        if (!$token
+            && (
+                !in_array($contributeMode, ['user', 'open'])
+                || ($contributeMode === 'user' && !$user)
+            )
+        ) {
             return $this->viewError403();
         }
 
@@ -127,9 +133,15 @@ class ContributeController extends AbstractActionController
 
         $settings = $this->settings();
         $user = $this->identity();
+        $contributeMode = $settings->get('contribute_mode');
 
         $token = $this->checkToken($resource);
-        if (!$token && !($user && $settings->get('contribute_without_token'))) {
+        if (!$token
+            && (
+                !in_array($contributeMode, ['user', 'open'])
+                || ($contributeMode === 'user' && !$user)
+            )
+        ) {
             return $this->viewError403();
         }
 
@@ -138,10 +150,13 @@ class ContributeController extends AbstractActionController
                 ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
                 ->getContent();
             $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
-        } else {
+        } elseif ($user) {
             $contribution = $api
                 ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
                 ->getContent();
+            $currentUrl = $this->url()->fromRoute(null, [], true);
+        } else {
+            $contribution = null;
             $currentUrl = $this->url()->fromRoute(null, [], true);
         }
 

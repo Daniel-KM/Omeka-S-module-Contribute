@@ -44,10 +44,12 @@ class LinkContribute extends AbstractHelper
         $options += $defaultOptions;
 
         $user = $view->identity();
+        $contributeMode = $view->setting('contribute_mode');
 
         $helper = $this->checkToken;
         $canEdit = ($resource && $helper($resource))
-            || ($user && $view->setting('contribute_without_token'));
+            || $contributeMode === 'open'
+            || ($user && $contributeMode === 'user');
 
         $template = $options['template'];
         unset($options['template']);

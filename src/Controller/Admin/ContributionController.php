@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Controller\Admin;
 
 use Contribute\Api\Representation\ContributionRepresentation;
@@ -419,7 +420,10 @@ class ContributionController extends AbstractActionController
         }
 
         if (!$token) {
-            if (!$this->settings()->get('contribute_without_token')) {
+            $contributeMode = $this->settings()->get('contribute_mode');
+            if (!in_array($contributeMode, ['user', 'open'])
+                || ($contributeMode === 'user' && !$this->identity())
+            ) {
                 return $this->jsonErrorUnauthorized();
             }
             return new JsonModel([

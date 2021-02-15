@@ -15,7 +15,7 @@ $hyperlink = $this->plugin('hyperlink');
             $url('site/guest/contribution', [], true)
         ) ?>
     </li>
-    <?php if ($this->setting('contribute_without_token')): ?>
+    <?php if (in_array($this->setting('contribute_mode'), ['user', 'open'])): ?>
     <li>
         <?= $hyperlink($translate('Add a new record'), $url('site/contribute', [], true)) ?>
     </li>

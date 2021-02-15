@@ -17,6 +17,24 @@ class SettingsFieldset extends Fieldset
     {
         $this
             ->add([
+                'name' => 'contribute_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Contribution mode',
+                    'value_options' => [
+                        'user_token' => 'Authenticated users with token', // @translate
+                        'user' => 'Authenticated users', // @translate
+                        'token' => 'With token', // @translate
+                        'open' => 'Open to any visitor', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'contribute_mode',
+                    'value' => 'user_token',
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_notify',
                 'type' => ArrayTextarea::class,
                 'options' => [
@@ -154,16 +172,6 @@ dcterms:creator = resource_class_id[]=94',
                 ],
             ])
 
-            ->add([
-                'name' => 'contribute_without_token',
-                'type' => Element\Checkbox::class,
-                'options' => [
-                    'label' => 'Allow contribute of resources without a token', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'contribute_without_token',
-                ],
-            ])
             ->add([
                 'name' => 'contribute_token_duration',
                 'type' => Element\Number::class,

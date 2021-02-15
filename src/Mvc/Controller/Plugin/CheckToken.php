@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Mvc\Controller\Plugin;
 
 use Contribute\Api\Representation\TokenRepresentation;

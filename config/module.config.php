@@ -217,6 +217,7 @@ return [
     ],
     'contribute' => [
         'settings' => [
+            'contribute_mode' => false,
             'contribute_notify' => [],
             'contribute_template_default' => null,
             'contribute_properties_editable_mode' => 'all',
@@ -228,7 +229,6 @@ return [
                 'uri',
             ],
             'contribute_property_queries' => [],
-            'contribute_without_token' => false,
             // Days.
             'contribute_token_duration' => 60,
         ],

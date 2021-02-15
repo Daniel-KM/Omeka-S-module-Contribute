@@ -52,11 +52,11 @@ SQL;
 
 if (version_compare($oldVersion, '3.3.0.13', '<')) {
     $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
-    if ($module && version_compare($module->getIni('version') ?? '', '3.3.27', '<')) {
+    if ($module && version_compare($module->getIni('version') ?? '', '3.3.28', '<')) {
         $translator = $services->get('MvcTranslator');
         $message = new \Omeka\Stdlib\Message(
             $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-            'Generic', '3.3.27'
+            'Generic', '3.3.28'
         );
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
     }
@@ -134,4 +134,9 @@ SQL;
 
     $settings->set('contribute_template_default', $settings->get('contribute_template_editable'));
     $settings->delete('contribute_template_editable');
+}
+
+if (version_compare($oldVersion, '3.3.0.14', '<')) {
+    $settings->set('contribute_mode', $settings->get('contribute_without_token') ? 'user' : 'user_token');
+    $settings->delete('contribute_without_token');
 }

@@ -20,9 +20,9 @@ $values = $resource->values();
 <div class="contributions">
     <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id(), 'limit' => 0])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
-        <?php if (!$this->setting('contribute_without_token')): ?>
+        <?php if (in_array($this->setting('contribute_mode'), ['user', 'open'])): ?>
     <div class="no-resources no-tokens">
-        <p><?= $translate('There are no tokens for this resource.') ?></p>
+        <p><?= $translate('There are no tokens for this resource or contribution mode doesn’t use token.') ?></p>
     </div>
         <?php endif; ?>
     <?php else: ?>
