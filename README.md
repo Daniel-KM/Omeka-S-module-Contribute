@@ -6,20 +6,29 @@ Contribute (module for Omeka S)
 > than the previous repository.__
 
 [Contribute] is a module for [Omeka S] that allows visitors to edit, complete or
-translate metadata of the resources without access to the admin board. Access to
-the edit page may be controlled by a token, that you can send to your users.
+translate metadata of the resources without access to the admin board.
+
+Access to the contribute and to the edit page may be controlled by a token, that
+you can send to your users, or to users only (in particular guest users), or to
+anybody.
 
 
 Installation
 ------------
 
-Install the optional module [`Generic`] (version >= 3.3.27) first.
+The module uses the module [Advanced Resource Template] in order to manage the
+forms and the properties that the users can edit or fill, so it should be
+installed first. Install the optional module [Generic] (version >= 3.3.28) too
+if wanted.
+
+If you want to open contribution only to authenticated users, it is recommended
+to install the module [Guest] and [Blocks Disposition] (unless you edit theme).
 
 See general end user documentation for [installing a module].
 
 * From the zip
 
-Download the last release [`Contribute.zip`] from the list of releases, and
+Download the last release [Contribute.zip] from the list of releases, and
 uncompress it in the `modules` directory.
 
 * From the source and for development
@@ -31,15 +40,19 @@ the module to `Contribute`.
 Usage
 -----
 
+- Configure the main settings, in particular the contribution mode.
 - Configure the resource templates to select the properties to be edited or
   filled.
 - For the resources without template, configure the properties to edit by
   default in the main parameters.
-- Create one or more tokens for the resources you want to edit via the link
-  in the sidebar of a resource or the bulk process dropdown at the top of the
-  resource browse pages.
-- Send emails to your users with the tokens, so they can edit or complete
-  metadata of the resources.
+- If the contribute mode requires token:
+  - Create one or more tokens for the resources you want to edit via the link in
+    the sidebar of a resource or the bulk process dropdown at the top of the
+    resource browse pages.
+  - Send emails to your users with the tokens, so they can edit or complete
+    metadata of the resources.
+- Else a link is displayed on the item page if enabled in the theme or via the
+  module Blocks Disposition.
 - Go to the resource page of the edited items and apply changes, or decline
   them. Contributes can be marked as reviewed and token can be made expired.
 
@@ -47,7 +60,7 @@ Usage
 TODO
 ----
 
-- [ ] Make the token optional (allow anybody to edit; review all rights).
+- [x] Make the token optional (allow anybody to edit; review all rights).
 - [ ] Manage the fillable fields with a language, so it will simplify validation of translation (use advanced resource template).
 - [ ] Finalize value resources.
 - [ ] Finalize select for resources (dynamic api query via chosen-select).
@@ -112,8 +125,11 @@ Improvements were done for [Enssib].
 [Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
 [Omeka S]: https://omeka.org/s
 [Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
-[`Generic`]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
-[`Contribute.zip`]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/releases
+[Advanced Resource Template]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
+[Blocks Disposition]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlocksDisposition
+[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
+[Contribute.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/releases
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
