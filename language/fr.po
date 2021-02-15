@@ -6,114 +6,121 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-15 00:00+0000\n"
-"PO-Revision-Date: 2020-06-15 00:00+0000\n"
+"POT-Creation-Date: 2021-02-15 00:00+0000\n"
+"PO-Revision-Date: 2021-02-15 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3.1\n"
+"X-Generator: Poedit 2.4.2\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: Module.php:266 Module.php:435
+#: data/scripts/upgrade.php:58 Module.php:35
+#, php-format
+msgid "This module requires the module \"%s\", version %s or above."
+msgstr "Ce module requiert le module \"%s\", version \"%s\" ou supérieur."
+
+#: Module.php:253 Module.php:381
 #: view/contribute/admin/contribution/browse.phtml:32
 msgid "Contributions"
 msgstr "Contributions"
 
-#: Module.php:340
+#: Module.php:282
 msgid "Create contribution token"
 msgstr "Créer un jeton pour la contribution"
 
-#: Module.php:344 view/common/helper/contribute-link.phtml:16
+#: Module.php:286 view/common/helper/contribute-link.phtml:16
 msgid "Contribute"
 msgstr "Contribuer"
 
-#: Module.php:349
+#: Module.php:287
 msgid "Please input optional email…"
 msgstr "Ajouter un email si besoin…"
 
-#: Module.php:350
+#: Module.php:288
 msgid "Create token"
 msgstr "Créer un jeton"
 
-#: Module.php:438
+#: Module.php:383
 #, php-format
 msgid "%d contributions (%d not reviewed)"
 msgstr "%d contributions (%d non relues)"
 
-#: Module.php:441
-msgid "No contribution"
-msgstr "Pas de contribution"
-
-#: src/Controller/Admin/ContributionController.php:392
+#: src/Controller/Admin/ContributionController.php:393
 msgid "Unreviewed"
 msgstr "Non relu"
 
-#: src/Controller/Admin/ContributionController.php:392
-#: src/Controller/Admin/ContributionController.php:532
+#: src/Controller/Admin/ContributionController.php:393
+#: src/Controller/Admin/ContributionController.php:536
 msgid "Reviewed"
 msgstr "Relu"
 
-#: src/Controller/Admin/ContributionController.php:429
+#: src/Controller/Admin/ContributionController.php:433
 msgid "No token"
 msgstr "Pas de jeton"
 
-#: src/Controller/Admin/ContributionController.php:446
+#: src/Controller/Admin/ContributionController.php:450
 msgid "Expired"
 msgstr "Expiré"
 
-#: src/Controller/Admin/ContributionController.php:529
+#: src/Controller/Admin/ContributionController.php:533
 #: view/common/admin/contribute-list.phtml:191
 #: view/common/admin/contribute-list.phtml:244
 #: view/common/admin/contribute-list.phtml:290
 msgid "Validated"
 msgstr "Validé"
 
-#: src/Controller/Admin/ContributionController.php:571
+#: src/Controller/Admin/ContributionController.php:575
 msgid "Validated value"
 msgstr "Valeur validée"
 
-#: src/Controller/Admin/ContributionController.php:816
+#: src/Controller/Admin/ContributionController.php:787
 msgid "Unauthorized access."
 msgstr "Accès interdit."
 
-#: src/Controller/Admin/ContributionController.php:821
+#: src/Controller/Admin/ContributionController.php:792
 msgid "Resource not found."
 msgstr "Ressource non trouvée."
 
-#: src/Controller/Admin/ContributionController.php:826
+#: src/Controller/Admin/ContributionController.php:797
 msgid "An internal error occurred."
 msgstr "Une erreur interne s’est produite."
 
-#: src/Controller/Site/ContributeController.php:245
+#: src/Controller/Site/ContributeController.php:261
 msgid "[Omeka Contribution] New contribution"
 msgstr "[Omeka Contribution] Nouvelle contribution"
 
-#: src/Generic/AbstractModule.php:601
+#: src/Generic/AbstractModule.php:66
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr "Ce module requiert le module \"%s\"."
 
-#: src/Generic/AbstractModule.php:621
+#: src/Generic/AbstractModule.php:73
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr "Ce module requiert les modules \"%s\"."
 
-#: src/Generic/AbstractModule.php:689
+#: src/Generic/AbstractModule.php:80
+msgid "This module has resources that connot be installed."
+msgstr "Ce module a des ressources qui ne peuvent pas être installées."
+
+#: src/Generic/AbstractModule.php:707
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
 "unavailable."
 msgstr ""
-"Le module %s\" a été automatiquement désactivé car ses dépendances ne sont "
+"Le module \"%s\" a été automatiquement désactivé car ses dépendances ne sont "
 "plus disponibles."
 
 #: view/common/admin/contribute-list.phtml:25
-#: view/common/admin/contribute-token-list.phtml:17
-msgid "There are no tokens for this resource."
-msgstr "Aucun jeton pour cette ressource."
+msgid ""
+"There are no tokens for this resource or contribution mode doesn’t use token."
+msgstr ""
+"Aucun jeton pour cette ressource ou le mode de contribution n’utilise pas de "
+"jeton."
 
 #: view/common/admin/contribute-list.phtml:36
 #, php-format
@@ -183,6 +190,10 @@ msgstr "Valider cette valeur (%s)"
 #: view/common/admin/contribute-list.phtml:324
 msgid "Unused tokens"
 msgstr "Jetons non utilisés"
+
+#: view/common/admin/contribute-token-list.phtml:17
+msgid "There are no tokens for this resource."
+msgstr "Aucun jeton pour cette ressource."
 
 #: view/common/admin/contribute-token-list.phtml:38
 msgid "Token"
@@ -355,28 +366,56 @@ msgstr "Il n’y a pas de contribution."
 msgid "See contributions"
 msgstr "Voir les contributions"
 
-#: data/scripts/upgrade_from_correction.php:111
+#: data/scripts/upgrade_from_correction.php:114
 msgid ""
 "The module Correction was upgraded by module Contribute and uninstalled."
 msgstr ""
 "Le module Correction a été mis à jour par le module Contribuer et "
 "désinstallé."
 
-#: src/Form/SettingsFieldset.php:20
+#: Module.php:384
+msgid "No contribution"
+msgstr "Pas de contribution"
+
+#: Module.php:440
+msgid "Editable by contributor"
+msgstr "Éditable par un contributeur"
+
+#: Module.php:452
+msgid "Fillable by contributor"
+msgstr "Remplissable par un contributeur"
+
+#: src/Form/SettingsFieldset.php:25
+msgid "Authenticated users with token"
+msgstr "Utilisateurs authentifiés avec jeton"
+
+#: src/Form/SettingsFieldset.php:26
+msgid "Authenticated users"
+msgstr "Utilisateurs authentifiés"
+
+#: src/Form/SettingsFieldset.php:27
+msgid "With token"
+msgstr "Avec un jeton"
+
+#: src/Form/SettingsFieldset.php:28
+msgid "Open to any visitor"
+msgstr "Ouvert à tout visiteur"
+
+#: src/Form/SettingsFieldset.php:41
 msgid "Default emails to notify contributions"
 msgstr "Adresses mails par défaut pour informer des contributions"
 
-#: src/Form/SettingsFieldset.php:21
+#: src/Form/SettingsFieldset.php:42
 msgid "The list of emails to notify when a user edits a resource, one by row."
 msgstr ""
 "La liste d’adresses mail à notifier quand un visiteur édite une ressource, "
 "une par ligne."
 
-#: src/Form/SettingsFieldset.php:35
+#: src/Form/SettingsFieldset.php:56
 msgid "Template to use for default edit form"
 msgstr "Modèle à utiliser pour le formulaire d’édition par défaut"
 
-#: src/Form/SettingsFieldset.php:36
+#: src/Form/SettingsFieldset.php:57
 msgid ""
 "This template is used only when the current resource has no template or a "
 "template without config. If not set, the properties below will be used."
@@ -385,36 +424,36 @@ msgstr ""
 "modèle, ou que ce modèle n’est pas configuré. Si aucun modèle n’est "
 "disponible, les propriétés ci-dessous seront utilisées."
 
-#: src/Form/SettingsFieldset.php:44
+#: src/Form/SettingsFieldset.php:65
 msgid "Select a resource template…"
 msgstr "Choisir un modèle de ressource…"
 
-#: src/Form/SettingsFieldset.php:52
+#: src/Form/SettingsFieldset.php:73
 msgid "Default contribute mode"
 msgstr "Mode de contribution par défaut"
 
-#: src/Form/SettingsFieldset.php:53 src/Form/SettingsFieldset.php:88
+#: src/Form/SettingsFieldset.php:74 src/Form/SettingsFieldset.php:109
 msgid "This option is used only when the template is not configured."
 msgstr ""
 "Cette option est utilisée seulement quand le modèle n’est pas configuré."
 
-#: src/Form/SettingsFieldset.php:55
+#: src/Form/SettingsFieldset.php:76
 msgid "Allow to edit all values"
 msgstr "Autoriser la contribution de toutes les valeurs"
 
-#: src/Form/SettingsFieldset.php:56 src/Form/SettingsFieldset.php:91
+#: src/Form/SettingsFieldset.php:77 src/Form/SettingsFieldset.php:112
 msgid "Only specified properties (whitelist)"
 msgstr "Seulement les propriétés indiquées (liste blanche)"
 
-#: src/Form/SettingsFieldset.php:57
+#: src/Form/SettingsFieldset.php:78
 msgid "All values except properties (blacklist)"
 msgstr "Toutes les valeurs sauf les propriétés indiquées (liste noire)"
 
-#: src/Form/SettingsFieldset.php:68
+#: src/Form/SettingsFieldset.php:89
 msgid "Properties to edit or not when no template is available"
 msgstr "Les propriétés à éditer ou non quand le modèle n’est pas disponible"
 
-#: src/Form/SettingsFieldset.php:69
+#: src/Form/SettingsFieldset.php:90
 msgid ""
 "Only the selected properties will be proposed for public contribute. This "
 "list is used only when the resource template is not configured."
@@ -423,27 +462,27 @@ msgstr ""
 "contribution. Cette option est utilisée seulement quand le modèle n’est pas "
 "configuré."
 
-#: src/Form/SettingsFieldset.php:79 src/Form/SettingsFieldset.php:113
+#: src/Form/SettingsFieldset.php:100 src/Form/SettingsFieldset.php:134
 msgid "Select properties…"
 msgstr "Choisir des propriétés…"
 
-#: src/Form/SettingsFieldset.php:87
+#: src/Form/SettingsFieldset.php:108
 msgid "Default fillable mode"
 msgstr "Mode d’ajout par défaut"
 
-#: src/Form/SettingsFieldset.php:90
+#: src/Form/SettingsFieldset.php:111
 msgid "Allow to fill any value"
 msgstr "Autoriser l’ajout de toutes les propriétés"
 
-#: src/Form/SettingsFieldset.php:92
+#: src/Form/SettingsFieldset.php:113
 msgid "Any values except properties (blacklist)"
 msgstr "Toutes les propriétés sauf celles indiquées (liste noire)"
 
-#: src/Form/SettingsFieldset.php:103
+#: src/Form/SettingsFieldset.php:124
 msgid "Properties to fill or not when no template is available"
 msgstr "Propriétés à ajouter ou non lorsque aucun modèle n’est disponible"
 
-#: src/Form/SettingsFieldset.php:104
+#: src/Form/SettingsFieldset.php:125
 msgid ""
 "Allow user to append new values for the selected properties. This list is "
 "used only when the resource template is not configured."
@@ -452,43 +491,39 @@ msgstr ""
 "choisies. Cette option est utilisée seulement quand le modèle n’est pas "
 "configuré."
 
-#: src/Form/SettingsFieldset.php:121
+#: src/Form/SettingsFieldset.php:142
 msgid "Editable datatypes"
 msgstr "Types de donnée modifiables"
 
-#: src/Form/SettingsFieldset.php:122
+#: src/Form/SettingsFieldset.php:143
 msgid "Other datatypes are not editable."
 msgstr "Les autres types de données ne sont pas éditables."
 
-#: src/Form/SettingsFieldset.php:124
+#: src/Form/SettingsFieldset.php:145
 msgid "Literal"
 msgstr "Textuel"
 
-#: src/Form/SettingsFieldset.php:129
+#: src/Form/SettingsFieldset.php:150
 msgid "Uri"
 msgstr "Uri"
 
-#: src/Form/SettingsFieldset.php:130
+#: src/Form/SettingsFieldset.php:151
 msgid "Value suggest"
 msgstr "Valeurs suggérées"
 
-#: src/Form/SettingsFieldset.php:142
+#: src/Form/SettingsFieldset.php:163
 msgid "Queries for value resources"
 msgstr "Requêtes pour les valeurs ressources"
 
-#: src/Form/SettingsFieldset.php:143
+#: src/Form/SettingsFieldset.php:164
 msgid "Allows to limit options in a resource select."
 msgstr "Permet de limiter les options dans un sélecteur."
 
-#: src/Form/SettingsFieldset.php:157
-msgid "Allow contribute of resources without a token"
-msgstr "Autoriser la contribution des ressources sans jeton"
-
-#: src/Form/SettingsFieldset.php:167
+#: src/Form/SettingsFieldset.php:179
 msgid "Days for token to expire"
 msgstr "Nombre de jours avant que le jeton n’expire"
 
-#: src/Form/SettingsFieldset.php:168
+#: src/Form/SettingsFieldset.php:180
 msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
@@ -496,93 +531,93 @@ msgstr ""
 "Permet de définir une durée avant expiration automatique du jeton. Laisser "
 "vide pour supprimer l’expiration."
 
-#: src/Form/SettingsFieldset.php:174
+#: src/Form/SettingsFieldset.php:186
 msgid "90"
 msgstr "90"
 
-#: src/Controller/Site/ContributeController.php:51
+#: src/Controller/Site/ContributeController.php:58
 msgid "No resource can be added. Ask the administrator for more information."
 msgstr ""
 "Aucune ressource ne peut être ajoutée. Merci de contacter l’administrateur "
 "pour plus d’information."
 
-#: src/Controller/Site/ContributeController.php:74
-#: src/Controller/Site/ContributeController.php:180
-#: src/Controller/Site/ContributeController.php:190
+#: src/Controller/Site/ContributeController.php:81
+#: src/Controller/Site/ContributeController.php:196
+#: src/Controller/Site/ContributeController.php:206
 msgid "Contribution successfully submitted!"
 msgstr "La contribution a été correctement envoyée !"
 
-#: src/Controller/Site/ContributeController.php:85
-#: src/Controller/Site/ContributeController.php:207
+#: src/Controller/Site/ContributeController.php:92
+#: src/Controller/Site/ContributeController.php:223
 msgid "An error occurred: check your input."
 msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie."
 
-#: src/Controller/Site/ContributeController.php:155
+#: src/Controller/Site/ContributeController.php:171
 msgid ""
 "This resource cannot be edited. Ask the administrator for more information."
 msgstr ""
 "Cette ressource ne peut pas être éditée. Merci de contacter l’administrateur "
 "pour plus d’information."
 
-#: src/Controller/Site/ContributeController.php:194
+#: src/Controller/Site/ContributeController.php:210
 msgid "No change."
 msgstr "Pas de changement."
 
-#: src/Controller/Site/ContributeController.php:233
+#: src/Controller/Site/ContributeController.php:249
 #, php-format
 msgid "User %1$s has edited resource #%2$s (%3$s)."
 msgstr "L’utilisateur %1$s a édité la ressource #%2$s (%3$s)."
 
-#: src/Controller/Site/ContributeController.php:240
+#: src/Controller/Site/ContributeController.php:256
 #, php-format
 msgid "A user has edited resource #%1$d (%2$s)."
 msgstr "Un utilisateur a édité la ressource #%1$d (%2$s)."
 
-#: src/Controller/Site/ContributeController.php:530
+#: src/Controller/Site/ContributeController.php:546
 msgid "Forbidden access."
 msgstr "Accès interdit."
 
-#: src/Controller/Admin/ContributionController.php:55
+#: src/Controller/Admin/ContributionController.php:56
 msgid "This contribution is a new resource or has no more resource."
 msgstr ""
 "Cette contribution est une nouvelle ressource ou n’a plus de ressource."
 
-#: src/Controller/Admin/ContributionController.php:94
+#: src/Controller/Admin/ContributionController.php:95
 msgid "contribution"
 msgstr "contribution"
 
-#: src/Controller/Admin/ContributionController.php:112
+#: src/Controller/Admin/ContributionController.php:113
 msgid "Contribution successfully deleted"
 msgstr "La contribution a été correctement supprimée"
 
-#: src/Controller/Admin/ContributionController.php:133
+#: src/Controller/Admin/ContributionController.php:134
 msgid "You must select at least one contribution to batch delete."
 msgstr "Vous devez choisir au moins une contribution pour supprimer en lot."
 
-#: src/Controller/Admin/ContributionController.php:142
+#: src/Controller/Admin/ContributionController.php:143
 msgid "Contributions successfully deleted"
 msgstr "Les contributions ont été correctement supprimées"
 
-#: src/Controller/Admin/ContributionController.php:168
+#: src/Controller/Admin/ContributionController.php:169
 msgid "Deleting contributions. This may take a while."
 msgstr "Suppression des contributions en cours. Cela peut prendre un moment."
 
-#: src/Controller/Admin/ContributionController.php:210
+#: src/Controller/Admin/ContributionController.php:211
 msgid "You can create token only for items, media and item sets."
 msgstr ""
 "Vous pouvez créer un jeton seulement pour les contenus, les médias et les "
 "collections."
 
-#: src/Controller/Admin/ContributionController.php:218
+#: src/Controller/Admin/ContributionController.php:219
 #: src/Api/Representation/TokenRepresentation.php:149
 msgid "A site is required to create a public token."
 msgstr "Un site est nécessaire pour créer un jeton public."
 
-#: src/Controller/Admin/ContributionController.php:244
+#: src/Controller/Admin/ContributionController.php:245
 msgid "You must select at least one resource to create a token."
 msgstr "Vous devez choisir au moins une ressource pour créer un jeton."
 
-#: src/Controller/Admin/ContributionController.php:253
+#: src/Controller/Admin/ContributionController.php:254
 #, php-format
 msgid ""
 "You set the optional email \"%s\" to create a contribution token, but it is "
@@ -591,35 +626,35 @@ msgstr ""
 "Vous avez saisi \"%s\" comme email optionnel pour le jeton de contribution, "
 "mais il n’est pas correctement écrit."
 
-#: src/Controller/Admin/ContributionController.php:295
+#: src/Controller/Admin/ContributionController.php:296
 #, php-format
 msgid "Created %1$s contribution tokens (email: %2$s, duration: %3$s): %4$s"
 msgstr ""
 "Création de %1$s jetons de contribution (email : %2$s, durée : %3$s) : %4$s"
 
-#: src/Controller/Admin/ContributionController.php:297
+#: src/Controller/Admin/ContributionController.php:298
 msgid "none"
 msgstr "aucun"
 
-#: src/Controller/Admin/ContributionController.php:299
+#: src/Controller/Admin/ContributionController.php:300
 #, php-format
 msgid "%d days"
 msgstr "%d jours"
 
-#: src/Controller/Admin/ContributionController.php:300
+#: src/Controller/Admin/ContributionController.php:301
 msgid "unlimited"
 msgstr "illimité"
 
-#: src/Controller/Admin/ContributionController.php:337
+#: src/Controller/Admin/ContributionController.php:338
 #, php-format
 msgid "Resource #%s has no tokens to expire."
 msgstr "La ressource #%s n’a pas de jeton à expirer."
 
-#: src/Controller/Admin/ContributionController.php:358
+#: src/Controller/Admin/ContributionController.php:359
 msgid "All tokens of the resource were expired."
 msgstr "Tous les jetons de la ressource ont été expirés."
 
-#: src/Controller/Admin/ContributionController.php:561
+#: src/Controller/Admin/ContributionController.php:565
 msgid "Missing term or key."
 msgstr "Terme ou clé manquante."
 
@@ -642,14 +677,23 @@ msgstr "Mail non envoyé : pas de destinataire (sujet : %1$s)."
 msgid "An email was sent to %1$s with subject: %2$s"
 msgstr "Un mail a été envoyé à %1$s avec le sujet : %2$s"
 
-#: src/Generic/InstallResources.php:163
+#: src/Generic/InstallResources.php:108
 #, php-format
-msgid "The file \"%s\" cannot be read. Check your file system."
+msgid ""
+"A resource template named exists for %s: rename it or remove it before "
+"installing this module."
+msgstr ""
+"Un modèle de ressource nommé \"%s\" existe : merci de le renommer ou de le "
+"supprimer avant d'installer ce module."
+
+#: src/Generic/InstallResources.php:173
+#, php-format
+msgid "The file \"%s\" cannot be read. Check your file system or the url."
 msgstr ""
 "Le fichier \"%s\" ne peut pas être lu. Merci de vérifier le système de "
-"fichiers."
+"fichiers ou l’url."
 
-#: src/Generic/InstallResources.php:189
+#: src/Generic/InstallResources.php:198
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists. "
@@ -658,20 +702,11 @@ msgstr ""
 "Une erreur est survenue en ajoutant le préfixe \"%s\" : un autre vocabulaire "
 "existe. Merci de résoudre le conflit avant d'installer ce module."
 
-#: src/Generic/InstallResources.php:219
-#, php-format
-msgid ""
-"A resource template named \"%s\" exists: rename it or remove it before "
-"installing this module."
-msgstr ""
-"Un modèle de ressource nommé \"%s\" existe : merci de le renommer ou de le "
-"supprimer avant d'installer ce module."
-
-#: src/Generic/InstallResources.php:247
+#: src/Generic/InstallResources.php:280
 msgid "The current version of this module requires the module Custom Vocab."
 msgstr "Cette version du module requiert le module Custom Vocab."
 
-#: src/Generic/InstallResources.php:254
+#: src/Generic/InstallResources.php:287
 #, php-format
 msgid ""
 "A custom vocab named \"%s\" exists and has not the needed language (\"%s\"): "
@@ -681,12 +716,12 @@ msgstr ""
 "langue (\"%s\") : merci de vérifier ou de le supprimer avant d'installer ce "
 "module."
 
-#: src/Generic/InstallResources.php:303
+#: src/Generic/InstallResources.php:332
 #, php-format
 msgid "The vocabulary \"%s\" was already installed and was kept."
 msgstr "Le vocabulaire \"%s\" a déjà été installé et a été conservé."
 
-#: src/Generic/InstallResources.php:313
+#: src/Generic/InstallResources.php:342
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists "
@@ -696,7 +731,7 @@ msgstr ""
 "vocabulaire existe avec le même préfixe. Merci de résoudre le conflit avant "
 "d'installer ce module."
 
-#: src/Generic/InstallResources.php:333
+#: src/Generic/InstallResources.php:362
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\" and the associated "
@@ -705,13 +740,13 @@ msgstr ""
 "Une erreur est survenue en ajoutant le préfixe \"%s\" et les propriétés "
 "associées : %s"
 
-#: src/Generic/InstallResources.php:363
+#: src/Generic/InstallResources.php:390
 #, php-format
 msgid "The resource template named \"%s\" is already available and is skipped."
 msgstr ""
 "Le modèle de ressource nommé \"%s\" est déjà disponible et a été conservé."
 
-#: src/Generic/InstallResources.php:388 src/Generic/InstallResources.php:549
+#: src/Generic/InstallResources.php:652
 #, php-format
 msgid "The custom vocab named \"%s\" is not available."
 msgstr "Le vocabulaire personnalisé nommé \"%s\" n'est pas disponible."
@@ -723,3 +758,6 @@ msgstr "Préparer les jetons de contribution pour la sélection"
 #: config/module.config.php:196
 msgid "Prepare tokens to edit all"
 msgstr "Préparer des jetons de contribution pour tous"
+
+#~ msgid "Allow contribute of resources without a token"
+#~ msgstr "Autoriser la contribution des ressources sans jeton"
