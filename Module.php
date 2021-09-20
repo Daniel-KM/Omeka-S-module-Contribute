@@ -465,7 +465,7 @@ HTML;
     protected function getCurrentUrl(PhpRenderer $view)
     {
         $url = $view->url(null, [], true);
-        $query = http_build_query($view->params()->fromQuery());
+        $query = http_build_query($view->params()->fromQuery(), '', '&', PHP_QUERY_RFC3986);
         return $query
             ? $url . '?' . $query
             : $url;
