@@ -24,10 +24,10 @@ Omeka.contributionManageSelectedActions = function() {
         );
         var batchActions = $('#batch-form .batch-actions');
         batchActions.append(
-            $('<input type="submit" class="contribution-selected" formaction="contribute/create-token">').val(Omeka.jsTranslate('Go'))
+            $('<input type="submit" class="contribution-selected" formaction="contribution/create-token">').val(Omeka.jsTranslate('Go'))
         );
         batchActions.append(
-            $('<input type="submit" class="contribution-all" formaction="contribute/create-token">').val(Omeka.jsTranslate('Go'))
+            $('<input type="submit" class="contribution-all" formaction="contribution/create-token">').val(Omeka.jsTranslate('Go'))
         );
         var resourceType = window.location.pathname.split("/").pop();
         batchActions.append(

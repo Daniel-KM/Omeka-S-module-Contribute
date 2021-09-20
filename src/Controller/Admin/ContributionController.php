@@ -230,9 +230,9 @@ class ContributionController extends AbstractActionController
             ? (is_array($params['resource_ids']) ? $params['resource_ids'] : explode(',', $params['resource_ids']))
             : [];
         $params['resource_ids'] = $resourceIds;
-        $params['batch_action'] = $params['batch_action'] === 'contribute-all' ? 'contribute-all' : 'contribute-selected';
+        $params['batch_action'] = $params['batch_action'] === 'contribution-all' ? 'contribution-all' : 'contribution-selected';
 
-        if ($params['batch_action'] === 'contribute-all') {
+        if ($params['batch_action'] === 'contribution-all') {
             // Derive the query, removing limiting and sorting params.
             $query = json_decode($params['query'] ?: [], true);
             unset($query['submit'], $query['page'], $query['per_page'], $query['limit'],
@@ -248,7 +248,7 @@ class ContributionController extends AbstractActionController
                 : $this->redirect()->toRoute('admin/default', ['controller' => $resourceType, 'action' => 'browse'], true);
         }
 
-        $email = trim($params['email']);
+        $email = trim($params['email'] ?? '');
         if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->messenger()->addError(new Message(
                 'You set the optional email "%s" to create a contribution token, but it is not well-formed.', // @translate
