@@ -116,10 +116,11 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2019-2022 (see [Daniel-KM] on GitLab)
 
 First version of this module was done for [Université de Paris-Saclay].
-Improvements were done for [Enssib].
+Improvements were done for [Enssib] and for the site used to do the deposit and
+the digital archiving of student works ([Dante]) of the [Université de Toulouse Jean-Jaurès].
 
 
 [Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
@@ -138,5 +139,7 @@ Improvements were done for [Enssib].
 [OSI]: http://opensource.org
 [Université de Paris-Saclay]: https://www.universite-paris-saclay.fr
 [Enssib]: https://www.enssib.fr
+[Dante]: https://dante.univ-tlse2.fr
+[Université de Toulouse Jean-Jaurès]: https://www.univ-tlse2.fr
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
