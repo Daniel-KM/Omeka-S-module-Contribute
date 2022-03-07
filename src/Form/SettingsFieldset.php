@@ -2,12 +2,10 @@
 
 namespace Contribute\Form;
 
-use Contribute\Form\Element\ArrayQueryTextarea;
+use Contribute\Form\Element as ContributeElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Omeka\Form\Element\ArrayTextarea;
-use Omeka\Form\Element\PropertySelect;
-use Omeka\Form\Element\ResourceTemplateSelect;
+use Omeka\Form\Element as OmekaElement;
 
 class SettingsFieldset extends Fieldset
 {
@@ -36,7 +34,7 @@ class SettingsFieldset extends Fieldset
 
             ->add([
                 'name' => 'contribute_notify',
-                'type' => ArrayTextarea::class,
+                'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Default emails to notify contributions', // @translate
                     'info' => 'The list of emails to notify when a user edits a resource, one by row.', // @translate
@@ -51,7 +49,7 @@ info@example2.org',
 
             ->add([
                 'name' => 'contribute_template_default',
-                'type' => ResourceTemplateSelect::class,
+                'type' => OmekaElement\ResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Template to use for default edit form', // @translate
                     'info' => 'This template is used only when the current resource has no template or a template without config. If not set, the properties below will be used.', // @translate
@@ -84,7 +82,7 @@ info@example2.org',
             ])
             ->add([
                 'name' => 'contribute_properties_editable',
-                'type' => PropertySelect::class,
+                'type' => OmekaElement\PropertySelect::class,
                 'options' => [
                     'label' => 'Properties to edit or not when no template is available', // @translate
                     'info' => 'Only the selected properties will be proposed for public contribute. This list is used only when the resource template is not configured.', // @translate
@@ -119,7 +117,7 @@ info@example2.org',
             ])
             ->add([
                 'name' => 'contribute_properties_fillable',
-                'type' => PropertySelect::class,
+                'type' => OmekaElement\PropertySelect::class,
                 'options' => [
                     'label' => 'Properties to fill or not when no template is available', // @translate
                     'info' => 'Allow user to append new values for the selected properties. This list is used only when the resource template is not configured.', // @translate
@@ -158,7 +156,7 @@ info@example2.org',
 
             ->add([
                 'name' => 'contribute_property_queries',
-                'type' => ArrayQueryTextarea::class,
+                'type' => ContributeElement\ArrayQueryTextarea::class,
                 'options' => [
                     'label' => 'Queries for value resources', // @translate
                     'info' => 'Allows to limit options in a resource select.', // @translate

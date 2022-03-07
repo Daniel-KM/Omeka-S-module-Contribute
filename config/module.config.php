@@ -217,7 +217,7 @@ return [
     ],
     'contribute' => [
         'settings' => [
-            'contribute_mode' => false,
+            'contribute_mode' => 'user',
             'contribute_notify' => [],
             'contribute_template_default' => null,
             'contribute_properties_editable_mode' => 'all',
