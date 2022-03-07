@@ -81,14 +81,23 @@ class Module extends AbstractModule
      */
     protected function addAclRules(): void
     {
+        $services = $this->getServiceLocator();
+
+        $contributeMode = $services->get('Omeka\Settings')->get('contribute_mode', 'user');
+        $isOpenContribution = $contributeMode === 'open' || $contributeMode === 'token';
+
         /** @var \Omeka\Permissions\Acl $acl */
-        $acl = $this->getServiceLocator()->get('Omeka\Acl');
+        $acl = $services->get('Omeka\Acl');
 
         // Since Omeka 1.4, modules are ordered, so Guest come after Contribute.
         // See \Guest\Module::onBootstrap().
         if (!$acl->hasRole('guest')) {
             $acl->addRole('guest');
         }
+
+        $roles = $acl->getRoles();
+
+        $contributors = $isOpenContribution ? null : $roles;
 
         // Users who can edit resources can update contributions.
         // A check is done on the specific resource for some roles.
@@ -99,48 +108,49 @@ class Module extends AbstractModule
             \Omeka\Permissions\Acl::ROLE_REVIEWER,
         ];
 
-        $roles = $acl->getRoles();
-
         // TODO Limit rights to self contribution (IsSelfAssertion).
+
         $acl
             ->allow(
-                null,
+                $contributors,
                 ['Contribute\Controller\Site\Contribute'],
-                ['edit']
-            )
-            ->allow(
-                $validators,
-                ['Contribute\Controller\Admin\Contribution']
+                ['add', 'edit']
             )
 
             ->allow(
-                null,
+                $contributors,
                 [\Contribute\Api\Adapter\ContributionAdapter::class],
                 ['search', 'create', 'read', 'update']
             )
             ->allow(
-                null,
+                $contributors,
                 [\Contribute\Entity\Contribution::class],
                 ['create', 'read', 'update']
             )
 
             ->allow(
-                null,
+                $contributors,
                 [\Contribute\Api\Adapter\TokenAdapter::class],
                 ['search', 'read', 'update']
             )
             ->allow(
-                null,
+                $contributors,
                 [\Contribute\Entity\Token::class],
                 ['update']
             )
             ->allow(
-                $roles,
+                $contributors,
                 [
                     'Contribute\Controller\Site\GuestBoard',
                 ]
             )
-       ;
+
+            // Administration.
+            ->allow(
+                $validators,
+                ['Contribute\Controller\Admin\Contribution']
+            )
+        ;
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
