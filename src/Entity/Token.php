@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * Copyright Daniel Berthereau 2019-2020
+ * Copyright Daniel Berthereau 2019-2022
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -30,8 +30,6 @@
 namespace Contribute\Entity;
 
 use DateTime;
-// @todo Use @HasLifecycleCallbacks? (see User/Resource)?
-// use Doctrine\ORM\Event\LifecycleEventArgs;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\Resource;
 
@@ -55,6 +53,7 @@ class Token extends AbstractEntity
 {
     /**
      * @var int
+     *
      * @Id
      * @Column(type="integer")
      * @GeneratedValue
@@ -63,6 +62,7 @@ class Token extends AbstractEntity
 
     /**
      * @var \Omeka\Entity\Resource
+     *
      * @ManyToOne(
      *     targetEntity="\Omeka\Entity\Resource"
      * )
@@ -75,6 +75,7 @@ class Token extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="string",
      *     length=40
@@ -84,6 +85,7 @@ class Token extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="string",
      *     length=190,
@@ -94,6 +96,7 @@ class Token extends AbstractEntity
 
     /**
      * @var \DateTime
+     *
      * @Column(
      *     type="datetime",
      *     nullable=true
@@ -103,6 +106,7 @@ class Token extends AbstractEntity
 
     /**
      * @var \DateTime
+     *
      * @Column(
      *     type="datetime"
      * )
@@ -111,6 +115,7 @@ class Token extends AbstractEntity
 
     /**
      * @var \DateTime
+     *
      * @Column(
      *     type="datetime",
      *     nullable=true
@@ -123,110 +128,68 @@ class Token extends AbstractEntity
         return $this->id;
     }
 
-    /**
-     * @param Resource $resource
-     * @return self
-     */
-    public function setResource(Resource $resource)
+    public function setResource(Resource $resource): self
     {
         $this->resource = $resource;
         return $this;
     }
 
-    /**
-     * @return \Omeka\Entity\Resource
-     */
-    public function getResource()
+    public function getResource(): Resource
     {
         return $this->resource;
     }
 
-    /**
-     * @param string $token
-     * @return self
-     */
-    public function setToken($token)
+    public function setToken(string $token): self
     {
         $this->token = $token;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
     }
 
-    /**
-     * @param string $email
-     * @return self
-     */
-    public function setEmail($email)
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    /**
-     * @param DateTime|null $dateTime
-     * @return self
-     */
-    public function setExpire(DateTime $dateTime = null)
+    public function setExpire(?DateTime $dateTime): self
     {
         $this->expire = $dateTime;
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
-    public function getExpire()
+    public function getExpire(): ?DateTime
     {
         return $this->expire;
     }
 
-    /**
-     * @param DateTime $dateTime
-     * @return self
-     */
-    public function setCreated(DateTime $dateTime)
+    public function setCreated(DateTime $dateTime): self
     {
         $this->created = $dateTime;
         return $this;
     }
 
-    /**
-     * @return DateTime
-     */
-    public function getCreated()
+    public function getCreated(): DateTime
     {
         return $this->created;
     }
 
-    /**
-     * @param DateTime|null $dateTime
-     * @return self
-     */
-    public function setAccessed(DateTime $dateTime = null)
+    public function setAccessed(?DateTime $dateTime): self
     {
         $this->accessed = $dateTime;
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
-    public function getAccessed()
+    public function getAccessed(): ?DateTime
     {
         return $this->accessed;
     }

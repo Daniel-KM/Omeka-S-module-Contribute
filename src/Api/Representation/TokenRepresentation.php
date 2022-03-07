@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Api\Representation;
 
 use DateTime;
@@ -50,59 +51,38 @@ class TokenRepresentation extends AbstractEntityRepresentation
         ];
     }
 
-    /**
-     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation
-     */
-    public function resource()
+    public function resource(): \Omeka\Api\Representation\AbstractResourceEntityRepresentation
     {
         return $this->getAdapter('resources')
             ->getRepresentation($this->resource->getResource());
     }
 
-    /**
-     * @return string
-     */
-    public function token()
+    public function token(): string
     {
         return $this->resource->getToken();
     }
 
-    /**
-     * @return string
-     */
-    public function email()
+    public function email(): ?string
     {
         return $this->resource->getEmail();
     }
 
-    /**
-     * @return \DateTime|null
-     */
-    public function expire()
+    public function expire(): ?DateTime
     {
         return $this->resource->getExpire();
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function created()
+    public function created(): DateTime
     {
         return $this->resource->getCreated();
     }
 
-    /**
-     * @return \DateTime|null
-     */
-    public function accessed()
+    public function accessed(): ?DateTime
     {
         return $this->resource->getAccessed();
     }
 
-    /**
-     * @return bool
-     */
-    public function isExpired()
+    public function isExpired(): bool
     {
         $expire = $this->expire();
         return $expire

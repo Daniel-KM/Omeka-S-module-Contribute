@@ -26,7 +26,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * @var boolean flag indicating if this object was already initialized
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__isInitialized
+     * @see \Doctrine\Persistence\Proxy::__isInitialized
      */
     public $__isInitialized__ = false;
 
@@ -194,7 +194,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setResource(\Omeka\Entity\Resource $resource)
+    public function setResource(\Omeka\Entity\Resource $resource): \Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResource', [$resource]);
@@ -205,7 +205,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function getResource()
+    public function getResource(): \Omeka\Entity\Resource
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResource', []);
@@ -216,7 +216,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setToken($token)
+    public function setToken(string $token): \Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setToken', [$token]);
@@ -227,7 +227,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function getToken()
+    public function getToken(): string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getToken', []);
@@ -238,7 +238,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setEmail($email)
+    public function setEmail(?string $email): \Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEmail', [$email]);
@@ -249,7 +249,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEmail', []);
@@ -260,7 +260,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setExpire(\DateTime $dateTime = NULL)
+    public function setExpire(?\DateTime $dateTime): \Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setExpire', [$dateTime]);
@@ -271,7 +271,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function getExpire()
+    public function getExpire(): ?\DateTime
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getExpire', []);
@@ -282,7 +282,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setCreated(\DateTime $dateTime)
+    public function setCreated(\DateTime $dateTime): \Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCreated', [$dateTime]);
@@ -293,7 +293,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function getCreated()
+    public function getCreated(): \DateTime
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreated', []);
@@ -304,7 +304,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setAccessed(\DateTime $dateTime = NULL)
+    public function setAccessed(?\DateTime $dateTime): \Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAccessed', [$dateTime]);
@@ -315,7 +315,7 @@ class Token extends \Contribute\Entity\Token implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function getAccessed()
+    public function getAccessed(): ?\DateTime
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getAccessed', []);

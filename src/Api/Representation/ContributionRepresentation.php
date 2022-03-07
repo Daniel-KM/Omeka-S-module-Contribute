@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Api\Representation;
 
+use DateTime;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
 class ContributionRepresentation extends AbstractEntityRepresentation
@@ -62,73 +64,51 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             : null;
     }
 
-    /**
-     * Get the owner representation of this resource.
-     *
-     * @return \Omeka\Api\Representation\UserRepresentation
-     */
-    public function owner()
+    public function owner(): ?\Omeka\Api\Representation\UserRepresentation
     {
-        return $this->getAdapter('users')
-            ->getRepresentation($this->resource->getOwner());
+        $owner = $this->resource->getOwner();
+        return $owner
+            ? $this->getAdapter('users')->getRepresentation($owner)
+            : null;
     }
 
-    /**
-     * @return string
-     */
-    public function email()
+    public function email(): ?string
     {
         return $this->resource->getEmail();
     }
 
-    /**
-     * @return bool
-     */
-    public function reviewed()
+    public function reviewed(): bool
     {
         return $this->resource->getReviewed();
     }
 
-    /**
-     * @return array
-     */
-    public function proposal()
+    public function proposal(): array
     {
         return $this->resource->getProposal();
     }
 
-    /**
-     * @return \Contribute\Api\Representation\TokenRepresentation
-     */
-    public function token()
+    public function token(): ?\Contribute\Api\Representation\TokenRepresentation
     {
-        return $this->getAdapter('contribution_tokens')
-            ->getRepresentation($this->resource->getToken());
+        $token = $this->resource->getToken();
+        return $token
+            ? $this->getAdapter('contribution_tokens')->getRepresentation($token)
+            : null;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function created()
+    public function created(): DateTime
     {
         return $this->resource->getCreated();
     }
 
-    /**
-     * @return \DateTime|null
-     */
-    public function modified()
+    public function modified(): ?DateTime
     {
         return $this->resource->getModified();
     }
 
     /**
      * Get all proposed contributions for a term.
-     *
-     * @param string $term
-     * @return array
      */
-    public function proposedValues($term)
+    public function proposedValues(string $term): array
     {
         $data = $this->proposal();
         return empty($data[$term])
@@ -139,11 +119,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Get a specific proposed contribution for a term.
      *
-     * @param string $term
-     * @param string $original
      * @return array|null Empty string value is used when the value is removed.
      */
-    public function proposedValue($term, $original)
+    public function proposedValue(string $term, string $original): ?array
     {
         $proposed = $this->proposedValues($term);
         if (empty($proposed)) {
@@ -162,11 +140,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Get a specific proposed contribution uri for a term.
      *
-     * @param string $term
-     * @param string $original
      * @return array|null Empty string uri is used when the value is removed.
      */
-    public function proposedUriValue($term, $originalUri, $originalLabel)
+    public function proposedUriValue(string $term, string $originalUri, string $originalLabel): ?array
     {
         $proposed = $this->proposedValues($term);
         if (empty($proposed)) {
@@ -186,12 +162,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Check if a value is the same than the resource one.
      *
-     * @param string $term
-     * @param string $original
      * @return bool|null Null means no value, false if edited, true if
      * approved.
      */
-    public function isApprovedValue($term, $original)
+    public function isApprovedValue(string $term, string $original): ?bool
     {
         $proposed = $this->proposedValues($term);
         if (empty($proposed)) {
@@ -207,12 +181,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Check if a value exists in original resource.
-     *
-     * @param string $term
-     * @param string $string
-     * @return \Omeka\Api\Representation\ValueRepresentation|null
      */
-    public function resourceValue($term, $string)
+    public function resourceValue(string $term, string $string): ?\Omeka\Api\Representation\ValueRepresentation
     {
         if ($string === '') {
             return null;
@@ -229,12 +199,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Check if a resource value exists in original resource.
-     *
-     * @param string $term
-     * @param string $string
-     * @return \Omeka\Api\Representation\ValueRepresentation|null
      */
-    public function resourceValueResource($term, $string)
+    public function resourceValueResource(string $term, string $string): ?\Omeka\Api\Representation\ValueRepresentation
     {
         $string = (int) $string;
         if (!$string) {
@@ -255,12 +221,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Check if a uri exists in original resource.
-     *
-     * @param string $term
-     * @param string $string
-     * @return \Omeka\Api\Representation\ValueRepresentation|null
      */
-    public function resourceValueUri($term, $string)
+    public function resourceValueUri(string $term, string $string): ?\Omeka\Api\Representation\ValueRepresentation
     {
         if ($string === '') {
             return null;
@@ -280,10 +242,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Check proposed contribution against the current resource.
-     *
-     * @return array
      */
-    public function proposalCheck()
+    public function proposalCheck(): array
     {
         $services = $this->getServiceLocator();
         $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms');
@@ -564,12 +524,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get the editable data (editable, fillable, etc.) of a resource.
-     *
-     * @param \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
-     * @return \Contribute\Mvc\Controller\Plugin\ContributiveData
+     * Get the editable data (editable, fillable, etc.) of the resource.
      */
-    public function contributiveData()
+    public function contributiveData(): \Contribute\Mvc\Controller\Plugin\ContributiveData
     {
         $contributiveData = $this->getServiceLocator()->get('ControllerPluginManager')
             ->get('contributiveData');
@@ -582,26 +539,22 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * A contribution is never public and is managed only by admins and owner.
      *
      * This method is added only to simplify views.
-     *
-     * @return bool
      */
-    public function isPublic()
+    public function isPublic(): bool
     {
         return false;
     }
 
     /**
      * Get the resource name of the corresponding entity API adapter.
-     *
-     * @return string
      */
-    public function resourceName()
+    public function resourceName(): string
     {
         return 'contributions';
     }
 
     /**
-     * Get the thumbnail of this resource (the contributed one)..
+     * Get the thumbnail of this resource (the contributed one).
      *
      * @return \Omeka\Api\Representation\AssetRepresentation|null
      */
@@ -615,24 +568,19 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Get the title of this resource (the contributed one).
-     *
-     * @return string
      */
-    public function title()
+    public function title(): string
     {
         $res = $this->resource();
         return $res
-            ? $res->getTitle()
+            ? (string) $res->getTitle()
             : '';
     }
 
     /**
      * Get the display title for this resource (the contributed one).
-     *
-     * @param string|null $default
-     * @return string|null
      */
-    public function displayTitle($default = null)
+    public function displayTitle(?string $default = null): ?string
     {
         $res = $this->resource();
         if ($res) {
@@ -653,9 +601,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * @param string $text The text to be linked
      * @param string $action
      * @param array $attributes HTML attributes, key and value
-     * @return string
      */
-    public function linkResource($text, $action = null, $attributes = [])
+    public function linkResource(string $text, ?string $action = null, array $attributes = []): string
     {
         $res = $this->resource();
         if (!$res) {
@@ -674,14 +621,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * @param string|null $titleDefault See $default param for displayTitle()
      * @param string|null $action Action to link to (see link() and linkRaw())
      * @param array $attributes HTML attributes, key and value
-     * @return string
      */
     public function linkPretty(
         $thumbnailType = 'square',
         $titleDefault = null,
         $action = null,
         array $attributes = null
-    ) {
+    ): string {
         $escape = $this->getViewHelper('escapeHtml');
         $thumbnail = $this->getViewHelper('thumbnail');
         $linkContent = sprintf(
@@ -705,14 +651,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * @param string|null $titleDefault See $default param for displayTitle()
      * @param string|null $action Action to link to (see link() and linkRaw())
      * @param array $attributes HTML attributes, key and value
-     * @return string
      */
     public function linkPrettyResource(
         $thumbnailType = 'square',
         $titleDefault = null,
         $action = null,
         array $attributes = null
-    ) {
+    ): string {
         $res = $this->resource();
         if (!$res) {
             return $this->displayTitle($titleDefault);

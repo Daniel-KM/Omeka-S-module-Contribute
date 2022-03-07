@@ -26,7 +26,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * @var boolean flag indicating if this object was already initialized
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__isInitialized
+     * @see \Doctrine\Persistence\Proxy::__isInitialized
      */
     public $__isInitialized__ = false;
 
@@ -194,7 +194,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setResource(\Omeka\Entity\Resource $resource = NULL)
+    public function setResource(?\Omeka\Entity\Resource $resource): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResource', [$resource]);
@@ -205,7 +205,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getResource()
+    public function getResource(): ?\Omeka\Entity\Resource
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResource', []);
@@ -216,7 +216,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setOwner(\Omeka\Entity\User $owner = NULL)
+    public function setOwner(?\Omeka\Entity\User $owner): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setOwner', [$owner]);
@@ -227,7 +227,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getOwner()
+    public function getOwner(): ?\Omeka\Entity\User
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getOwner', []);
@@ -238,7 +238,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setEmail($email = NULL)
+    public function setEmail(?string $email): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEmail', [$email]);
@@ -249,7 +249,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEmail', []);
@@ -260,7 +260,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setReviewed($reviewed)
+    public function setReviewed($reviewed): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setReviewed', [$reviewed]);
@@ -271,7 +271,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getReviewed()
+    public function getReviewed(): bool
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getReviewed', []);
@@ -282,7 +282,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setProposal(array $proposal)
+    public function setProposal(array $proposal): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProposal', [$proposal]);
@@ -293,7 +293,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getProposal()
+    public function getProposal(): array
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProposal', []);
@@ -304,7 +304,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setToken(\Contribute\Entity\Token $token = NULL)
+    public function setToken(?\Contribute\Entity\Token $token): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setToken', [$token]);
@@ -315,7 +315,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getToken()
+    public function getToken(): ?\Contribute\Entity\Token
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getToken', []);
@@ -326,7 +326,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setCreated(\DateTime $dateTime)
+    public function setCreated(\DateTime $dateTime): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCreated', [$dateTime]);
@@ -337,7 +337,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getCreated()
+    public function getCreated(): \DateTime
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreated', []);
@@ -348,7 +348,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setModified(\DateTime $dateTime = NULL)
+    public function setModified(?\DateTime $dateTime): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setModified', [$dateTime]);
@@ -359,7 +359,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getModified()
+    public function getModified(): ?\DateTime
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getModified', []);

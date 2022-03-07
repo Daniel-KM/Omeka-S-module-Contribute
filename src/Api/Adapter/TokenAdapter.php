@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -160,10 +161,7 @@ class TokenAdapter extends AbstractEntityAdapter
      * - datetime[{index}][value]: search date time (sql format: "2017-11-07 17:21:17",
      *   partial date/time allowed ("2018-05", etc.).
      *
-     * From AdvancedSearchPlus module.
-     *
-     * @param QueryBuilder $qb
-     * @param array $query
+     * @todo Factorize searchDateTime with module AdvancedSearch module.
      */
     protected function searchDateTime(QueryBuilder $qb, array $query): void
     {
@@ -269,12 +267,9 @@ class TokenAdapter extends AbstractEntityAdapter
     /**
      * Normalize the query for the datetime.
      *
-     * From AdvancedSearchPlus module.
-     *
-     * @param array $query
-     * @return array
+     * @todo Factorize normalizeDateTime with module AdvancedSearch module.
      */
-    protected function normalizeDateTime(array $query)
+    protected function normalizeDateTime(array $query): array
     {
         if (empty($query['datetime'])) {
             return $query;
@@ -352,10 +347,8 @@ class TokenAdapter extends AbstractEntityAdapter
 
     /**
      * Create a random token string.
-     *
-     * @return string
      */
-    protected function createToken()
+    protected function createToken(): string
     {
         $entityManager = $this->getEntityManager();
         $repository = $entityManager->getRepository($this->getEntityClass());

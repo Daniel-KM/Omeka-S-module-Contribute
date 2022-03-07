@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
