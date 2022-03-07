@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
+
 namespace Contribute;
+
+use Omeka\Mvc\Controller\Plugin\Messenger;
+use Omeka\Stdlib\Message;
 
 /**
  * @var Module $this
@@ -135,4 +139,38 @@ SQL;
 if (version_compare($oldVersion, '3.3.0.14', '<')) {
     $settings->set('contribute_mode', $settings->get('contribute_without_token') ? 'user' : 'user_token');
     $settings->delete('contribute_without_token');
+}
+
+if (version_compare($oldVersion, '3.3.0.16', '<')) {
+    $removed = [
+        'Editable mode' => $settings->get('contribute_properties_editable_mode'),
+        'Editable properties' => $settings->get('contribute_properties_editable'),
+        'Fillable mode' => $settings->get('contribute_properties_fillable_mode'),
+        'Fillable properties' => $settings->get('contribute_properties_fillable'),
+        'Data types' => $settings->get('contribute_properties_datatype'),
+        'Property queries' => $settings->get('contribute_property_queries'),
+    ];
+
+    $messenger = new Messenger();
+    $message = new Message(
+        'At least one configured template is required to contribute. Default options were removed. Edit the resource template directly.' // @translate
+    );
+    $messenger->addWarning($message);
+    $message = new Message(
+        'For information, the removed options to reuse in a template, eventually with module Advanced Resource Template, are: %s.', // @translate
+        json_encode($removed, 448)
+    );
+    $messenger->addWarning($message);
+    $services->get('Omeka\Logger')->warn($message);
+
+    $templateId = $settings->get('contribute_template_default') ?: $api->searchOne('resource_templates', ['label' => 'Contribution'], ['returnScalar' => 'id'])->getContent();
+    $settings->set('contribute_templates', $templateId ? [$templateId] : []);
+    $settings->delete('contribute_template_default');
+
+    $settings->delete('contribute_properties_editable_mode');
+    $settings->delete('contribute_properties_editable');
+    $settings->delete('contribute_properties_fillable_mode');
+    $settings->delete('contribute_properties_fillable');
+    $settings->delete('contribute_properties_datatype');
+    $settings->delete('contribute_property_queries');
 }

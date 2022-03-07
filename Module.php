@@ -395,31 +395,7 @@ HTML;
         $event->getParam('inputFilter')
             ->get('contribute')
             ->add([
-                'name' => 'contribute_template_default',
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'contribute_properties_editable_mode',
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'contribute_properties_editable',
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'contribute_properties_fillable_mode',
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'contribute_properties_fillable',
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'contribute_properties_datatype',
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'contribute_property_queries',
+                'name' => 'contribute_templates',
                 'required' => false,
             ])
         ;

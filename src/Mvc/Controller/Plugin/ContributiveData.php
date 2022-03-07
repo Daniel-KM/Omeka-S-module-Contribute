@@ -36,11 +36,10 @@ class ContributiveData extends AbstractPlugin
         ]);
 
         $controller = $this->getController();
-        $propertyIdsByTerms = $controller->propertyIdsByTerms();
         $settings = $controller->settings();
-        $this->data['datatypes_default'] = $settings->get('contribute_properties_datatype', []);
+        $this->data['datatypes_default'] = ['literal', 'resource', 'uri'];
 
-        // TODO Manage valuesuggest differently, because it is not a datatype.
+        // TODO Manage valuesuggest differently, because it is not a single datatype.
         if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
             unset($this->data['datatypes_default'][$has]);
         }
@@ -48,44 +47,36 @@ class ContributiveData extends AbstractPlugin
         $resourceTemplate = $this->resourceTemplate($resourceTemplate);
 
         if (!$resourceTemplate) {
-            $resourceTemplateId = (int) $settings->get('contribute_template_default');
+            $resourceTemplateId = $settings->get('contribute_templates', []);
+            $resourceTemplateId = reset($resourceTemplateId);
             if ($resourceTemplateId) {
                 $resourceTemplate = $controller->api()->searchOne('resource_templates', ['id' => $resourceTemplateId])->getContent();
             }
+            if (!$resourceTemplate) {
+                $controller->log()->err('A resource template must be set to allow to contribute'); // @translate
+                return $this;
+            }
         }
 
-        if ($resourceTemplate) {
-            $this->data['template'] = $resourceTemplate;
-            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
-            foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
-                $property = $resourceTemplateProperty->property();
-                $propertyId = $property->id();
-                $term = $property->term();
-                $datatype = $resourceTemplateProperty->dataType();
-                $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
-                $rtpData = $resourceTemplateProperty->data();
-                // TODO Manage repeatable property.
-                $rtpData = reset($rtpData);
-                if (!$rtpData) {
-                    continue;
-                }
-                if ($rtpData->dataValue('editable', false)) {
-                    $this->data['editable'][$term] = $propertyId;
-                }
-                if ($rtpData->dataValue('fillable', false)) {
-                    $this->data['fillable'][$term] = $propertyId;
-                }
+        $this->data['template'] = $resourceTemplate;
+        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
+        foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
+            $property = $resourceTemplateProperty->property();
+            $propertyId = $property->id();
+            $term = $property->term();
+            $datatype = $resourceTemplateProperty->dataType();
+            $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
+            $rtpData = $resourceTemplateProperty->data();
+            // TODO Manage repeatable property.
+            $rtpData = reset($rtpData);
+            if (!$rtpData) {
+                continue;
             }
-        } else {
-            $this->data['template'] = null;
-            $this->data['default_properties'] = true;
-            $this->data['editable_mode'] = $settings->get('contribute_properties_editable_mode', 'all');
-            if (in_array($this->data['editable_mode'], ['blacklist', 'whitelist'])) {
-                $this->data['editable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('contribute_properties_editable', [])));
+            if ($rtpData->dataValue('editable', false)) {
+                $this->data['editable'][$term] = $propertyId;
             }
-            $this->data['fillable_mode'] = $settings->get('contribute_properties_fillable_mode', 'all');
-            if (in_array($this->data['fillable_mode'], ['blacklist', 'whitelist'])) {
-                $this->data['fillable'] = array_intersect_key($propertyIdsByTerms, array_flip($settings->get('contribute_properties_fillable', [])));
+            if ($rtpData->dataValue('fillable', false)) {
+                $this->data['fillable'][$term] = $propertyId;
             }
         }
 
@@ -282,14 +273,14 @@ class ContributiveData extends AbstractPlugin
 
         if (is_numeric($resourceTemplate)) {
             try {
-                return $this->getView()->api()->read('resource_templates', ['id' => $resourceTemplate])->getContent();
+                return $this->getController()->api()->read('resource_templates', ['id' => $resourceTemplate])->getContent();
             } catch (\Omeka\Api\Exception\NotFoundException $e) {
                 return null;
             }
         }
 
         if (is_string($resourceTemplate)) {
-            return $this->getView()->api()->searchOne('resource_templates', ['label' => $resourceTemplate])->getContent();
+            return $this->getController()->api()->searchOne('resource_templates', ['label' => $resourceTemplate])->getContent();
         }
 
         return null;

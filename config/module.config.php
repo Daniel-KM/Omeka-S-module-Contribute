@@ -219,16 +219,9 @@ return [
         'settings' => [
             'contribute_mode' => 'user',
             'contribute_notify' => [],
-            'contribute_template_default' => null,
-            'contribute_properties_editable_mode' => 'all',
-            'contribute_properties_editable' => [],
-            'contribute_properties_fillable_mode' => 'all',
-            'contribute_properties_fillable' => [],
-            'contribute_properties_datatype' => [
-                'literal',
-                'uri',
+            'contribute_templates' => [
+                'Contribution',
             ],
-            'contribute_property_queries' => [],
             // Days.
             'contribute_token_duration' => 60,
         ],

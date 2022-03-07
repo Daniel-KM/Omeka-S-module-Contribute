@@ -13,15 +13,15 @@
 // See common/resource-values.
 
 $plugins = $this->getHelperPluginManager();
-$translate = $plugins->get('translate');
 $escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $formElement = $this->plugin('formElement');
-$setting = $this->plugin('setting');
 
 // Prepare resource selects.
 $valueTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
-$queries = $setting('contribute_property_queries', []);
+// TODO Use module advanced resource template to fill a property with a property query. They are always empty for now, except manually filled.
+$queries = [];
 $resFunction = function ($res) {
     return mb_substr($res->displayTitle(), 0, 80);
 };
