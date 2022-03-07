@@ -71,7 +71,7 @@ class SendContributionEmail extends AbstractPlugin
         if ($isHtml) {
             // Full html.
             if (strpos($body, '<!DOCTYPE') === 0 || strpos($body, '<html') === 0) {
-                $boundary = substr(str_replace(['+', '/', '='], '', base64_encode(uniqid() . uniqid())), 0, 20);
+                $boundary = substr(str_replace(['+', '/', '='], ['', '', ''], base64_encode(random_bytes(128))), 0, 20);
                 $message->getHeaders()
                     ->addHeaderLine('MIME-Version: 1.0')
                     ->addHeaderLine('Content-Type: multipart/alternative; boundary=' . $boundary);

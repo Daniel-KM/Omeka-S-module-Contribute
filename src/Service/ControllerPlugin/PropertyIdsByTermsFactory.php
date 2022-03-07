@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Service\ControllerPlugin;
 
 use Contribute\Mvc\Controller\Plugin\PropertyIdsByTerms;
@@ -13,18 +14,15 @@ class PropertyIdsByTermsFactory implements FactoryInterface
         $connection = $services->get('Omeka\Connection');
         $qb = $connection->createQueryBuilder();
         $qb
-            ->select([
-                'DISTINCT property.id AS id',
+            ->select(
                 'CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
-            ])
+                'property.id AS id'
+            )
             ->from('property', 'property')
             ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
-            ->addGroupBy('id')
+            ->addGroupBy('property.id')
         ;
-        $stmt = $connection->executeQuery($qb);
-        // Fetch by key pair is not supported by doctrine 2.0.
-        $properties = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        $properties = array_map('intval', array_column($properties, 'id', 'term'));
+        $properties = array_map('intval', $connection->executeQuery($qb)->fetchAllKeyValue());
         return new PropertyIdsByTerms($properties);
     }
 }

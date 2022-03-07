@@ -87,24 +87,20 @@ SQL;
 
     $qb = $connection->createQueryBuilder();
     $qb
-        ->select([
+        ->select(
             'DISTINCT property.id AS id',
             'CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
             // Only the two first selects are needed, but some databases
             // require "order by" or "group by" value to be in the select.
-            'vocabulary.id',
-            'property.id',
-        ])
+            'vocabulary.id'
+        )
         ->from('property', 'property')
         ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
         ->orderBy('vocabulary.id', 'asc')
         ->addOrderBy('property.id', 'asc')
         ->addGroupBy('property.id')
     ;
-    $stmt = $connection->executeQuery($qb);
-    // Fetch by key pair is not supported by doctrine 2.0.
-    $properties = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    $properties = array_column($properties, 'term', 'id');
+    $properties = $connection->executeQuery($qb)->fetchAllKeyValue();
 
     foreach ($byTemplate as $templateId => $data) {
         $template = $api->searchOne('resource_templates', ['id' => $templateId])->getContent();

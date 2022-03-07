@@ -360,17 +360,9 @@ class TokenAdapter extends AbstractEntityAdapter
         $entityManager = $this->getEntityManager();
         $repository = $entityManager->getRepository($this->getEntityClass());
 
-        $tokenString = PHP_VERSION_ID < 70000
-            ? function () {
-                return sha1(mt_rand());
-            }
-        : function () {
-            return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10);
-        };
-
         // Check if the token is unique.
         do {
-            $token = $tokenString();
+            $token = substr(str_replace(['+', '/', '='], ['', '', ''], base64_encode(random_bytes(128))), 0, 10);
             $result = $repository->findOneBy(['token' => $token]);
             if (!$result) {
                 break;
