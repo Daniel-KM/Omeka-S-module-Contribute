@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /*
- * Copyright Daniel Berthereau, 2018-2021
+ * Copyright Daniel Berthereau, 2018-2022
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -501,7 +501,7 @@ WHERE `id` = $oldMemberId;
 SQL;
                 }
                 foreach (array_filter(explode(";\n", $sqls)) as $sql) {
-                    $connection->executeQuery($sql);
+                    $connection->executeStatement($sql);
                 }
             }
             $hasReplace = true;
@@ -537,8 +537,9 @@ SQL;
 
         // Check if the resource template exists, so it is not replaced.
         $label = $data['o:label'] ?? '';
-        try {
-            $resourceTemplate = $this->api->searchOne('resource_templates', ['label' => $label])->getContent();
+
+        $resourceTemplate = $this->api->searchOne('resource_templates', ['label' => $label])->getContent();
+        if ($resourceTemplate) {
             $message = new Message(
                 'The resource template named "%s" is already available and is skipped.', // @translate
                 $label
@@ -546,7 +547,6 @@ SQL;
             $messenger = new Messenger();
             $messenger->addWarning($message);
             return $resourceTemplate;
-        } catch (NotFoundException $e) {
         }
 
         // The check sets the internal ids of classes, properties and data types
@@ -582,7 +582,10 @@ SQL;
     public function createCustomVocab(string $filepath): ?\CustomVocab\Api\Representation\CustomVocabRepresentation
     {
         $data = json_decode(file_get_contents($filepath), true);
-        $data['o:terms'] = implode(PHP_EOL, $data['o:terms']);
+        if (!$data) {
+            return null;
+        }
+        $data['o:terms'] = implode(PHP_EOL, $data['o:terms'] ?? []);
         try {
             return $this->api->create('custom_vocabs', $data)->getContent();
         } catch (\Exception $e) {
