@@ -18,6 +18,7 @@ class ContributionController extends AbstractActionController
         $resourceType = $this->params('resource');
 
         $resourceTypeMap = [
+            'contribution' => 'items',
             'item' => 'items',
             'media' => 'media',
             'item-set' => 'item_sets',
@@ -25,6 +26,10 @@ class ContributionController extends AbstractActionController
         // Useless, because managed by route, but the config may be overridden.
         if (!isset($resourceTypeMap[$resourceType])) {
             return $this->notFoundAction();
+        }
+
+        if ($resourceType === 'contribution') {
+            $resourceType = 'item';
         }
         // $resourceName = $resourceTypeMap[$resourceType];
 
@@ -150,6 +155,7 @@ class ContributionController extends AbstractActionController
         $resourceId = $this->params('id');
 
         $resourceTypeMap = [
+            'contribution' => 'items',
             'item' => 'items',
             'media' => 'media',
             'item-set' => 'item_sets',
@@ -157,6 +163,10 @@ class ContributionController extends AbstractActionController
         // Useless, because managed by route, but the config may be overridden.
         if (!isset($resourceTypeMap[$resourceType])) {
             return $this->notFoundAction();
+        }
+
+        if ($resourceType === 'contribution') {
+            $resourceType = 'item';
         }
         $resourceName = $resourceTypeMap[$resourceType];
 

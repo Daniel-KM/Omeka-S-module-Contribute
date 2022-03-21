@@ -87,12 +87,12 @@ return [
                         'options' => [
                             'route' => '/:resource/add',
                             'constraints' => [
-                                'resource' => 'item|media|item-set',
+                                'resource' => 'contribution|item-set|item|media',
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',
                                 'controller' => 'contribution',
-                                'resource' => 'item',
+                                'resource' => 'contribution',
                                 'action' => 'add',
                             ],
                         ],
@@ -104,7 +104,7 @@ return [
                             // Overrides core public site resources only for edit.
                             'route' => '/:resource/:id/:action',
                             'constraints' => [
-                                'resource' => 'item|media|item-set',
+                                'resource' => 'contribution|item-set|item|media',
                                 'id' => '\d+',
                                 'action' => 'edit|delete-confirm|delete',
                             ],
