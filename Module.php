@@ -629,7 +629,7 @@ HTML;
                 'type' => \Laminas\Form\Element\Textarea::class,
                 'options' => [
                     'label' => 'Specific confirmation message to the contributor', // @translate
-                    // 'info' => 'Possible placeholders: {main_title}, {main_url}, {site_title}, {site_url}, {email}, {name}, {object}, {subject}, {message}.', // @translate
+                    'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
                 ],
                 'attributes' => [
                     'id' => 'contribute_author_confirmation_body',

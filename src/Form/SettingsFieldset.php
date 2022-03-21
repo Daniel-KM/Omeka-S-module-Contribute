@@ -100,9 +100,8 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_author_confirmation_body',
                 'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => 'Confirmation message', // @translate
-                    'info' => 'May be overridden by a specific message set in the resource template', // @translate
-                    // 'info' => 'Possible placeholders: {main_title}, {main_url}, {site_title}, {site_url}, {email}, {name}, {object}, {subject}, {message}.', // @translate
+                    'label' => 'Confirmation message to the author', // @translate
+                    'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
                 ],
                 'attributes' => [
                     'id' => 'contribute_author_confirmation_body',

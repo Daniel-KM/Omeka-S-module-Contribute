@@ -827,12 +827,44 @@ class ContributionController extends AbstractActionController
             $message = $template->dataValue('contribute_author_confirmation_body') ?: $message;
         }
 
+        $message = $this->replacePlaceholders($message, $contribution);
+
         $message = '<p>' . $message . '</p>';
 
         $name = count($emails) === 1 && $contribution->owner() ? $contribution->owner()->name() : null;
 
         $this->sendContributionEmail($emails, $subject, $message, $name); // @translate
         return $this;
+    }
+
+    protected function replacePlaceholders($message, ?ContributionRepresentation $contribution): string
+    {
+        if (strpos($message, '{') === false || !$contribution) {
+            return (string) $message;
+        }
+
+        $api = $this->api();
+
+        $replace = [];
+        foreach ($contribution->proposalToResourceData() as $term => $value) {
+            if (!is_array($value) || empty($value) || !isset(reset($value)['type'])) {
+                continue;
+            }
+            $first = reset($value);
+            if (!empty($first['@id'])) {
+                $replace['{' . $term . '}'] = $first['@id'];
+            } elseif (!empty($first['value_resource_id'])) {
+                try {
+                    $replace['{' . $term . '}'] = $api->read('resources', ['id' => $first['value_resource_id']], [], ['initialize' => false, 'finalize' => false])->getContent()->getTitle();
+                } catch (\Exception $e) {
+                    $replace['{' . $term . '}'] = $this->translate('[Unknown resource]'); // @translate
+                }
+            } elseif (isset($first['@value']) && strlen((string) $first['@value'])) {
+                $replace['{' . $term . '}'] = $first['@value'];
+            }
+        }
+
+        return str_replace(array_keys($replace), array_values($replace), $message);
     }
 
     protected function filterEmails(?ContributionRepresentation $contribution = null): array
