@@ -127,7 +127,13 @@ class Module extends AbstractModule
             ->allow(
                 $contributors,
                 ['Contribute\Controller\Site\Contribution'],
-                ['add', 'edit']
+                ['add']
+            )
+            ->allow(
+                $contributors,
+                ['Contribute\Controller\Site\Contribution'],
+                ['edit', 'delete', 'delete-confirm'],
+                new \Omeka\Permissions\Assertion\OwnsEntityAssertion
             )
 
             ->allow(

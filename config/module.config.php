@@ -102,10 +102,11 @@ return [
                         'options' => [
                             // TODO Use controller delegator or override the default site route?
                             // Overrides core public site resources only for edit.
-                            'route' => '/:resource/:id/edit',
+                            'route' => '/:resource/:id/:action',
                             'constraints' => [
                                 'resource' => 'item|media|item-set',
                                 'id' => '\d+',
+                                'action' => 'edit|delete-confirm|delete',
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',

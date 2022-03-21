@@ -279,6 +279,20 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    public function deleteConfirmAction()
+    {
+        throw new \Omeka\Mvc\Exception\PermissionDeniedException('The delete confirm action is currently unavailable');
+    }
+
+    public function deleteAction()
+    {
+        $response = $this->api()->delete('contributions', $this->params('id'));
+        if ($response) {
+            $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
+        }
+        return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
+    }
+
     protected function prepareContributionEmail(ContributionRepresentation $contribution): void
     {
         $emails = $this->settings()->get('contribute_notify', []);
