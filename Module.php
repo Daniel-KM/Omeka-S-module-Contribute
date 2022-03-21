@@ -219,6 +219,7 @@ class Module extends AbstractModule
                 $validators,
                 [\Contribute\Api\Adapter\ContributionAdapter::class],
             )
+            // TODO Give right to deletion to reviewer?
             ->allow(
                 $simpleValidators,
                 [\Contribute\Entity\Contribution::class],
@@ -244,6 +245,26 @@ class Module extends AbstractModule
             \Omeka\Media\Ingester\Manager::class,
             'service.registered_names',
             [$this, 'handleMediaIngesterRegisteredNames']
+        );
+
+        // Process validation only with api create/update, after all processes.
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ItemAdapter::class,
+            'api.hydrate.post',
+            [$this, 'validateContribution'],
+            -1000
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\ItemSetAdapter::class,
+            'api.hydrate.post',
+            [$this, 'validateContribution'],
+            -1000
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\MediaAdapter::class,
+            'api.hydrate.post',
+            [$this, 'validateContribution'],
+            -1000
         );
 
         // Link to edit form on item/show page.
@@ -356,6 +377,40 @@ class Module extends AbstractModule
         $key = array_search('contribution', $names);
         unset($names[$key]);
         $event->setParam('registered_names', $names);
+    }
+
+    /**
+     * Add an error during hydration to avoid to save a resource to validate.
+     */
+    public function validateContribution(Event $event): void
+    {
+        /** @var \Omeka\Api\Request $request */
+        $request = $event->getParam('request');
+        if (!$request->getOption('isContribution')
+            || !$request->getOption('validateOnly')
+            || $request->getOption('flushEntityManager')
+        ) {
+            return;
+        }
+        $entity = $event->getParam('entity');
+        if (!$entity instanceof \Omeka\Entity\Resource) {
+            return;
+        }
+        // Don't add an error if there is already one.
+        /** @var \Omeka\Stdlib\ErrorStore $errorStore */
+        $errorStore = $event->getParam('errorStore');
+        if ($errorStore->hasErrors()) {
+            return;
+        }
+        // The validation of the entity in the adapter is processed after event,
+        // so trigger it here with a new error store.
+        $validateErrorStore = new \Omeka\Stdlib\ErrorStore;
+        $adapter = $event->getTarget();
+        $adapter->validateEntity($entity, $validateErrorStore);
+        if ($validateErrorStore->hasErrors()) {
+            return;
+        }
+        $errorStore->addError('validateOnly', 'No error');
     }
 
     public function handleViewShowAfter(Event $event): void

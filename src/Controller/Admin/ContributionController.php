@@ -519,7 +519,7 @@ class ContributionController extends AbstractActionController
         }
 
         $errorStore = new ErrorStore();
-        $resource = $this->createOrUpdate($contribution, $resourceData, $errorStore, true);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
             return $this->jsonErrorUpdate(new Message(
                 'Contribution is not valid: check values.' // @translate
@@ -568,7 +568,7 @@ class ContributionController extends AbstractActionController
         }
 
         $errorStore = new ErrorStore();
-        $resource = $this->createOrUpdate($contribution, $resourceData, $errorStore, true);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
             return $this->jsonErrorUpdate(new Message(
                 'Contribution is not valid: check values.' // @translate
@@ -632,7 +632,7 @@ class ContributionController extends AbstractActionController
         }
 
         $errorStore = new ErrorStore();
-        $resource = $this->createOrUpdate($contribution, $resourceData, $errorStore, true);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true);
         if ($errorStore->hasErrors()) {
             return $this->jsonErrorUpdate(new Message(
                 'Contribution is not valid: check values.' // @translate

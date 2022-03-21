@@ -13,6 +13,7 @@ use Laminas\View\Model\ViewModel;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\File\TempFileFactory;
 use Omeka\File\Uploader;
+use Omeka\Stdlib\ErrorStore;
 use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
@@ -577,6 +578,23 @@ class ContributionController extends AbstractActionController
 
         if (!$contribution->userIsAllowed('update')) {
             $this->messenger()->addError('Only the contributor can submit the contribution.'); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+
+        // Validate the contribution with the contribution process.
+        $resourceData = $this->validateContribution($contribution);
+        if (!$resourceData) {
+            $message = new Message(
+                'Contribution is not valid: check template.' // @translate
+            );
+            $this->messenger()->addError($message); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+
+        // Validate the contribution with the api process.
+        $errorStore = new ErrorStore();
+        $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, true, true);
+        if ($errorStore->hasErrors()) {
             return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
         }
 

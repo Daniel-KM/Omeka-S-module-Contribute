@@ -276,11 +276,13 @@ trait ContributionTrait
     /**
      * Create or update a resource from data.
      */
-    protected function createOrUpdate(
+    protected function validateOrCreateOrUpdate(
         ContributionRepresentation $contribution,
         array $resourceData,
         ErrorStore $errorStore,
-        bool $reviewed = false
+        bool $reviewed = false,
+        bool $validateOnly = false,
+        bool $useMessenger = false
     ): ?AbstractResourceEntityRepresentation {
         $contributionResource = $contribution->resource();
 
@@ -289,59 +291,145 @@ trait ContributionTrait
             return $contributionResource;
         }
 
-        // Use a fake form to get the validation messages.
-        /** @see \Omeka\Mvc\Controller\Plugin\Api::handleValidationException() */
-        $form = new \Laminas\Form\Form;
-
+        // Prepare the api to throw a validation exception with error store.
         /** @var \Omeka\Mvc\Controller\Plugin\Api $api */
-        $api = $this->api($form);
+        $api = $this->api(null, true);
 
         // Files are managed through media (already stored).
         // @see validateContribution()
         unset($resourceData['file']);
 
-        // TODO Remove the template to avoid issues on saving?
-        // TODO Save separately?
-        // TODO Check on submission?
+        // TODO This is a new contribution, so a new item for now.
+        $resourceName = $contributionResource ? $contributionResource->resourceName() : 'items';
+
+        // Validate only: the simplest way is to skip flushing.
+        // Nevertheless, a simple contributor has no right to create a resource.
+        // So skip rights before and after.
+        // But some other modules can persist it inadvertently (?)
+        // So use api, and add an event to add an error to the error store and
+        // check if it is the only one.
+        // TODO Fix the modules that flush too much early.
+        // TODO Improve the api manager with method or option "validateOnly"?
+        // TODO Add a method to get the error store from the api without using exception.
+        $isAllowed = null;
+        if ($validateOnly) {
+            // Flush before and clear after to avoid possible issues.
+            $this->entityManager->flush();
+
+            /** * @var \Omeka\Permissions\Acl $acl */
+            $acl = $contribution->getServiceLocator()->get('Omeka\Acl');
+            $classes = [
+                'items' => 'Item',
+                'item_sets' => 'ItemSet',
+                'media' => 'Media',
+            ];
+            $class = $classes[$resourceName] ?? 'Item';
+            $entityClass = 'Omeka\Entity\\' . $class;
+            $action = $contributionResource ? 'update' : 'create';
+            $isAllowed = $acl->userIsAllowed($entityClass, $action);
+            if (!$isAllowed) {
+                $user = $this->identity();
+                $classes = [
+                    \Omeka\Entity\Item::class,
+                    \Omeka\Entity\Media::class,
+                    \Omeka\Entity\ItemSet::class,
+                    \Omeka\Api\Adapter\ItemAdapter::class,
+                    \Omeka\Api\Adapter\MediaAdapter::class,
+                    \Omeka\Api\Adapter\ItemSetAdapter::class,
+                ];
+                $acl->allow($user ? $user->getRole() : null, $classes, [$action, 'change-owner']);
+            }
+            $apiOptions = ['flushEntityManager' => false, 'validateOnly' => true, 'isContribution' => true];
+        } else {
+            $apiOptions = [];
+        }
 
         try {
             if ($contributionResource) {
+                $apiOptions['isPartial'] = true;
                 $response = $api
-                    ->update($contributionResource->resourceName(), $contributionResource->id(), $resourceData, [], ['isPartial' => true]);
+                    ->update($resourceName, $contributionResource->id(), $resourceData, [], $apiOptions);
             } else {
-                // TODO This is a new contribution, so a new item for now.
                 // The validator is not the contributor.
-                // The validator will be added automatically.
+                // The validator will be added automatically for anonymous.
                 $owner = $contribution->owner() ?: null;
                 $resourceData['o:owner'] = $owner ? ['o:id' => $owner->id()] : null;
+                $resourceData['o:is_public'] = false;
                 $response = $api
-                    ->create('items', $resourceData, []);
+                    ->create($resourceName, $resourceData, [], $apiOptions);
             }
+        } catch (\Omeka\Api\Exception\ValidationException $e) {
+            $this->entityManager->clear();
+            $exceptionErrorStore = $e->getErrorStore();
+            // Check if there is only one error in case of validation only.
+            if ($validateOnly) {
+                $errors = $exceptionErrorStore->getErrors();
+                // Because validateOnly is the last error and added only when
+                // there is no other one, it should be alone when no issue.
+                if (!count($errors)
+                    || (count($errors) === 1 && !empty($errors['validateOnly']))
+                ) {
+                    $errors = [];
+                } else {
+                    $errorStore->mergeErrors($exceptionErrorStore);
+                    $errors = $errorStore->getErrors();
+                }
+            } else {
+                $errorStore->mergeErrors($exceptionErrorStore);
+                $errors = $errorStore->getErrors();
+            }
+            if ($useMessenger && $errors) {
+                /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
+                $messenger = $this->messenger();
+                foreach ($errorStore->getErrors() as $messages) {
+                    foreach ($messages as $message) {
+                        if (is_array($message)) {
+                            foreach ($message as $msg) {
+                                $messenger->addError($this->translate($msg));
+                            }
+                        } else {
+                            $messenger->addError($this->translate($message));
+                        }
+                    }
+                }
+            }
+            if ($isAllowed === false) {
+                $acl->deny($user ? $user->getRole() : null, $classes, [$action, 'change-owner']);
+            }
+            return null;
         } catch (\Exception $e) {
+            $this->entityManager->clear();
             $message = new Message(
                 'Unable to store the resource of the contribution: %s', // @translate
                 $e->getMessage()
             );
             $this->logger()->err($message);
-            // Message are included in messenger automatically.
-            $this->messenger()->clear();
-            $errorStore->addError('store', $message);
+            if ($useMessenger) {
+                $this->messenger()->addError($message);
+            } else {
+                $errorStore->addError('store', $message);
+            }
+            if ($isAllowed === false) {
+                $acl->deny($user ? $user->getRole() : null, $classes, [$action, 'change-owner']);
+            }
             return null;
         }
 
-        // Here, contribution may be invalid (request checks).
-        if (!$response) {
-            // Message are included in messenger automatically.
-            $this->messenger()->clear();
-            $errorStore->addValidatorMessages('contribution', $form->getMessages());
+        if ($isAllowed === false) {
+            $acl->deny($user ? $user->getRole() : null, $classes, [$action, 'change-owner']);
+        }
+
+        // Normally, not possible here.
+        if ($validateOnly) {
+            $this->entityManager->clear();
             return null;
         }
 
+        // The exception is thrown in the api, there is always a response.
         $contributionResource = $response->getContent();
 
-        // TODO Reviewed is always true?
         $data = [];
-        $data['o:resource'] = ['o:id' => $contributionResource->id()];
+        $data['o:resource'] = $validateOnly || !$contributionResource ? null : ['o:id' => $contributionResource->id()];
         $data['o-module-contribute:reviewed'] = $reviewed;
         $response = $this->api()
             ->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
