@@ -125,6 +125,88 @@ class ContributionAdapter extends AbstractEntityAdapter
                 $this->createNamedParameter($qb, $query['modified'])
             ));
         }
+
+        if (isset($query['resource_template_id'])) {
+            $ids = $query['resource_template_id'];
+            if (!is_array($ids)) {
+                $ids = [$ids];
+            }
+            $ids = array_filter($ids);
+            if ($ids) {
+                // Not available in orm, but via direct dbal sql.
+                $sql = <<<SQL
+SELECT `id`
+FROM `contribution`
+WHERE JSON_EXTRACT(`proposal`, "$.template") IN (:templates);
+SQL;
+            /** @var \Doctrine\DBAL\Connection $connection */
+                $connection = $this->getServiceLocator()->get('Omeka\Connection');
+                $contributionIds = $connection->executeQuery($sql, ['templates' => $query['resource_template_id']], ['templates' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY])->fetchFirstColumn();
+                $contributionIds = array_map('intval', $contributionIds);
+                if ($contributionIds) {
+                    $qb->andWhere($expr->in(
+                        'omeka_root.id',
+                        $this->createNamedParameter($qb, $contributionIds)
+                    ));
+                } else {
+                    $qb->andWhere($expr->eq(
+                        'omeka_root.id',
+                        $this->createNamedParameter($qb, 0)
+                    ));
+                }
+            }
+        }
+
+        /** @experimental */
+        if (isset($query['property'])) {
+            foreach ($query['property'] as $propertyData) {
+                $property = $propertyData['property'] ?? null;
+                if (is_null($property) || !preg_match('~^[\w-]+\:[\w-]+$~i', $property)) {
+                    $qb->andWhere($expr->eq(
+                        'omeka_root.id',
+                        $this->createNamedParameter($qb, 0)
+                    ));
+                } else {
+                    $type = $propertyData['type'] ?? 'eq';
+                    $types = [
+                        'eq' => '@value',
+                        'res' => '@resource',
+                    ];
+                    $keyType = $types[$type] ?? '@value';
+                    $text = $propertyData['text'] ?? null;
+                    // Not available in orm, but via direct dbal sql.
+                    $sql = <<<SQL
+SELECT `id`
+FROM `contribution`
+WHERE JSON_EXTRACT(`proposal`, "$.{$property}[*].proposed.{$keyType}") IN (:values);
+SQL;
+                    /** @var \Doctrine\DBAL\Connection $connection */
+                    $text = is_array($text) ? $text : [$text];
+                    foreach ($text as &$t) {
+                        if ($keyType === '@resource') {
+                            $t = '[' . (int) $t . ']';
+                        } else {
+                            $t = '[' . json_encode($t, 320) . ']';
+                        }
+                    }
+                    unset($t);
+                    $connection = $this->getServiceLocator()->get('Omeka\Connection');
+                    $contributionIds = $connection->executeQuery($sql, ['values' => $text], ['values' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY])->fetchFirstColumn();
+                    $contributionIds = array_map('intval', $contributionIds);
+                    if ($contributionIds) {
+                        $qb->andWhere($expr->in(
+                            'omeka_root.id',
+                            $this->createNamedParameter($qb, $contributionIds)
+                        ));
+                    } else {
+                        $qb->andWhere($expr->eq(
+                            'omeka_root.id',
+                            $this->createNamedParameter($qb, 0)
+                        ));
+                    }
+                }
+            }
+        }
     }
 
     public function validateRequest(Request $request, ErrorStore $errorStore)
