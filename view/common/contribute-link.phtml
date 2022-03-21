@@ -1,0 +1,36 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var bool $canEdit
+ */
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$translate = $plugins->get('translate');
+?>
+
+<div id="contribute" class="contribute">
+    <h3><?= $translate('Contribute') ?></h3>
+    <?php if ($resource): ?>
+        <?php if ($canEdit): ?>
+        <?= $this->hyperlink($translate('Edit this record'), $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true)) ?>
+        <?php elseif ($user): ?>
+        <?= $translate('Click your token link to edit this record.') ?>
+        <?php else: ?>
+        <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
+        <?= sprintf($translate('%1$sLogin%2$s or click your token link to edit this record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
+        <?php endif; ?>
+    <?php else: ?>
+        <?php if ($canEdit): ?>
+        <?= $this->hyperlink($translate('Add a new record'), $url('site/contribution', [], true)) ?>
+        <?php elseif ($user): ?>
+        <?= $translate('Click your token link to add a new record.') ?>
+        <?php else: ?>
+        <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
+        <?= sprintf($translate('%1$sLogin%2$s or click your token link to add a new record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
+        <?php endif; ?>
+    <?php endif; ?>
+</div>

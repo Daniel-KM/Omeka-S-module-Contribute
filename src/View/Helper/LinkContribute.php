@@ -11,7 +11,7 @@ class LinkContribute extends AbstractHelper
     /**
      * The default partial view script.
      */
-    const PARTIAL_NAME = 'common/helper/contribute-link';
+    const PARTIAL_NAME = 'common/contribute-link';
 
     /**
      * @var CheckToken
