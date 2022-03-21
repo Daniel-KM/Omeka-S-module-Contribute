@@ -462,7 +462,8 @@ HTML;
         $fieldset
             ->add([
                 'name' => 'contribute_template_media',
-                'type' => \Omeka\Form\Element\ResourceTemplateSelect::class,
+                // Advanced Resource Template is a required dependency.
+                'type' => \AdvancedResourceTemplate\Form\Element\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Media template for contribution', // @translate
                     'info' => 'If any, the template should be in the list of allowed templates for contribution of a media', // @translate
