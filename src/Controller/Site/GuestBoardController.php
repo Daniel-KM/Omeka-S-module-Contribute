@@ -20,7 +20,7 @@ class GuestBoardController extends AbstractActionController
 
         if (isset($user)) {
             $query = $this->params()->fromQuery();
-            $query['user_id'] = $user->getId();
+            $query['owner_id'] = $user->getId();
 
             $contributions = $this->api()->search('contributions', $query)->getContent();
 
