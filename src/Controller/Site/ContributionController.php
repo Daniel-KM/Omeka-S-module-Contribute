@@ -235,6 +235,8 @@ class ContributionController extends AbstractActionController
                             'o:owner' => $user ? ['o:id' => $user->getId()] : null,
                             'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
                             'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                            'o-module-contribute:patch' => false,
+                            'o-module-contribute:submitted' => false,
                             'o-module-contribute:reviewed' => false,
                             'o-module-contribute:proposal' => $proposal,
                         ];
@@ -414,6 +416,8 @@ class ContributionController extends AbstractActionController
                                 'o:owner' => $user ? ['o:id' => $user->getId()] : null,
                                 'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
                                 'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                                'o-module-contribute:patch' => true,
+                                'o-module-contribute:submitted' => true,
                                 'o-module-contribute:reviewed' => false,
                                 'o-module-contribute:proposal' => $proposal,
                             ];
@@ -422,7 +426,13 @@ class ContributionController extends AbstractActionController
                                 $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
                                 $this->prepareContributionEmail($response->getContent());
                             }
-                        } elseif ($proposal !== $contribution->proposal()) {
+                        } elseif ($contribution->isSubmitted()) {
+                            $this->messenger()->addWarning('This contribution is already submitted and cannot be updated.'); // @translate
+                            $response = $this->api()->read('contributions', $contribution->id());
+                        } elseif ($proposal === $contribution->proposal()) {
+                            $this->messenger()->addWarning('No change.'); // @translate
+                            $response = $this->api()->read('contributions', $contribution->id());
+                        } else {
                             $data = [
                                 'o-module-contribute:reviewed' => false,
                                 'o-module-contribute:proposal' => $proposal,
@@ -432,9 +442,6 @@ class ContributionController extends AbstractActionController
                                 $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
                                 $this->prepareContributionEmail($response->getContent());
                             }
-                        } else {
-                            $this->messenger()->addWarning('No change.'); // @translate
-                            $response = $this->api()->read('contributions', $contribution->id());
                         }
                         if ($response) {
                             $eventManager = $this->getEventManager();
@@ -570,6 +577,8 @@ class ContributionController extends AbstractActionController
      * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
+     *
+     * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      */
     protected function prepareProposal(
         array $proposal,

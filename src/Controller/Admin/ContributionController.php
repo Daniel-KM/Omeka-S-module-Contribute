@@ -610,6 +610,8 @@ class ContributionController extends AbstractActionController
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      *
+     * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
+     *
      * @param ContributionRepresentation $contribution
      * @param string|null $term Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key.

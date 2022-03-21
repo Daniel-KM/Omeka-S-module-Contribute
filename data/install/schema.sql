@@ -4,6 +4,7 @@ CREATE TABLE `contribution` (
     `owner_id` INT DEFAULT NULL,
     `token_id` INT DEFAULT NULL,
     `email` VARCHAR(190) DEFAULT NULL,
+    `patch` TINYINT(1) NOT NULL,
     `submitted` TINYINT(1) NOT NULL,
     `reviewed` TINYINT(1) NOT NULL,
     `proposal` LONGTEXT NOT NULL COMMENT '(DC2Type:json)',

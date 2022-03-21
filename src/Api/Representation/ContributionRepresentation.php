@@ -65,6 +65,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             'o:resource' => $res ? $res->getReference() : null,
             'o:owner' => $owner ? $owner->getReference() : null,
             'o:email' => $owner ? null : $this->email(),
+            'o-module-contribute:patch' => $this->isPatch(),
             'o-module-contribute:submitted' => $this->isSubmitted(),
             'o-module-contribute:reviewed' => $this->isReviewed(),
             'o-module-contribute:proposal' => $this->proposal(),
@@ -96,6 +97,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     public function email(): ?string
     {
         return $this->resource->getEmail();
+    }
+
+    public function isPatch(): bool
+    {
+        return $this->resource->getPatch();
     }
 
     public function isSubmitted(): bool
@@ -312,6 +318,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
+     *
+     * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      */
     public function proposalNormalizeForValidation(?int $indexProposalMedia = null): array
     {

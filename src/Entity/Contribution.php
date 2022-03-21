@@ -110,6 +110,16 @@ class Contribution extends AbstractEntity
      *     nullable=false
      * )
      */
+    protected $patch = false;
+
+    /**
+     * @var bool
+     *
+     * @Column(
+     *     type="boolean",
+     *     nullable=false
+     * )
+     */
     protected $submitted = false;
 
     /**
@@ -201,6 +211,17 @@ class Contribution extends AbstractEntity
     public function getEmail(): ?string
     {
         return $this->email;
+    }
+
+    public function setPatch($isPatch): self
+    {
+        $this->patch = (bool) $isPatch;
+        return $this;
+    }
+
+    public function getPatch(): bool
+    {
+        return (bool) $this->patch;
     }
 
     public function setSubmitted($submitted): self

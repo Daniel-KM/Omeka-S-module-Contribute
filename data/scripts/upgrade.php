@@ -192,7 +192,8 @@ if (version_compare($oldVersion, '3.3.0.17', '<')) {
 
     $sqls = <<<'SQL'
 ALTER TABLE `contribution`
-ADD `submitted` TINYINT(1) NOT NULL AFTER `email`,
+ADD `patch` TINYINT(1) NOT NULL AFTER `email`,
+ADD `submitted` TINYINT(1) NOT NULL AFTER `patch`,
 CHANGE `resource_id` `resource_id` INT DEFAULT NULL,
 CHANGE `owner_id` `owner_id` INT DEFAULT NULL,
 CHANGE `token_id` `token_id` INT DEFAULT NULL,
@@ -203,6 +204,10 @@ ALTER TABLE `contribution_token`
 CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
 CHANGE `expire` `expire` DATETIME DEFAULT NULL,
 CHANGE `accessed` `accessed` DATETIME DEFAULT NULL;
+
+UPDATE `contribution`
+SET `patch` = 1
+WHERE `resource_id` IS NOT NULL;
 
 UPDATE `contribution`
 SET `submitted` = 1;

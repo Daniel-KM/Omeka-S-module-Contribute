@@ -94,6 +94,8 @@ class ContributionFields extends AbstractHelper
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      *
+     * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
+     *
      * @var bool $isSubTemplate Allow to check the good allowed template via
      *   contributiveData(), so the allowed resource templates or allowed
      *   resource templages for media). No other difference, so invoke the right

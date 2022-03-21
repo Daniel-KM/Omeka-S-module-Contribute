@@ -75,6 +75,13 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
+        if (isset($query['patch']) && is_numeric($query['patch'])) {
+            $qb->andWhere($expr->eq(
+                'omeka_root.patch',
+                $this->createNamedParameter($qb, (bool) $query['patch'])
+            ));
+        }
+
         if (isset($query['submitted']) && is_numeric($query['submitted'])) {
             $qb->andWhere($expr->eq(
                 'omeka_root.submitted',
@@ -146,6 +153,7 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ? null
                 : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
             $email = empty($data['o:email']) ? null : $data['o:email'];
+            $isPatch = !empty($resource);
             $submitted = !empty($data['o-module-contribute:submitted']);
             $reviewed = !empty($data['o-module-contribute:reviewed']);
             $proposal = empty($data['o-module-contribute:proposal'])
@@ -155,6 +163,7 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ->setResource($resource)
                 ->setToken($token)
                 ->setEmail($email)
+                ->setPatch($isPatch)
                 ->setSubmitted($submitted)
                 ->setReviewed($reviewed)
                 ->setProposal($proposal);
@@ -168,6 +177,7 @@ class ContributionAdapter extends AbstractEntityAdapter
                         ->setResource($resource);
                 }
             }
+            // "patch" is an historical data that cannot be updated.
             if ($this->shouldHydrate($request, 'o-module-contribute:submitted', $data)) {
                 $submitted = !empty($data['o-module-contribute:submitted']);
                 $entity
