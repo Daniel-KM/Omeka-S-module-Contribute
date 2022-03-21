@@ -25,7 +25,7 @@ $(document).ready(function() {
             }));
         });
         let specificChosenOptions = chosenOptions;
-        let placeholder = target.prop('data-placeholder');
+        let placeholder = target.data('placeholder');
         specificChosenOptions['placeholder_text_single'] = placeholder
             ? placeholder
             : 'Select…';
@@ -105,10 +105,12 @@ $(document).ready(function() {
         if (target.hasClass('add-value-value-suggest')) {
             newElement = $('#edit_valuesuggest_template > .value').clone();
             name = term + '[' + index + '][@uri]';
-            $(newElement).find('input').first().prop('data-data-type', target.prop('data-type'));
-            $(newElement).find('input').first().prop('name', name);
-            $(newElement).find('input').removeAttr('readonly');
-            valueSuggestAutocomplete($(newElement).find('input').first());
+            newInput = $(newElement).find('input').first();
+            newInput
+                .prop('name', name)
+                .data('data-type', target.data('data-type'))
+                .removeAttr('readonly');
+            valueSuggestAutocomplete(newInput);
         }
 
         if (required && newInput) {

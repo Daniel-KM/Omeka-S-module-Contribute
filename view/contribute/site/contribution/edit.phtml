@@ -24,12 +24,12 @@ if (count($fields)) {
 
     // To check if ValueSuggest is available, just try to get the routed url.
     try {
-        $proxyUrl = $this->url('site/value-suggest/proxy', [], true);
+        $proxyUrl = $this->url('admin/value-suggest/proxy', [], true);
         $this->headLink()
-            ->appendStylesheet($assetUrl('css/value-suggest.css', 'ValueSuggest'));
+            ->appendStylesheet($assetUrl('css/valuesuggest.css', 'Contribute'));
         $this->headScript()
-            ->appendFile($assetUrl('js/jQuery-Autocomplete/1.2.26/jquery.autocomplete.min.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
-            ->appendFile($assetUrl('js/value-suggest.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
+            ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
+            ->appendFile($assetUrl('js/valuesuggest.js', 'Contribute'), 'text/javascript', ['defer' => 'defer'])
             ->appendScript(sprintf(
                 'const valueSuggestProxyUrl = "%s";',
                 $this->escapeJs($proxyUrl)

@@ -1,3 +1,5 @@
+/* Adapted from module Value Suggest, required to use Value Suggest in public side (the function should be available to all js). */
+
 $(document).ready(function() {
 
     $('.valuesuggest-input').each(function() {
@@ -43,7 +45,7 @@ function valueSuggestAutocomplete(suggestInput) {
         // type always uses the current language when making a query. Set
         // the type parameter here as well for consistency.
         onSearchStart: function(params) {
-            type = $(this).attr('data-data-type');
+            type = $(this).data('data-type');
             $(this).css('cursor', 'progress');
             params.type = type;
         },
