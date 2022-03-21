@@ -327,8 +327,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * The sub-contributed medias are checked too via a recursive call.
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
-     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
+     * @todo Factorize with \Contribute\Admin\ContributionController::validateContribution()
+     * @todo Factorize with \Contribute\Site\ContributionController::prepareProposal()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).

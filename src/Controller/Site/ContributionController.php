@@ -3,6 +3,7 @@
 namespace Contribute\Controller\Site;
 
 use Contribute\Api\Representation\ContributionRepresentation;
+use Contribute\Controller\ContributionTrait;
 use Contribute\Form\ContributeForm;
 use Doctrine\ORM\EntityManager;
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -16,6 +17,8 @@ use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
 {
+    use ContributionTrait;
+
     /**
      * @var \Omeka\File\Uploader
      */
@@ -680,7 +683,7 @@ class ContributionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
+     * @todo Factorize with \Contribute\Admin\ContributionController::validateContribution()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      *
@@ -1050,31 +1053,6 @@ class ContributionController extends AbstractActionController
         }
 
         return $result;
-    }
-
-    /**
-     * Get the list of uris and labels of a specific custom vocab.
-     *
-     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
-     */
-    protected function customVocabUriLabels(int $customVocabId): array
-    {
-        static $uriLabels = [];
-        if (!isset($uriLabels[$customVocabId])) {
-            $uris = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
-            $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
-            $matches = [];
-            $values = [];
-            foreach ($uris as $uri) {
-                if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                    $values[$matches[1]] = $matches[2];
-                } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                    $values[$matches[1]] = '';
-                }
-            }
-            $uriLabels[$customVocabId] = $values;
-        }
-        return $uriLabels[$customVocabId];
     }
 
     /**

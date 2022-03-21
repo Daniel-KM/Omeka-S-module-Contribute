@@ -90,8 +90,8 @@ class ContributionFields extends AbstractHelper
      *
      * @todo Remove the "@" in proposition values (or build a class).
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
-     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
+     * @todo Factorize with \Contribute\Admin\ContributionController::validateContribution()
+     * @todo Factorize with \Contribute\Site\ContributionController::prepareProposal()
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).

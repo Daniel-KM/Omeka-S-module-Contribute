@@ -90,7 +90,7 @@ class TokenRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * In admin, the token admin url use ContributeController and the id is "0",
+     * In admin, the token admin url use ContributionController and the id is "0",
      * the token is set in the query.
      *
      * {@inheritDoc}
