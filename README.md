@@ -12,6 +12,9 @@ Access to the contribute and to the edit page may be controlled by a token, that
 you can send to your users, or to users only (in particular guest users), or to
 anybody.
 
+**WARNING**: The feature "Correction" is not available in version 3.3.0.17, so
+use a version before or after to use it.
+
 
 Installation
 ------------
@@ -60,12 +63,26 @@ Usage
 TODO
 ----
 
+- [ ] Reintegrate features for corrections in version 3.3.0.18+.
+- [ ] Store the site in the contribution.
+- [ ] Store the ip and some data to check anonymous contribution (see module Contact Us).
 - [x] Make the token optional (allow anybody to edit; review all rights).
 - [ ] Manage the fillable fields with a language, so it will simplify validation of translation (use advanced resource template).
 - [ ] Finalize value resources.
 - [ ] Finalize select for resources (dynamic api query via chosen-select).
 - [x] Create an admin browse page with all contributes.
 - [ ] Remove the fallback contribution settings to simplify config and move all settings to advanced resource template.
+- [ ] Check process when the resource template is updated (required, max values, editable, fillable…).
+- [ ] Remove requirement for Advanced Resource Template: only list of editable and fillable properties may be needed (or make them all editable/fillable).
+- [ ] Remove the "@" in internal proposition values.
+- [ ] Add the elements via the form, not only via view.
+- [ ] Add resource via token (only edition currently).
+- [ ] Clarify add/edition resource for correction.
+- [ ] Dynamic select for resource (without custom vocab).
+- [ ] Add pagination in guest contribution list.
+- [ ] Require only on submit for new contribution?
+- [ ] Improve lang management.
+- [ ] Allow to create subresource in the main form (author). Require check.
 
 
 Warning
