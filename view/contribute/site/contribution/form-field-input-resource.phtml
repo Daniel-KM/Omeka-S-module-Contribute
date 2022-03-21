@@ -25,12 +25,14 @@
  * @var int $indexFieldInput
  * @var \Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
- * @var array $fieldContribution
+ * @var ?array $fieldContribution
+ * @var ?int $indexContribution
  */
 
 $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : ($field['template_property'] ? $field['template_property']->isPrivate() : false);
+$isRequired = !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
 
 $val = $proposed['@resource'] ?? $original['@resource'] ?? '';
 
@@ -70,7 +72,7 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
                 ->setEmptyOption('')
                 ->setAttributes([
                     'class' => 'form-control input-value chosen-select',
-                    'required' => false,
+                    'required' => $isRequired,
                     'multiple' => false,
                     'data-value-key' => '@resource',
                     'aria-labelledby' => 'property-' . $property->id() . '-label',

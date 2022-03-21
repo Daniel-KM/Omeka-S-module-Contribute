@@ -25,12 +25,14 @@
  * @var int $indexFieldInput
  * @var \Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
- * @var array $fieldContribution
+ * @var ?array $fieldContribution
+ * @var ?int $indexContribution
  */
 
 $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : ($field['template_property'] ? $field['template_property']->isPrivate() : false);
+$isRequired = !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
 
 $val = $proposed['@uri'] ?? $original['@uri'];
 $label = $proposed['@uri'] ?? $original['@label'];
@@ -48,7 +50,7 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
         <div class="input">
             <label class="value input-container">
                 <?= $translate('URI') ?>:
-                <input type="text" class="form-control value to-require" data-value-key="@id" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value = "<?= $escapeAttr($val) ?>"/>
+                <input type="text" class="form-control value to-require" data-value-key="@id" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?>/>
             </label>
         </div>
         <div class="input">

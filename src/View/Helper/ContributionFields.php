@@ -48,6 +48,7 @@ class ContributionFields extends AbstractHelper
      *     'property' => {PropertyRepresentation},
      *     'alternate_label' => {label},
      *     'alternate_comment' => {comment},
+     *     'required' => {bool},
      *     'editable' => {bool},
      *     'fillable' => {bool},
      *     'datatypes' => {array},
@@ -88,6 +89,7 @@ class ContributionFields extends AbstractHelper
             'property' => null,
             'alternate_label' => null,
             'alternate_comment' => null,
+            'required' => false,
             'editable' => false,
             'fillable' => false,
             'datatypes' => [],
@@ -116,6 +118,7 @@ class ContributionFields extends AbstractHelper
                 'property' => $property,
                 'alternate_label' => $templateProperty->alternateLabel(),
                 'alternate_comment' => $templateProperty->alternateComment(),
+                'required' => $templateProperty->isRequired(),
                 'editable' => $contributive->isTermEditable($term),
                 'fillable' => $contributive->isTermFillable($term),
                 'datatypes' => $contributive->datatypeTerm($term),
@@ -128,6 +131,7 @@ class ContributionFields extends AbstractHelper
         foreach ($values as $term => $valueInfo) {
             if (!isset($fields[$term])) {
                 $fields[$term] = $valueInfo;
+                $fields[$term]['required'] = false;
                 $fields[$term]['editable'] = false;
                 $fields[$term]['fillable'] = false;
                 $fields[$term]['datatypes'] = [];

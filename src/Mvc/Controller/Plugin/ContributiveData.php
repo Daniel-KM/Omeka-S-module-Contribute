@@ -26,6 +26,7 @@ class ContributiveData extends AbstractPlugin
         $this->data = new ArrayObject([
             'is_contributive' => false,
             'template' => null,
+            'required' => false,
             'editable_mode' => 'whitelist',
             'editable' => [],
             'fillable_mode' => 'whitelist',
@@ -65,6 +66,10 @@ class ContributiveData extends AbstractPlugin
             $term = $property->term();
             $datatype = $resourceTemplateProperty->dataType();
             $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
+            $this->data['required'] = $resourceTemplateProperty->isRequired();
+            if (!method_exists($resourceTemplateProperty, 'data')) {
+                continue;
+            }
             $rtpData = $resourceTemplateProperty->data();
             // TODO Manage repeatable property.
             $rtpData = reset($rtpData);
@@ -98,6 +103,9 @@ class ContributiveData extends AbstractPlugin
         return $this->data['is_contributive'];
     }
 
+    /**
+     * @todo Always true: remove this method.
+     */
     public function hasTemplate(): bool
     {
         return !empty($this->data['template']);
@@ -106,6 +114,11 @@ class ContributiveData extends AbstractPlugin
     public function template(): ?ResourceTemplateRepresentation
     {
         return $this->data['template'];
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->data['required'];
     }
 
     public function editableMode(): string

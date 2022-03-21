@@ -22,17 +22,18 @@
  */
 
 // Templates for the fields according to the datatype.
+// They are outside the template form and marked readonly to not be included in the form.
 ?>
 
 <div id="edit_value_template" class="contribute_template value" style="display:none;">
     <div class="value" lang="">
-        <textarea class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"></textarea>
+        <textarea class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"></textarea>
     </div>
 </div>
 
 <div id="edit_resource_template" class="contribute_template resource" style="display:none;">
     <div class="value resource">
-        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label"><option value=""></option></select>
+        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
 </div>
 
@@ -42,13 +43,13 @@
             <div class="input">
                 <label class="value input-container">
                     <?= $translate('URI') ?>:
-                    <input type="text" class="form-control value to-require" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]"/>
+                    <input type="text" class="form-control value to-require" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" readonly="readonly"/>
                 </label>
             </div>
             <div class="input">
                 <label class="value-label label-container">
                     <?= $translate('Label') ?>:
-                    <input type="text" class="form-control value-label" data-value-key="@label" name="dcterms:title[__INDEX__][@label]"/>
+                    <input type="text" class="form-control value-label" data-value-key="@label" name="dcterms:title[__INDEX__][@label]" readonly="readonly"/>
                 </label>
             </div>
         </div>
@@ -58,7 +59,7 @@
 <?php if ($hasValueSuggest): ?>
 <div id="edit_valuesuggest_template" class="contribute_template value_suggest" style="display:none;">
     <div class="value value_suggest">
-        <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" data-data-type="" data-uri="" data-value="" value="" aria-labelledby="property-__PROPERTYID__-label"/>
+        <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" data-data-type="" data-uri="" data-value="" value="" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"/>
     </div>
 </div>
 <?php endif; ?>

@@ -46,6 +46,14 @@ $vars->offsetSet('valueResourceTypes', $valueResourceTypes);
 $vars->offsetSet('valueResourceQueries', $valueResourceQueries);
 $vars->offsetSet('shortResourceTitle', $shortResourceTitle);
 
+// Store in js basic config of the fields.
+$simpleFields = $fields;
+foreach ($simpleFields as &$simpleField) {
+    unset($simpleField['template_property'], $simpleField['property'], $simpleField['alternate_comment'], $simpleField['alternate_label'], $simpleField['values'], $simpleField['contributions']);
+}
+$this->headScript()
+    ->appendScript(sprintf('const fields = %s;', json_encode($simpleFields, 320)));
+
 $form->prepare();
 
 $labelInfo = $this->setting('property_label_information');
@@ -67,7 +75,7 @@ $labelInfo = $this->setting('property_label_information');
         $property = $field['property'];
         $vars->offsetSet('field', $field);
         $vars->offsetSet('term', $term);
-        $vars->offsetSet('indexInput', $indexFieldInput);
+        $vars->offsetSet('indexFieldInput', $indexFieldInput);
         $vars->offsetSet('property', $property);
         ?>
 
@@ -100,14 +108,25 @@ $labelInfo = $this->setting('property_label_information');
         <?php // Editable fields, that may have been edited or not. ?>
 
         <div class="values">
-           <?php
-           foreach ($field['contributions'] as $fieldContribution):
-                /** @var \Omeka\Api\Representation\ValueRepresentation $value */
-                $value = $fieldContribution['original']['value'];
-                if (!$value && !$field['fillable']) continue;
-                $isValueSuggest = substr($fieldContribution['type'], 0, 12) === 'valuesuggest';
-                if ($isValueSuggest && !$hasValueSuggest) continue;
-                $vars->offsetSet('fieldContribute', $fieldContribution);
+           <?php // Display at least one prepared field for all required fields.
+           foreach (count($field['contributions']) ? $field['contributions'] : [null] as $indexContribution => $fieldContribution):
+               // There is no contribution: check if the field is required to display at least one field.
+               if (is_null($fieldContribution)) {
+                   if (empty($field['required']) || !($field['editable'] && $field['fillable'])) continue;
+                   $valueType = reset($field['datatypes']);
+                   if (!$valueType) continue;
+                   $value = null;
+                   // TODO Add the template property.
+                   $fieldContribution = ['type' => $valueType, 'required' => true, 'original' => [], 'proposed' => [], 'template_property' => null];
+               } else {
+                   /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+                    $value = $fieldContribution['original']['value'];
+                    if (!$value && !$field['fillable']) continue;
+                    $isValueSuggest = substr($fieldContribution['type'], 0, 12) === 'valuesuggest';
+                    if ($isValueSuggest && !$hasValueSuggest) continue;
+                }
+                $vars->offsetSet('indexContribution', $indexContribution);
+                $vars->offsetSet('fieldContribution', $fieldContribution);
                 $vars->offsetSet('value', $value);
                 // Check if the value exists or is editable (the value may be empty).
                 if ($value && !$field['editable']):

@@ -25,12 +25,14 @@
  * @var int $indexFieldInput
  * @var \Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
- * @var array $fieldContribution
+ * @var ?array $fieldContribution
+ * @var ?int $indexContribution
  */
 
 $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : ($field['template_property'] ? $field['template_property']->isPrivate() : false);
+$isRequired = !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
 
 $val = $proposed['@uri'] ?? $original['@uri'];
 $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
@@ -46,5 +48,5 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
-    <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a>"/>
+    <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a>"<?= $isRequired ? ' required="required"' : '' ?>/>
 </div>

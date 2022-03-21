@@ -1,4 +1,5 @@
 $(document).ready(function() {
+
     $('#edit-resource .inputs').on('click', '.add-value', function(ev) {
         ev.stopPropagation();
 
@@ -13,12 +14,15 @@ $(document).ready(function() {
         var inputs = target.closest('.property').find('.values').first();
         var newElement,
             name,
-            namel;
+            namel,
+            newInput;
+
+        var required = fields[term] && fields[term]['required'];
 
         if (target.hasClass('add-value-new')) {
             newElement = $('#edit_value_template > .value').clone();
             name = term + '[' + index + '][@value]';
-            $(newElement).find('textarea')
+            newInput = $(newElement).find('textarea')
                 .prop('name', name)
                 .removeAttr('readonly')
                 .val('');
@@ -27,14 +31,14 @@ $(document).ready(function() {
         if (target.hasClass('add-value-resource')) {
             newElement = $('#edit_resource_template > .value').clone();
             name = term + '[' + index + '][@resource]';
-            let select = $(newElement).find('select');
-            select
+            newInput = $(newElement).find('select');
+            newInput
                 .prop('name', name)
                 .removeAttr('readonly')
                 .addClass('chosen-select')
                 .val('');
             $.each(JSON.parse(target.prop('data-value-options')), function (i, item) {
-                select.append($('<option>', {
+                newInput.append($('<option>', {
                     value: item.v,
                     text : item.t
                 }));
@@ -46,7 +50,7 @@ $(document).ready(function() {
                 include_group_label_in_selected: true,
                 placeholder_text_single: target.prop('data-placeholder'),
             };
-            select.chosen(specificChosenOptions);
+            newInput.chosen(specificChosenOptions);
         }
 
         if (target.hasClass('add-value-uri')) {
@@ -70,6 +74,10 @@ $(document).ready(function() {
             valueSuggestAutocomplete($(newElement).find('input').first());
         }
 
+        if (required && newInput) {
+            newInput.prop('required', 'required');
+        }
+
         inputs.append(newElement);
         index = parseInt(index) + 1;
         selector.data('next-index', index);
@@ -87,4 +95,5 @@ $(document).ready(function() {
         include_group_label_in_selected: true,
     };
     $('.chosen-select').chosen(chosenOptions);
+
 });
