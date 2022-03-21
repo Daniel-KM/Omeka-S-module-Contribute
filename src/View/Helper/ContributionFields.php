@@ -83,7 +83,6 @@ class ContributionFields extends AbstractHelper
      */
     public function __invoke(AbstractResourceEntityRepresentation $resource = null, ContributionRepresentation $contribution = null)
     {
-        $view = $this->getView();
         $fields = [];
 
         $defaultField = [
@@ -107,78 +106,36 @@ class ContributionFields extends AbstractHelper
         }
         $contributive = $this->contributiveData->__invoke($resourceTemplate);
 
-        // The default template is used when there is no template or when the
-        // used one is not configured. $contributive has info about that.
-
-        // List the fields for the resource when there is a resource template.
-        if ($contributive->hasTemplate()) {
-            // List the resource template fields first.
-            foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
-                $property = $templateProperty->property();
-                $term = $property->term();
-                $fields[$term] = [
-                    'template_property' => $templateProperty,
-                    'property' => $property,
-                    'alternate_label' => $templateProperty->alternateLabel(),
-                    'alternate_comment' => $templateProperty->alternateComment(),
-                    'editable' => $contributive->isTermEditable($term),
-                    'fillable' => $contributive->isTermFillable($term),
-                    'datatypes' => $contributive->datatypeTerm($term),
-                    'values' => $values[$term]['values'] ?? [],
-                    'contributions' => [],
-                ];
-            }
-
-            // When the resource template is configured, the remaining values
-            // are never editable, since they are not in the resource template.
-            // TODO Make the properties that are not in a template editable? Currently no.
-            if (!$contributive->useDefaultProperties()) {
-                foreach ($values as $term => $valueInfo) {
-                    if (!isset($fields[$term])) {
-                        $fields[$term] = $valueInfo;
-                        $fields[$term]['editable'] = false;
-                        $fields[$term]['fillable'] = false;
-                        $fields[$term]['datatypes'] = [];
-                        $fields[$term]['contributions'] = [];
-                        $fields[$term] = array_replace($defaultField, $fields[$term]);
-                    }
-                }
-            }
+        if (!$contributive->hasTemplate()) {
+            return [];
         }
 
-        // Append default fields from the main config, with or without template.
-        if ($contributive->useDefaultProperties()) {
-            $api = $view->api();
-            // Append the values of the resource.
-            foreach ($values as $term => $valueInfo) {
-                if (!isset($fields[$term])) {
-                    $fields[$term] = $valueInfo;
-                    $fields[$term]['template_property'] = null;
-                    $fields[$term]['editable'] = $contributive->isTermEditable($term);
-                    $fields[$term]['fillable'] = $contributive->isTermFillable($term);
-                    $fields[$term]['datatypes'] = $contributive->datatypeTerm($term);
-                    $fields[$term]['contributions'] = [];
-                    $fields[$term] = array_replace($defaultField, $fields[$term]);
-                }
-            }
+        // List the fields for the resource.
+        foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
+            $property = $templateProperty->property();
+            $term = $property->term();
+            $fields[$term] = [
+                'template_property' => $templateProperty,
+                'property' => $property,
+                'alternate_label' => $templateProperty->alternateLabel(),
+                'alternate_comment' => $templateProperty->alternateComment(),
+                'editable' => $contributive->isTermEditable($term),
+                'fillable' => $contributive->isTermFillable($term),
+                'datatypes' => $contributive->datatypeTerm($term),
+                'values' => $values[$term]['values'] ?? [],
+                'contributions' => [],
+            ];
+        }
 
-            // Append the fillable fields.
-            if ($contributive->fillableMode() !== 'blacklist') {
-                foreach ($contributive->fillableProperties() as $term => $propertyId) {
-                    if (!isset($fields[$term])) {
-                        $fields[$term] = [
-                            'template_property' => null,
-                            'property' => $api->read('properties', $propertyId)->getContent(),
-                            'alternate_label' => null,
-                            'alternate_comment' => null,
-                            'editable' => $contributive->isTermEditable($term),
-                            'fillable' => true,
-                            'datatypes' => $contributive->datatypeTerm($term),
-                            'values' => [],
-                            'contributions' => [],
-                        ];
-                    }
-                }
+        // The remaining values are never editable.
+        foreach ($values as $term => $valueInfo) {
+            if (!isset($fields[$term])) {
+                $fields[$term] = $valueInfo;
+                $fields[$term]['editable'] = false;
+                $fields[$term]['fillable'] = false;
+                $fields[$term]['datatypes'] = [];
+                $fields[$term]['contributions'] = [];
+                $fields[$term] = array_replace($defaultField, $fields[$term]);
             }
         }
 
@@ -418,11 +375,10 @@ class ContributionFields extends AbstractHelper
             }
             $propertyId = $this->propertiesByTerm[$term];
             $typeTemplate = null;
-            if ($resourceTemplate) {
-                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
-                if ($resourceTemplateProperty) {
-                    $typeTemplate = $resourceTemplateProperty->dataType();
-                }
+            $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+            // TODO Check if it is possible to have a property that is not set.
+            if ($resourceTemplateProperty) {
+                $typeTemplate = $resourceTemplateProperty->dataType();
             }
             foreach ($termProposal as $proposal) {
                 if ($typeTemplate) {

@@ -26,7 +26,6 @@ class ContributiveData extends AbstractPlugin
         $this->data = new ArrayObject([
             'is_contributive' => false,
             'template' => null,
-            'default_properties' => false,
             'editable_mode' => 'whitelist',
             'editable' => [],
             'fillable_mode' => 'whitelist',
@@ -107,11 +106,6 @@ class ContributiveData extends AbstractPlugin
     public function template(): ?ResourceTemplateRepresentation
     {
         return $this->data['template'];
-    }
-
-    public function useDefaultProperties(): bool
-    {
-        return $this->data['default_properties'];
     }
 
     public function editableMode(): string
