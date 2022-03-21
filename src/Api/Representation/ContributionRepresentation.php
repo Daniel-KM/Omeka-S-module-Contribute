@@ -199,10 +199,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Check if a resource value exists in original resource.
      */
-    public function resourceValueResource(string $term, string $string): ?\Omeka\Api\Representation\ValueRepresentation
+    public function resourceValueResource(string $term, $intOrString): ?\Omeka\Api\Representation\ValueRepresentation
     {
-        $string = (int) $string;
-        if (!$string) {
+        $int = (int) $intOrString;
+        if (!$int) {
             return null;
         }
         $values = $this->resource()->value($term, ['all' => true]);
@@ -212,7 +212,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             $typeColon = strtok($type, ':');
             if (in_array($typeColon, ['resource', 'customvocab'])
                 && ($valueResource = $value->valueResource())
-                && $valueResource->id() === $string
+                && $valueResource->id() === $int
             ) {
                 return $value;
             }
@@ -376,12 +376,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
                     case $typeColon === 'resource':
                     case $typeColon === 'customvocab' && $baseType === 'resource':
-                        $original = $proposition['original']['@resource'];
-                        $proposed = $proposition['proposed']['@resource'];
+                        $original = isset($proposition['original']['@resource']) ? (int) $proposition['original']['@resource'] : 0;
+                        $proposed = isset($proposition['proposed']['@resource']) ? (int) $proposition['proposed']['@resource'] : 0;
 
                         // Nothing to do if there is no proposition and no original.
-                        $hasOriginal = (bool) strlen($original);
-                        $hasProposition = (bool) strlen($proposed);
+                        $hasOriginal = (bool) $original;
+                        $hasProposition = (bool) $proposed;
                         if (!$hasOriginal && !$hasProposition) {
                             unset($proposal[$term][$key]);
                             continue 2;
@@ -395,7 +395,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value_updated'] = $prop['value'];
                             $prop['validated'] = true;
                             $prop['process'] = 'keep';
-                        } elseif (!strlen($proposed)) {
+                        } elseif (!$proposed) {
                             // If no proposition, the user wants to remove a value, so check if it still exists.
                             // Either the value is validated, either it is not (to be removed, edited or appended).
                             $prop['value'] = $this->resourceValueResource($term, $original);
@@ -405,7 +405,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
-                        } elseif (!strlen($original)
+                        } elseif (!$original
                             // Even if there is no original, check if a new
                             // value has been appended.
                             && !$this->resourceValueResource($term, $proposed)
