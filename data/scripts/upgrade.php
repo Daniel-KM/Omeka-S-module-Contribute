@@ -51,7 +51,7 @@ SQL;
     // Use single statements for execution.
     // See core commit #2689ce92f.
     foreach (array_filter(array_map('trim', explode(";\n", $sqls))) as $sql) {
-        $connection->exec($sql);
+        $connection->executeStatement($sql);
     }
 }
 
@@ -73,7 +73,7 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
 ALTER TABLE `contribution`
 CHANGE `proposal` `proposal` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 
     $contributeTemplateData = $settings->get('contribute_resource_template_data', []);
     $byTemplate = [];
@@ -220,4 +220,22 @@ SQL;
 
     $settings->set('contribute_notify_recipients', $settings->get('contribute_notify'));
     $settings->delete('contribute_notify');
+
+    $messenger = new Messenger();
+    $message = new Message(
+        'It’s now possible for the user to select a resource template.' // @translate
+    );
+    $messenger->addSuccess($message);
+    $message = new Message(
+        'It’s now possible to create a template with a sub-template for one or more media.' // @translate
+    );
+    $messenger->addSuccess($message);
+    $message = new Message(
+        'It’s now possible to create a template with file, custom vocab, value suggest or numeric fields.' // @translate
+    );
+    $messenger->addSuccess($message);
+    $message = new Message(
+        'It’s now possible to edit a contribution until it is submitted.' // @translate
+    );
+    $messenger->addSuccess($message);
 }
