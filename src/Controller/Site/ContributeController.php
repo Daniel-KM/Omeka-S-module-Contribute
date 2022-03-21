@@ -53,6 +53,7 @@ class ContributeController extends AbstractActionController
             ->setAttribute('id', 'edit-resource');
         $form->get('submit')->setLabel('Add'); // @translate
 
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
         $contributive = $this->contributiveData();
         if (!$contributive->isContributive()) {
             $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
@@ -105,10 +106,13 @@ class ContributeController extends AbstractActionController
         $fields = [];
         if ($template && !$resourceTemplate) {
             $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
         } elseif ($resourceTemplate && !in_array($resourceTemplate->id(), $allowedResourceTemplates)) {
             $this->logger()->warn(new Message('A user tried to add a resource with a non-allowed template "%s".', $template)); // @translate
+            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
         } elseif (!count($allowedResourceTemplates)) {
             $this->logger()->warn(new Message('No template defined for contribution.')); // @translate
+            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
         } else {
             /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
             $contributionFields = $this->viewHelpers()->get('contributionFields');
@@ -246,13 +250,17 @@ class ContributeController extends AbstractActionController
 
         /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->viewHelpers()->get('contributionFields');
+        $fields = $contributionFields($resource, $contribution);
+        if (!count($fields)) {
+            $this->messenger()->addWarning('No field can be edited. Ask the administrator for more information.'); // @translate
+        }
 
         return new ViewModel([
             'site' => $this->currentSite(),
             'form' => $form,
             'resource' => $resource,
             'contribution' => $contribution,
-            'fields' => $contributionFields($resource, $contribution),
+            'fields' => $fields,
         ]);
     }
 

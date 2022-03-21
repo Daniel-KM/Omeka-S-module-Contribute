@@ -12,26 +12,30 @@ $plugins = $this->getHelperPluginManager();
 $translate = $plugins->get('translate');
 $assetUrl = $plugins->get('assetUrl');
 
-$this->headLink()
-    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
-    ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
-$this->headScript()
-    ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
-    ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
-
-// To check if ValueSuggest is available, just try to get the routed url.
-try {
-    $proxyUrl = $this->url('site/value-suggest/proxy', [], true);
+// Don't prepare form if there are no fields.
+if (count($fields)) {
     $this->headLink()
-        ->appendStylesheet($assetUrl('css/value-suggest.css', 'ValueSuggest'));
+        ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
+        ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
     $this->headScript()
-        ->appendFile($assetUrl('js/jQuery-Autocomplete/1.2.26/jquery.autocomplete.min.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
-        ->appendFile($assetUrl('js/value-suggest.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
-        ->appendScript(sprintf(
-            'const valueSuggestProxyUrl = "%s";',
-            $this->escapeJs($proxyUrl)
-        ));
-} catch (\Exception $e) {
+        ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
+        ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
+
+    // To check if ValueSuggest is available, just try to get the routed url.
+    try {
+        $proxyUrl = $this->url('site/value-suggest/proxy', [], true);
+        $this->headLink()
+            ->appendStylesheet($assetUrl('css/value-suggest.css', 'ValueSuggest'));
+        $this->headScript()
+            ->appendFile($assetUrl('js/jQuery-Autocomplete/1.2.26/jquery.autocomplete.min.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
+            ->appendFile($assetUrl('js/value-suggest.js', 'ValueSuggest'), 'text/javascript', ['defer' => 'defer'])
+            ->appendScript(sprintf(
+                'const valueSuggestProxyUrl = "%s";',
+                $this->escapeJs($proxyUrl)
+            ));
+    } catch (\Exception $e) {
+        // Nothing to prepare.
+    }
 }
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource') . ' resource');
@@ -47,8 +51,8 @@ $mapLabels = [
     <h2 class="text-primary my-3"><?= $resource->displayTitle() ?></h2>
     <?= $this->pageTitle(sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>
     <?= $this->messages() ?>
-    <?php $this->trigger('view.edit.before'); ?>
-    <?php
+    <?php if (count($fields)):
+    $this->trigger('view.edit.before');
     echo $this->partial('contribute/site/contribute/form.phtml', [
         'site' => $site,
         'form' => $form,
@@ -58,7 +62,7 @@ $mapLabels = [
         'action' => 'edit',
         'submitLabel' => $translate('Submit'),
     ]);
+    $this->trigger('view.edit.after');
+    endif; ?>
     ?>
 </div>
-
-<?php $this->trigger('view.edit.after'); ?>
