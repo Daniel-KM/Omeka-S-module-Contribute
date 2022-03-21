@@ -53,7 +53,7 @@ class ContributiveData extends AbstractPlugin
                 $resourceTemplate = $controller->api()->searchOne('resource_templates', ['id' => $resourceTemplateId])->getContent();
             }
             if (!$resourceTemplate) {
-                $controller->log()->err('A resource template must be set to allow to contribute'); // @translate
+                $controller->logger()->err('A resource template must be set to allow to contribute'); // @translate
                 return $this;
             }
         }
