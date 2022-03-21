@@ -2,12 +2,13 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Entity\User $user
  * @var \Contribute\Api\Representation\ContributionRepresentation[] $contributions
  */
 
 $plugins = $this->getHelperPluginManager();
-$translate = $plugins->get('translate');
 $i18n = $plugins->get('i18n');
+$translate = $plugins->get('translate');
 
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource browse');
 
@@ -17,24 +18,26 @@ $this->headScript()
     ->appendFile($this->assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
 ?>
 
-<?= $this->pageTitle($translate('Contribution'), 2) // @translate ?>
+<?= $this->pageTitle($translate('Contributions'), 2) // @translate ?>
 
 <?php if (count($contributions)): ?>
 <h3><?= sprintf($translate('%d contributions'), count($contributions)) // @translate ?></h3>
 
 <?php $this->trigger('view.browse.before'); ?>
 <ul class="resource-list">
-    <?php foreach ($contributions as $contribution): ?>
+    <?php foreach ($contributions as $contribution):
+        $resource = $contribution->resource();
+        ?>
     <li class="resource contribution">
         <?= sprintf('Contribution #%d (%s)', $contribution->id(), $i18n->dateFormat($contribution->created(), 'medium', 'medium')) ?>
-        <h4><?= $contribution->resource() ? $contribution->resource()->link() : null ?></h4>
+        <h4><?= $resource ? $resource->link($resource->displayTitle()) : $translate('Not submitted') ?></h4>
     </li>
     <?php endforeach; ?>
 </ul>
 <?php $this->trigger('view.browse.after'); ?>
 
 <?php else: ?>
-<p>
+<p class="noresults">
     <?= $translate('There are no contributions.') // @translate ?>
 </p>
 <?php endif; ?>

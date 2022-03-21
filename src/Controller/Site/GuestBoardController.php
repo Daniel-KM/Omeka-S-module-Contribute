@@ -26,6 +26,7 @@ class GuestBoardController extends AbstractActionController
 
             $view = new ViewModel([
                 'site' => $this->currentSite(),
+                'user' => $user,
                 'contributions' => $contributions,
             ]);
             return $view

@@ -141,6 +141,7 @@ class ContributionController extends AbstractActionController
 
         return new ViewModel([
             'site' => $this->currentSite(),
+            'user' => $user,
             'form' => $form,
             'resource' => null,
             'contribution' => null,
@@ -282,6 +283,7 @@ class ContributionController extends AbstractActionController
 
         return new ViewModel([
             'site' => $this->currentSite(),
+            'user' => $user,
             'form' => $form,
             'resource' => $resource,
             'contribution' => $contribution,
