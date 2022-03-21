@@ -66,9 +66,10 @@ $day = trim((string) $day, '- ');
 // Use a pseudo-hidden "tel" to validate via the form directly and reduce issues.
 // The pattern is only for date for now, not full time.
 // The year/month/date is filled via js (name and value).
+// TODO The main input is hidden via css and not set required to avoid issue with js.
 ?>
 <div class="<?= implode(' ', $class) ?>" role="group">
-    <input style="display:none;" type="tel" data-input-part="main" data-value-key="@value" name="<?= $baseName . '[@value]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($val) ?>" pattern="^\d{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2\d)|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))$" />
+    <input style="display:none;" type="tel" data-input-part="main" data-value-key="@value" name="<?= $baseName . '[@value]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($val) ?>" pattern="^\d{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2\d)|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))$" />
     <div class="input-body">
         <div class="input">
             <label class="value input-container">

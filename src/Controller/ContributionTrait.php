@@ -217,6 +217,9 @@ trait ContributionTrait
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case 'boolean':
+                    case 'html':
+                    case 'xml':
                     case $typeColon === 'numeric':
                     case $typeColon === 'customvocab' && $baseType === 'literal':
                         $data[$term][] = [
