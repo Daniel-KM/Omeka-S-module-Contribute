@@ -1,0 +1,56 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Form\ResourceForm $form
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var array $fields
+ * @var string $action "add" or "edit"
+ * @var string $submitLabel
+ *
+ * @var \Laminas\View\Helper\EscapeHtml $escape
+ * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
+ * @var \Omeka\Api\Manager $apiManager
+ * @var bool $hasValueSuggest
+ *
+ * @var array $valueResourceTypes
+ * @var array $valueResourceQueries
+ * @var callable $shortResourceTitle
+ *
+ * @var array $field
+ * @var string $term
+ * @var int $indexFieldInput
+ * @var \Omeka\Api\Representation\PropertyRepresentation $property
+ * @var \Omeka\Api\Representation\ValueRepresentation $value
+ */
+
+// Simple display of the value for properties that are not editable or without datatypes.
+
+// See core common/resource-values.
+
+$valueType = $value->type();
+$isValueResource = strtok($valueType, ':') === 'resource';
+$isPrivate = !$value->isPublic();
+
+$class = ['value'];
+if ($isValueResource):
+    $class[] = 'resource';
+    $class[] = $escape($value->valueResource()->resourceName());
+elseif ('uri' === $valueType):
+    $class[] = 'uri';
+endif;
+if ($isPrivate):
+    $class[] = 'private';
+endif;
+$language = $value->lang();
+?>
+
+<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
+    <?php if ($language): ?>
+    <span class="language"><?= $language ?></span>
+    <?php endif; ?>
+    <?= $value->asHtml() ?>
+</div>

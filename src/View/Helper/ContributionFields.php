@@ -220,17 +220,17 @@ class ContributionFields extends AbstractHelper
             if (!isset($proposals[$term])) {
                 continue;
             }
-            foreach ($field['contributions'] as &$fieldContribute) {
+            foreach ($field['contributions'] as &$fieldContribution) {
                 $proposed = null;
-                $type = $fieldContribute['type'];
+                $type = $fieldContribution['type'];
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
-                            && $proposal['original']['@uri'] === $fieldContribute['original']['@uri']
-                            && $proposal['original']['@label'] === $fieldContribute['original']['@label']
+                            && $proposal['original']['@uri'] === $fieldContribution['original']['@uri']
+                            && $proposal['original']['@label'] === $fieldContribution['original']['@label']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -239,7 +239,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldContribute['proposed'] = [
+                    $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => null,
                         '@uri' => $proposed['@uri'],
@@ -249,7 +249,7 @@ class ContributionFields extends AbstractHelper
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@resource'])
                             && (int) $proposal['original']['@resource']
-                            && $proposal['original']['@resource'] === $fieldContribute['original']['@resource']
+                            && $proposal['original']['@resource'] === $fieldContribution['original']['@resource']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -258,7 +258,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldContribute['proposed'] = [
+                    $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => (int) $proposed['@resource'],
                         '@uri' => null,
@@ -267,7 +267,7 @@ class ContributionFields extends AbstractHelper
                 } else {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@value'])
-                            && $proposal['original']['@value'] === $fieldContribute['original']['@value']
+                            && $proposal['original']['@value'] === $fieldContribution['original']['@value']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -276,7 +276,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldContribute['proposed'] = [
+                    $fieldContribution['proposed'] = [
                         '@value' => $proposed['@value'],
                         '@resource' => null,
                         '@uri' => null,
@@ -286,7 +286,7 @@ class ContributionFields extends AbstractHelper
                 unset($proposals[$term][$keyProposal]);
             }
         }
-        unset($field, $fieldContribute);
+        unset($field, $fieldContribution);
 
         // Fill the proposed contribute, according to the existing values: some
         // contributions may have been accepted or the resource updated, so check
@@ -295,17 +295,17 @@ class ContributionFields extends AbstractHelper
             if (!isset($proposals[$term])) {
                 continue;
             }
-            foreach ($field['contributions'] as &$fieldContribute) {
+            foreach ($field['contributions'] as &$fieldContribution) {
                 $proposed = null;
-                $type = $fieldContribute['type'];
+                $type = $fieldContribution['type'];
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
                 if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
-                            && $proposal['proposed']['@uri'] === $fieldContribute['original']['@uri']
-                            && $proposal['proposed']['@label'] === $fieldContribute['original']['@label']
+                            && $proposal['proposed']['@uri'] === $fieldContribution['original']['@uri']
+                            && $proposal['proposed']['@label'] === $fieldContribution['original']['@label']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -314,7 +314,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldContribute['proposed'] = [
+                    $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => null,
                         '@uri' => $proposed['@uri'],
@@ -324,7 +324,7 @@ class ContributionFields extends AbstractHelper
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@resource'])
                             && (int) $proposal['proposed']['@resource']
-                            && $proposal['proposed']['@resource'] === $fieldContribute['original']['@resource']
+                            && $proposal['proposed']['@resource'] === $fieldContribution['original']['@resource']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -333,7 +333,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldContribute['proposed'] = [
+                    $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => (int) $proposed['@resource'],
                         '@uri' => null,
@@ -342,7 +342,7 @@ class ContributionFields extends AbstractHelper
                 } else {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@value'])
-                            && $proposal['proposed']['@value'] === $fieldContribute['original']['@value']
+                            && $proposal['proposed']['@value'] === $fieldContribution['original']['@value']
                         ) {
                             $proposed = $proposal['proposed'];
                             break;
@@ -351,7 +351,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
-                    $fieldContribute['proposed'] = [
+                    $fieldContribution['proposed'] = [
                         '@value' => $proposed['@value'],
                         '@resource' => null,
                         '@uri' => null,
@@ -361,7 +361,7 @@ class ContributionFields extends AbstractHelper
                 unset($proposals[$term][$keyProposal]);
             }
         }
-        unset($field, $fieldContribute);
+        unset($field, $fieldContribution);
 
         // Append only remaining contributions that are fillable.
         // Other ones are related to an older config.

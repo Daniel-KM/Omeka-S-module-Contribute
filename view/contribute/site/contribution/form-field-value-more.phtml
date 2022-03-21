@@ -1,0 +1,76 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Form\ResourceForm $form
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var array $fields
+ * @var string $action "add" or "edit"
+ * @var string $submitLabel
+ *
+ * @var \Laminas\View\Helper\EscapeHtml $escape
+ * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
+ * @var \Omeka\Api\Manager $apiManager
+ * @var bool $hasValueSuggest
+ *
+ * @var array $valueResourceTypes
+ * @var array $valueResourceQueries
+ * @var callable $shortResourceTitle
+ *
+ * @var array $field
+ * @var string $term
+ * @var int $indexFieldInput
+ * @var \Omeka\Api\Representation\PropertyRepresentation $property
+ * @var \Omeka\Api\Representation\ValueRepresentation $value
+ */
+
+?>
+
+<div class="inputs">
+    <div class="add-values default-selector" data-next-index="<?= $indexFieldInput ?>" data-next-term="<?= $term ?>">
+        <?php foreach ($field['datatypes'] as $datatype) switch($datatype):
+
+            case 'literal': ?>
+        <div class="add-value add-value-new button o-icon-add"><?= $translate('Add value') ?></div>
+            <?php
+                break;
+
+            case 'resource':
+            case 'resource:item':
+            case 'resource:itemset':
+            case 'resource:media':
+                if (isset($valueResourceQueries[$term])):
+                    // Get the list of options from the core select element.
+                    $resourceName = $valueResourceTypes[$datatype];
+                    $element = new \Omeka\Form\Element\ResourceSelect();
+                    $element
+                        ->setApiManager($apiManager);
+                    $element
+                        ->setResourceValueOptions($resourceName, $shortResourceTitle, $valueResourceQueries[$term]);
+                    // The order should be kept, but there is no order in a js array.
+                    $valueOptions = [];
+                    foreach ($element->getValueOptions() as $k => $v):
+                        $valueOptions[] = ['v' => $k, 't' => $v];
+                    endforeach;
+                ?>
+        <div class="add-value add-value-resource button o-icon-uri" data-type="<?= $datatype ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $translate('Add linked resource') ?></div>
+                <?php endif;
+                break;
+
+            case 'uri': ?>
+        <div class="add-value add-value-uri button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>
+                <?php break;
+
+            case substr($datatype, 0, 12) === 'valuesuggest': // Or valuesuggestall. ?>
+        <div class="add-value add-value-value-suggest button o-icon-uri" data-type="<?= $datatype ?>"><?= $translate('Add linked data') ?></div>
+                <?php break;
+
+            default:
+                // TODO Other types are not managed.
+        endswitch; ?>
+        <div class="clearfix"></div>
+    </div>
+</div>

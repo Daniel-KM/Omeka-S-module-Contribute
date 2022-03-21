@@ -53,10 +53,12 @@ $(document).ready(function() {
             newElement = $('#edit_uri_template > .value').clone();
             name = term + '[' + index + '][@uri]';
             namel = term + '[' + index + '][@label]';
-            $(newElement).find('input').first().prop('name', name);
-            $(newElement).find('input').removeAttr('readonly');
-            $(newElement).find('textarea').first().prop('name', namel);
-            $(newElement).find('textarea').removeAttr('readonly');
+            $(newElement).find('input[data-value-key="@uri"]')
+                .prop('name', name)
+                .removeAttr('readonly');
+            $(newElement).find('input[data-value-key="@label"]')
+                .prop('name', namel)
+                .removeAttr('readonly');
         }
 
         if (target.hasClass('add-value-value-suggest')) {

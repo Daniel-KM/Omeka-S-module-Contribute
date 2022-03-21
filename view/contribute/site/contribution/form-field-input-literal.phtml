@@ -1,0 +1,49 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Form\ResourceForm $form
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var array $fields
+ * @var string $action "add" or "edit"
+ * @var string $submitLabel
+ *
+ * @var \Laminas\View\Helper\EscapeHtml $escape
+ * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
+ * @var \Omeka\Api\Manager $apiManager
+ * @var bool $hasValueSuggest
+ *
+ * @var array $valueResourceTypes
+ * @var array $valueResourceQueries
+ * @var callable $shortResourceTitle
+ *
+ * @var array $field
+ * @var string $term
+ * @var int $indexFieldInput
+ * @var \Omeka\Api\Representation\PropertyRepresentation $property
+ * @var ?\Omeka\Api\Representation\ValueRepresentation $value
+ * @var array $fieldContribution
+ */
+
+$original = $fieldContribution['original'];
+$proposed = $fieldContribution['proposed'];
+$isPrivate = $value ? !$value->isPublic() : ($field['template_property'] ? $field['template_property']->isPrivate() : false);
+
+$val = $proposed['@value'] ?? $original['@value'] ?? '';
+
+$class = ['value'];
+if ($isPrivate):
+    $class[] = 'private';
+endif;
+$language = isset($proposed['@value']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
+?>
+
+<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
+    <?php if ($language): ?>
+    <span class="language"><?= $language ?></span>
+    <?php endif; ?>
+    <textarea class="form-control input-value" data-value-key="@value" name="<?= $term . '[' . $indexFieldInput . '][@value]' ?>" aria-labelledby="property-<?= $property->id() ?>-label"><?= $escape($val) ?></textarea>
+</div>
