@@ -30,6 +30,12 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 <?= $this->pageTitle($contribution->displayTitle(null, $lang), 2); ?>
 <h3><?= $translate('Contribution') ?></h3>
 
+<ul class="contribution-status">
+    <li class="contribution-resource"><?= $contribution->resource() ? $contribution->resource()->linkPretty() : $escape($translate('No resource')) ?></li>
+    <li class="submitted"><?= $escape($resource->isSubmitted() ? $translate('Is submitted') : $translate('Is not submitted')) ?></li>
+    <li class="reviewed"><?= $escape($resource->isReviewed() ? $translate('Is reviewed') : $translate('Is not reviewed')) ?></li>
+</ul>
+
 <div class="messages">
     <p><?= $this->messages() ?></p>
 </div>
@@ -54,13 +60,12 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 </div>
 <?php endif; ?>
 
-<?php if ($contribution->isSubmitted()): ?>
-<p><?= $escape($translate('Contribution submitted.')) ?></p>
-<?php else: ?>
+<?php if (!$contribution->isSubmitted()): ?>
 <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
     <?php if ($contribution->userIsAllowed('update')): ?>
     <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($url('site/contribution-id', ['action' => 'edit', 'resource' => 'contribution', 'id' => $contribution->id()], true)) ?>"><?= $escape($translate('Edit')) ?></a></li>
     <?php endif; ?>
+    <li><a class="o-icon-submit button edit-button submit-contribution" href="<?= $escapeAttr($url('site/contribution-id', ['action' => 'submit', 'resource' => 'contribution', 'id' => $contribution->id()], true)) ?>"><?= $escape($translate('Submit')) ?></a></li>
     <?php if ($contribution->userIsAllowed('delete')): ?>
     <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
     <?php endif; ?>

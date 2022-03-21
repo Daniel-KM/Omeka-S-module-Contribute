@@ -151,7 +151,7 @@ class Module extends AbstractModule
                 $contributors,
                 ['Contribute\Controller\Site\Contribution'],
                 // TODO "view" is forwarded to "show" internally (will be removed).
-                ['show', 'view', 'add', 'edit', 'delete', 'delete-confirm']
+                ['show', 'view', 'add', 'edit', 'delete', 'delete-confirm', 'submit']
             )
             ->allow(
                 $contributors,

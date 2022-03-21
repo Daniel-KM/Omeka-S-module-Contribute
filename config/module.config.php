@@ -123,7 +123,7 @@ return [
                                 'id' => '\d+',
                                 // "show" can be used only for contribution, so use "view".
                                 // "view" is always forwarded to "show".
-                                'action' => 'view|edit|delete-confirm|delete',
+                                'action' => 'view|edit|delete-confirm|delete|submit',
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',

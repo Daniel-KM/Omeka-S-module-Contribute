@@ -73,4 +73,7 @@
     #edit-resource .actions button::before {
         margin-right: 8px;
     }
+    .contribution .o-icon-submit::before {
+        content: ""; /* envelope */
+    }
 }

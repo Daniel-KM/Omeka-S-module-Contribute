@@ -242,8 +242,9 @@ class ContributionController extends AbstractActionController
                         ];
                         $response = $this->api($form)->create('contributions', $data);
                         if ($response) {
-                            $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                            $this->prepareContributionEmail($response->getContent());
+                            $this->messenger()->addSuccess('Contribution successfully saved!'); // @translate
+                            $this->messenger()->addWarning('Review it before its submission.'); // @translate
+                            // $this->prepareContributionEmail($response->getContent(), 'prepared');
                             $eventManager = $this->getEventManager();
                             $eventManager->trigger('contribute.submit', $this, [
                                 'contribution' => $response->getContent(),
@@ -422,6 +423,7 @@ class ContributionController extends AbstractActionController
                                 'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
                                 'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
                                 'o-module-contribute:patch' => true,
+                                // A patch is always a submission.
                                 'o-module-contribute:submitted' => true,
                                 'o-module-contribute:reviewed' => false,
                                 'o-module-contribute:proposal' => $proposal,
@@ -429,7 +431,7 @@ class ContributionController extends AbstractActionController
                             $response = $this->api($form)->create('contributions', $data);
                             if ($response) {
                                 $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                                $this->prepareContributionEmail($response->getContent());
+                                $this->prepareContributionEmail($response->getContent(), 'submitted');
                             }
                         } elseif ($contribution->isSubmitted()) {
                             $this->messenger()->addWarning('This contribution is already submitted and cannot be updated.'); // @translate
@@ -445,7 +447,7 @@ class ContributionController extends AbstractActionController
                             $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
                             if ($response) {
                                 $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
-                                $this->prepareContributionEmail($response->getContent());
+                                $this->prepareContributionEmail($response->getContent(), 'updated');
                             }
                         }
                         if ($response) {
@@ -531,6 +533,65 @@ class ContributionController extends AbstractActionController
         return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
     }
 
+    public function submitAction()
+    {
+        $resourceType = $this->params('resource');
+        $resourceId = $this->params('id');
+
+        // Unlike addAction(), submission is always the right contribution or
+        // resource.
+        $resourceTypeMap = [
+            'contribution' => 'contributions',
+            'item' => 'items',
+            'media' => 'media',
+            'item-set' => 'item_sets',
+        ];
+        // Useless, because managed by route, but the config may be overridden.
+        if (!isset($resourceTypeMap[$resourceType])) {
+            return $this->notFoundAction();
+        }
+
+        $resourceName = $resourceTypeMap[$resourceType];
+
+        // Only whole contribution can be submitted: a patch is always submitted
+        // directly.
+        if ($resourceName !== 'contributions') {
+            // TODO The user won't see this warning.
+            $this->messenger()->addWarning('Only a whole contribution can be submitted.'); // @translate
+            return $this->redirect()->toRoute('site/resource-id', ['action' => 'show'], true);
+        }
+
+        $api = $this->api();
+
+        // Rights are automatically checked.
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        $contribution = $api->read('contributions', ['id' => $resourceId])->getContent();
+
+        if ($contribution->isSubmitted()) {
+            $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+
+        if (!$contribution->userIsAllowed('update')) {
+            $this->messenger()->addError('Only the contributor can submit the contribution.'); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+
+        $data = [];
+        $data['o-module-contribute:submitted'] = true;
+        $response = $api
+            ->update('contributions', $resourceId, $data, [], ['isPartial' => true]);
+        if (!$response) {
+            $this->messenger()->addError('An error occurred: check your submission or ask an administrator.'); // @translate
+            return $this->jsonErrorUpdate();
+        }
+
+        $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
+        $this->prepareContributionEmail($response->getContent(), 'submitted');
+
+        return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+    }
+
     /**
      * Create a fake contribution with data proposal.
      *
@@ -559,29 +620,58 @@ class ContributionController extends AbstractActionController
         return new ContributionRepresentation($entity, $contributionAdapter);
     }
 
-    protected function prepareContributionEmail(ContributionRepresentation $contribution): self
+    protected function prepareContributionEmail(ContributionRepresentation $contribution, string $action = 'updated'): self
     {
         $emails = $this->settings()->get('contribute_notify', []);
         if (empty($emails)) {
             return $this;
         }
 
+        $translate = $this->getPluginManager()->get('translate');
+        $actions = [
+            'prepared' => $translate('prepared'), // @translate
+            'updated' => $translate('updated'), // @translate
+            'submitted' => $translate('submitted'), // @translate
+        ];
+
+        $action = $actions[$action] ?? $translate('updated');
+        $contributionResource = $contribution->resource();
         $user = $this->identity();
-        if ($user) {
-            $message = '<p>' . new Message(
-                'User %1$s has edited resource #%2$s (%3$s).', // @translate
-                '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                '<a href="' . $contribution->resource()->adminUrl('show', true) . '#contribution">' . $contribution->resource()->id() . '</a>',
-                $contribution->resource()->displayTitle()
-            ) . '</p>';
-        } else {
-            $message = '<p>' . new Message(
-                'A user has edited resource #%1$d (%2$s).', // @translate
-                '<a href="' . $contribution->resource()->adminUrl('show', true) . '#contribution">' . $contribution->resource()->id() . '</a>',
-                $contribution->resource()->displayTitle()
-            ) . '</p>';
+
+        switch (true) {
+            case $contributionResource && $user:
+                $message = '<p>' . new Message(
+                    'User %1$s has made a contribution for resource #%2$s (%3$s) (action: %4$s).', // @translate
+                    '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                    '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
+                    $contributionResource->displayTitle(),
+                    $action
+                ) . '</p>';
+                break;
+            case $contributionResource:
+                $message = '<p>' . new Message(
+                    'An anonymous user has made a contribution for resource #%1$s (%2$s) (action: %3$s).', // @translate
+                    '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
+                    $contributionResource->displayTitle(),
+                    $action
+                ) . '</p>';
+                break;
+            case $user:
+                $message = '<p>' . new Message(
+                    'User %1$s has made a contribution (action: %2$s).', // @translate
+                    '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                    $action
+                ) . '</p>';
+                break;
+            default:
+                $message = '<p>' . new Message(
+                    'An anonymous user has made a contribution (action: %1$s).', // @translate
+                    $action
+                ) . '</p>';
+                break;
         }
-        $this->sendContributionEmail($emails, $this->translate('[Omeka Contribution] New contribution'), $message); // @translate
+
+        $this->sendContributionEmail($emails, sprintf($translate('[Omeka] Contribution %s'), $action), $message); // @translate
         return $this;
     }
 
