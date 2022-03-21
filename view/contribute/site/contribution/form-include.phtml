@@ -2,11 +2,15 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var \Omeka\Entity\User $user
- * @var \Contribute\Form\ContributeForm|null $form
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
+ * @var string $action "add" or "edit" or "show"
+ * @var string $mode "read" or "write"
+ * @var string $submitLabel
  * @var bool $isMainForm
  * @var bool $skipContributeCss
  */
@@ -39,11 +43,12 @@ $baseUrlFiles = $services->get('Config')['file_store']['local']['base_uri'] ?: r
 $indexMedia = null;
 $fieldsMedia = [];
 
-// Use of a sub-form requires a main form.
+// Use of a sub-form requires a main form, but the main form may be unavailable.
 if (isset($form)) $form->prepare();
 
 // Avoid to prepare many variables in sub-templates.
 $vars = $this->vars()->getArrayCopy();
+$vars['mode'] = isset($form) ? $mode : 'read';
 $vars['indexMedia'] = $indexMedia;
 $vars['fieldsMedia'] = $fieldsMedia;
 $vars['url'] = $url;

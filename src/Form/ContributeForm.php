@@ -12,6 +12,19 @@ class ContributeForm extends Form
      */
     protected $templates = [];
 
+    /**
+     * @var bool
+     */
+    protected $displaySelectTemplate = false;
+
+    public function __construct($name = null, ?array $options = null)
+    {
+        // TODO (but working for now inside module) Omeka inverts the options and the name when using getForm().
+        is_array($name)
+            ? parent::__construct(null, $name)
+            : parent::__construct($name, $options);
+    }
+
     public function init(): void
     {
         // Steps are "template", "add", "edit", "show".
@@ -19,9 +32,9 @@ class ContributeForm extends Form
         // workflow. It should be set inside theme.
         // The "next" post argument can be bypassed by a query argument in order
         // to manage multiple ways.
+        // Mode can be "read" or "write" (default).
 
-        // When the template is not set, it is the default one in backend.
-        if (count($this->templates)) {
+        if ($this->displaySelectTemplate) {
             $this
                 ->add([
                     'name' => 'template',
@@ -55,6 +68,14 @@ class ContributeForm extends Form
                         'value' => 'add',
                     ],
                 ])
+                ->add([
+                    'name' => 'mode',
+                    'type' => Element\Hidden::class,
+                    'attributes' => [
+                        'id' => 'mode',
+                        'value' => 'write',
+                    ],
+                ])
             ;
         } else {
             $this
@@ -81,6 +102,14 @@ class ContributeForm extends Form
                         'value' => 'show',
                     ],
                 ])
+                ->add([
+                    'name' => 'mode',
+                    'type' => Element\Hidden::class,
+                    'attributes' => [
+                        'id' => 'mode',
+                        'value' => 'write',
+                    ],
+                ])
             ;
         }
 
@@ -102,13 +131,32 @@ class ContributeForm extends Form
         if (isset($options['templates'])) {
             $this->setTemplates($options['templates']);
         }
+        if (isset($options['display_select_template'])) {
+            $this->setDisplayTemplateSelect((bool) $options['display_select_template']);
+        }
 
         return $this;
+    }
+
+    public function setDisplayTemplateSelect(bool $displayTemplateSelect): self
+    {
+        $this->displaySelectTemplate = $displayTemplateSelect;
+        return $this;
+    }
+
+    public function getDisplayTemplateSelect(): bool
+    {
+        return $this->displaySelectTemplate;
     }
 
     public function setTemplates(array $templates): self
     {
         $this->templates = $templates;
         return $this;
+    }
+
+    public function getTemplates(): array
+    {
+        return $this->templates;
     }
 }

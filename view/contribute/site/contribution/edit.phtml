@@ -9,6 +9,7 @@
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
+ * @var string $mode "read" (for show readonly form before submit) or "write"
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -43,6 +44,7 @@ $mapLabels = [
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'edit',
+            'mode' => $mode,
             'submitLabel' => $translate('Submit'),
             'isMainForm' => true,
             'skipContributeCss' => false,

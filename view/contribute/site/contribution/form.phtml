@@ -8,7 +8,8 @@
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
- * @var string $action "add" or "edit"
+ * @var string $action "add" or "edit" or "show"
+ * @var string $mode "read" or "write"
  * @var string $submitLabel
  * @var bool $isMainForm
  * @var bool $skipContributeCss
@@ -44,6 +45,7 @@ if ($isMainForm) {
      * @var array $valueResourceQueries
      * @var callable $shortResourceTitle
      * @var string $baseUrlFiles
+     * @var string $mode
      */
     $contributeVars = $plugins
         ->get(\Laminas\View\Helper\ViewModel::class)
@@ -53,12 +55,16 @@ if ($isMainForm) {
     $vars = $this->setVars(new \Laminas\View\Variables($contributeVars))->vars();
     unset($contributeVars);
 }
+
+// To wrap the elements with a disabled fieldset makes the whole form disabled.
+$disabled = $mode === 'read' ? ' disabled="disabled"' : '';
 ?>
 
 <?php if ($isMainForm): ?>
 <div class="contribute main-form">
     <?= $this->form()->openTag($form) ?>
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
+    <fieldset class="contribute-resource main-form"<?= $disabled ?>>
 <?php endif; ?>
 
     <?php // Display the special field for media file (required, not a property, and cannot be set in resource template). ?>
@@ -194,9 +200,10 @@ if ($isMainForm) {
     <?php endforeach; // Next field/property. ?>
 
 <?php if ($isMainForm): ?>
+    </fieldset>
 
     <?php if (count($fieldsMediaBase)): ?>
-    <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>">
+    <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>"<?= $disabled ?>>
         <?php // For end user, "media" means "files". ?>
         <legend><?= $escape($translate('Files')) ?></legend>
         <?php
@@ -230,22 +237,25 @@ if ($isMainForm) {
     <?php endif; ?>
 
     <?= $formElement($form->get('template')) ?>
+    <?php // These values are designed to be customized for complex workflow, or used with submit or any button. ?>
+    <?php // Don't forget to set attribute "form" when used outside of the form. ?>
+    <?php // TODO Step is probably to be remove ; used only to check the template for now. ?>
     <?= $formElement($form->get('step')) ?>
-    <?php // This value is designed to be customized for complex workflow, or used with submit or any button. ?>
-    <?//= $formElement($form->get('next')) ?>
-    <?= $formElement($form->get('csrf')) ?>
+    <?php //= $formElement($form->get('next')) ?>
+    <?php //= $formElement($form->get('mode')) ?>
+    <?= $mode === 'read' ? '' : $formElement($form->get('csrf')) ?>
 
     <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
     <div id="page-actions">
-        <?php if ($contributionResource = $contribution && $contribution->resource() ? $contribution->resource() : null): ?>
+        <?php if ($contributionResource = $contribution && $contribution->id() && $contribution->resource() ? $contribution->resource() : null): ?>
         <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $contributionResource->getControllerName(), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
         <?php else: ?>
         <?php //= TODO $this->cancelButton() ?>
-        <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($resource ? $resource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
+        <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($contributionResource ? $contributionResource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
             ['class' => 'button button-cancel', 'role' => 'button']) ?>
         <?php endif; ?>
-        <?= $formElement('submit')->setAttribute('class', 'button')->setValue($submitLabel) ?>
+        <?= $formElement($form->get('submit')->setAttribute('class', 'button')->setValue($submitLabel)) ?>
     </div>
 
     <?= $this->form()->closeTag() ?>

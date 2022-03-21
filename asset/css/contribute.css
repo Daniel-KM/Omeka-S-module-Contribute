@@ -76,4 +76,14 @@
     .contribution .o-icon-submit::before {
         content: ""; /* envelope */
     }
+
+    .remove-value {
+        background-color: transparent;
+    }
+
+    form.readonly .inputs,
+    form.readonly .actions button,
+    form.readonly .actions input {
+        display: none;
+    }
 }

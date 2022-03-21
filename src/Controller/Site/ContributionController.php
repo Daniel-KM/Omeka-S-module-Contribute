@@ -157,15 +157,34 @@ class ContributionController extends AbstractActionController
             }
         }
 
-        // A template is required to contribute: set by query or previous form.
-        $template = $this->params()->fromQuery('template')
-            ?: $this->params()->fromPost('template');
+        $params = $this->params();
 
-        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
-        if ($template) {
-            $contributive = clone $contributiveData($template);
-            $resourceTemplate = $contributive->template();
+        // When there is an id, it means to show template readonly, else forward
+        // to edit.
+        $resourceId = $params->fromRoute('id') ?? null;
+        if ($resourceId) {
+            // Edition is always the right contribution or resource.
+            $resourceTypeMap['contribution'] = 'contributions';
+            $resourceName = $resourceTypeMap[$this->params('resource')];
+            // Rights are automatically checked.
+            /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
+            $resource = $this->api()->read($resourceName, ['id' => $resourceId])->getContent();
+            $resourceTemplate = $resource->resourceTemplate();
+            if ($resourceTemplate) {
+                $contributive = clone $contributiveData($resourceTemplate);
+                $resourceTemplate = $contributive->template();
+            }
+            $template = $resourceTemplate ? $resourceTemplate->id() : -1;
+        } else {
+            // A template is required to contribute: set by query or previous form.
+            $template = $params->fromQuery('template') ?: $params->fromPost('template');
+            /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
+            if ($template) {
+                $contributive = clone $contributiveData($template);
+                $resourceTemplate = $contributive->template();
+            }
         }
+
         if (!count($templates) || ($template && !$resourceTemplate)) {
             $this->logger()->err('A template is required to add a resource. Ask the administrator for more information.'); // @translate
             return new ViewModel([
@@ -177,6 +196,7 @@ class ContributionController extends AbstractActionController
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
+                'mode' => 'read',
             ]);
         }
 
@@ -189,37 +209,58 @@ class ContributionController extends AbstractActionController
             }
         }
 
-        $currentUrl = $this->url()->fromRoute(null, [], true);
+        $mode = $resourceId || $params->fromPost('mode', 'write') === 'read' ? 'read' : 'write';
 
         /** @var \Contribute\Form\ContributeForm $form */
-        $form = $this->getForm(ContributeForm::class)
-            // Use setOptions, not getForm().
-            ->setTemplates($templateLabels)
-            ->setAttribute('action', $currentUrl)
+        $formOptions = [
+            'templates' => $templateLabels,
+            'display_select_template' => $mode === 'read' || $resourceId || !$resourceTemplate,
+        ];
+        $form = $this->getForm(ContributeForm::class, $formOptions)
+            // Use setOptions() + init(), not getForm(), because of the bug in csrf / getForm().
+            // ->setOptions($formOptions)
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
-        // First step: select a template if not set.
-        if (!$resourceTemplate) {
+        if ($mode === 'read') {
+            $form->setDisplayTemplateSelect(true);
+            $form->setAttribute('class', 'readonly');
+            $form->get('template')->setAttribute('readonly', 'readonly');
+            $form->get('submit')->setAttribute('disabled', 'disabled');
+            $form->get('mode')->setValue('read');
+        }
+        if ($resourceTemplate) {
+            $form->get('template')->setValue($resourceTemplate->id());
+        }
+
+        // First step: select a template if not set. Mode read is
+        if (!$resourceTemplate || $mode === 'read') {
             return new ViewModel([
                 'site' => $site,
                 'user' => $user,
                 'form' => $form,
-                'resource' => null,
-                'contribution' => null,
+                'resource' => $resourceId ? $resource : null,
+                'contribution' => $resourceId ? $resource : null,
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
+                'mode' => $resourceId ? 'read' : $mode,
             ]);
         }
 
-        $form->get('template')->setValue($resourceTemplate->id());
-        $step = $this->params()->fromPost('step');
+        // In all other cases (second step), the mode is write, else it is edit.
+        if ($resourceId) {
+            $params = $this->params()->fromRoute();
+            $params['action'] = 'edit';
+            return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+        }
+
+        $step = $params->fromPost('step');
 
         // Second step: fill the template and create a contribution, even partial.
         $hasError = false;
         if ($this->getRequest()->isPost() && $step !== 'template') {
-            $post = $this->params()->fromPost();
+            $post = $params->fromPost();
             // The template cannot be changed once set.
             $post['template'] = $resourceTemplate->id();
             $form->setData($post);
@@ -305,15 +346,25 @@ class ContributionController extends AbstractActionController
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
+            'mode' => 'write',
         ]);
     }
 
     public function editAction()
     {
+        $params = $this->params();
+        $mode = ($params->fromPost('mode') ?? $params->fromQuery('mode', 'write')) === 'read' ? 'read' : 'write';
+        $next = $params->fromQuery('next') ?? $params->fromPost('next') ?? '';
+        if ($mode === 'read' && strpos($next, 'template') !== false) {
+            $params = $params->fromRoute();
+            $params['action'] = 'add';
+            return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+        }
+
         $site = $this->currentSite();
         $api = $this->api();
-        $resourceType = $this->params('resource');
-        $resourceId = $this->params('id');
+        $resourceType = $params->fromRoute('resource');
+        $resourceId = $params->fromRoute('id');
 
         // Unlike addAction(), edition is always the right contribution or
         // resource.
@@ -334,11 +385,6 @@ class ContributionController extends AbstractActionController
         /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $api->read($resourceName, ['id' => $resourceId])->getContent();
 
-        if ($resourceName === 'contributions' && $resource->isSubmitted()) {
-            $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
-        }
-
         $settings = $this->settings();
         $user = $this->identity();
         $contributeMode = $settings->get('contribute_mode');
@@ -346,7 +392,6 @@ class ContributionController extends AbstractActionController
         if ($resourceName === 'contributions') {
             $contribution = $resource;
             $resource = $contribution->resource();
-            $resourceId = $resource ? $resource->id() : null;
             $resourceTemplate = $contribution->resourceTemplate();
             $currentUrl = $this->url()->fromRoute(null, [], true);
         } else {
@@ -392,14 +437,30 @@ class ContributionController extends AbstractActionController
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
+                'mode' => 'read',
             ]);
         }
+
+        // $formOptions = [
+        // ];
 
         /** @var \Contribute\Form\ContributeForm $form */
         $form = $this->getForm(ContributeForm::class)
             ->setAttribute('action', $currentUrl)
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
+
+        if ($mode === 'read') {
+            $form->setAttribute('class', 'readonly');
+            $form->get('template')->setAttribute('readonly', 'readonly');
+            $form->get('submit')->setAttribute('disabled', 'disabled');
+            $form->get('mode')->setValue('read');
+        }
+
+        if ($contribution && $contribution->isSubmitted() && $mode === 'write') {
+            $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
 
         // No need to set the template, but simplify view for form.
         $form->get('template')->setValue($resourceTemplate->id());
@@ -408,12 +469,12 @@ class ContributionController extends AbstractActionController
 
         $hasError = false;
         if ($this->getRequest()->isPost()) {
-            $post = $this->params()->fromPost();
+            $post = $params->fromPost();
             // The template cannot be changed once set.
             $post['template'] = $resourceTemplate->id();
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
-            if ($form->isValid()) {
+            if ($mode === 'write' && $form->isValid()) {
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $data = $this->checkAndIncludeFileData($data);
@@ -472,7 +533,13 @@ class ContributionController extends AbstractActionController
                     }
                 }
             }
-            $hasError = true;
+            $hasError = $mode === 'write';
+        }
+
+        if (strpos($next, 'template') !== false) {
+            $params = $params->fromRoute();
+            $params['action'] = 'add';
+            return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
         }
 
         if ($hasError) {
@@ -512,6 +579,7 @@ class ContributionController extends AbstractActionController
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
+            'mode' => $mode,
         ]);
     }
 

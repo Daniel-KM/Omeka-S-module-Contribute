@@ -2,12 +2,17 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var \Omeka\Entity\User $user
  * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
+ * @var string $mode "read" (for template) or "write"
  */
+
+// Resource/contribution is passed only when reading for template.
 
 $plugins = $this->getHelperPluginManager();
 $partial = $plugins->get('partial');
@@ -42,15 +47,21 @@ $mapLabels = [
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'add',
+            'mode' => $mode,
             'submitLabel' => $translate('Save'),
             'isMainForm' => true,
             'skipContributeCss' => false,
         ]);
         $this->trigger('view.edit.after');
     elseif ($form): // First step form to select a resource template.
-        $form->prepare()->init();
-        $form->get('submit')->setValue('Select'); // @translate
-        echo $this->form($form);
+        $form->prepare();
+        if ($mode === 'read') {
+            $form->remove('submit');
+            echo $this->form($form);
+        } else {
+            $form->get('submit')->setValue('Select'); // @translate
+            echo $this->form($form);
+        }
     else: ?>
     <div class="messages">
         <p><?= $escape($translate('A template with fields is required to add a resource. Ask the administrator for more information.')) ?></p>
