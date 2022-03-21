@@ -838,7 +838,7 @@ class ContributionController extends AbstractActionController
 
         $subject = $settings->get('contribute_author_confirmation_subject') ?: $translate('[Omeka] Contribution');
         $message = $settings->get('contribute_author_confirmation_body') ?: new Message(
-            "Hi,\nThanks for your contribution.\n\nThe administrators will validate it as soon as possible.\n\n, Sincerely" // @translate
+            "Hi,\nThanks for your contribution.\n\nThe administrators will validate it as soon as possible.\n\nSincerely," // @translate
         );
 
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
