@@ -880,6 +880,9 @@ class ContributionController extends AbstractActionController
                 if (isset($value['@label'])) {
                     $value['@label'] = $this->cleanString($value['@label']);
                 }
+                if (isset($value['@language'])) {
+                    $value['@language'] = $this->cleanString($value['@language']);
+                }
             }
         }
         unset($values, $value);
@@ -931,6 +934,21 @@ class ContributionController extends AbstractActionController
                     $uriLabels = $this->customVocabUriLabels($customVocabId);
                 }
 
+                // If a lang was set in the original value, it is kept, else use
+                // the posted one, else use the default one of the template.
+                $lang = $value->lang() ?: null;
+                if (!$lang) {
+                    if (!empty($proposal[$term][$index]['@language'])) {
+                        $lang = $proposal[$term][$index]['@language'];
+                    } else {
+                        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty */
+                        $templateProperty = $resourceTemplate->resourceTemplateProperty($value->property()->id());
+                        if ($templateProperty) {
+                            $lang = $templateProperty->mainDataValue('default_language') ?: null;
+                        }
+                    }
+                }
+
                 switch ($type) {
                     case 'literal':
                     case 'boolean':
@@ -941,7 +959,7 @@ class ContributionController extends AbstractActionController
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
                         }
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@value' => $value->value(),
                             ],
@@ -956,7 +974,7 @@ class ContributionController extends AbstractActionController
                             continue 2;
                         }
                         $vr = $value->valueResource();
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@resource' => $vr ? $vr->id() : null,
                             ],
@@ -973,7 +991,7 @@ class ContributionController extends AbstractActionController
                             continue 2;
                         }
                         $proposal[$term][$index] += ['@label' => ''];
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
                                 '@label' => $value->value(),
@@ -997,7 +1015,7 @@ class ContributionController extends AbstractActionController
                         }
                         $proposal[$term][$index]['@uri'] = $matches[1];
                         $proposal[$term][$index]['@label'] = $matches[2];
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
                                 '@label' => $value->value(),
@@ -1012,6 +1030,10 @@ class ContributionController extends AbstractActionController
                         // Nothing to do.
                         continue 2;
                 }
+                if ($lang) {
+                    $prop['proposed']['@language'] = $lang;
+                }
+                $result[$term][] = $prop;
             }
         }
 
@@ -1034,13 +1056,15 @@ class ContributionController extends AbstractActionController
                 continue;
             }
 
+            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty */
+            $templateProperty = null;
             $propertyId = $propertyIds[$term];
             $type = null;
             $typeTemplate = null;
             if ($resourceTemplate) {
-                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
-                if ($resourceTemplateProperty) {
-                    $typeTemplate = $resourceTemplateProperty->dataType();
+                $templateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+                if ($templateProperty) {
+                    $typeTemplate = $templateProperty->dataType();
                 }
             }
 
@@ -1075,6 +1099,15 @@ class ContributionController extends AbstractActionController
                     continue;
                 }
 
+                // Use the posted language, else the default one of the template.
+                if (!empty($proposedValue['@language'])) {
+                    $lang = $proposedValue['@language'];
+                } elseif ($templateProperty) {
+                    $lang = $templateProperty->mainDataValue('default_language') ?: null;
+                } else {
+                    $lang = null;
+                }
+
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
@@ -1086,7 +1119,7 @@ class ContributionController extends AbstractActionController
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;
                         }
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@value' => null,
                             ],
@@ -1100,7 +1133,7 @@ class ContributionController extends AbstractActionController
                         if (!isset($proposedValue['@resource']) || !(int) $proposedValue['@resource']) {
                             continue 2;
                         }
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@resource' => null,
                             ],
@@ -1117,7 +1150,7 @@ class ContributionController extends AbstractActionController
                             continue 2;
                         }
                         $proposedValue += ['@label' => ''];
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@uri' => null,
                                 '@label' => null,
@@ -1141,7 +1174,7 @@ class ContributionController extends AbstractActionController
                         }
                         $proposedValue['@uri'] = $matches[1];
                         $proposedValue['@label'] = $matches[2];
-                        $result[$term][] = [
+                        $prop = [
                             'original' => [
                                 '@uri' => null,
                                 '@label' => null,
@@ -1156,6 +1189,10 @@ class ContributionController extends AbstractActionController
                         // Nothing to do.
                         continue 2;
                 }
+                if ($lang) {
+                    $prop['proposed']['@language'] = $lang;
+                }
+                $result[$term][] = $prop;
             }
         }
 
