@@ -3,83 +3,100 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Form\ResourceForm $form
- * @var \Omeka\Entity\User $user
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  */
 
 // See common/resource-values.
 
-$plugins = $this->getHelperPluginManager();
+$plugins = $this->getHelperPluginManager();@
 $url = $plugins->get('url');
-$partial = $plugins->get('partial');
-$escape = $plugins->get('escapeHtml');
-$translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
-$escapeAttr = $plugins->get('escapeHtmlAttr');
 $formElement = $plugins->get('formElement');
 
 $vars = $this->vars();
 $labelInfo = $this->setting('property_label_information');
 
-// The api manager is needed to create select for Value Suggest.
-// TODO Replace apiManager by FormElementManager.
-$apiManager = $site->getServiceLocator()->get('Omeka\ApiManager');
-$moduleManager = $site->getServiceLocator()->get('Omeka\ModuleManager');
-$hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-$hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-$hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+// Prepare variables one time for the form and all sub-forms.
+if ($isMainForm) {
 
-if ($hasCustomVocab) {
-    $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
-    $CustomVocabBaseTypes = $CustomVocabBaseTypes();
-} else {
-    $CustomVocabBaseTypes = null;
+    $partial = $plugins->get('partial');
+    $escape = $plugins->get('escapeHtml');
+    $translate = $plugins->get('translate');
+    $escapeAttr = $plugins->get('escapeHtmlAttr');
+
+    // The api manager is needed to create select for Value Suggest.
+    // TODO Replace apiManager by FormElementManager.
+    $apiManager = $site->getServiceLocator()->get('Omeka\ApiManager');
+    $moduleManager = $site->getServiceLocator()->get('Omeka\ModuleManager');
+    $hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+    $hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+    $hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+
+    if ($hasCustomVocab) {
+        $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
+        $CustomVocabBaseTypes = $CustomVocabBaseTypes();
+    } else {
+        $CustomVocabBaseTypes = null;
+    }
+
+    // Prepare resource selects.
+    $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
+    // TODO Use module advanced resource template to fill a property with a property query. They are always empty for now, except manually filled.
+    $valueResourceQueries = [];
+    $shortResourceTitle = function (\Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource): string {
+        return mb_substr($resource->displayTitle(), 0, 80);
+    };
+
+    $indexMedia = null;
+    $fieldsMedia = [];
+
+    // Avoid to prepare many variables in sub-templates.
+    $vars = $vars->getArrayCopy();
+    $vars['indexMedia'] = null;
+    $vars['fieldsMedia'] = $fieldsMedia;
+    $vars['partial'] = $partial;
+    $vars['escape'] = $escape;
+    $vars['translate'] = $translate;
+    $vars['escapeAttr'] = $escapeAttr;
+    $vars['apiManager'] = $apiManager;
+    $vars['hasValueSuggest'] = $hasValueSuggest;
+    $vars['hasNumericDataTypes'] = $hasNumericDataTypes;
+    $vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
+    $vars['valueResourceTypes'] = $valueResourceTypes;
+    $vars['valueResourceQueries'] = $valueResourceQueries;
+    $vars['shortResourceTitle'] = $shortResourceTitle;
+    $vars = $this->setVars(new \Laminas\View\Variables($vars))->vars();
+
+    // Don't prepare form if there are no fields.
+    // Use of a sub-form requires a main form.
+    if (count($fields)) {
+        // No echo: only includes css and js.
+        $partial('contribute/site/contribution/form-include');
+    }
+
+    $form->prepare();
 }
-
-// Prepare resource selects.
-$valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
-// TODO Use module advanced resource template to fill a property with a property query. They are always empty for now, except manually filled.
-$valueResourceQueries = [];
-$shortResourceTitle = function (\Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource): string {
-    return mb_substr($resource->displayTitle(), 0, 80);
-};
-
-// Avoid to prepare many variables in sub-templates.
-$vars = $vars->getArrayCopy();
-$vars['partial'] = $partial;
-$vars['escape'] = $escape;
-$vars['translate'] = $translate;
-$vars['escapeAttr'] = $escapeAttr;
-$vars['apiManager'] = $apiManager;
-$vars['hasValueSuggest'] = $hasValueSuggest;
-$vars['hasNumericDataTypes'] = $hasNumericDataTypes;
-$vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
-$vars['valueResourceTypes'] = $valueResourceTypes;
-$vars['valueResourceQueries'] = $valueResourceQueries;
-$vars['shortResourceTitle'] = $shortResourceTitle;
-$vars = $this->setVars(new \Laminas\View\Variables($vars))->vars();
-
-// Don't prepare form if there are no fields.
-if (count($fields)) {
-    // No echo: only includes css and js.
-    $partial('contribute/site/contribution/form-include');
-}
-
-$form->prepare();
 ?>
 
-<div class="contribute-main-form">
+<?php if ($isMainForm): ?>
+<div class="contribute main-form">
     <?= $this->form()->openTag($form) ?>
-
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
+<?php endif; ?>
 
     <?php // Display the edited resource, with edited or non-edited fields, plus the non-editable original fields. ?>
 
-    <?php foreach ($fields as $term => $field):
+    <?php foreach ($isMainForm ? $fields : $fieldsMedia as $term => $field):
         // Don't display empty values that are not fillable.
         if (empty($field['contributions']) && !$field['fillable']) continue;
         $indexFieldInput = 0;
@@ -203,6 +220,44 @@ $form->prepare();
     </div>
     <?php endforeach; // Next field/property. ?>
 
+<?php if ($isMainForm): ?>
+
+    <?php if (count($fieldsMediaBase)): ?>
+    <fieldset class="sub-forms">
+        <?php // For end user, "media" means "files". ?>
+        <legend><?= $escape($translate('Files')) ?></legend>
+        <?php
+        $vars->offsetSet('isMainForm', false);
+        $indexMedia = 0;
+        foreach ($fieldsByMedia as $fieldsMedia): ?>
+        <fieldset class="sub-form" name="media[<?= $indexMedia ?>]" >
+            <legend><?= $escape(sprintf($translate('File %s'), $indexMedia + 1)) ?></legend>
+            <?php
+            $vars->offsetSet('indexMedia', $indexMedia);
+            $vars->offsetSet('fieldsMedia', $fieldsMedia);
+            ?>
+            <?= $partial('contribute/site/contribution/form') ?>
+        </fieldset>
+        <?php ++$indexMedia; ?>
+        <?php endforeach; ?>
+        <fieldset class="contribute sub-form" name="media[]" >
+            <legend><?= $escape($translate('File')) ?></legend>
+            <?php
+            $vars->offsetSet('indexMedia', null);
+            $vars->offsetSet('fieldsMedia', $fieldsMediaBase);
+            ?>
+            <?= $partial('contribute/site/contribution/form') ?>
+        </fieldset>
+    </fieldset>
+    <?php
+    $indexMedia = null;
+    $fieldsMedia = [];
+    $vars->offsetSet('isMainForm', true);
+    $vars->offsetSet('indexMedia', $indexMedia);
+    $vars->offsetSet('fieldsMedia', $fieldsMedia);
+    ?>
+    <?php endif; ?>
+
     <?= $formElement($form->get('template')) ?>
     <?= $formElement($form->get('csrf')) ?>
 
@@ -225,3 +280,5 @@ $form->prepare();
     <?php //= $partial('common/resource-form-templates') ?>
 
 </div>
+
+<?php endif; ?>

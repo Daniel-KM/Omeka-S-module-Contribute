@@ -62,6 +62,22 @@ info@example2.org',
             ])
 
             ->add([
+                'name' => 'contribute_templates_media',
+                'type' => OmekaElement\ResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Resource templates allowed for media (linked contribution)', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_templates_media',
+                    'multiple' => true,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select resources templates…', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_token_duration',
                 'type' => Element\Number::class,
                 'options' => [

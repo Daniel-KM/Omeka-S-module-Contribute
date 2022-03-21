@@ -20,12 +20,16 @@ class ContributiveData extends AbstractPlugin
      *  The list comes from the resource template if it is configured, else the
      *  list of the first allowed resource template is used.
      *
+     * The template can contain a sub-template for files. It is set in the main
+     * resource template too (one level recursivity).
+     *
      * @todo Remove code that set fields or use default datatypes without resource template.
      *
      * @param \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|\Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
      */
-    public function __invoke($resourceTemplate = null): self
+    public function __invoke($resourceTemplate = null, ?bool $isSubTemplate = false): self
     {
+        $isSubTemplate = (bool) $isSubTemplate;
         $this->data = new ArrayObject([
             'is_contributive' => false,
             'template' => null,
@@ -37,6 +41,9 @@ class ContributiveData extends AbstractPlugin
             'fillable' => [],
             'datatype' => [],
             'datatypes_default' => [],
+            'template_media' => null,
+            'is_sub_template' => $isSubTemplate,
+            'contributive_media' => false,
         ]);
 
         $controller = $this->getController();
@@ -54,7 +61,7 @@ class ContributiveData extends AbstractPlugin
         }
 
         $resourceTemplate = $this->resourceTemplate($resourceTemplate);
-        $allowedResourceTemplates = $settings->get('contribute_templates', []);
+        $allowedResourceTemplates = $settings->get($isSubTemplate ? 'contribute_templates_media' : 'contribute_templates', []) ?: [];
 
         // When a resource template is set, it should be allowed too.
         // Anyway, if it is not prepared, it won't be editable/fillable (below).
@@ -62,13 +69,18 @@ class ContributiveData extends AbstractPlugin
         if ($resourceTemplate) {
             $resourceTemplateId = $resourceTemplate->id();
             if (!in_array($resourceTemplateId, $allowedResourceTemplates)) {
-                $controller->logger()->err('The resource template is not in the list of allowed contribution templates.'); // @translate
+                $controller->logger()->err(new Message(
+                    $isSubTemplate
+                        ? 'The resource template "%s" is not in the list of allowed contribution templates for media.' // @translate
+                        : 'The resource template "%s" is not in the list of allowed contribution templates.', // @translate
+                    $resourceTemplateId
+                ));
                 return $this;
             }
         } else {
-            $resourceTemplateId = reset($allowedResourceTemplates);
-            if ($resourceTemplateId) {
-                $resourceTemplate = $controller->api()->searchOne('resource_templates', ['id' => $resourceTemplateId])->getContent();
+            $resourceTemplate = reset($allowedResourceTemplates);
+            if ($resourceTemplate) {
+                $resourceTemplate = $this->resourceTemplate($resourceTemplate);
             }
             if (!$resourceTemplate) {
                 $controller->logger()->err('A resource template must be set to allow to contribute'); // @translate
@@ -101,6 +113,22 @@ class ContributiveData extends AbstractPlugin
             }
             if ($rtpData->dataValue('fillable', false)) {
                 $this->data['fillable'][$term] = $propertyId;
+            }
+        }
+
+        if (!$isSubTemplate && method_exists($resourceTemplate, 'dataValue')) {
+            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplateMedia */
+            $resourceTemplateMedia = $this->resourceTemplate($resourceTemplate->dataValue('contribute_template_media'));
+            $resourceTemplateMediaId = $resourceTemplateMedia ? $resourceTemplateMedia->id() : null;
+            $allowedResourceTemplatesMedia = $settings->get('contribute_templates_media') ?: [];
+            if (in_array($resourceTemplateMediaId, $allowedResourceTemplatesMedia)) {
+                $this->data['template_media'] = $resourceTemplateMedia;
+            } elseif ($resourceTemplateMediaId) {
+                $controller->logger()->err(new Message(
+                    'The resource template "%s" is not in the list of allowed contribution templates for media.', // @translate
+                    $resourceTemplateMediaId
+                ));
+                // No break: allow to submit partially.
             }
         }
 
@@ -234,6 +262,37 @@ class ContributiveData extends AbstractPlugin
     public function isDefaultDatatype(?string $datatype): bool
     {
         return in_array($datatype, $this->data['datatypes_default']);
+    }
+
+    public function isSubTemplate(): bool
+    {
+        return $this->data['is_sub_template'];
+    }
+
+    /**
+     * Get the contributive data for the media sub-template.
+     *
+     * Like main template, the media template should have at least one property.
+     */
+    public function contributiveMedia(): ?\Contribute\Mvc\Controller\Plugin\ContributiveData
+    {
+        if ($this->data['contributive_media'] === null
+            || !$this->isContributive()
+            || empty($this->data['template_media'])
+            || $this->isSubTemplate()
+        ) {
+            return null;
+        }
+
+        // Clone() allows to get to contributive data with a different config.
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveMedia */
+        $contributiveMedia = clone $this->getController()->plugin('contributiveData');
+        $contributiveMedia = $contributiveMedia($this->data['template_media'], true);
+        if (!$contributiveMedia->isContributive()) {
+            $contributiveMedia = null;
+        }
+        $this->data['contributive_media'] = $contributiveMedia;
+        return $this->data['contributive_media'];
     }
 
     /**

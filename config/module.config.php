@@ -230,6 +230,8 @@ return [
                 // The id is set during install.
                 'Contribution',
             ],
+            'contribute_templates_media' => [
+            ],
             // Days.
             'contribute_token_duration' => 60,
         ],

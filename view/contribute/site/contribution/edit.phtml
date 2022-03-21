@@ -4,9 +4,11 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Entity\User $user
  * @var \Omeka\Form\ResourceForm $form
- * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
- * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var ?\Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var ?\Contribute\Api\Representation\ContributionRepresentation $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -29,8 +31,8 @@ $mapLabels = [
     <div class="messages">
         <p><?= $this->messages() ?></p>
     </div>
-    <?php if (count($fields) && $form): ?>
-        <?php
+    <?php if (count($fields) && $form):
+        // The two lists of fields are merged in one form by default.
         $this->trigger('view.edit.before');
         echo $partial('contribute/site/contribution/form', [
             'site' => $site,
@@ -38,8 +40,11 @@ $mapLabels = [
             'resource' => $resource,
             'contribution' => $contribution,
             'fields' => $fields,
+            'fieldsByMedia' => $fieldsByMedia,
+            'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'edit',
             'submitLabel' => $translate('Submit'),
+            'isMainForm' => true,
         ]);
         $this->trigger('view.edit.after');
     else: ?>

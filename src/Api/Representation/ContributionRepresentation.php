@@ -603,10 +603,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function contributiveData(): \Contribute\Mvc\Controller\Plugin\ContributiveData
     {
-        $contributiveData = $this->getServiceLocator()->get('ControllerPluginManager')
+        $contributive = $this->getServiceLocator()->get('ControllerPluginManager')
             ->get('contributiveData');
+        $contributive = clone $contributive;
         $resourceTemplate = $this->resourceTemplate();
-        return $contributiveData($resourceTemplate);
+        return $contributive($resourceTemplate);
     }
 
     /**

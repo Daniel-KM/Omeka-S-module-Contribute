@@ -117,7 +117,7 @@ class ContributionController extends AbstractActionController
 
         /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
         if ($template) {
-            $contributive = $contributiveData($template);
+            $contributive = clone $contributiveData($template);
             $resourceTemplate = $contributive->template();
         }
         if (!count($templates) || ($template && !$resourceTemplate)) {
@@ -129,13 +129,15 @@ class ContributionController extends AbstractActionController
                 'resource' => null,
                 'contribution' => null,
                 'fields' => [],
+                'fieldsByMedia' => [],
+                'fieldsMediaBase' => [],
             ]);
         }
 
         if (!$template) {
             if (count($templates) === 1) {
                 $resourceTemplate = reset($templates);
-                $contributive = $contributiveData($template);
+                $contributive = clone $contributiveData($template);
             } else {
                 $resourceTemplate = null;
             }
@@ -160,6 +162,8 @@ class ContributionController extends AbstractActionController
                 'resource' => null,
                 'contribution' => null,
                 'fields' => [],
+                'fieldsByMedia' => [],
+                'fieldsMediaBase' => [],
             ]);
         }
 
@@ -218,6 +222,17 @@ class ContributionController extends AbstractActionController
         $contributionFields = $this->viewHelpers()->get('contributionFields');
         $fields = $contributionFields(null, null, $resourceTemplate);
 
+        // Only items can have a sub resource template for medias.
+        if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
+            // TODO Check bad contribution for invalid data.
+            $fieldsByMedia = [];
+            // Add a list of fields without values for new media.
+            $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), true);
+        } else {
+            $fieldsByMedia = [];
+            $fieldsMediaBase = [];
+        }
+
         return new ViewModel([
             'site' => $site,
             'user' => $user,
@@ -225,7 +240,8 @@ class ContributionController extends AbstractActionController
             'resource' => null,
             'contribution' => null,
             'fields' => $fields,
-            'template' => $resourceTemplate,
+            'fieldsByMedia' => $fieldsByMedia,
+            'fieldsMediaBase' => $fieldsMediaBase,
         ]);
     }
 
@@ -296,7 +312,7 @@ class ContributionController extends AbstractActionController
         }
 
         /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
-        $contributive = $this->contributiveData($resourceTemplate);
+        $contributive = clone $this->contributiveData($resourceTemplate);
         if (!$resourceTemplate || !$contributive->isContributive()) {
             $this->logger()->warn('This resource cannot be edited: no resource template, no fields, or not allowed.'); // @translate
             return new ViewModel([
@@ -306,6 +322,8 @@ class ContributionController extends AbstractActionController
                 'resource' => $resource,
                 'contribution' => $contribution,
                 'fields' => [],
+                'fieldsByMedia' => [],
+                'fieldsMediaBase' => [],
             ]);
         }
 
@@ -389,6 +407,20 @@ class ContributionController extends AbstractActionController
         $contributionFields = $this->viewHelpers()->get('contributionFields');
         $fields = $contributionFields($resource, $contribution);
 
+        // Only items can have a sub resource template for medias.
+        if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
+            $resourceTemplateMedia = $contributive->contributiveMedia()->template();
+            foreach ([] /*$contribution->medias() */ as $contributionMedia) {
+                // TODO Match resource medias and contribution (for now only allowed until submission).
+                $fieldsByMedia = $contributionFields(null, $contributionMedia, $resourceTemplateMedia, true);
+            }
+            // Add a list of fields without values for new media.
+            $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), true);
+        } else {
+            $fieldsByMedia = [];
+            $fieldsMediaBase = [];
+        }
+
         return new ViewModel([
             'site' => $site,
             'user' => $user,
@@ -396,6 +428,8 @@ class ContributionController extends AbstractActionController
             'resource' => $resource,
             'contribution' => $contribution,
             'fields' => $fields,
+            'fieldsByMedia' => $fieldsByMedia,
+            'fieldsMediaBase' => $fieldsMediaBase,
         ]);
     }
 
@@ -446,8 +480,10 @@ class ContributionController extends AbstractActionController
      *
      * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution() and \Contribute\View\Helper\ContributionFields
      */
-    protected function prepareProposal(array $proposal, ?AbstractResourceEntityRepresentation $resource = null): ?array
+    protected function prepareProposal(array $proposal, ?AbstractResourceEntityRepresentation $resource = null, ?bool $isSubTemplate = false): ?array
     {
+        $isSubTemplate = (bool) $isSubTemplate;
+
         // It's not possible to change the resource template of a resource in
         // public side.
         // A resource can be corrected only with a resource template (require
@@ -466,7 +502,7 @@ class ContributionController extends AbstractActionController
 
         // The contribution requires a resource template in allowed templates.
         /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
-        $contributive = $this->contributiveData($resourceTemplate);
+        $contributive = $this->contributiveData($resourceTemplate, $isSubTemplate);
         $resourceTemplate = $contributive->template();
         if (!$contributive->isContributive()) {
             return null;

@@ -7,8 +7,14 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  *
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -37,6 +43,9 @@ $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
 $isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$name = $isMainForm
+    ? sprintf('%s[%s][@resource]', $term, $indexFieldInput)
+    : sprintf('media[%s][%s][%s][@resource]', $indexMedia, $term, $indexFieldInput);
 
 $val = $proposed['@resource'] ?? $original['@resource'] ?? '';
 
@@ -61,7 +70,7 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
             $resourceValue = $value ? $value->valueResource() : null;
             $val = $proposed['@resource'] ?? $original['@resource'];
             $resourceName = $valueResourceTypes[$fieldContribution['type']] ?? 'items';
-            $element = new \Omeka\Form\Element\ResourceSelect($term . '[' . $indexFieldInput . '][@resource]');
+            $element = new \Omeka\Form\Element\ResourceSelect($name);
             $element
                 ->setApiManager($apiManager);
             $element

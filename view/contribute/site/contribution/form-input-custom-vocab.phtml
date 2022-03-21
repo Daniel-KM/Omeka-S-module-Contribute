@@ -7,8 +7,14 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  *
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -54,8 +60,12 @@ $customVocabType = $baseType ?? $customVocabBaseTypes[$customVocabId] ?? 'litera
 $typeName = $customVocabType === 'literal' ? 'value' : $customVocabType;
 $customVocab = $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent();
 $selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this);
+$name = $isMainForm
+    ? sprintf('%s[%s][@%s]', $term, $indexFieldInput, $typeName)
+    : sprintf('media[%s][%s][%s][@%s]', $indexMedia, $term, $indexFieldInput, $typeName);
+
 $replace = [
-    'name="customvocab"' => 'name="' . $term . '[' . $indexFieldInput . '][@' . $typeName . ']"',
+    'name="customvocab"' => 'name="' . $name . '"',
     'class="terms&#x20;to-require' => 'class="form-control customvocab-input'
         . '" aria-labelledby="property-' . ($property ? $property->id() : '__PROPERTYID__') . '-label"'
         . ($isRequired ? ' required="required"' : '')

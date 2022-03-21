@@ -7,8 +7,14 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  *
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -37,6 +43,9 @@ $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
 $isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$baseName = $isMainForm
+    ? sprintf('%s[%s]', $term, $indexFieldInput)
+    : sprintf('media[%s][%s][%s]', $indexMedia, $term, $indexFieldInput);
 
 $val = $proposed['@uri'] ?? $original['@uri'];
 $label = $proposed['@label'] ?? $original['@label'];
@@ -54,13 +63,13 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
         <div class="input">
             <label class="value input-container">
                 <?= $translate('URI') ?>
-                <input type="text" class="form-control value" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
+                <input type="text" class="form-control value" data-value-key="@uri" name="<?= $baseName . '[@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
             </label>
         </div>
         <div class="input">
             <label class="value-label label-container">
                 <?= $translate('Label') ?>
-                <textarea class="form-control value-label" rows="1" data-value-key="@label" name="<?= $term . '[' . $indexFieldInput . '][@label]' ?>"<?= empty($readonly) ? '' : ' readonly="readonly"' ?>><?= $escape($label) ?></textarea>
+                <textarea class="form-control value-label" rows="1" data-value-key="@label" name="<?= $baseName . '[@label]' ?>"<?= empty($readonly) ? '' : ' readonly="readonly"' ?>><?= $escape($label) ?></textarea>
             </label>
         </div>
     </div>

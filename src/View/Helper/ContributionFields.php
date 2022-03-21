@@ -47,6 +47,8 @@ class ContributionFields extends AbstractHelper
      * properties, and four more keys, editable, fillable, datatypes and
      * contributions.
      *
+     * Note that sub-contribution fields for media are not included here.
+     *
      * <code>
      * [
      *   {term} => [
@@ -87,14 +89,22 @@ class ContributionFields extends AbstractHelper
      * </code>
      *
      * @todo Remove the "@" in proposition values (or build a class).
+     *
+     * @var bool $isSubTemplate Allow to check the good allowed template via
+     *   contributiveData(), so the allowed resource templates or allowed
+     *   resource templages for media). No other difference, so invoke the right
+     *   resource, the right contribution part, or the right template when
+     *   needed.
      */
     public function __invoke(
         ?AbstractResourceEntityRepresentation $resource = null,
         ?ContributionRepresentation $contribution = null,
-        ?ResourceTemplateRepresentation $resourceTemplate = null
+        ?ResourceTemplateRepresentation $resourceTemplate = null,
+        ?bool $isSubTemplate = false
     ): array {
         $fields = [];
 
+        $isSubTemplate = (bool) $isSubTemplate;
         $defaultField = [
             'template_property' => null,
             'property' => null,
@@ -118,17 +128,15 @@ class ContributionFields extends AbstractHelper
             $resourceTemplate = $resource->resourceTemplate();
             $values = $resource->values();
         }
-        $contributive = $this->contributiveData->__invoke($resourceTemplate);
 
-        // The template is required.
-        if (!$contributive->hasTemplate()) {
-            return [];
-        }
+        $contributive = clone $this->contributiveData;
+        $contributive = $contributive->__invoke($resourceTemplate, $isSubTemplate);
+        $resourceTemplate = $contributive->template();
 
         $customVocabBaseTypes = $this->getView()->plugin('customVocabBaseType')();
 
         // List the fields for the resource.
-        foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
+        foreach ($resourceTemplate ? $resourceTemplate->resourceTemplateProperties() : [] as $templateProperty) {
             $property = $templateProperty->property();
             $term = $property->term();
             if ($this->hasAdvancedTemplate) {
@@ -166,6 +174,11 @@ class ContributionFields extends AbstractHelper
                 $fields[$term]['contributions'] = [];
                 $fields[$term] = array_replace($defaultField, $fields[$term]);
             }
+        }
+
+        // The template is required.
+        if (!$resourceTemplate || !$contributive || !$contributive->isContributive()) {
+            return $fields;
         }
 
         // Initialize contributions with existing values, then append contributions.

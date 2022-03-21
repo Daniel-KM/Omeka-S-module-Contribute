@@ -7,8 +7,14 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  *
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -26,6 +32,7 @@
 
 // Templates for the fields according to the datatype.
 // They are outside the template form and marked readonly to not be included in the form.
+// The names are updated through js, so don't need to check for main form or sub form.
 
 $args = $this->vars()->getArrayCopy();
 $args['field'] = ['template_property' => null];

@@ -7,8 +7,14 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  *
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -37,6 +43,9 @@ $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
 $isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$name = $isMainForm
+    ? sprintf('%s[%s][@uri]', $term, $indexFieldInput)
+    : sprintf('media[%s][%s][%s][@uri]', $indexMedia, $term, $indexFieldInput);
 
 $val = $proposed['@uri'] ?? $original['@uri'];
 $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
@@ -52,5 +61,5 @@ $language = isset($proposed['@uri']) ? null : (isset($original['value']) ? $orig
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
-    <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<?php if ($val): ?><a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a><?php endif; ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
+    <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="<?= $name ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<?php if ($val): ?><a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a><?php endif; ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
 </div>

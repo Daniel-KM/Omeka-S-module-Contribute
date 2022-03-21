@@ -7,8 +7,14 @@
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
+ * @var bool $isMainForm
+ * When called recursively for sub-fields (media):
+ * @var ?int $indexMedia
+ * @var array $fieldsMedia
  *
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -37,6 +43,9 @@ $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
 $isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$name = $isMainForm
+    ? sprintf('%s[%s][@value]', $term, $indexFieldInput)
+    : sprintf('media[%s][%s][%s][@value]', $indexMedia, $term, $indexFieldInput);
 
 $val = $proposed['@value'] ?? $original['@value'] ?? '';
 
@@ -47,5 +56,5 @@ endif;
 ?>
 
 <div class="<?= implode(' ', $class) ?>">
-    <input type="tel" pattern="^\d+$" class="form-control input-value" data-value-key="@value" name="<?= $term . '[' . $indexFieldInput . '][@value]' ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>  value="<?= $escapeAttr($val) ?>"/>
+    <input type="tel" pattern="^\d+$" class="form-control input-value" data-value-key="@value" name="<?= $name ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>  value="<?= $escapeAttr($val) ?>"/>
 </div>

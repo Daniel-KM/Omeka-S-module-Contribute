@@ -5,6 +5,8 @@
  * @var \Omeka\Entity\User $user
  * @var \Omeka\Form\ResourceForm $form
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -27,8 +29,8 @@ $mapLabels = [
     <div class="messages">
         <p><?= $this->messages() ?></p>
     </div>
-    <?php if (count($fields)): ?>
-        <?php
+    <?php if (count($fields)):
+        // The two lists of fields are merged in one form by default.
         $this->trigger('view.edit.before');
         echo $partial('contribute/site/contribution/form', [
             'site' => $site,
@@ -36,8 +38,11 @@ $mapLabels = [
             'resource' => null,
             'contribution' => null,
             'fields' => $fields,
+            'fieldsByMedia' => $fieldsByMedia,
+            'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'add',
             'submitLabel' => $translate('Submit'),
+            'isMainForm' => true,
         ]);
         $this->trigger('view.edit.after');
     elseif ($form): // First step form to select a resource template.

@@ -273,6 +273,12 @@ class Module extends AbstractModule
         );
 
         $sharedEventManager->attach(
+            // \Omeka\Form\ResourceTemplateForm::class,
+            \AdvancedResourceTemplate\Form\ResourceTemplateForm::class,
+            'form.add_elements',
+            [$this, 'addResourceTemplateFormElements']
+        );
+        $sharedEventManager->attach(
             // \Omeka\Form\ResourceTemplatePropertyFieldset::class,
             \AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset::class,
             'form.add_elements',
@@ -445,6 +451,31 @@ HTML;
                 'required' => false,
             ])
         ;
+    }
+
+    public function addResourceTemplateFormElements(Event $event): void
+    {
+        /** @var \Omeka\Form\ResourceTemplateForm $form */
+        /** @var \AdvancedResourceTemplate\Form\ResourceTemplateDataFieldset $form */
+        $form = $event->getTarget();
+        $fieldset = $form->get('o:data');
+        $fieldset
+            ->add([
+                'name' => 'contribute_template_media',
+                'type' => \Omeka\Form\Element\ResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Media template for contribution', // @translate
+                    'info' => 'If any, the template should be in the list of allowed templates for contribution of a media', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    // 'id' => 'contribute_template_media',
+                    'class' => 'setting chosen-select',
+                    'multiple' => false,
+                    'data-setting-key' => 'contribute_template_media',
+                    'data-placeholder' => 'Select resource template for media…', // @translate
+                ],
+            ]);
     }
 
     public function addResourceTemplatePropertyFieldsetElements(Event $event): void
