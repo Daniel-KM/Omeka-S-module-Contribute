@@ -684,10 +684,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $resource = $this->resource();
         if (!$resource) {
             return $url(
-                'site/contribute',
+                'site/contribution',
                 [
                     'site-slug' => $siteSlug,
-                    // TODO Support any new resources, not only item.
+                    // TODO Support any new resources, not only item (in particular media).
                     'resource' => 'item',
                 ],
                 ['force_canonical' => $canonical]
@@ -695,7 +695,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
 
         return $url(
-            'site/contribute-id',
+            'site/contribution-id',
             [
                 'site-slug' => $siteSlug,
                 'resource' => $resource->getControllerName(),

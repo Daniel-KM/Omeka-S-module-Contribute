@@ -40,7 +40,7 @@ return [
     'controllers' => [
         'invokables' => [
             'Contribute\Controller\Admin\Contribution' => Controller\Admin\ContributionController::class,
-            'Contribute\Controller\Site\Contribute' => Controller\Site\ContributeController::class,
+            'Contribute\Controller\Site\Contribution' => Controller\Site\ContributionController::class,
             'Contribute\Controller\Site\GuestBoard' => Controller\Site\GuestBoardController::class,
         ],
     ],
@@ -65,12 +65,12 @@ return [
                 // 'privilege' => 'browse',
                 'pages' => [
                     [
-                        'route' => 'admin/contribution/id',
+                        'route' => 'admin/contribution/default',
                         'controller' => Controller\Admin\ContributionController::class,
                         'visible' => false,
                     ],
                     [
-                        'route' => 'admin/annotation/default',
+                        'route' => 'admin/contribution/id',
                         'controller' => Controller\Admin\ContributionController::class,
                         'visible' => false,
                     ],
@@ -82,7 +82,7 @@ return [
         'routes' => [
             'site' => [
                 'child_routes' => [
-                    'contribute' => [
+                    'contribution' => [
                         'type' => \Laminas\Router\Http\Segment::class,
                         'options' => [
                             'route' => '/:resource/add',
@@ -91,13 +91,13 @@ return [
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',
-                                'controller' => 'contribute',
+                                'controller' => 'contribution',
                                 'resource' => 'item',
                                 'action' => 'add',
                             ],
                         ],
                     ],
-                    'contribute-id' => [
+                    'contribution-id' => [
                         'type' => \Laminas\Router\Http\Segment::class,
                         'options' => [
                             // TODO Use controller delegator or override the default site route?
@@ -109,7 +109,8 @@ return [
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',
-                                'controller' => 'contribute',
+                                'controller' => 'contribution',
+                                'resource' => 'contribution',
                                 'action' => 'edit',
                             ],
                         ],

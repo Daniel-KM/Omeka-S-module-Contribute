@@ -11,7 +11,7 @@ use Laminas\View\Model\ViewModel;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\Message;
 
-class ContributeController extends AbstractActionController
+class ContributionController extends AbstractActionController
 {
     public function addAction()
     {
@@ -112,6 +112,21 @@ class ContributeController extends AbstractActionController
             $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
         } elseif (!count($allowedResourceTemplates)) {
             $this->logger()->warn(new Message('No template defined for contribution.')); // @translate
+            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
+        } elseif (!$resourceTemplate && count($allowedResourceTemplates) === 1) {
+            $resourceTemplate = reset($allowedResourceTemplates);
+            $resourceTemplate = $this->api()->searchOne('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
+            if ($resourceTemplate) {
+                /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
+                $contributionFields = $this->viewHelpers()->get('contributionFields');
+                $fields = $contributionFields(null, null, $resourceTemplate);
+            } else {
+                $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+                $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
+            }
+        } elseif (!$resourceTemplate && count($allowedResourceTemplates) > 1) {
+            // TODO Add a resource template selector.
+            $this->logger()->warn(new Message('You must select a template for contribution.')); // @translate
             $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
         } else {
             /** @var \Contribute\View\Helper\ContributionFields $contributionFields */

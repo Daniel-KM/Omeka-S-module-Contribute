@@ -8,15 +8,15 @@
  */
 
 $plugins = $this->getHelperPluginManager();
-$translate = $plugins->get('translate');
 $url = $plugins->get('url');
+$translate = $plugins->get('translate');
 ?>
 
 <div id="contribute" class="contribute">
     <h3><?= $translate('Contribute') ?></h3>
     <?php if ($resource): ?>
         <?php if ($canEdit): ?>
-        <?= $this->hyperlink($translate('Edit this record'), $url('site/contribute-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id()], true)) ?>
+        <?= $this->hyperlink($translate('Edit this record'), $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true)) ?>
         <?php elseif ($user): ?>
         <?= $translate('Click your token link to edit this record.') ?>
         <?php else: ?>
@@ -25,7 +25,7 @@ $url = $plugins->get('url');
         <?php endif; ?>
     <?php else: ?>
         <?php if ($canEdit): ?>
-        <?= $this->hyperlink($translate('Add a new record'), $url('site/contribute', [], true)) ?>
+        <?= $this->hyperlink($translate('Add a new record'), $url('site/contribution', [], true)) ?>
         <?php elseif ($user): ?>
         <?= $translate('Click your token link to add a new record.') ?>
         <?php else: ?>

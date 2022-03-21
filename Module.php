@@ -126,7 +126,7 @@ class Module extends AbstractModule
         $acl
             ->allow(
                 $contributors,
-                ['Contribute\Controller\Site\Contribute'],
+                ['Contribute\Controller\Site\Contribution'],
                 ['add', 'edit']
             )
 

@@ -17,7 +17,7 @@ $hyperlink = $this->plugin('hyperlink');
     </li>
     <?php if (in_array($this->setting('contribute_mode'), ['user', 'open'])): ?>
     <li>
-        <?= $hyperlink($translate('Add a new record'), $url('site/contribute', [], true)) ?>
+        <?= $hyperlink($translate('Add a new record'), $url('site/contribution', [], true)) ?>
     </li>
     <?php endif; ?>
 </ul>
