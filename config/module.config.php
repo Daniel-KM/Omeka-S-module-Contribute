@@ -239,7 +239,7 @@ return [
     'contribute' => [
         'settings' => [
             'contribute_mode' => 'user',
-            'contribute_notify' => [],
+            'contribute_notify_recipients' => [],
             'contribute_templates' => [
                 // The id is set during install.
                 'Contribution',

@@ -217,4 +217,7 @@ SQL;
     foreach (array_filter(array_map('trim', explode(";\n", $sqls))) as $sql) {
         $connection->executeStatement($sql);
     }
+
+    $settings->set('contribute_notify_recipients', $settings->get('contribute_notify'));
+    $settings->delete('contribute_notify');
 }

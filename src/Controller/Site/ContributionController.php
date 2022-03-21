@@ -289,7 +289,7 @@ class ContributionController extends AbstractActionController
                         if ($response) {
                             $this->messenger()->addSuccess('Contribution successfully saved!'); // @translate
                             $this->messenger()->addWarning('Review it before its submission.'); // @translate
-                            // $this->prepareContributionEmail($response->getContent(), 'prepared');
+                            // $this->prepareContributionEmail($response->getContent(), 'prepare');
                             $eventManager = $this->getEventManager();
                             $eventManager->trigger('contribute.submit', $this, [
                                 'contribution' => $response->getContent(),
@@ -499,7 +499,7 @@ class ContributionController extends AbstractActionController
                             $response = $this->api($form)->create('contributions', $data);
                             if ($response) {
                                 $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                                $this->prepareContributionEmail($response->getContent(), 'submitted');
+                                // $this->prepareContributionEmail($response->getContent(), 'submit');
                             }
                         } elseif ($contribution->isSubmitted()) {
                             $this->messenger()->addWarning('This contribution is already submitted and cannot be updated.'); // @translate
@@ -515,7 +515,7 @@ class ContributionController extends AbstractActionController
                             $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
                             if ($response) {
                                 $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
-                                $this->prepareContributionEmail($response->getContent(), 'updated');
+                                // $this->prepareContributionEmail($response->getContent(), 'update');
                             }
                         }
                         if ($response) {
@@ -679,7 +679,8 @@ class ContributionController extends AbstractActionController
         }
 
         $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-        $this->prepareContributionEmail($response->getContent(), 'submitted');
+        $contribution = $response->getContent();
+        $this->prepareContributionEmail($contribution, 'submit');
 
         return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
     }
@@ -740,21 +741,22 @@ class ContributionController extends AbstractActionController
         return new ContributionRepresentation($entity, $contributionAdapter);
     }
 
-    protected function prepareContributionEmail(ContributionRepresentation $contribution, string $action = 'updated'): self
+    protected function prepareContributionEmail(ContributionRepresentation $contribution, string $action = 'update'): self
     {
-        $emails = $this->settings()->get('contribute_notify', []);
+        $emails = $this->filterEmails($contribution);
         if (empty($emails)) {
             return $this;
         }
 
         $translate = $this->getPluginManager()->get('translate');
         $actions = [
-            'prepared' => $translate('prepared'), // @translate
-            'updated' => $translate('updated'), // @translate
-            'submitted' => $translate('submitted'), // @translate
+            'prepare' => $translate('prepare'), // @translate
+            'update' => $translate('update'), // @translate
+            'submit' => $translate('submit'), // @translate
         ];
 
-        $action = $actions[$action] ?? $translate('updated');
+        $action = isset($actions[$action]) ? $action : 'update';
+        $actionMsg = $actions[$action];
         $contributionResource = $contribution->resource();
         $user = $this->identity();
 
@@ -765,7 +767,7 @@ class ContributionController extends AbstractActionController
                     '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
                     '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
                     $contributionResource->displayTitle(),
-                    $action
+                    $actionMsg
                 ) . '</p>';
                 break;
             case $contributionResource:
@@ -773,26 +775,51 @@ class ContributionController extends AbstractActionController
                     'An anonymous user has made a contribution for resource #%1$s (%2$s) (action: %3$s).', // @translate
                     '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
                     $contributionResource->displayTitle(),
-                    $action
+                    $actionMsg
                 ) . '</p>';
                 break;
             case $user:
                 $message = '<p>' . new Message(
                     'User %1$s has made a contribution (action: %2$s).', // @translate
                     '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                    $action
+                    $actionMsg
                 ) . '</p>';
                 break;
             default:
                 $message = '<p>' . new Message(
                     'An anonymous user has made a contribution (action: %1$s).', // @translate
-                    $action
+                    $actionMsg
                 ) . '</p>';
                 break;
         }
 
         $this->sendContributionEmail($emails, sprintf($translate('[Omeka] Contribution %s'), $action), $message); // @translate
         return $this;
+    }
+
+    protected function filterEmails(?ContributionRepresentation $contribution = null): array
+    {
+        $emails = $this->settings()->get('contribute_notify_recipients', []);
+        if (empty($emails)) {
+            return [];
+        }
+
+        if (!$contribution) {
+            return $emails;
+        }
+
+        $result = [];
+        foreach ($emails as $email) {
+            [$email, $query] = explode(' ', $email . ' ', 2);
+            if ($email
+                && filter_var($email, FILTER_VALIDATE_EMAIL)
+                && $contribution->match($query)
+            ) {
+                $result[] = $email;
+            }
+        }
+
+        return $result;
     }
 
     /**

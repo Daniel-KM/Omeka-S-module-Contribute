@@ -33,16 +33,18 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
-                'name' => 'contribute_notify',
+                'name' => 'contribute_notify_recipients',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Emails to notify contributions', // @translate
+                    'info' => 'A query can be appended to limit notifications to specific contributions.'
                 ],
                 'attributes' => [
-                    'id' => 'contribute_notify',
+                    'id' => 'contribute_notify_recipients',
                     'required' => false,
                     'placeholder' => 'contact@example.org
-info@example2.org',
+info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provenance&property[0][type]=eq&property[0][text]=ut2j
+',
                 ],
             ])
 
