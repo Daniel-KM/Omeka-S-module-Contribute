@@ -110,6 +110,29 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
             ])
 
             ->add([
+                'name' => 'contribute_reviewer_confirmation_subject',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Subject of the confirmation email to the reviewers', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_reviewer_confirmation_subject',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_reviewer_confirmation_body',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Confirmation message to the reviewers', // @translate
+                    'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_confirmation_body',
+                    'rows' => 5,
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_templates',
                 'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
                 'options' => [

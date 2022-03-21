@@ -243,6 +243,8 @@ return [
             'contribute_author_confirmations' => [],
             'contribute_author_confirmation_subject' => '',
             'contribute_author_confirmation_body' => '',
+            'contribute_reviewer_confirmation_subject' => '',
+            'contribute_reviewer_confirmation_body' => '',
             'contribute_templates' => [
                 // The id is set during install.
                 'Contribution',

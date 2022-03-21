@@ -762,6 +762,17 @@ class ContributionController extends AbstractActionController
         $contributionResource = $contribution->resource();
         $user = $this->identity();
 
+        $settings = $this->settings();
+        $subject = $settings->get('contribute_reviewer_confirmation_subject') ?: sprintf($translate('[Omeka] Contribution %s'), $action);
+        $message = $settings->get('contribute_reviewer_confirmation_body');
+
+        if ($message) {
+            $message = $this->replacePlaceholders($message, $contribution);
+            $this->sendContributionEmail($emails, $subject, $message); // @translate
+            return $this;
+        }
+
+        // Default message.
         switch (true) {
             case $contributionResource && $user:
                 $message = '<p>' . new Message(
@@ -795,7 +806,7 @@ class ContributionController extends AbstractActionController
                 break;
         }
 
-        $this->sendContributionEmail($emails, sprintf($translate('[Omeka] Contribution %s'), $action), $message); // @translate
+        $this->sendContributionEmail($emails, $subject, $message); // @translate
         return $this;
     }
 
