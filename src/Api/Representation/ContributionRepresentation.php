@@ -344,7 +344,6 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             foreach ($propositions as $key => $proposition) {
                 // TODO Manage all the cases (custom vocab is literal, item, uri, value suggest is uri).
                 // TODO Remove management of proposition without resource template (but the template may have been modified).
-                $type = 'unknown';
                 if ($typeTemplate) {
                     $type = $typeTemplate;
                 } elseif (array_key_exists('@uri', $proposition['original'])) {
@@ -353,6 +352,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                     $type = 'resource';
                 } elseif (array_key_exists('@value', $proposition['original'])) {
                     $type = 'literal';
+                } else {
+                    $type = 'unknown';
                 }
 
                 $isTermDatatype = $contributive->isTermDatatype($term, $type);
@@ -360,6 +361,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case 'boolean':
+                    case 'html':
+                    case 'xml':
+                    case $typeColon === 'numeric':
                     case $typeColon === 'customvocab' && $baseType === 'literal':
                         $original = $proposition['original']['@value'] ?? '';
                         $proposed = $proposition['proposed']['@value'] ?? '';

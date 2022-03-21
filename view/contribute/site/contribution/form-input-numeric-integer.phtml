@@ -42,12 +42,8 @@ $class = ['value'];
 if ($isPrivate):
     $class[] = 'private';
 endif;
-$language = isset($proposed['@value']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
 ?>
 
-<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
-    <?php if ($language): ?>
-    <span class="language"><?= $language ?></span>
-    <?php endif; ?>
-    <textarea class="form-control input-value" data-value-key="@value" name="<?= $term . '[' . $indexFieldInput . '][@value]' ?>" aria-labelledby="property-<?= $property->id() ?>-label"<?= $isRequired ? ' required="required"' : '' ?>><?= $escape($val) ?></textarea>
+<div class="<?= implode(' ', $class) ?>">
+    <input type="tel" pattern="^\d+$" class="form-control input-value" data-value-key="@value" name="<?= $term . '[' . $indexFieldInput . '][@value]' ?>" aria-labelledby="property-<?= $property->id() ?>-label" <?= $isRequired ? ' required="required"' : '' ?> value="<?= $escapeAttr($val) ?>" readonly="readonly"/>
 </div>

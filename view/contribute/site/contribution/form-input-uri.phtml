@@ -15,6 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
+ * @var bool $hasNumericDataTypes
  * @var ?array $customVocabBaseTypes
  *
  * @var array $valueResourceTypes
@@ -50,13 +51,13 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
     <div class="input-body">
         <div class="input">
             <label class="value input-container">
-                <?= $translate('URI') ?>:
-                <input type="text" class="form-control value to-require" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?>/>
+                <?= $translate('URI') ?>
+                <input type="text" class="form-control value" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?>/>
             </label>
         </div>
         <div class="input">
             <label class="value-label label-container">
-                <?= $translate('Label') ?>:
+                <?= $translate('Label') ?>
                 <textarea class="form-control value-label" rows="1" data-value-key="@label" name="<?= $term . '[' . $indexFieldInput . '][@label]' ?>"><?= $escape($label) ?></textarea>
             </label>
         </div>

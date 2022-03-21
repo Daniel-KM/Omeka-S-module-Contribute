@@ -38,7 +38,7 @@ $(document).ready(function() {
         ev.stopPropagation();
 
         var target = $(ev.target);
-        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-custom-vocab, .add-value-value-suggest')) {
+        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-numeric-integer, .add-value-custom-vocab, .add-value-value-suggest')) {
             return;
         }
 
@@ -81,10 +81,21 @@ $(document).ready(function() {
             namel = term + '[' + index + '][@label]';
             $(newElement).find('input[data-value-key="@uri"]')
                 .prop('name', name)
-                .removeAttr('readonly');
+                .removeAttr('readonly')
+                .val('');
             $(newElement).find('input[data-value-key="@label"]')
                 .prop('name', namel)
-                .removeAttr('readonly');
+                .removeAttr('readonly')
+                .val('');
+        }
+
+        if (target.hasClass('add-value-numeric-integer')) {
+            newElement = $('#edit_numeric-integer_template > .value').clone();
+            name = term + '[' + index + '][@value]';
+            newInput = $(newElement).find('input')
+                .prop('name', name)
+                .removeAttr('readonly')
+                .val('');
         }
 
         if (target.hasClass('add-value-custom-vocab')) {
@@ -109,7 +120,8 @@ $(document).ready(function() {
             newInput
                 .prop('name', name)
                 .data('data-type', target.data('data-type'))
-                .removeAttr('readonly');
+                .removeAttr('readonly')
+                .val('');
             valueSuggestAutocomplete(newInput);
         }
 

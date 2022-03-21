@@ -27,6 +27,7 @@ $apiManager = $site->getServiceLocator()->get('Omeka\ApiManager');
 $moduleManager = $site->getServiceLocator()->get('Omeka\ModuleManager');
 $hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
 $hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+$hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
 
 if ($hasCustomVocab) {
     $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
@@ -42,6 +43,7 @@ $vars->offsetSet('translate', $translate);
 $vars->offsetSet('escapeAttr', $escapeAttr);
 $vars->offsetSet('apiManager', $apiManager);
 $vars->offsetSet('hasValueSuggest', $hasValueSuggest);
+$vars->offsetSet('hasNumericDataTypes', $hasNumericDataTypes);
 $vars->offsetSet('customVocabBaseTypes', $CustomVocabBaseTypes);
 
 // Prepare resource selects.
@@ -131,9 +133,12 @@ $labelInfo = $this->setting('property_label_information');
                     $value = $fieldContribution['original']['value'];
                     if (!$value && !$field['fillable']) continue;
                     $typeColon = strtok((string) $fieldContribution['type'], ':');
+                    $isNumeric = $typeColon === 'numeric';
                     $isCustomVocab = $typeColon === 'customvocab';
-                    if ($isCustomVocab && !$hasCustomVocab) continue;
                     $isValueSuggest = $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall';
+                    if ($isNumeric && !$hasNumericDataTypes) continue;
+                    if ($isNumeric && !in_array($fieldContribution['type'], ['numeric:integer'])) continue;
+                    if ($isCustomVocab && !$hasCustomVocab) continue;
                     if ($isValueSuggest && !$hasValueSuggest) continue;
                 }
                 $vars->offsetSet('indexContribution', $indexContribution);
@@ -155,6 +160,9 @@ $labelInfo = $this->setting('property_label_information');
                             break;
                         case 'uri':
                             echo $partial('contribute/site/contribution/form-input-uri');
+                            break;
+                        case 'numeric:integer':
+                            echo $partial('contribute/site/contribution/form-input-numeric-integer');
                             break;
                         case $isCustomVocab:
                             echo $partial('contribute/site/contribution/form-input-custom-vocab');

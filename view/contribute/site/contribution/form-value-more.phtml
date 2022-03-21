@@ -15,6 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
+ * @var bool $hasNumericDataTypes
  * @var ?array $customVocabBaseTypes
  *
  * @var array $valueResourceTypes
@@ -34,9 +35,16 @@
     <div class="add-values default-selector" data-next-index="<?= $indexFieldInput ?>" data-next-term="<?= $term ?>">
         <?php foreach ($field['datatypes'] as $datatype) switch($datatype):
 
-            case 'literal': ?>
+            case 'literal':
+            ?>
         <div class="add-value add-value-new button o-icon-add"><?= $translate('Add value') ?></div>
-            <?php
+                <?php
+                break;
+
+            case 'numeric:integer':
+                ?>
+        <div class="add-value add-value-numeric-integer button o-icon-add"><?= $translate('Add number') ?></div>
+                <?php
                 break;
 
             case 'resource':
@@ -61,7 +69,8 @@
                 <?php endif;
                 break;
 
-            case 'uri': ?>
+            case 'uri':
+                ?>
         <div class="add-value add-value-uri button o-icon-uri" data-data-type="uri"><?= $translate('Add URI') ?></div>
                 <?php break;
 
@@ -95,7 +104,8 @@
         <div class="add-value add-value-custom-vocab button o-icon-add" data-data-type="<?= $datatype ?>" data-basetype="<?= $baseType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $translate('Add value') ?></div>
                 <?php break;
 
-            case substr($datatype, 0, 12) === 'valuesuggest': // Or valuesuggestall. ?>
+            case substr($datatype, 0, 12) === 'valuesuggest': // Or valuesuggestall.
+                ?>
         <div class="add-value add-value-value-suggest button o-icon-uri" data-data-type="<?= $datatype ?>"><?= $translate('Add linked data') ?></div>
                 <?php break;
 

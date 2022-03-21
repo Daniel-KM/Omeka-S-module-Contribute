@@ -545,6 +545,7 @@ class ContributionController extends AbstractActionController
 
                 switch ($type) {
                     case 'literal':
+                    case $typeColon === 'numeric':
                     case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
@@ -686,6 +687,7 @@ class ContributionController extends AbstractActionController
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case $typeColon === 'numeric':
                     case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;

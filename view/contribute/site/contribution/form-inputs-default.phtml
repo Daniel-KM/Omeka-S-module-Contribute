@@ -15,6 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
+ * @var bool $hasNumericDataTypes
  * @var ?array $customVocabBaseTypes
  *
  * @var array $valueResourceTypes
@@ -43,19 +44,27 @@
         <div class="input-body">
             <div class="input">
                 <label class="value input-container">
-                    <?= $translate('URI') ?>:
+                    <?= $translate('URI') ?>
                     <input type="text" class="form-control value" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" readonly="readonly"/>
                 </label>
             </div>
             <div class="input">
                 <label class="value-label label-container">
-                    <?= $translate('Label') ?>:
+                    <?= $translate('Label') ?>
                     <input type="text" class="form-control value-label" data-value-key="@label" name="dcterms:title[__INDEX__][@label]" readonly="readonly"/>
                 </label>
             </div>
         </div>
     </div>
 </div>
+
+<?php if ($hasNumericDataTypes): ?>
+<div id="edit_numeric-integer_template" class="contribute_template value" style="display:none;">
+    <div class="value">
+        <input type="tel" pattern="^\d+$" class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"/>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php if (!empty($customVocabBaseTypes)): ?>
 <div id="edit_customvocab_template" class="contribute_template custom_vocab" style="display:none;">
