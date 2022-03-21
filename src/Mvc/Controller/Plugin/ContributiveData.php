@@ -27,6 +27,7 @@ class ContributiveData extends AbstractPlugin
             'is_contributive' => false,
             'template' => null,
             'required' => false,
+            'max_values' => 0,
             'editable_mode' => 'whitelist',
             'editable' => [],
             'fillable_mode' => 'whitelist',
@@ -71,11 +72,12 @@ class ContributiveData extends AbstractPlugin
                 continue;
             }
             $rtpData = $resourceTemplateProperty->data();
-            // TODO Manage repeatable property.
-            $rtpData = reset($rtpData);
-            if (!$rtpData) {
+            if (!count($rtpData)) {
                 continue;
             }
+            // TODO Manage repeatable property.
+            $rtpData = reset($rtpData);
+            $this->data['max_values'] = (int) $rtpData->dataValue('max_values', 0);
             if ($rtpData->dataValue('editable', false)) {
                 $this->data['editable'][$term] = $propertyId;
             }
@@ -119,6 +121,11 @@ class ContributiveData extends AbstractPlugin
     public function isRequired(): bool
     {
         return $this->data['required'];
+    }
+
+    public function maxValues(): int
+    {
+        return $this->data['max_values'];
     }
 
     public function editableMode(): string

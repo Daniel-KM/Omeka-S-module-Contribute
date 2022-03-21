@@ -10,12 +10,18 @@ $(document).ready(function() {
 
         var selector = target.closest('.default-selector');
         var term = selector.data('next-term');
-        var index = selector.data('next-index');
+        var index = selector.data('next-index') ? parseInt(selector.data('next-index')) : 0;
         var inputs = target.closest('.property').find('.values').first();
         var newElement,
             name,
             namel,
             newInput;
+
+        var maxValues = fields[term] && fields[term]['max_values'] ? parseInt(fields[term]['max_values']) : 0;
+        if (maxValues && index >= maxValues) {
+            selector.hide();
+            return;
+        }
 
         var required = fields[term] && fields[term]['required'];
 
@@ -78,8 +84,12 @@ $(document).ready(function() {
             newInput.prop('required', 'required');
         }
 
+        ++index;
+        if (maxValues && index >= maxValues) {
+            selector.hide();
+        }
+
         inputs.append(newElement);
-        index = parseInt(index) + 1;
         selector.data('next-index', index);
     });
 

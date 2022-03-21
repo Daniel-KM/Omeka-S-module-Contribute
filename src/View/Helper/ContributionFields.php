@@ -20,12 +20,19 @@ class ContributionFields extends AbstractHelper
      */
     protected $contributiveData;
 
+    /**
+     * @var bool
+     */
+    protected $hasAdvancedTemplate;
+
     public function __construct(
         array $propertiesByTerm,
-        ContributiveData $contributiveData
+        ContributiveData $contributiveData,
+        bool $hasAdvancedTemplate
     ) {
         $this->propertiesByTerm = $propertiesByTerm;
         $this->contributiveData = $contributiveData;
+        $this->hasAdvancedTemplate = $hasAdvancedTemplate;
     }
 
     /**
@@ -49,6 +56,7 @@ class ContributionFields extends AbstractHelper
      *     'alternate_label' => {label},
      *     'alternate_comment' => {comment},
      *     'required' => {bool},
+     *     'max_values' => {int},
      *     'editable' => {bool},
      *     'fillable' => {bool},
      *     'datatypes' => {array},
@@ -90,6 +98,7 @@ class ContributionFields extends AbstractHelper
             'alternate_label' => null,
             'alternate_comment' => null,
             'required' => false,
+            'max_values' => 0,
             'editable' => false,
             'fillable' => false,
             'datatypes' => [],
@@ -113,12 +122,20 @@ class ContributionFields extends AbstractHelper
         foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
             $property = $templateProperty->property();
             $term = $property->term();
+            if ($this->hasAdvancedTemplate) {
+                $rtpDatas = $templateProperty->data();
+                if (count($rtpDatas)) {
+                    $rtpData = reset($rtpDatas);
+                    $maxValues = (int) $rtpData->dataValue('max_values', 0);
+                }
+            }
             $fields[$term] = [
                 'template_property' => $templateProperty,
                 'property' => $property,
                 'alternate_label' => $templateProperty->alternateLabel(),
                 'alternate_comment' => $templateProperty->alternateComment(),
                 'required' => $templateProperty->isRequired(),
+                'max_values' => empty($maxValues) ? 0 : (int) $maxValues,
                 'editable' => $contributive->isTermEditable($term),
                 'fillable' => $contributive->isTermFillable($term),
                 'datatypes' => $contributive->datatypeTerm($term),
@@ -132,6 +149,7 @@ class ContributionFields extends AbstractHelper
             if (!isset($fields[$term])) {
                 $fields[$term] = $valueInfo;
                 $fields[$term]['required'] = false;
+                $fields[$term]['max_values'] = 0;
                 $fields[$term]['editable'] = false;
                 $fields[$term]['fillable'] = false;
                 $fields[$term]['datatypes'] = [];

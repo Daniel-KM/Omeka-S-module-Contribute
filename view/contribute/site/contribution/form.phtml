@@ -163,7 +163,14 @@ $labelInfo = $this->setting('property_label_information');
         </div>
 
         <?php // Add buttons to add a new value for fillable properties. ?>
-        <?php if ($field['fillable']): ?>
+        <?php if ($field['fillable']):
+            if ($field['max_values']) {
+                if (count($field['contributions']) >= $field['max_values'] ||
+                    (!count($field['contributions']) && $field['required'] && $field['max_values'] <= 1)
+                ) {
+                    continue;
+                }
+            } ?>
         <?= $partial('contribute/site/contribution/form-field-value-more') ?>
         <?php endif; ?>
 
