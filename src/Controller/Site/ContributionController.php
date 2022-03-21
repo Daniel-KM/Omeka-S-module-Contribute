@@ -864,7 +864,9 @@ class ContributionController extends AbstractActionController
             return (string) $message;
         }
 
+        $url = $this->viewHelpers()->get('url');
         $api = $this->api();
+        $settings = $this->settings();
 
         $replace = [];
         foreach ($contribution->proposalToResourceData() as $term => $value) {
@@ -884,6 +886,24 @@ class ContributionController extends AbstractActionController
                 $replace['{' . $term . '}'] = $first['@value'];
             }
         }
+
+        if ($contribution) {
+            $replace['{resource_id}'] = $contribution->id();
+            $owner = $contribution->owner();
+            $replace['{user_name}'] = $owner ? $owner->name() : $this->translate('[Anonymous]'); // @translate
+            $replace['{user_id}'] = $owner ? $owner->id() : 0;
+            $replace['{user_email}'] = $contribution->email();
+            // Like module Contact Us.
+            $replace['{email}'] = $contribution->email();
+        }
+
+        $replace['{main_title}'] = $settings->get('installation_title', 'Omeka S');
+        $replace['{main_url}'] = $url('top', [], ['force_canonical' => true]);
+        // TODO Currently, the site is not stored, so use main title and main url.
+        $replace['{site_title}'] = $replace['{main_title}'];
+        $replace['{site_url}'] = $replace['{main_url}'];
+
+        // TODO Store and add ip.
 
         return str_replace(array_keys($replace), array_values($replace), $message);
     }
