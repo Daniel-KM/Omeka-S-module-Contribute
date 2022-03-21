@@ -70,8 +70,6 @@ $labelInfo = $this->setting('property_label_information');
 ?>
 
 <div class="contribute-main-form">
-    <?= $partial('contribute/site/contribution/form-elements-default') ?>
-
     <?= $this->form()->openTag($form) ?>
 
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
@@ -107,7 +105,7 @@ $labelInfo = $this->setting('property_label_information');
             <?php
             foreach ($field['values'] as $value):
                 $vars->offsetSet('value', $value);
-                echo $partial('contribute/site/contribution/form-field-value');
+                echo $partial('contribute/site/contribution/form-value');
             endforeach; ?>
         </div>
         <?php // Early end this property and continue to next fields. ?>
@@ -143,31 +141,31 @@ $labelInfo = $this->setting('property_label_information');
                 $vars->offsetSet('value', $value);
                 // Check if the value exists or is editable (the value may be empty).
                 if ($value && !$field['editable']):
-                    echo $partial('contribute/site/contribution/form-field-value');
+                    echo $partial('contribute/site/contribution/form-value');
                 else:
                     switch ($fieldContribution['type']):
                         case 'literal':
-                            echo $partial('contribute/site/contribution/form-field-input-literal');
+                            echo $partial('contribute/site/contribution/form-input-literal');
                             break;
                         case 'resource':
                         case 'resource:item':
                         case 'resource:media':
                         case 'resource:itemset':
-                            echo $partial('contribute/site/contribution/form-field-input-resource');
+                            echo $partial('contribute/site/contribution/form-input-resource');
                             break;
                         case 'uri':
-                            echo $partial('contribute/site/contribution/form-field-input-uri');
+                            echo $partial('contribute/site/contribution/form-input-uri');
                             break;
                         case $isCustomVocab:
-                            echo $partial('contribute/site/contribution/form-field-input-custom-vocab');
+                            echo $partial('contribute/site/contribution/form-input-custom-vocab');
                             break;
                         case $isValueSuggest:
-                            echo $partial('contribute/site/contribution/form-field-input-value-suggest');
+                            echo $partial('contribute/site/contribution/form-input-value-suggest');
                             break;
                         default:
                             // Other datatypes are not yet editable.
                             if ($value):
-                                echo $partial('contribute/site/contribution/form-field-value');
+                                echo $partial('contribute/site/contribution/form-value');
                             endif;
                             break;
                     endswitch;
@@ -187,7 +185,7 @@ $labelInfo = $this->setting('property_label_information');
                     continue;
                 }
             } ?>
-        <?= $partial('contribute/site/contribution/form-field-value-more') ?>
+        <?= $partial('contribute/site/contribution/form-value-more') ?>
         <?php endif; ?>
 
     </div>
@@ -208,6 +206,8 @@ $labelInfo = $this->setting('property_label_information');
     </div>
 
     <?= $this->form()->closeTag() ?>
+
+    <?= $partial('contribute/site/contribution/form-inputs-default') ?>
 
     <?php //= $partial('common/resource-form-templates') ?>
 
