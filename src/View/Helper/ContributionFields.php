@@ -66,6 +66,8 @@ class ContributionFields extends AbstractHelper
      *     'contributions' => [
      *       [
      *         'type' => {string},
+     *         'basetype' => {string},
+     *         'new' => {bool},
      *         'original' => [
      *           'value' => {ValueRepresentation},
      *           '@value' => {string},
@@ -84,6 +86,8 @@ class ContributionFields extends AbstractHelper
      *   ],
      * ]
      * </code>
+     *
+     * @todo Remove the "@" in proposition values.
      */
     public function __invoke(
         ?AbstractResourceEntityRepresentation $resource = null,
@@ -106,11 +110,14 @@ class ContributionFields extends AbstractHelper
             'contributions' => [],
         ];
 
-        if ($resource) {
+        // The contribution is always on the stored resource, if any.
+        $values = [];
+        if ($contribution) {
+            $resource = $contribution->resource();
+            $resourceTemplate = $contribution->resourceTemplate();
+        } elseif ($resource) {
             $resourceTemplate = $resource->resourceTemplate();
             $values = $resource->values();
-        } else {
-            $values = [];
         }
         $contributive = $this->contributiveData->__invoke($resourceTemplate);
 
@@ -175,6 +182,7 @@ class ContributionFields extends AbstractHelper
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
                     || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
+                    $baseType = 'uri';
                     $val = null;
                     $res = null;
                     $uri = $value->uri();
@@ -182,12 +190,14 @@ class ContributionFields extends AbstractHelper
                 } elseif ($typeColon === 'resource'
                     || ($typeColon === 'customvocab' && $baseType === 'resource')
                 ) {
+                    $baseType = 'resource';
                     $vr = $value->valueResource();
                     $val = null;
                     $res = $vr ? $vr->id() : null;
                     $uri = null;
                     $label = null;
                 } else {
+                    $baseType = 'literal';
                     $val = $value->value();
                     $res = null;
                     $uri = null;
@@ -196,6 +206,8 @@ class ContributionFields extends AbstractHelper
                 $fields[$term]['contributions'][] = [
                     // The type cannot be changed.
                     'type' => $type,
+                    'basetype' => $baseType,
+                    'new' => null,
                     'original' => [
                         'value' => $value,
                         '@value' => $val,
@@ -220,6 +232,7 @@ class ContributionFields extends AbstractHelper
         $proposals = $contribution->proposal();
 
         // Clean old proposals.
+        unset($proposals['template']);
         foreach ($proposals as $term => $termProposal) {
             foreach ($termProposal as $key => $proposal) {
                 if (isset($proposal['proposed']['@uri'])) {
@@ -423,7 +436,9 @@ class ContributionFields extends AbstractHelper
             }
             $propertyId = $this->propertiesByTerm[$term];
             $typeTemplate = null;
-            $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+            $resourceTemplateProperty = $resourceTemplate
+                ? $resourceTemplate->resourceTemplateProperty($propertyId)
+                : null;
             // TODO Check if it is possible to have a property that is not set.
             if ($resourceTemplateProperty) {
                 $typeTemplate = $resourceTemplateProperty->dataType();
@@ -442,14 +457,18 @@ class ContributionFields extends AbstractHelper
                     continue;
                 }
                 $typeColon = strtok($type, ':');
-                $baseType = $typeColon === 'customvocab' && is_array($customVocabBaseTypes)
-                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
-                    : null;
+                $baseType = null;
+                if ($typeColon === 'customvocab') {
+                    $customVocabId = (int) substr($type, 12);
+                    $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
+                }
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
                     || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
+                        'basetype' => 'uri',
+                        'new' => true,
                         'original' => [
                             'value' => null,
                             '@resource' => null,
@@ -469,6 +488,8 @@ class ContributionFields extends AbstractHelper
                 ) {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
+                        'basetype' => 'resource',
+                        'new' => true,
                         'original' => [
                             'value' => null,
                             '@resource' => null,
@@ -486,6 +507,8 @@ class ContributionFields extends AbstractHelper
                 } else {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
+                        'basetype' => 'literal',
+                        'new' => true,
                         'original' => [
                             'value' => null,
                             '@resource' => null,
@@ -509,9 +532,6 @@ class ContributionFields extends AbstractHelper
 
     /**
      * Trim and normalize end of lines of a string.
-     *
-     * @param string $string
-     * @return string
      */
     protected function cleanString($string): string
     {

@@ -25,12 +25,10 @@ $this->headScript()
 
 <?php $this->trigger('view.browse.before'); ?>
 <ul class="resource-list">
-    <?php foreach ($contributions as $contribution):
-        $resource = $contribution->resource();
-        ?>
+    <?php foreach ($contributions as $contribution): ?>
     <li class="resource contribution">
         <?= sprintf('Contribution #%d (%s)', $contribution->id(), $i18n->dateFormat($contribution->created(), 'medium', 'medium')) ?>
-        <h4><?= $resource ? $resource->link($resource->displayTitle()) : $translate('Not submitted') ?></h4>
+        <h4><?= $contribution->link($contribution->displayTitle()) ?></h4>
     </li>
     <?php endforeach; ?>
 </ul>

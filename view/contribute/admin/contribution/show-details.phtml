@@ -40,41 +40,11 @@ $escape = $this->plugin('escapeHtml');
         <?php
         $resourceTemplate = $resource->resourceTemplate();
         ?>
-        <ul>
-            <li>
-                <strong><?= $translate('Resource template') ?></strong>
-                <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
-            </li>
-        </ul>
-        <?php
-        $proposal = $resource->proposal();
-        unset($proposal['template']);
-        ?>
-        <?php if (count($proposal)): ?>
-        <ul>
-            <?php foreach ($proposal as $term => $propositions): ?>
-            <li>
-                <strong><?= $term ?></strong>
-                <dl>
-                <?php foreach ($propositions as $proposition): ?>
-                    <?php if (array_key_exists('@uri', $proposition['original'])): ?>
-                    <dd><?= $proposition['original']['@uri'] ?> / <?= $proposition['original']['@label'] ?></dd>
-                    <dt><?= $proposition['proposed']['@uri'] ?> / <?= $proposition['original']['@label'] ?></dt>
-                    <?php elseif (array_key_exists('@resource', $proposition['original'])): ?>
-                    <dd><?= $proposition['original']['@resource'] ?></dd>
-                    <dt><?= $proposition['proposed']['@resource'] ?></dt>
-                    <?php else: ?>
-                    <dd><?= $proposition['original']['@value'] ?></dd>
-                    <dt><?= $proposition['proposed']['@value'] ?></dt>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-                </dl>
-            </li>
-            <?php endforeach; ?>
-        </ul>
-        <?php else: ?>
-        <p><?= $translate('Empty proposal.') // @translate ?></p>
-        <?php endif; ?>
+        <div>
+            <strong><?= $translate('Resource template') ?></strong>
+            <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
+        </div>
+        <?= $resource->displayValues() ?>
     </div>
     <?php $this->trigger('view.details', ['entity' => $resource]); ?>
 </div>

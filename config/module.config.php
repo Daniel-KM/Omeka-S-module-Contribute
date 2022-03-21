@@ -103,18 +103,21 @@ return [
                         'type' => \Laminas\Router\Http\Segment::class,
                         'options' => [
                             // TODO Use controller delegator or override the default site route?
-                            // Overrides core public site resources only for edit.
+                            // Overrides core public site resources for unused actions.
                             'route' => '/:resource/:id/:action',
                             'constraints' => [
                                 'resource' => 'contribution|item-set|item|media',
                                 'id' => '\d+',
-                                'action' => 'edit|delete-confirm|delete',
+                                // "show" can be used only for contribution, so use "view".
+                                // "view" is always forwarded to "show".
+                                'action' => 'view|edit|delete-confirm|delete',
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',
                                 'controller' => 'contribution',
                                 'resource' => 'contribution',
-                                'action' => 'edit',
+                                // Use automatically the core routes, since it is not in the constraints.
+                                'action' => 'show',
                             ],
                         ],
                     ],

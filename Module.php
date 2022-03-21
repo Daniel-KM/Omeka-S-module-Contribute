@@ -124,29 +124,31 @@ class Module extends AbstractModule
         // TODO Limit rights to self contribution (IsSelfAssertion).
 
         $acl
+            // Contribution.
             ->allow(
                 $contributors,
                 ['Contribute\Controller\Site\Contribution'],
-                ['add']
-            )
-            ->allow(
-                $contributors,
-                ['Contribute\Controller\Site\Contribution'],
-                ['edit', 'delete', 'delete-confirm'],
-                new \Omeka\Permissions\Assertion\OwnsEntityAssertion
+                // "view" is forwarded to "show" internally.
+                ['show', 'view', 'add', 'edit', 'delete', 'delete-confirm']
             )
 
             ->allow(
                 $contributors,
                 [\Contribute\Api\Adapter\ContributionAdapter::class],
-                ['search', 'create', 'read', 'update']
+                ['search', 'read', 'create', 'update', 'delete']
             )
             ->allow(
                 $contributors,
                 [\Contribute\Entity\Contribution::class],
-                ['create', 'read', 'update',
+                ['create',
                 // TODO Remove right to change owner of the contribution (only set it first time).
                 'change-owner']
+            )
+            ->allow(
+                $contributors,
+                [\Contribute\Entity\Contribution::class],
+                ['read', 'update', 'delete'],
+                new \Omeka\Permissions\Assertion\OwnsEntityAssertion
             )
 
             ->allow(
@@ -159,17 +161,16 @@ class Module extends AbstractModule
                 [\Contribute\Entity\Token::class],
                 ['update']
             )
+
             ->allow(
                 $contributors,
-                [
-                    'Contribute\Controller\Site\GuestBoard',
-                ]
+                ['Contribute\Controller\Site\GuestBoard']
             )
 
             // Administration.
             ->allow(
                 $validators,
-                [\Contribute\Entity\Contribution::class],
+                ['Contribute\Controller\Admin\Contribution']
             )
             ->allow(
                 $validators,
@@ -177,7 +178,7 @@ class Module extends AbstractModule
             )
             ->allow(
                 $validators,
-                ['Contribute\Controller\Admin\Contribution']
+                [\Contribute\Entity\Contribution::class],
             )
             //  TODO Remove this hack to allow validators to change owner.
             ->allow(

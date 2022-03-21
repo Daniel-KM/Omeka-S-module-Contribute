@@ -27,7 +27,7 @@ class CustomVocabBaseType extends AbstractHelper
             return is_null($customVocabId) ? [] : null;
         }
         return is_null($customVocabId)
-            ? $this->customVocabBaseTypes
+            ? $this->customVocabBaseTypes ?? []
             : ($this->customVocabBaseTypes[(int) $customVocabId] ?? null);
     }
 }

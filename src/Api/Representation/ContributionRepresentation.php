@@ -10,6 +10,11 @@ use Omeka\Api\Representation\ResourceTemplateRepresentation;
 class ContributionRepresentation extends AbstractEntityRepresentation
 {
     /**
+     * @var array
+     */
+    protected $values;
+
+    /**
      * Get the resource name of the corresponding entity API adapter.
      */
     public function resourceName(): string
@@ -305,6 +310,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             if ($term === 'template') {
                 continue;
             }
+
             $isEditable = $contributive->isTermEditable($term);
             $isFillable = $contributive->isTermFillable($term);
             if (!$isEditable && !$isFillable) {
@@ -651,6 +657,52 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
+     * Get all proposal of this contribution by term with template property.
+     *
+     * @see \Omeka\Api\Representation\AbstractResourceEntityRepresentation::values()
+     * @uses \Contribute\View\Helper\ContributionFields
+     */
+    public function values(): array
+    {
+        if (isset($this->values)) {
+            return $this->values;
+        }
+
+        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
+        $contributionFields = $this->getViewHelper('contributionFields');
+        // No event triggered for now.
+        $this->values = $contributionFields($this->resource(), $this);
+        return $this->values;
+    }
+
+    /**
+     * Get the display markup for all values of this resource.
+     *
+     * Options:
+     *
+     * + viewName: Name of view script, or a view model. Default
+     *   "site/contribution-values"
+     */
+    public function displayValues(array $options = []): string
+    {
+        $options['site'] = $this->getServiceLocator()->get('ControllerPluginManager')->get('currentSite');
+        $options['contribution'] = $this;
+
+        if (!isset($options['viewName'])) {
+            $options['viewName'] = 'common/contribution-values';
+        }
+
+        // No event triggered for now.
+        $options['values'] = $this->values();
+
+        $template = $this->resourceTemplate();
+        $options['templateProperties'] = $template ? $template->resourceTemplateProperties() : [];
+
+        $partial = $this->getViewHelper('partial');
+        return $partial($options['viewName'], $options);
+    }
+
+    /**
      * Get an HTML link to a resource (the contributed one).
      *
      * @param string $text The text to be linked
@@ -722,13 +774,6 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
     }
 
-    /**
-     * There is no page for the contribution, so it is the link to the resource
-     * add/edition page.
-     *
-     * {@inheritDoc}
-     * @see \Omeka\Api\Representation\AbstractResourceRepresentation::siteUrl()
-     */
     public function siteUrl($siteSlug = null, $canonical = false)
     {
         if (!$siteSlug) {
@@ -736,28 +781,24 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 ->getMvcEvent()->getRouteMatch()->getParam('site-slug');
         }
         $url = $this->getViewHelper('Url');
-        $resource = $this->resource();
-        if (!$resource) {
-            return $url(
-                'site/contribution',
-                [
-                    'site-slug' => $siteSlug,
-                    // TODO Support any new resources, not only item (in particular media).
-                    'resource' => 'item',
-                ],
-                ['force_canonical' => $canonical]
-            );
-        }
-
         return $url(
             'site/contribution-id',
             [
                 'site-slug' => $siteSlug,
-                'resource' => $resource->getControllerName(),
-                'id' => $resource->id(),
+                'resource' => 'contribution',
+                'action' => 'view',
+                'id' => $this->id(),
             ],
             ['force_canonical' => $canonical]
         );
+    }
+
+    public function siteUrlResource($siteSlug = null, $canonical = false)
+    {
+        $resource = $this->resource();
+        return $resource
+            ? $this->resource()->siteUrl($siteSlug, $canonical)
+            : null;
     }
 
     /**

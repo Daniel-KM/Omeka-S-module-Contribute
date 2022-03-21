@@ -14,6 +14,50 @@ use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
 class ContributionController extends AbstractActionController
 {
+    public function showAction()
+    {
+        $site = $this->currentSite();
+        $resourceType = $this->params('resource');
+        $resourceId = $this->params('id');
+
+        $resourceTypeMap = [
+            'contribution' => 'Contribute\Controller\Site\Contribution',
+            'item' => 'Omeka\Controller\Site\Item',
+            'media' => 'Omeka\Controller\Site\Media',
+            'item-set' => 'Omeka\Controller\Site\ItemSet',
+        ];
+        // Useless, because managed by route, but the config may be overridden.
+        if (!isset($resourceTypeMap[$resourceType])) {
+            return $this->notFoundAction();
+        }
+
+        if ($resourceType !== 'contribution') {
+            $this->forward()->dispatch($resourceTypeMap[$resourceType], [
+                'site-slug' => $this->currentSite()->slug(),
+                'controller' => $resourceType,
+                'action' => 'show',
+                'id' => $resourceId,
+            ]);
+        }
+
+        // Rights are automatically checked.
+        /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
+        $contribution = $this->api()->read('contributions', ['id' => $resourceId])->getContent();
+
+        return new ViewModel([
+            'site' => $site,
+            'resource' => $contribution,
+            'contribution' => $contribution,
+        ]);
+    }
+
+    public function viewAction()
+    {
+        $params = $this->params()->fromRoute();
+        $params['action'] = 'show';
+        return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+    }
+
     public function addAction()
     {
         $site = $this->currentSite();
