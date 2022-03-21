@@ -7,7 +7,6 @@
  */
 
 $plugins = $this->getHelperPluginManager();
-$url = $plugins->get('url');
 $i18n = $plugins->get('i18n');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
@@ -38,7 +37,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource brow
         <?php if (!$contribution->isSubmitted()): ?>
         <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
             <?php if ($contribution->userIsAllowed('update')): ?>
-            <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($url('site/contribution-id', ['action' => 'edit', 'resource' => 'contribution', 'id' => $contribution->id()], true)) ?>"><?= $escape($translate('Edit')) ?></a></li>
+            <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->url('edit')) ?>"><?= $escape($translate('Edit')) ?></a></li>
             <?php endif; ?>
             <?php if ($contribution->userIsAllowed('delete')): ?>
             <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>

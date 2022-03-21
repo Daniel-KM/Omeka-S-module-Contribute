@@ -7,15 +7,13 @@
  */
 
 $plugins = $this->getHelperPluginManager();
-$url = $plugins->get('url');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $siteSetting = $plugins->get('siteSetting');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
-// $medias = $contributions->media();
-$medias = [];
+$medias = $contribution->valuesMedias();
 $embedMedia = $siteSetting('item_media_embed', false);
 
 $filterLocale = (bool) $siteSetting('filter_locale_values');
@@ -63,9 +61,9 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 <?php if (!$contribution->isSubmitted()): ?>
 <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
     <?php if ($contribution->userIsAllowed('update')): ?>
-    <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($url('site/contribution-id', ['action' => 'edit', 'resource' => 'contribution', 'id' => $contribution->id()], true)) ?>"><?= $escape($translate('Edit')) ?></a></li>
+    <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->url('edit')) ?>"><?= $escape($translate('Edit')) ?></a></li>
     <?php endif; ?>
-    <li><a class="o-icon-submit button edit-button submit-contribution" href="<?= $escapeAttr($url('site/contribution-id', ['action' => 'submit', 'resource' => 'contribution', 'id' => $contribution->id()], true)) ?>"><?= $escape($translate('Submit')) ?></a></li>
+    <li><a class="o-icon-submit button submit-button submit-contribution" href="<?= $escapeAttr($contribution->url('submit')) ?>"><?= $escape($translate('Submit')) ?></a></li>
     <?php if ($contribution->userIsAllowed('delete')): ?>
     <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
     <?php endif; ?>

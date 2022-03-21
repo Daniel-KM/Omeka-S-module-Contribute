@@ -917,7 +917,35 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
     }
 
-    public function siteUrl($siteSlug = null, $canonical = false)
+    /**
+     * Return the URL to this resource.
+     *
+     * Unlike parent method, the action is used for the site.
+     *
+     * {@inheritDoc}
+     * @see \Omeka\Api\Representation\AbstractResourceRepresentation::url()
+     */
+    public function url($action = null, $canonical = false)
+    {
+        $status = $this->getServiceLocator()->get('Omeka\Status');
+        if ($status->isAdminRequest()) {
+            return $this->adminUrl($action, $canonical);
+        } elseif ($status->isSiteRequest()) {
+            return $this->siteUrl($status->getRouteMatch()->getParam('site-slug'), $canonical, $action);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the site url of the contribution.
+     *
+     * An argument is added to set the action (add, edit, submit, etc.).
+     *
+     * {@inheritDoc}
+     * @see \Omeka\Api\Representation\AbstractResourceRepresentation::siteUrl()
+     */
+    public function siteUrl($siteSlug = null, $canonical = false, $action = null)
     {
         if (!$siteSlug) {
             $siteSlug = $this->getServiceLocator()->get('Application')
@@ -929,18 +957,19 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             [
                 'site-slug' => $siteSlug,
                 'resource' => 'contribution',
-                'action' => 'view',
+                // TODO The default action "view" will be "show" later.
+                'action' => $action ?? 'view',
                 'id' => $this->id(),
             ],
             ['force_canonical' => $canonical]
         );
     }
 
-    public function siteUrlResource($siteSlug = null, $canonical = false)
+    public function siteUrlResource($siteSlug = null, $canonical = false, $action = null)
     {
         $contributionResource = $this->resource();
         return $contributionResource
-            ? $contributionResource->siteUrl($siteSlug, $canonical)
+            ? $contributionResource->siteUrl($siteSlug, $canonical, $action)
             : null;
     }
 
