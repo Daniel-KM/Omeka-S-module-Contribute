@@ -171,6 +171,7 @@ class ContributionController extends AbstractActionController
         $step = $this->params()->fromPost('step');
 
         // Second step: fill the template and create a contribution, even partial.
+        $hasError = false;
         if ($this->getRequest()->isPost() && !$step) {
             $post = $this->params()->fromPost();
             // The template cannot be changed once set.
@@ -204,30 +205,42 @@ class ContributionController extends AbstractActionController
                             'resource' => null,
                             'data' => $data,
                         ]);
-                        return $this->redirect()->toUrl($currentUrl);
+                        return $this->redirect()->toUrl($response->getContent()->url());
                     }
+                    $hasError = true;
                 } else {
-                    // The only error for now is a missing template, and it
-                    // should not occurs since it is checked above.
-                    $this->messenger()->addError('Contribution not submitted: a template is required.'); // @translate
-                    $this->messenger()->addFormErrors($form);
+                    $hasError = true;
                 }
             } else {
-                $this->messenger()->addError('An error occurred: check your input.'); // @translate
-                $this->messenger()->addFormErrors($form);
+                $hasError = true;
             }
+        }
+
+        if ($hasError) {
+            // TODO Currently, the form has no element, so no validation and no automatic filling.
+            $this->messenger()->addError('An error occurred: check your input.'); // @translate
+            $this->messenger()->addFormErrors($form);
+            // So create a fake contribution to fill form.
+            $contribution = $this->fakeContribution($post);
+        } else {
+            $contribution = null;
         }
 
         /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->viewHelpers()->get('contributionFields');
-        $fields = $contributionFields(null, null, $resourceTemplate);
+        $fields = $contributionFields(null, $contribution, $resourceTemplate);
 
         // Only items can have a sub resource template for medias.
         if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
-            // TODO Check bad contribution for invalid data.
+            $resourceTemplateMedia = $contributive->contributiveMedia()->template();
             $fieldsByMedia = [];
+            foreach ($contribution ? array_keys($contribution->proposalMedias()) : [] as $indexProposalMedia) {
+                // TODO Match resource medias and contribution (for now only allowed until submission).
+                $indexProposalMedia = (int) $indexProposalMedia;
+                $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, true, $indexProposalMedia);
+            }
             // Add a list of fields without values for new media.
-            $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), true);
+            $fieldsMediaBase = $contributionFields(null, $contribution, $contributive->contributiveMedia()->template(), true);
         } else {
             $fieldsByMedia = [];
             $fieldsMediaBase = [];
@@ -319,7 +332,7 @@ class ContributionController extends AbstractActionController
                 'site' => $site,
                 'user' => $user,
                 'form' => null,
-                'resource' => $resource,
+                'resource' => $contribution,
                 'contribution' => $contribution,
                 'fields' => [],
                 'fieldsByMedia' => [],
@@ -338,6 +351,7 @@ class ContributionController extends AbstractActionController
 
         // There is no step for edition: the resource template is always set.
 
+        $hasError = false;
         if ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
             // The template cannot be changed once set.
@@ -351,8 +365,8 @@ class ContributionController extends AbstractActionController
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $proposal = $this->prepareProposal($data, $resource);
                 if ($proposal) {
-                    // The resource isn’t updated, but the proposition of contribute
-                    // is saved for moderation.
+                    // The resource isn’t updated, but the proposition of
+                    // contribute is saved for moderation.
                     $response = null;
                     if (empty($contribution)) {
                         $data = [
@@ -389,18 +403,26 @@ class ContributionController extends AbstractActionController
                             'resource' => $resource,
                             'data' => $data,
                         ]);
-                        return $this->redirect()->toUrl($currentUrl);
+                        $content = $response->getContent();
+                        return $content->resource()
+                            ? $this->redirect()->toUrl($content->resource()->url())
+                            : $this->redirect()->toUrl($content->url());
                     }
+                    $hasError = true;
                 } else {
-                    // The only error for now is a missing template, and it
-                    // should not occurs since it is checked above.
-                    $this->messenger()->addError('Contribution not submitted: a template is required.'); // @translate
-                    $this->messenger()->addFormErrors($form);
+                    $hasError = true;
                 }
             } else {
-                $this->messenger()->addError('An error occurred: check your input.'); // @translate
-                $this->messenger()->addFormErrors($form);
+                $hasError = true;
             }
+        }
+
+        if ($hasError) {
+            // TODO Currently, the form has no element, so no validation and no automatic filling.
+            $this->messenger()->addError('An error occurred: check your input.'); // @translate
+            $this->messenger()->addFormErrors($form);
+            // So create a fake contribution to fill form.
+            $contribution = $this->fakeContribution($post, $contribution);
         }
 
         /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
@@ -411,7 +433,7 @@ class ContributionController extends AbstractActionController
         if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
             $resourceTemplateMedia = $contributive->contributiveMedia()->template();
             $fieldsByMedia = [];
-            foreach (array_keys($contribution->proposalMedias()) as $indexProposalMedia) {
+            foreach ($contribution ? array_keys($contribution->proposalMedias()) : [] as $indexProposalMedia) {
                 // TODO Match resource medias and contribution (for now only allowed until submission).
                 $indexProposalMedia = (int) $indexProposalMedia;
                 $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, true, $indexProposalMedia);
@@ -427,7 +449,7 @@ class ContributionController extends AbstractActionController
             'site' => $site,
             'user' => $user,
             'form' => $form,
-            'resource' => $resource,
+            'resource' => $contribution,
             'contribution' => $contribution,
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
@@ -447,6 +469,34 @@ class ContributionController extends AbstractActionController
             $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
         }
         return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
+    }
+
+    /**
+     * Create a fake contribution with data proposal.
+     *
+     * Should be used only for post issue: only data proposal are set and should
+     * be used.
+     *
+     * @todo Remove fake contribution with a real form.
+     */
+    protected function fakeContribution(array $data, ?ContributionRepresentation $contribution = null): ContributionRepresentation
+    {
+        $adapterManager = $this->currentSite()->getServiceLocator()->get('Omeka\ApiAdapterManager');
+        $contributionAdapter = $adapterManager->get('contributions');
+
+        $entity = new \Contribute\Entity\Contribution();
+        if ($contribution) {
+            if ($resource = $contribution->resource()) {
+                $entity->setResource($this->api()->read('resources', ['id' => $resource->id()], ['responseContent' => 'resource'])->getContent());
+            }
+            $entity->setReviewed($contribution->reviewed());
+        }
+
+        unset($data['csrf'], $data['edit-resource-submit']);
+        $proposal = $this->prepareProposal($data) ?: [];
+        $entity->setProposal($proposal);
+
+        return new ContributionRepresentation($entity, $contributionAdapter);
     }
 
     protected function prepareContributionEmail(ContributionRepresentation $contribution): self

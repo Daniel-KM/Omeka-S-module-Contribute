@@ -34,9 +34,9 @@ $mapLabels = [
         $this->trigger('view.edit.before');
         echo $partial('contribute/site/contribution/form', [
             'site' => $site,
-            'form' => $form,
             'resource' => null,
             'contribution' => null,
+            'form' => $form,
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,

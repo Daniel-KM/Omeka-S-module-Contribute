@@ -2,9 +2,9 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var \Omeka\Form\ResourceForm $form
- * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var \Omeka\Form\ResourceForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
@@ -264,7 +264,7 @@ if ($isMainForm) {
     <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
     <div id="page-actions">
-        <?php if ($resource): ?>
+        <?php if ($contribution && $contribution->resource()): ?>
         <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
         <?php else: ?>
         <?php //= $this->cancelButton() ?>
