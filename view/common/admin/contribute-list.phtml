@@ -69,15 +69,20 @@ $editRight = $resource->userIsAllowed('update');
                 <?php if ($email = $contribution->email()): ?>
                 <span class="contribution-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php endif; ?>
+
                 <span class="contribution-date"><?= $this->i18n()->dateFormat($contribution->created(), 'medium', 'medium') ?></span>
+
                 <?php if ($contribution->created() != $contribution->modified()): // Don't use !==. ?>
                 <span class="contribution-date-modified"><?= $translate('(modified)') ?></span>
                 <?php endif; ?>
+
                 <?php if ($token): ?>
                 <span> / </span>
                 <span class="contribution-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
                 <?php endif; ?>
+
                 <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
+
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
@@ -93,6 +98,7 @@ $editRight = $resource->userIsAllowed('update');
                     aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                     title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
                 <?php endif; ?>
+
                 <?php if ($token && $token->isExpired()): ?>
                 <span class="single no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
                 <?php elseif ($token): ?>
@@ -102,8 +108,16 @@ $editRight = $resource->userIsAllowed('update');
                     aria-label="<?= $escape($translate('Expire token')) ?>"
                     title="<?= $escape($translate('Expire token')) ?>"></a></span>
                 <?php endif; ?>
+
                 <?php else: ?>
-                <span class="no-action o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
+
+                <span class="single actions"><a href="#"
+                    class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
+                    data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
+                    title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
+
                 <?php endif; ?>
             </th>
         </tr>
