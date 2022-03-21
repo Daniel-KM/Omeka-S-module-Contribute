@@ -297,9 +297,8 @@ if ($isMainForm) {
         <?php if ($contributionResource = $contribution && $contribution->resource() ? $contribution->resource() : null): ?>
         <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $contributionResource->getControllerName(), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
         <?php else: ?>
-        <?php $routeResourceControllerName = $this->params()->fromRoute('resource'); ?>
-        <?php //= $this->cancelButton() ?>
-        <?= $hyperlink($translate('Cancel'), $url('site/resource', ['controller' => $routeResourceControllerName === 'contributions' ? 'items' : $routeResourceControllerName === 'contributions', 'action' => 'browse'], true),
+        <?php //= TODO $this->cancelButton() ?>
+        <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($resource ? $resource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
             ['class' => 'button button-cancel', 'role' => 'button']) ?>
         <?php endif; ?>
         <button type="submit" name="edit-resource-submit" class="button"><?= $escape($submitLabel) ?></button>

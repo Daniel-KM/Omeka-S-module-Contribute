@@ -11,7 +11,7 @@ class GuestBoardController extends AbstractActionController
     {
         $params = $this->params()->fromRoute();
         $params['action'] = 'show';
-        return $this->forward()->dispatch(__CLASS__, $params);
+        return $this->forward()->dispatch('Contribute\Controller\Site\GuestBoard', $params);
     }
 
     public function showAction()

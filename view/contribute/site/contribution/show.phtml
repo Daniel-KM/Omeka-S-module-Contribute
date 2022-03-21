@@ -8,6 +8,8 @@
 
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
+$partial = $plugins->get('partial');
+$escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $siteSetting = $plugins->get('siteSetting');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
@@ -20,20 +22,10 @@ $filterLocale = (bool) $siteSetting('filter_locale_values');
 $siteLang = $plugins->get('lang')();
 $lang = $filterLocale ? $siteLang : null;
 
+$partial('contribute/site/contribution/asset-include');
+
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource show');
 ?>
-
-<script>
-function contributionDelete(id){
-    $.post({
-        url: <?= json_encode(substr($url('site/contribution-id', ['action' => 'delete', 'resource' => 'contribution', 'id' => 0], true), 0, -8), 320) ?> + id + '/delete',
-        data: {
-            'id': id,
-            'confirmform_csrf': <?= json_encode($site->getServiceLocator()->get('FormElementManager')->get(\Omeka\Form\ConfirmForm::class)->prepare()->get('confirmform_csrf')->getValue()) ?>,
-        },
-    });
-}
-</script>
 
 <?= $this->pageTitle($contribution->displayTitle(null, $lang), 2); ?>
 <h3><?= $translate('Contribution') ?></h3>
@@ -62,13 +54,17 @@ function contributionDelete(id){
 </div>
 <?php endif; ?>
 
-<ul class="form-buttons">
+<?php if ($contribution->isSubmitted()): ?>
+<p><?= $escape($translate('Contribution submitted.')) ?></p>
+<?php else: ?>
+<ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
     <?php if ($contribution->userIsAllowed('update')): ?>
-    <li><a href="<?= $url('site/contribution-id', ['action' => 'edit', 'resource' => 'contribution', 'id' => $contribution->id()], true) ?>" class="form-button edit-button"><?= $translate('Edit') ?></a></li>
+    <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($url('site/contribution-id', ['action' => 'edit', 'resource' => 'contribution', 'id' => $contribution->id()], true)) ?>"><?= $escape($translate('Edit')) ?></a></li>
     <?php endif; ?>
     <?php if ($contribution->userIsAllowed('delete')): ?>
-    <li><a href="<?= $url('site/contribution-id', ['action' => 'delete', 'resource' => 'contribution', 'id' => $contribution->id()], true) ?>" class="form-button delete-button" onclick="if (confirm(<?= $escapeAttr(json_encode($translate('Are you sure to remove this contribution?'))) ?>)) { contributionDelete(<?= $contribution->id() ?>); } else { return false; }"><?= $translate('Delete') ?></a></li>
+    <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
     <?php endif; ?>
 </ul>
+<?php endif; ?>
 
 <?php $this->trigger('view.show.after'); ?>

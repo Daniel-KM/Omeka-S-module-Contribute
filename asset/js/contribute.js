@@ -55,6 +55,22 @@ $(document).ready(function() {
         main.val(regex.test(iso) ? iso : '');
     }
 
+    function contributionDelete(id){
+        $.post({
+            url: siteContributionUrl + id + '/delete',
+            data: {
+                id: id,
+                confirmform_csrf: confirmFormCsrf,
+            },
+        })
+        .done(function(data) {
+            window.location.reload();
+         })
+        .fail(function() {
+            window.location.reload();
+         });
+    }
+
     $('.chosen-select').chosen(chosenOptions);
 
     $('#edit-resource').on('click', '.inputs .add-value', function(ev) {
@@ -232,6 +248,17 @@ $(document).ready(function() {
         ev.stopPropagation();
         ev.preventDefault();
         $(this).closest('.contribute-media').remove();
+    });
+
+    $('.remove-contribution').on('click', function(ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        var id = $(this).data('contribution-id');
+        var message = $(this).closest('.actions').data('message-remove-contribution');
+        if (id && confirm(message)) {
+            contributionDelete(id);
+        }
+        return false;
     });
 
 });

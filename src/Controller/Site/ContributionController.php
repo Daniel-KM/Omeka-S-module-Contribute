@@ -326,6 +326,11 @@ class ContributionController extends AbstractActionController
         /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $api->read($resourceName, ['id' => $resourceId])->getContent();
 
+        if ($resourceName === 'contributions' && $resource->isSubmitted()) {
+            $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+
         $settings = $this->settings();
         $user = $this->identity();
         $contributeMode = $settings->get('contribute_mode');
@@ -508,10 +513,21 @@ class ContributionController extends AbstractActionController
 
     public function deleteAction()
     {
-        $response = $this->api()->delete('contributions', $this->params('id'));
+        $id = $this->params('id');
+        if (!$this->getRequest()->isPost()) {
+            $this->messenger()->addError(new Message('Deletion can be processed only with a post.'));
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'show'], true);
+        }
+        $resource = $this->api()->read('contributions', $id)->getContent();
+        if ($resource->isSubmitted()) {
+            $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
+            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+        $response = $this->api()->delete('contributions', $id);
         if ($response) {
             $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
         }
+        // TODO Update route when a main public browse of contributions will be available.
         return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
     }
 

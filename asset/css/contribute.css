@@ -51,6 +51,8 @@
         font-style: italic;
     }
 
+    .contribution.show .actions,
+    .resource-list .actions,
     #edit-resource .contribute-media .actions,
     #edit-resource .value .actions {
         display: inline-block;
@@ -58,9 +60,15 @@
         margin: 4px 0 4px 4px;
         padding: 0;
     }
+    .contribution.show .actions li,
+    .resource-list .actions li {
+        display: inline-block;
+    }
     #edit-resource .value .actions a {
         vertical-align: top;
     }
+    .contribution.show .actions .button::before,
+    .resource-list .actions .button::before,
     #edit-resource .inputs button::before,
     #edit-resource .actions button::before {
         margin-right: 8px;
