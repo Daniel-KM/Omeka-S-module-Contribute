@@ -15,6 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
+ * @var ?array $customVocabSubTypes
  *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
@@ -52,9 +53,9 @@
                         ->setResourceValueOptions($resourceName, $shortResourceTitle, $valueResourceQueries[$term]);
                     // The order should be kept, but there is no order in a js array.
                     $valueOptions = [];
-                    foreach ($element->getValueOptions() as $k => $v):
+                    foreach ($element->getValueOptions() as $k => $v) {
                         $valueOptions[] = ['v' => $k, 't' => $v];
-                    endforeach;
+                    }
                 ?>
         <div class="add-value add-value-resource button o-icon-uri" data-type="<?= $datatype ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $translate('Add linked resource') ?></div>
                 <?php endif;
@@ -62,6 +63,36 @@
 
             case 'uri': ?>
         <div class="add-value add-value-uri button o-icon-uri" data-type="uri"><?= $translate('Add URI') ?></div>
+                <?php break;
+
+            case substr($datatype, 0, 12) === 'customvocab:':
+                // @see \CustomVocab\DataType\CustomVocab
+                $subType = $customVocabSubTypes[substr($datatype, 12)] ?? 'literal';
+                $customVocab = $apiManager->read('custom_vocabs', ['id' => substr($datatype, 12)])->getContent();
+                $valueOptions = [];
+                if ($subType === 'resource') {
+                    $result = $apiManager->search('items', ['item_set_id' => $customVocab->itemSet()->id(), 'sort_by' => 'title'], ['initialize' => false, 'returnScalar' => 'title'])->getContent();
+                    foreach ($result as $id => $title) {
+                        $valueOptions[] = ['v' => $id, 't' => $title];
+                    }
+                } elseif ($subType === 'uri') {
+                    $matches = [];
+                    $uris = array_map('trim', preg_split("/\r\n|\n|\r/", $customVocab->uris()));
+                    foreach ($uris as $uri) {
+                        if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                            $valueOptions[] = ['v' => $matches[1], 't' => $matches[2]];
+                        } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                            $valueOptions[] = ['v' => $matches[1], 't' => $matches[1]];
+                        }
+                    }
+                } else {
+                    $terms = array_map('trim', preg_split("/\r\n|\n|\r/", $customVocab->terms()));
+                    foreach ($terms as $term) {
+                        $valueOptions[] = ['v' => $term, 't' => $term];
+                    }
+                }
+                ?>
+        <div class="add-value add-value-custom-vocab button o-icon-add" data-type="<?= $datatype ?>" data-subtype="<?= $subType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $translate('Add value') ?></div>
                 <?php break;
 
             case substr($datatype, 0, 12) === 'valuesuggest': // Or valuesuggestall. ?>

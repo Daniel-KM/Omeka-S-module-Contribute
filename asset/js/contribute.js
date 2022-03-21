@@ -1,10 +1,44 @@
 $(document).ready(function() {
 
+    /**
+     * Chosen default options.
+     *
+     * @see https://harvesthq.github.io/chosen/
+     */
+    var chosenOptions = {
+        allow_single_deselect: true,
+        disable_search_threshold: 10,
+        width: '100%',
+        include_group_label_in_selected: true,
+    };
+
+    function fillSelectOptions(newInput, name, target) {
+        newInput
+            .prop('name', name)
+            .removeAttr('readonly')
+            .addClass('chosen-select')
+            .val('');
+        $.each(target.data('value-options'), function (i, item) {
+            newInput.append($('<option>', {
+                value: item.v,
+                text : item.t,
+            }));
+        });
+        let specificChosenOptions = chosenOptions;
+        let placeholder = target.prop('data-placeholder');
+        specificChosenOptions['placeholder_text_single'] = placeholder
+            ? placeholder
+            : 'Select…';
+        newInput.chosen(specificChosenOptions);
+    }
+
+    $('.chosen-select').chosen(chosenOptions);
+
     $('#edit-resource .inputs').on('click', '.add-value', function(ev) {
         ev.stopPropagation();
 
         var target = $(ev.target);
-        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-value-suggest')) {
+        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-custom-vocab, .add-value-value-suggest')) {
             return;
         }
 
@@ -38,25 +72,7 @@ $(document).ready(function() {
             newElement = $('#edit_resource_template > .value').clone();
             name = term + '[' + index + '][@resource]';
             newInput = $(newElement).find('select');
-            newInput
-                .prop('name', name)
-                .removeAttr('readonly')
-                .addClass('chosen-select')
-                .val('');
-            $.each(JSON.parse(target.prop('data-value-options')), function (i, item) {
-                newInput.append($('<option>', {
-                    value: item.v,
-                    text : item.t
-                }));
-            });
-            let specificChosenOptions = {
-                allow_single_deselect: true,
-                disable_search_threshold: 10,
-                width: '100%',
-                include_group_label_in_selected: true,
-                placeholder_text_single: target.prop('data-placeholder'),
-            };
-            newInput.chosen(specificChosenOptions);
+            fillSelectOptions(newInput, name, target);
         }
 
         if (target.hasClass('add-value-uri')) {
@@ -69,6 +85,22 @@ $(document).ready(function() {
             $(newElement).find('input[data-value-key="@label"]')
                 .prop('name', namel)
                 .removeAttr('readonly');
+        }
+
+        if (target.hasClass('add-value-custom-vocab')) {
+            const subtype = target.data('subtype');
+            newElement = $('#edit_customvocab_template > .value[data-subtype=' + subtype + ']').clone();
+            newInput = $(newElement).find('select');
+            if (subtype === 'itemset') {
+                name = term + '[' + index + '][@resource]';
+            } else if (subtype === 'uri') {
+                name = term + '[' + index + '][@uri]';
+                // TODO Manage storage of label in custom vocab uri (on select, set label value).
+                // namel = term + '[' + index + '][@label]';
+            } else {
+                name = term + '[' + index + '][@value]';
+            }
+            fillSelectOptions(newInput, name, target);
         }
 
         if (target.hasClass('add-value-value-suggest')) {
@@ -92,18 +124,5 @@ $(document).ready(function() {
         inputs.append(newElement);
         selector.data('next-index', index);
     });
-
-    /**
-     * Chosen default options.
-     *
-     * @see https://harvesthq.github.io/chosen/
-     */
-    var chosenOptions = {
-        allow_single_deselect: true,
-        disable_search_threshold: 10,
-        width: '100%',
-        include_group_label_in_selected: true,
-    };
-    $('.chosen-select').chosen(chosenOptions);
 
 });

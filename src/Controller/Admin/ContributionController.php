@@ -621,6 +621,7 @@ class ContributionController extends AbstractActionController
 
         $api = $this->api();
         $propertyIds = $this->propertyIdsByTerms();
+        $customVocabSubTypes = $this->viewHelpers()->get('customVocabSubType')();
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
 
@@ -723,6 +724,11 @@ class ContributionController extends AbstractActionController
                 }
             }
 
+            $subType = null;
+            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
+                $subType = $customVocabSubTypes[substr($typeTemplate, 12)] ?? 'literal';
+            }
+
             foreach ($propositions as $key => $proposition) {
                 if ($hasProposedKey && $proposedKey != $key) {
                     continue;
@@ -734,6 +740,7 @@ class ContributionController extends AbstractActionController
                     continue;
                 }
 
+                $type = 'unknown';
                 if ($typeTemplate) {
                     $type = $typeTemplate;
                 } else {
@@ -746,18 +753,20 @@ class ContributionController extends AbstractActionController
                     }
                 }
 
+                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case $typeColon === 'customvocab' && $subType === 'literal':
                         $data[$term][] = [
-                            'type' => 'literal',
+                            'type' => $type,
                             'property_id' => $propertyId,
                             '@value' => $proposition['proposed']['@value'],
                             'is_public' => true,
                             // '@language' => null,
                         ];
                         break;
-                    case 'resource':
-                    case strtok($type, ':') === 'resource':
+                    case $typeColon === 'resource':
+                    case $typeColon === 'customvocab' && $subType === 'resource':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -769,15 +778,9 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case 'uri':
-                        $data[$term][] = [
-                            'type' => 'uri',
-                            'property_id' => $propertyId,
-                            'o:label' => $proposition['proposed']['@label'],
-                            '@id' => $proposition['proposed']['@uri'],
-                            'is_public' => true,
-                        ];
-                        break;
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
+                    case $typeColon === 'customvocab' && $subType === 'uri':
+                    case $typeColon === 'valuesuggest':
+                    case $typeColon === 'valuesuggestall':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,

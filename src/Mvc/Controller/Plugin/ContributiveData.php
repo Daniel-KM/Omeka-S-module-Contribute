@@ -40,8 +40,12 @@ class ContributiveData extends AbstractPlugin
         $settings = $controller->settings();
         $this->data['datatypes_default'] = ['literal', 'resource', 'uri'];
 
-        // TODO Manage valuesuggest differently, because it is not a single datatype.
+        // TODO Manage valuesuggest and custom vocab differently, because it is not a single datatype.
+        // TODO Remove default data types (or limit it to literal) (currently hard coded like omeka, so useless).
         if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
+            unset($this->data['datatypes_default'][$has]);
+        }
+        if (($has = array_search('customvocab', $this->data['datatypes_default'])) !== false) {
             unset($this->data['datatypes_default'][$has]);
         }
 

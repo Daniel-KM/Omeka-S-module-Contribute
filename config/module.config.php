@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute;
 
 return [
@@ -26,8 +27,9 @@ return [
     ],
     'view_helpers' => [
         'factories' => [
-            'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
+            'customVocabSubType' => Service\ViewHelper\CustomVocabSubTypeFactory::class,
+            'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,
         ],
     ],
     'form_elements' => [

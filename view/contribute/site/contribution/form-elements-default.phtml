@@ -15,6 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
+ * @var ?array $customVocabSubTypes
  *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
@@ -55,6 +56,20 @@
         </div>
     </div>
 </div>
+
+<?php if (!is_null($customVocabSubTypes)): ?>
+<div id="edit_customvocab_template" class="contribute_template custom_vocab" style="display:none;">
+    <div class="value custom_vocab" data-subtype="literal">
+        <select class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+    </div>
+    <div class="value custom_vocab" data-subtype="resource">
+        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+    </div>
+    <div class="value custom_vocab" data-subtype="uri">
+        <select class="form-control input-value" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php if ($hasValueSuggest): ?>
 <div id="edit_valuesuggest_template" class="contribute_template value_suggest" style="display:none;">

@@ -15,7 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
- * @var ?array $customVocabSubTypes
+ * @var ?array $customVocabTypes
  *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
@@ -28,6 +28,8 @@
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
  * @var ?array $fieldContribution
  * @var ?int $indexContribution
+ *
+ * @uses \CustomVocab\DataType\CustomVocab
  */
 
 $original = $fieldContribution['original'];
@@ -42,11 +44,28 @@ if ($isPrivate):
     $class[] = 'private';
 endif;
 $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
+
+// Prepare select, that can be a list of keywords, a list of items from an item set or a list or uri/labels.
+// Because the form element cannot be get directly, a quick replacement is done.
+$customVocab = $apiManager->read('custom_vocabs', ['id' => substr($fieldContribution['type'])])->getContent();
+$customVocabType = $customVocab->itemSet() ? 'itemset' : ($customVocab->uris() ? 'uris' : 'literal');
+$selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form();
+$replace = [
+    'name="customvocab"' => 'name="' . $term . '[' . $indexFieldInput . '][@value]"',
+    'class="terms to-require"' => 'class="form-control customvocab-input'
+        . '" aria-labelledby="property-' . $property->id() . '-label"'
+        . ($isRequired ? ' required="required"' : ''),
+    '"value_resource_id"' => '"@resource"',
+];
+if (strlen((string) $val)) {
+    $escapedVal = $escapeAttr($val);
+    $replace['<option value="' . $escapedVal . '">'] = '<option value="' . $escapedVal . '" selected="selected">';
+}
 ?>
 
-<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
+<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>" data-subtype="<?= $customVocabType ?>">
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
-    <textarea class="form-control input-value" data-value-key="@value" name="<?= $term . '[' . $indexFieldInput . '][@value]' ?>" aria-labelledby="property-<?= $property->id() ?>-label"<?= $isRequired ? ' required="required"' : '' ?>><?= $escape($val) ?></textarea>
+    <?= str_replace(array_keys($replace), array_values($replace), $selectHtml) ?>
 </div>

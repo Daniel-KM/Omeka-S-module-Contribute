@@ -187,10 +187,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
-        //  TODO Manage contribution of non literal values. Remove uri?
         $values = $this->resource()->value($term, ['all' => true]);
         foreach ($values as $value) {
-            if ($value->value() === $string) {
+            if ((string) $value->value() === $string) {
                 return $value;
             }
         }
@@ -207,13 +206,15 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return null;
         }
         $values = $this->resource()->value($term, ['all' => true]);
+        $valueResource = null;
         foreach ($values as $value) {
             $type = $value->type();
-            if (strtok($type, ':') === 'resource') {
-                $valueResource = $value->valueResource();
-                if ($valueResource->id() === $string) {
-                    return $value;
-                }
+            $typeColon = strtok($type, ':');
+            if (in_array($typeColon, ['resource', 'customvocab'])
+                && ($valueResource = $value->valueResource())
+                && $valueResource->id() === $string
+            ) {
+                return $value;
             }
         }
         return null;
@@ -227,11 +228,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
-        // To get only uris and value suggest values require to get all values.
+        // To get only uris and value suggest/custom vocab values require to get all values.
         $values = $this->resource()->value($term, ['all' => true]);
         foreach ($values as $value) {
             $type = $value->type();
-            if (($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']))
+            $typeColon = strtok($type, ':');
+            if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall', 'customvocab'])
                 && $value->uri() === $string
             ) {
                 return $value;
@@ -252,6 +254,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $contributive = $this->contributiveData();
 
         $resourceTemplate = $this->resource()->resourceTemplate();
+
+        $customVocabSubTypes = $services->get('ViewHelperManager')->get('customVocabSubType')();
 
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
@@ -277,8 +281,14 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
 
+            $subType = null;
+            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
+                $subType = $customVocabSubTypes[substr($typeTemplate, 12)] ?? 'literal';
+            }
+
             foreach ($propositions as $key => $proposition) {
-                // TODO Manage all the cases (custom vocab is literal, value suggest is uri).
+                // TODO Manage all the cases (custom vocab is literal, item, uri, value suggest is uri).
+                // TODO Remove management of proposition without resource template (but the template may have been modified).
                 $type = 'unknown';
                 if ($typeTemplate) {
                     $type = $typeTemplate;
@@ -294,8 +304,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
                 $isTermDatatype = $contributive->isTermDatatype($term, $type);
 
+                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case $typeColon === 'customvocab' && $subType === 'literal':
                         $original = $proposition['original']['@value'] ?? '';
                         $proposed = $proposition['proposed']['@value'] ?? '';
 
@@ -361,7 +373,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         unset($prop);
                         break;
 
-                    case strtok($type, ':') === 'resource':
+                    case $typeColon === 'resource':
+                    case $typeColon === 'customvocab' && $subType === 'resource':
                         $original = $proposition['original']['@resource'];
                         $proposed = $proposition['proposed']['@resource'];
 
@@ -428,7 +441,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
 
                     case 'uri':
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
+                    case $typeColon === 'customvocab' && $subType === 'uri':
+                    case $typeColon === 'valuesuggest':
+                    case $typeColon === 'valuesuggestall':
                         $originalUri = $proposition['original']['@uri'] ?? '';
                         $originalLabel = $proposition['original']['@label'] ?? '';
                         $original = $originalUri . $originalLabel;

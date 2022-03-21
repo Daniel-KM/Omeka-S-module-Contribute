@@ -335,7 +335,6 @@ class ContributionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Manage all types of data, in particular custom vocab.
      * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
      *
      * @param array $proposal
@@ -373,6 +372,9 @@ class ContributionController extends AbstractActionController
         $resourceTemplate = $resource ? $resource->resourceTemplate() : null;
         $contributive = $this->contributiveData($resourceTemplate);
 
+        $propertyIds = $this->propertyIdsByTerms();
+        $customVocabSubTypes = $this->viewHelpers()->get('customVocabSubType')();
+
         // Process editable properties first.
         $matches = [];
         switch ($contributive->editableMode()) {
@@ -398,8 +400,16 @@ class ContributionController extends AbstractActionController
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
+
+                $subType = null;
+                if (substr((string) $type, 0, 12) === 'customvocab:') {
+                    $subType = $customVocabSubTypes[substr($type, 12)] ?? 'literal';
+                }
+
+                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case $typeColon === 'customvocab' && $subType === 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
                         }
@@ -412,7 +422,8 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case strtok($type, ':') === 'resource':
+                    case $typeColon === 'resource':
+                    case $typeColon === 'customvocab' && $subType === 'resource':
                         if (!isset($proposal[$term][$index]['@resource'])) {
                             continue 2;
                         }
@@ -427,6 +438,7 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case 'uri':
+                    case $typeColon === 'customvocab' && $subType === 'uri':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
@@ -442,7 +454,8 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
+                    case $typeColon === 'valuesuggest':
+                    case $typeColon === 'valuesuggestall':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
@@ -485,7 +498,7 @@ class ContributionController extends AbstractActionController
                 $proposalFillableTerms = array_keys($proposal);
                 break;
         }
-        $propertyIds = $this->propertyIdsByTerms();
+
         foreach ($proposalFillableTerms as $term) {
             if (!isset($propertyIds[$term])) {
                 continue;
@@ -498,6 +511,12 @@ class ContributionController extends AbstractActionController
                     $typeTemplate = $resourceTemplateProperty->dataType();
                 }
             }
+
+            $subType = null;
+            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
+                $subType = $customVocabSubTypes[substr($typeTemplate, 12)] ?? 'literal';
+            }
+
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
                 $values = $resource ? $resource->value($term, ['all' => true]) : [];
@@ -516,8 +535,11 @@ class ContributionController extends AbstractActionController
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
+
+                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
+                    case $typeColon === 'customvocab' && $subType === 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;
                         }
@@ -531,6 +553,7 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case strtok($type, ':') === 'resource':
+                    case $typeColon === 'customvocab' && $subType === 'resource':
                         if (!isset($proposedValue['@resource']) || !(int) $proposedValue['@resource']) {
                             continue 2;
                         }
@@ -544,6 +567,7 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case 'uri':
+                    case $typeColon === 'customvocab' && $subType === 'uri':
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }
@@ -559,7 +583,8 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall']):
+                    case $typeColon === 'valuesuggest':
+                    case $typeColon === 'valuesuggestall':
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }

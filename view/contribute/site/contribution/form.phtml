@@ -21,10 +21,19 @@ $hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $formElement = $this->plugin('formElement');
 
-// The api manager is needed to create some form elements (resource select).
+// The api manager is needed to create select for Value Suggest.
 // TODO Replace apiManager by FormElementManager.
 $apiManager = $site->getServiceLocator()->get('Omeka\ApiManager');
-$hasValueSuggest = ($module = $site->getServiceLocator()->get('Omeka\ModuleManager')->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+$moduleManager = $site->getServiceLocator()->get('Omeka\ModuleManager');
+$hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+$hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+
+if ($hasCustomVocab) {
+    $CustomVocabSubTypes = $plugins->get('customVocabSubType');
+    $CustomVocabSubTypes = $CustomVocabSubTypes();
+} else {
+    $CustomVocabSubTypes = null;
+}
 
 $vars = $this->vars();
 
@@ -33,6 +42,7 @@ $vars->offsetSet('translate', $translate);
 $vars->offsetSet('escapeAttr', $escapeAttr);
 $vars->offsetSet('apiManager', $apiManager);
 $vars->offsetSet('hasValueSuggest', $hasValueSuggest);
+$vars->offsetSet('customVocabSubTypes', $CustomVocabSubTypes);
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
@@ -116,13 +126,16 @@ $labelInfo = $this->setting('property_label_information');
                    $valueType = reset($field['datatypes']);
                    if (!$valueType) continue;
                    $value = null;
-                   // TODO Add the template property.
+                   // TODO Add the template property to get default privacy.
                    $fieldContribution = ['type' => $valueType, 'required' => true, 'original' => [], 'proposed' => [], 'template_property' => null];
                } else {
                    /** @var \Omeka\Api\Representation\ValueRepresentation $value */
                     $value = $fieldContribution['original']['value'];
                     if (!$value && !$field['fillable']) continue;
-                    $isValueSuggest = substr($fieldContribution['type'], 0, 12) === 'valuesuggest';
+                    $typeColon = strtok((string) $fieldContribution['type'], ':');
+                    $isCustomVocab = $typeColon === 'customvocab';
+                    if ($isCustomVocab && !$hasCustomVocab) continue;
+                    $isValueSuggest = $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall';
                     if ($isValueSuggest && !$hasValueSuggest) continue;
                 }
                 $vars->offsetSet('indexContribution', $indexContribution);
@@ -144,6 +157,9 @@ $labelInfo = $this->setting('property_label_information');
                             break;
                         case 'uri':
                             echo $partial('contribute/site/contribution/form-field-input-uri');
+                            break;
+                        case $isCustomVocab:
+                            echo $partial('contribute/site/contribution/form-field-input-custom-vocab');
                             break;
                         case $isValueSuggest:
                             echo $partial('contribute/site/contribution/form-field-input-value-suggest');

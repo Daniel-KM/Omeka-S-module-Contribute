@@ -118,6 +118,8 @@ class ContributionFields extends AbstractHelper
             return [];
         }
 
+        $customVocabSubTypes = $this->getView()->plugin('customVocabSubType')();
+
         // List the fields for the resource.
         foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
             $property = $templateProperty->property();
@@ -164,13 +166,21 @@ class ContributionFields extends AbstractHelper
             foreach ($field['values'] as $value) {
                 // Method value() is label or value depending on type.
                 $type = $value->type();
+                $typeColon = strtok($type, ':');
+                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
+                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                    : null;
                 // TODO No need to check if the datatype is managed?
-                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
+                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
+                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                ) {
                     $val = null;
                     $res = null;
                     $uri = $value->uri();
                     $label = $value->value();
-                } elseif (strtok($type, ':') === 'resource') {
+                } elseif ($typeColon === 'resource'
+                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                ) {
                     $vr = $value->valueResource();
                     $val = null;
                     $res = $vr ? $vr->id() : null;
@@ -248,7 +258,13 @@ class ContributionFields extends AbstractHelper
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
-                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
+                $typeColon = strtok($type, ':');
+                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
+                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                    : null;
+                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
+                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@uri'])
                             && $proposal['original']['@uri'] === $fieldContribution['original']['@uri']
@@ -267,7 +283,9 @@ class ContributionFields extends AbstractHelper
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif (strtok($type, ':') === 'resource') {
+                } elseif ($typeColon === 'resource'
+                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@resource'])
                             && (int) $proposal['original']['@resource']
@@ -323,7 +341,13 @@ class ContributionFields extends AbstractHelper
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
-                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
+                $typeColon = strtok($type, ':');
+                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
+                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                    : null;
+                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
+                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
                             && $proposal['proposed']['@uri'] === $fieldContribution['original']['@uri']
@@ -342,7 +366,9 @@ class ContributionFields extends AbstractHelper
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif (strtok($type, ':') === 'resource') {
+                } elseif ($typeColon === 'resource'
+                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@resource'])
                             && (int) $proposal['proposed']['@resource']
@@ -412,7 +438,13 @@ class ContributionFields extends AbstractHelper
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
-                if ($type === 'uri' || in_array(strtok($type, ':'), ['valuesuggest', 'valuesuggestall'])) {
+                $typeColon = strtok($type, ':');
+                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
+                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                    : null;
+                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
+                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                ) {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
                         'original' => [
@@ -429,7 +461,9 @@ class ContributionFields extends AbstractHelper
                             '@label' => $proposal['proposed']['@label'],
                         ],
                     ];
-                } elseif (strtok($type, ':') === 'resource') {
+                } elseif ($typeColon === 'resource'
+                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                ) {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
                         'original' => [
