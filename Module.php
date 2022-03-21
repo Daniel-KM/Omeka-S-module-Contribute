@@ -446,17 +446,25 @@ class Module extends AbstractModule
     public function adminViewShowSidebar(Event $event): void
     {
         $view = $event->getTarget();
+        $plugins = $view->getHelperPluginManager();
+        $setting = $plugins->get('setting');
+        if (!in_array($setting('contribute_mode'), ['user_token', 'token'])) {
+            return;
+        }
+
+        $url = $plugins->get('url');
+        $translate = $plugins->get('translate');
+        $escapeAttr = $plugins->get('escapeHtmlAttr');
+
         $resource = $view->resource;
         $query = [
             'resource_type' => $resource->resourceName(),
             'resource_ids' => [$resource->id()],
             'redirect' => $this->getCurrentUrl($view),
         ];
-        $translate = $view->plugin('translate');
-        $escapeAttr = $view->plugin('escapeHtmlAttr');
         $link = $view->hyperlink(
             $translate('Create contribution token'), // @translate
-            $view->url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
+            $url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
         );
         $htmlText = [
             'contritube' => $translate('Contribute'), // @translate

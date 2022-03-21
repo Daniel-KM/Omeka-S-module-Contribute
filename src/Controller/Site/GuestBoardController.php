@@ -16,21 +16,29 @@ class GuestBoardController extends AbstractActionController
 
     public function showAction()
     {
+        // TODO Clarify how to show anonymous deposit via token.
+
         $user = $this->identity();
-
-        if (isset($user)) {
-            $query = $this->params()->fromQuery();
-            $query['owner_id'] = $user->getId();
-
-            $contributions = $this->api()->search('contributions', $query)->getContent();
-
-            $view = new ViewModel([
-                'site' => $this->currentSite(),
-                'user' => $user,
-                'contributions' => $contributions,
-            ]);
-            return $view
-                ->setTemplate('guest/site/guest/contribution');
+        if (!$user) {
+            return $this->redirect()->toRoute('top', [], true);
         }
+
+        $query = $this->params()->fromQuery();
+        $query['owner_id'] = $user->getId();
+
+        // TODO Add the full browse mechanism for the display of contributions in guest board.
+        if (!isset($query['per_page'])) {
+            $query['per_page'] = 100;
+        }
+
+        $contributions = $this->api()->search('contributions', $query)->getContent();
+
+        $view = new ViewModel([
+            'site' => $this->currentSite(),
+            'user' => $user,
+            'contributions' => $contributions,
+        ]);
+        return $view
+            ->setTemplate('guest/site/guest/contribution');
     }
 }
