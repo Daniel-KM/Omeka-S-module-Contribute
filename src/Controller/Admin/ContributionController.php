@@ -367,11 +367,25 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorNotFound();
         }
 
-        // Only people who can edit the resource can update the status.
         $id = $this->params('id');
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $this->api()->read('contributions', $id)->getContent();
-        if (!$contribution->resource()->userIsAllowed('update')) {
+
+        // Only a resource already added can have a status reviewed.
+        $resource = $contribution ? $contribution->resource() : null;
+        if (!$resource) {
+            return new JsonModel([
+                'status' => Response::STATUS_CODE_200,
+                // Status is updated, so inverted.
+                'content' => [
+                    'status' => 'unreviewed',
+                    'statusLabel' => $this->translate('Unreviewed'),
+                ],
+            ]);
+        }
+
+        // Only people who can edit the resource can update the status.
+        if ($resource && !$resource->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 

@@ -144,7 +144,9 @@ class Module extends AbstractModule
             ->allow(
                 $contributors,
                 [\Contribute\Entity\Contribution::class],
-                ['create', 'read', 'update']
+                ['create', 'read', 'update',
+                // TODO Remove right to change owner of the contribution (only set it first time).
+                'change-owner']
             )
 
             ->allow(
@@ -176,6 +178,12 @@ class Module extends AbstractModule
             ->allow(
                 $validators,
                 ['Contribute\Controller\Admin\Contribution']
+            )
+            //  TODO Remove this hack to allow validators to change owner.
+            ->allow(
+                $validators,
+                [\Omeka\Entity\Item::class],
+                ['create', 'read', 'update', 'change-owner']
             )
         ;
     }
