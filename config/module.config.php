@@ -240,6 +240,8 @@ return [
         'settings' => [
             'contribute_mode' => 'user',
             'contribute_notify_recipients' => [],
+            'contribute_author_emails' => [],
+            'contribute_author_confirmations' => [],
             'contribute_templates' => [
                 // The id is set during install.
                 'Contribution',

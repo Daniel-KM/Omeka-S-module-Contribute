@@ -100,7 +100,8 @@ BODY;
         }
 
         $message
-            ->addTo($recipients, $name)
+            // Allows to pass the name with the recipient when alone.
+            ->addTo(is_array($recipients) && count($recipients) === 1 ? reset($recipients) : $recipients, $name)
             ->setSubject($subject)
             ->setBody($body);
 

@@ -680,7 +680,9 @@ class ContributionController extends AbstractActionController
 
         $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
         $contribution = $response->getContent();
-        $this->prepareContributionEmail($contribution, 'submit');
+        $this
+            ->notifyContribution($contribution, 'submit')
+            ->confirmContribution($contribution, 'submit');
 
         return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
     }
@@ -741,7 +743,7 @@ class ContributionController extends AbstractActionController
         return new ContributionRepresentation($entity, $contributionAdapter);
     }
 
-    protected function prepareContributionEmail(ContributionRepresentation $contribution, string $action = 'update'): self
+    protected function notifyContribution(ContributionRepresentation $contribution, string $action = 'update'): self
     {
         $emails = $this->filterEmails($contribution);
         if (empty($emails)) {
@@ -797,6 +799,31 @@ class ContributionController extends AbstractActionController
         return $this;
     }
 
+    protected function confirmContribution(ContributionRepresentation $contribution, string $action = 'update'): self
+    {
+        $confirms = $this->settings()->get('contribute_author_confirmations', []);
+        if (empty($confirms) || !in_array($action, $confirms)) {
+            return $this;
+        }
+
+        $emails = $this->authorEmails($contribution);
+        if (empty($emails)) {
+            $this->messenger()->err('The author of this contribution has no valid email. Check it or check the config.'); // @translate
+            return $this;
+        }
+
+        $translate = $this->getPluginManager()->get('translate');
+
+        $message = '<p>' . new Message(
+            "Hi,\nThanks for your contribution.\n\nThe librarians will validate it soon.\n\n, Sincerely" // @translate
+        ) . '</p>';
+
+        $name = count($emails) === 1 && $contribution->owner() ? $contribution->owner()->name() : null;
+
+        $this->sendContributionEmail($emails, $translate('[Omeka] Contribution'), $message, $name); // @translate
+        return $this;
+    }
+
     protected function filterEmails(?ContributionRepresentation $contribution = null): array
     {
         $emails = $this->settings()->get('contribute_notify_recipients', []);
@@ -820,6 +847,47 @@ class ContributionController extends AbstractActionController
         }
 
         return $result;
+    }
+
+    protected function authorEmails(?ContributionRepresentation $contribution = null): array
+    {
+        $emails = [];
+        $propertyEmails = $this->settings()->get('contribute_author_emails', []);
+        if (empty($propertyEmails)) {
+            return [];
+        }
+
+        if ($contribution) {
+            if (!in_array('owner', $propertyEmails)) {
+                return [];
+            }
+            $propertyEmails = ['owner'];
+        }
+
+        $resourceData = $contribution->proposalToResourceData();
+
+        foreach ($propertyEmails as $propertyEmail) {
+            if ($propertyEmail === 'owner') {
+                $owner = $contribution ? $contribution->owner() : null;
+                if ($owner) {
+                    $emails[] = $owner->email();
+                }
+            } elseif (strpos($propertyEmail, ':') && !empty($resourceData[$propertyEmail])) {
+                foreach ($resourceData[$propertyEmail] as $resourceValue) {
+                    if (isset($resourceValue['@value'])) {
+                        $emails[] = $resourceValue['@value'];
+                    }
+                }
+            }
+        }
+
+        foreach ($emails as $key => $email) {
+            if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                unset($emails[$key]);
+            }
+        }
+
+        return $emails;
     }
 
     /**

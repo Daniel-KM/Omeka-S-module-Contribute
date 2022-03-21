@@ -49,6 +49,43 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
             ])
 
             ->add([
+                'name' => 'contribute_author_emails',
+                'type' => AdvancedResourceTemplateElement\OptionalPropertySelect::class,
+                'options' => [
+                    'label' => 'Emails of the author', // @translate
+                    'empty_option' => '',
+                    'prepend_value_options' => [
+                        'owner' => 'Contributor', // @translate
+                    ],
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_emails',
+                    'multiple' => true,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a property…', // @translate
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_author_confirmations',
+                'type' => AdvancedResourceTemplateElement\OptionalMultiCheckbox::class,
+                'options' => [
+                    'label' => 'Confirmations to author', // @translate
+                    'value_options' => [
+                        // 'prepare' => 'On prepare', // @translate
+                        // 'update' => 'On update', // @translate
+                        'submit' => 'On submit', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_confirmations',
+                    'required' => false,
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_templates',
                 'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
                 'options' => [
