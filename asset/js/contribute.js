@@ -40,6 +40,25 @@ $(document).ready(function() {
         newInput.chosen(specificChosenOptions);
     }
 
+    function fillHiddenInput() {
+        let group = $(this).closest('.group-input-part');
+        if (group.find('[data-input-part=year]').length) {
+            return;
+        }
+        let main = group.find('[data-input-part=main]');
+        var parts = group.find('[data-input-part]:not([data-input-part=main])');
+        let separator = main.data('separator');
+        if (separator && separator.length) {
+            var list = [];
+            parts.each(function(index, part) {
+                list.push($(part).val());
+            });
+            main.val(list.join(separator));
+            return;
+        }
+        main.val('');
+    }
+
     function fillDate() {
         let group = $(this).closest('.group-input-part');
         let main = group.find('[data-input-part=main]');
@@ -92,18 +111,21 @@ $(document).ready(function() {
 
     $(':not(.contribute_template) .chosen-select').chosen(chosenOptions);
 
+    $('#edit-resource').on('blur change', '[data-input-part]', fillHiddenInput);
+
     $('#edit-resource').on('blur change', '[data-input-part=year], [data-input-part=month], [data-input-part=day]', fillDate);
 
     if (typeof valueSuggestAutocomplete === 'function') {
         $(':not(.contribute_template) .valuesuggest-input').on('load', valueSuggestAutocomplete);
     }
 
-    $('#edit-resource').on('click', '.inputs .add-value', function(ev) {
+    $('#edit-resource').on('click', '.add-values .add-value', function(ev) {
         ev.stopPropagation();
 
         var target = $(ev.target);
         const adds = [
             '.add-value-new',
+            '.add-value-literal',
             '.add-value-resource',
             '.add-value-uri',
             '.add-value-numeric-integer',
@@ -139,6 +161,24 @@ $(document).ready(function() {
         var required = currentFields[term] && currentFields[term]['required'];
 
         if (target.hasClass('add-value-new')) {
+            var template = target.data('template');
+            newElement = $('#' + template + ' > .value').clone();
+            namel = baseName(term, index, indexMedia);
+            name = namel + '[@value]';
+            newInput = $(newElement).find('input[data-value-key="@value"]')
+                .prop('name', name)
+                .removeAttr('readonly')
+                .val('');
+            // Other elements are not submitted, but fill the hidden input on blur.
+            $(newElement).find('[data-input-part]').each(function(index, element) {
+                $(this)
+                    .prop('name', namel + '[' + (index + 1) + ']')
+                    .removeAttr('readonly')
+                    .val('');
+            });
+        }
+
+        if (target.hasClass('add-value-literal')) {
             newElement = $('#edit_template_value > .value').clone();
             name = baseName(term, index, indexMedia) + '[@value]';
             newInput = $(newElement).find('textarea, input[data-value-key="@value"]')
