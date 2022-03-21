@@ -86,9 +86,9 @@ $editRight = $resource->userIsAllowed('update');
                     aria-label="<?= $escape($translate('Validate all values')) ?>"
                     title="<?= $escape($translate('Validate all values')) ?>"></a></span>
                 <span class="single actions"><a href="#"
-                    class="status-toggle o-icon-<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                     data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
-                    data-status="<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                    data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                     aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                     title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
                 <?php if ($token && $token->isExpired()): ?>
@@ -101,7 +101,7 @@ $editRight = $resource->userIsAllowed('update');
                     title="<?= $escape($translate('Expire token')) ?>"></a></span>
                 <?php endif; ?>
                 <?php else: ?>
-                <span class="no-action o-icon-<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
+                <span class="no-action o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"></span>
                 <?php endif; ?>
             </th>
         </tr>

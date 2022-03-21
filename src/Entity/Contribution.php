@@ -110,6 +110,16 @@ class Contribution extends AbstractEntity
      *     nullable=false
      * )
      */
+    protected $submitted = false;
+
+    /**
+     * @var bool
+     *
+     * @Column(
+     *     type="boolean",
+     *     nullable=false
+     * )
+     */
     protected $reviewed = false;
 
     /**
@@ -191,6 +201,17 @@ class Contribution extends AbstractEntity
     public function getEmail(): ?string
     {
         return $this->email;
+    }
+
+    public function setSubmitted($submitted): self
+    {
+        $this->submitted = (bool) $submitted;
+        return $this;
+    }
+
+    public function getSubmitted(): bool
+    {
+        return (bool) $this->submitted;
     }
 
     public function setReviewed($reviewed): self

@@ -391,7 +391,7 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorUnauthorized();
         }
 
-        $isReviewed = $contribution->reviewed();
+        $isReviewed = $contribution->isReviewed();
 
         $data = [];
         $data['o-module-contribute:reviewed'] = !$isReviewed;

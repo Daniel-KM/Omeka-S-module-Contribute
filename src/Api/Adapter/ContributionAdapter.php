@@ -75,6 +75,13 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
+        if (isset($query['submitted']) && is_numeric($query['submitted'])) {
+            $qb->andWhere($expr->eq(
+                'omeka_root.submitted',
+                $this->createNamedParameter($qb, (bool) $query['submitted'])
+            ));
+        }
+
         if (isset($query['reviewed']) && is_numeric($query['reviewed'])) {
             $qb->andWhere($expr->eq(
                 'omeka_root.reviewed',
@@ -139,6 +146,7 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ? null
                 : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
             $email = empty($data['o:email']) ? null : $data['o:email'];
+            $submitted = !empty($data['o-module-contribute:submitted']);
             $reviewed = !empty($data['o-module-contribute:reviewed']);
             $proposal = empty($data['o-module-contribute:proposal'])
                 ? []
@@ -147,6 +155,7 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ->setResource($resource)
                 ->setToken($token)
                 ->setEmail($email)
+                ->setSubmitted($submitted)
                 ->setReviewed($reviewed)
                 ->setProposal($proposal);
         } elseif (Request::UPDATE === $request->getOperation()) {
@@ -158,6 +167,11 @@ class ContributionAdapter extends AbstractEntityAdapter
                     $entity
                         ->setResource($resource);
                 }
+            }
+            if ($this->shouldHydrate($request, 'o-module-contribute:submitted', $data)) {
+                $submitted = !empty($data['o-module-contribute:submitted']);
+                $entity
+                    ->setSubmitted($submitted);
             }
             if ($this->shouldHydrate($request, 'o-module-contribute:reviewed', $data)) {
                 $reviewed = !empty($data['o-module-contribute:reviewed']);

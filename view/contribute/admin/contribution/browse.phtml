@@ -97,9 +97,9 @@ $sortHeadings = [
                 <ul class="actions">
                     <?php if ($contribution->userIsAllowed('update')): ?>
                     <li><span class="single actions"><a href="#"
-                        class="status-toggle o-icon-<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                        class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                         data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
-                        data-status="<?= $contribution->reviewed() ? 'reviewed' : 'unreviewed' ?>"
+                        data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                         aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                         title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
                     </span></li>

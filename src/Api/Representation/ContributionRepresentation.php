@@ -65,7 +65,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             'o:resource' => $res ? $res->getReference() : null,
             'o:owner' => $owner ? $owner->getReference() : null,
             'o:email' => $owner ? null : $this->email(),
-            'o-module-contribute:reviewed' => $this->reviewed(),
+            'o-module-contribute:submitted' => $this->isSubmitted(),
+            'o-module-contribute:reviewed' => $this->isReviewed(),
             'o-module-contribute:proposal' => $this->proposal(),
             'o-module-contribute:token' => $token,
             'o:created' => $created,
@@ -97,7 +98,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return $this->resource->getEmail();
     }
 
-    public function reviewed(): bool
+    public function isSubmitted(): bool
+    {
+        return $this->resource->getSubmitted();
+    }
+
+    public function isReviewed(): bool
     {
         return $this->resource->getReviewed();
     }

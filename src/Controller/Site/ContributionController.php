@@ -526,7 +526,7 @@ class ContributionController extends AbstractActionController
             if ($resource = $contribution->resource()) {
                 $entity->setResource($this->api()->read('resources', ['id' => $resource->id()], ['responseContent' => 'resource'])->getContent());
             }
-            $entity->setReviewed($contribution->reviewed());
+            $entity->setReviewed($contribution->isReviewed());
         }
 
         unset($data['csrf'], $data['edit-resource-submit']);

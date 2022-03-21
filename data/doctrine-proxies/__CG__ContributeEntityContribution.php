@@ -66,10 +66,10 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'reviewed', 'proposal', 'token', 'created', 'modified'];
+            return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'submitted', 'reviewed', 'proposal', 'token', 'created', 'modified'];
         }
 
-        return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'reviewed', 'proposal', 'token', 'created', 'modified'];
+        return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'submitted', 'reviewed', 'proposal', 'token', 'created', 'modified'];
     }
 
     /**
@@ -255,6 +255,28 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEmail', []);
 
         return parent::getEmail();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setSubmitted($submitted): \Contribute\Entity\Contribution
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSubmitted', [$submitted]);
+
+        return parent::setSubmitted($submitted);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSubmitted(): bool
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSubmitted', []);
+
+        return parent::getSubmitted();
     }
 
     /**

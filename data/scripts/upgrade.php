@@ -189,4 +189,27 @@ if (version_compare($oldVersion, '3.3.0.17', '<')) {
         );
         throw new ModuleCannotInstallException((string) $message);
     }
+
+    $sqls = <<<'SQL'
+ALTER TABLE `contribution`
+ADD `submitted` TINYINT(1) NOT NULL AFTER `email`,
+CHANGE `resource_id` `resource_id` INT DEFAULT NULL,
+CHANGE `owner_id` `owner_id` INT DEFAULT NULL,
+CHANGE `token_id` `token_id` INT DEFAULT NULL,
+CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
+CHANGE `modified` `modified` DATETIME DEFAULT NULL;
+
+ALTER TABLE `contribution_token`
+CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
+CHANGE `expire` `expire` DATETIME DEFAULT NULL,
+CHANGE `accessed` `accessed` DATETIME DEFAULT NULL;
+
+UPDATE `contribution`
+SET `submitted` = 1;
+SQL;
+    // Use single statements for execution.
+    // See core commit #2689ce92f.
+    foreach (array_filter(array_map('trim', explode(";\n", $sqls))) as $sql) {
+        $connection->executeStatement($sql);
+    }
 }
