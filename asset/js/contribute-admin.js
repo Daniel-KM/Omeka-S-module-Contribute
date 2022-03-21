@@ -4,7 +4,7 @@ Omeka.contributionManageSelectedActions = function() {
     if ($('.batch-edit td input[type="checkbox"]:checked').length > 0) {
         selectedOptions.removeAttr('disabled');
     } else {
-        selectedOptions.attr('disabled', true);
+        selectedOptions.prop('disabled', true);
         $('.batch-actions-select').val('default');
         $('.batch-actions .active').removeClass('active');
         $('.batch-actions .default').addClass('active');
@@ -80,7 +80,7 @@ $(document).ready(function() {
     // When the user clicks the button, open the modal.
     if (btn) {
         btn.onclick = function() {
-            var href = $('#create_contribution_token a').attr('href');
+            var href = $('#create_contribution_token a').prop('href');
             var email = $('#create_contribution_token_dialog_email').val();
             if (email !== '' && !validateEmail(email)) {
                 $('#create_contribution_token_dialog_email').css('color', 'red');
@@ -131,8 +131,8 @@ $(document).ready(function() {
                 var content = data.content;
                 status = content.status;
                 button.data('status', status);
-                button.attr('title', content.statusLabel);
-                button.attr('aria-label', content.statusLabel);
+                button.prop('title', content.statusLabel);
+                button.prop('aria-label', content.statusLabel);
             }
         })
         .fail(function(jqXHR, textStatus) {
@@ -166,8 +166,8 @@ $(document).ready(function() {
             } else {
                 var content = data.content;
                 status = 'expired';
-                button.attr('title', content.statusLabel);
-                button.attr('aria-label', content.statusLabel);
+                button.prop('title', content.statusLabel);
+                button.prop('aria-label', content.statusLabel);
             }
         })
         .fail(function(jqXHR, textStatus) {
@@ -186,7 +186,7 @@ $(document).ready(function() {
     $('#content').on('click', '.contribution .actions .o-icon-add', function(e) {
         e.preventDefault();
         var button = $(this);
-        var url = button.attr('href');
+        var url = button.prop('href');
         var status = 'add';
         $.ajax({
             url: url,
@@ -245,8 +245,8 @@ $(document).ready(function() {
                 // Update the validate button.
                 content = data.content;
                 status = content.status;
-                // button.attr('title', statusLabel);
-                // button.attr('aria-label', statusLabel);
+                // button.prop('title', statusLabel);
+                // button.prop('aria-label', statusLabel);
 
                 // Reload the page to update the default show view.
                 // TODO Dynamically update default show view after contribution.
@@ -285,8 +285,8 @@ $(document).ready(function() {
                 // Update the validate button.
                 var content = data.content;
                 status = content.status;
-                button.attr('title', content.statusLabel);
-                button.attr('aria-label', content.statusLabel);
+                button.prop('title', content.statusLabel);
+                button.prop('aria-label', content.statusLabel);
                 // TODO Update the value in the main metadata tab.
             }
         })

@@ -19,7 +19,7 @@ $(document).ready(function() {
             newElement = $('#edit_value_template > .value').clone();
             name = term + '[' + index + '][@value]';
             $(newElement).find('textarea')
-                .attr('name', name)
+                .prop('name', name)
                 .removeAttr('readonly')
                 .val('');
         }
@@ -29,11 +29,11 @@ $(document).ready(function() {
             name = term + '[' + index + '][@resource]';
             let select = $(newElement).find('select');
             select
-                .attr('name', name)
+                .prop('name', name)
                 .removeAttr('readonly')
                 .addClass('chosen-select')
                 .val('');
-            $.each(JSON.parse(target.attr('data-value-options')), function (i, item) {
+            $.each(JSON.parse(target.prop('data-value-options')), function (i, item) {
                 select.append($('<option>', {
                     value: item.v,
                     text : item.t
@@ -44,7 +44,7 @@ $(document).ready(function() {
                 disable_search_threshold: 10,
                 width: '100%',
                 include_group_label_in_selected: true,
-                placeholder_text_single: target.attr('data-placeholder'),
+                placeholder_text_single: target.prop('data-placeholder'),
             };
             select.chosen(specificChosenOptions);
         }
@@ -53,17 +53,17 @@ $(document).ready(function() {
             newElement = $('#edit_uri_template > .value').clone();
             name = term + '[' + index + '][@uri]';
             namel = term + '[' + index + '][@label]';
-            $(newElement).find('input').first().attr('name', name);
+            $(newElement).find('input').first().prop('name', name);
             $(newElement).find('input').removeAttr('readonly');
-            $(newElement).find('textarea').first().attr('name', namel);
+            $(newElement).find('textarea').first().prop('name', namel);
             $(newElement).find('textarea').removeAttr('readonly');
         }
 
         if (target.hasClass('add-value-value-suggest')) {
             newElement = $('#edit_valuesuggest_template > .value').clone();
             name = term + '[' + index + '][@uri]';
-            $(newElement).find('input').first().attr('data-data-type', target.attr('data-type'));
-            $(newElement).find('input').first().attr('name', name);
+            $(newElement).find('input').first().prop('data-data-type', target.prop('data-type'));
+            $(newElement).find('input').first().prop('name', name);
             $(newElement).find('input').removeAttr('readonly');
             valueSuggestAutocomplete($(newElement).find('input').first());
         }
