@@ -98,4 +98,7 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
             echo $this->formElement($element);
         endif; ?>
     </div>
+    <ul class="actions">
+        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+    </ul>
 </div>

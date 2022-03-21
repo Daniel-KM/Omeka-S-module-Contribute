@@ -50,4 +50,19 @@
         display: inline-block;
         font-style: italic;
     }
+
+    #edit-resource .contribute-media .actions,
+    #edit-resource .value .actions {
+        display: inline-block;
+        list-style: none;
+        margin: 4px 0 4px 4px;
+        padding: 0;
+    }
+    #edit-resource .value .actions a {
+        vertical-align: top;
+    }
+    #edit-resource .inputs button::before,
+    #edit-resource .actions button::before {
+        margin-right: 8px;
+    }
 }

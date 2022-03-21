@@ -53,6 +53,9 @@ $args['readonly'] = true;
     <div class="value resource">
         <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
+    <ul class="actions">
+        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+    </ul>
 </div>
 
 <div id="edit_template_uri" class="contribute_template uri" style="display:none;">
@@ -76,12 +79,21 @@ $args['readonly'] = true;
 <div id="edit_template_customvocab" class="contribute_template custom_vocab" style="display:none;">
     <div class="value custom_vocab" data-basetype="literal">
         <select class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+        <ul class="actions">
+            <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+        </ul>
     </div>
     <div class="value custom_vocab" data-basetype="resource">
         <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+        <ul class="actions">
+            <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+        </ul>
     </div>
     <div class="value custom_vocab" data-basetype="uri">
         <select class="form-control input-value" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+        <ul class="actions">
+            <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+        </ul>
     </div>
 </div>
 <?php endif; ?>

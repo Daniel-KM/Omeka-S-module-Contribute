@@ -100,7 +100,7 @@ $(document).ready(function() {
         if (target.hasClass('add-value-new')) {
             newElement = $('#edit_template_value > .value').clone();
             name = baseName(term, index, indexMedia) + '[@value]';
-            newInput = $(newElement).find('textarea')
+            newInput = $(newElement).find('textarea, input[data-value-key="@value"]')
                 .prop('name', name)
                 .removeAttr('readonly')
                 .val('');
@@ -121,7 +121,7 @@ $(document).ready(function() {
                 .prop('name', name)
                 .removeAttr('readonly')
                 .val('');
-            $(newElement).find('input[data-value-key="@label"]')
+            $(newElement).find('input[data-value-key="@label"], textarea[data-value-key="@label"]')
                 .prop('name', namel)
                 .removeAttr('readonly')
                 .val('');
@@ -203,6 +203,12 @@ $(document).ready(function() {
         selector.data('next-index', index);
     });
 
+    $('#edit-resource').on('click', '.values .remove-value', function(ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        $(this).closest('.value').remove();
+    });
+
     $('#edit-resource').on('click', '.inputs-media .add-media-new', function(ev) {
         var target = $(ev.target);
         var fieldsetMedias = target.closest('.contribute-medias');
@@ -220,6 +226,12 @@ $(document).ready(function() {
             .data('next-index-media', indexMedia + 1)
             .find('.inputs-media')
             .before(fieldsetMedia);
-    })
+    });
+
+    $('#edit-resource').on('click', '.contribute-media .remove-media', function(ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        $(this).closest('.contribute-media').remove();
+    });
 
 });

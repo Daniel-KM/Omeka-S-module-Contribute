@@ -7,6 +7,8 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Entity\User $user
  * @var array $fields
+ * @var array $fieldsByMedia
+ * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
  * @var bool $isMainForm
@@ -56,4 +58,7 @@ endif;
 
 <div class="<?= implode(' ', $class) ?>">
     <input type="file" class="form-control input-value" data-value-key="@value" name="<?= $name ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
+    <ul class="actions">
+        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+    </ul>
 </div>

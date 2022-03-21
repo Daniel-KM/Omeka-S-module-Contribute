@@ -269,6 +269,9 @@ if ($isMainForm) {
             $vars->offsetSet('fieldsMedia', $fieldsMedia);
             ?>
             <?= $partial('contribute/site/contribution/form', $vars) ?>
+            <ul class="actions">
+                <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
+            </ul>
         </fieldset>
         <?php ++$indexMedia; ?>
         <?php endforeach; ?>
@@ -322,6 +325,9 @@ if ($isMainForm) {
             $vars->offsetSet('indexMedia', null);
             $vars->offsetSet('fieldsMedia', null);
             ?>
+            <ul class="actions">
+                <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
+            </ul>
         </fieldset>
     </div>
     <?php endif; ?>

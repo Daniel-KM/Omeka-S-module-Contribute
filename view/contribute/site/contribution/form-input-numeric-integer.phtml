@@ -57,4 +57,7 @@ endif;
 
 <div class="<?= implode(' ', $class) ?>">
     <input type="tel" pattern="^\d+$" class="form-control input-value" data-value-key="@value" name="<?= $name ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>  value="<?= $escapeAttr($val) ?>"/>
+    <ul class="actions">
+        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+    </ul>
 </div>

@@ -274,6 +274,12 @@ class Module extends AbstractModule
             [$this, 'addHeadersAdmin']
         );
 
+        $sharedEventManager->attach(
+            \Contribute\Entity\Contribution::class,
+            'entity.remove.post',
+            [$this, 'deleteContributionFiles']
+        );
+
         // Handle main settings.
         $sharedEventManager->attach(
             \Omeka\Form\SettingForm::class,
@@ -522,6 +528,26 @@ HTML;
                     'data-setting-key' => 'fillable',
                 ],
             ]);
+    }
+
+    /**
+     * Delete all files associated with a removed Contribution entity.
+     *
+     * Processed via an event to be sure that the contribution is removed.
+     */
+    public function deleteContributionFiles(Event $event)
+    {
+        $store = $this->getServiceLocator()->get('Omeka\File\Store');
+        $entity = $event->getTarget();
+        $proposal = $entity->getProposal();
+        foreach ($proposal['media'] ?? [] as $key => $mediaFiles) {
+            foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
+                if (isset($mediaFile['proposed']['store'])) {
+                    $storagePath = 'contribution/' . $mediaFile['proposed']['store'];
+                    $store->delete($storagePath);
+                }
+            }
+        }
     }
 
     /**
