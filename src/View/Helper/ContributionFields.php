@@ -38,8 +38,7 @@ class ContributionFields extends AbstractHelper
     /**
      * Get all fields that are updatable for this resource.
      *
-     * The order is the one of the resource template, else the order of terms in
-     * the database (Dublin Core first, bibo, foaf, then specific terms).
+     * The order is the one of the resource template.
      *
      * Some contributions may not have the matching fields: it means that the
      * config changed, so the values are no more editable, so they are skipped.
@@ -87,7 +86,7 @@ class ContributionFields extends AbstractHelper
      * ]
      * </code>
      *
-     * @todo Remove the "@" in proposition values.
+     * @todo Remove the "@" in proposition values (or build a class).
      */
     public function __invoke(
         ?AbstractResourceEntityRepresentation $resource = null,

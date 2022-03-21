@@ -10,7 +10,6 @@ use Laminas\View\Model\ViewModel;
 // use Omeka\Form\ResourceForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\Message;
-use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
 class ContributionController extends AbstractActionController
 {
@@ -78,7 +77,7 @@ class ContributionController extends AbstractActionController
             $resourceType = 'item';
         }
         // TODO Use the resource name to store the contribution (always items here for now).
-        // $resourceName = $resourceTypeMap[$resourceType];
+        $resourceName = $resourceTypeMap[$resourceType];
 
         $settings = $this->settings();
         $user = $this->identity();
@@ -96,14 +95,32 @@ class ContributionController extends AbstractActionController
             return $this->viewError403();
         }
 
+        // Prepare the resource template. Use the first if not queryied.
+
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
+        $contributiveData = $this->getPluginManager()->get('contributiveData');
+        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
+        $templates = [];
+        $templateLabels = [];
+        // Remove non-contributive templates.
+        foreach ($this->api()->search('resource_templates', ['id' => $allowedResourceTemplates])->getContent() as $template) {
+            $contributive = $contributiveData($template);
+            if ($contributive->isContributive()) {
+                $templates[$template->id()] = $template;
+                $templateLabels[$template->id()] = $template->label();
+            }
+        }
+
         // A template is required to contribute: set by query or previous form.
         $template = $this->params()->fromQuery('template')
             ?: $this->params()->fromPost('template');
-        $resourceTemplate = $this->useResourceTemplate($template);
-        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
-        if ($resourceTemplate) {
-            $templates = [];
-        } elseif ($template || !$allowedResourceTemplates) {
+
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
+        if ($template) {
+            $contributive = $contributiveData($template);
+            $resourceTemplate = $contributive->template();
+        }
+        if (!count($templates) || ($template && !$resourceTemplate)) {
             $this->logger()->err('A template is required to add a resource. Ask the administrator for more information.'); // @translate
             return new ViewModel([
                 'site' => $site,
@@ -113,8 +130,15 @@ class ContributionController extends AbstractActionController
                 'contribution' => null,
                 'fields' => [],
             ]);
-        } else {
-            $templates = $this->api()->search('resource_templates', ['id' => $allowedResourceTemplates], ['returnScalar' => 'label'])->getContent();
+        }
+
+        if (!$template) {
+            if (count($templates) === 1) {
+                $resourceTemplate = reset($templates);
+                $contributive = $contributiveData($template);
+            } else {
+                $resourceTemplate = null;
+            }
         }
 
         $currentUrl = $this->url()->fromRoute(null, [], true);
@@ -122,7 +146,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Form\ContributeForm $form */
         $form = $this->getForm(ContributeForm::class)
             // Use setOptions, not getForm().
-            ->setTemplates($templates)
+            ->setTemplates($templateLabels)
             ->setAttribute('action', $currentUrl)
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
@@ -290,16 +314,18 @@ class ContributionController extends AbstractActionController
         // No need to set the template, but simplify view for form.
         $form->get('template')->setValue($resourceTemplate->id());
 
+        // There is no step for edition: the resource template is always set.
+
         if ($this->getRequest()->isPost()) {
             $post = $this->params()->fromPost();
+            // The template cannot be changed once set.
+            $post['template'] = $resourceTemplate->id();
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
                 // TODO Manage file data.
                 // $fileData = $this->getRequest()->getFiles()->toArray();
                 // $data = $form->getData();
-                // The template cannot be changed once set.
-                $data['template'] = $resourceTemplate->id();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $proposal = $this->prepareProposal($data, $resource);
                 if ($proposal) {
@@ -381,37 +407,6 @@ class ContributionController extends AbstractActionController
             $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
         }
         return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
-    }
-
-    /**
-     * @param int|string|null $template
-     *
-     * @todo Merge with the check of the default resource template in contributiveData.
-     */
-    protected function useResourceTemplate($template = null): ?ResourceTemplateRepresentation
-    {
-        /** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
-        $resourceTemplate = $template
-            ? $this->api()->searchOne('resource_templates', is_numeric($template) ? ['id' => $template] : ['label' => $template])->getContent()
-            : null;
-
-        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
-
-        if ($template && !$resourceTemplate) {
-            $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
-        } elseif ($resourceTemplate && !in_array($resourceTemplate->id(), $allowedResourceTemplates)) {
-            $this->logger()->warn(new Message('A user tried to add a resource with a non-allowed template "%s".', $template)); // @translate
-        } elseif (!count($allowedResourceTemplates)) {
-            $this->logger()->warn(new Message('No template defined for contribution.')); // @translate
-        } elseif (!$resourceTemplate && count($allowedResourceTemplates) === 1) {
-            $resourceTemplate = reset($allowedResourceTemplates);
-            $resourceTemplate = $this->api()->searchOne('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
-            if (!$resourceTemplate) {
-                $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
-            }
-        }
-
-        return $resourceTemplate;
     }
 
     protected function prepareContributionEmail(ContributionRepresentation $contribution): self

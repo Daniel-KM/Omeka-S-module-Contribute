@@ -5,6 +5,7 @@ namespace Contribute\Mvc\Controller\Plugin;
 use ArrayObject;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Omeka\Api\Representation\ResourceTemplateRepresentation;
+use Omeka\Stdlib\Message;
 
 class ContributiveData extends AbstractPlugin
 {
@@ -76,6 +77,7 @@ class ContributiveData extends AbstractPlugin
         }
 
         $this->data['template'] = $resourceTemplate;
+
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
         foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
             $property = $resourceTemplateProperty->property();
@@ -106,6 +108,7 @@ class ContributiveData extends AbstractPlugin
         $this->data['is_contributive'] = count($this->data['datatypes_default'])
             || count($this->data['editable'])
             || count($this->data['fillable'])
+            // TODO Remove editable mode / fillable mode since a template is required now.
             || in_array($this->data['editable_mode'], ['all', 'blacklist'])
             || in_array($this->data['fillable_mode'], ['all', 'blacklist']);
 
@@ -237,25 +240,20 @@ class ContributiveData extends AbstractPlugin
      * Get the resource template.
      *
      * @var \Omeka\Api\Representation\ResourceTemplateRepresentation|int|string|null $resourceTemplate
+     *
+     * @return \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|ResourceTemplateRepresentation|
      */
-    protected function resourceTemplate($resourceTemplate): ?ResourceTemplateRepresentation
+    protected function resourceTemplate($template): ?ResourceTemplateRepresentation
     {
-        if (empty($resourceTemplate) || is_object($resourceTemplate)) {
-            return $resourceTemplate;
+        if (empty($template) || is_object($template)) {
+            return $template;
         }
 
-        if (is_numeric($resourceTemplate)) {
-            try {
-                return $this->getController()->api()->read('resource_templates', ['id' => $resourceTemplate])->getContent();
-            } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                return null;
-            }
+        try {
+            return $this->getController()->api()->read('resource_templates', is_numeric($template) ? ['id' => $template] : ['label' => $template])->getContent();
+        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+            $this->getController()->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+            return null;
         }
-
-        if (is_string($resourceTemplate)) {
-            return $this->getController()->api()->searchOne('resource_templates', ['label' => $resourceTemplate])->getContent();
-        }
-
-        return null;
     }
 }
