@@ -305,7 +305,7 @@ class ContributiveData extends AbstractPlugin
     protected function resourceTemplate($template): ?ResourceTemplateRepresentation
     {
         if (empty($template) || is_object($template)) {
-            return $template;
+            return $template ?: null;
         }
 
         try {
