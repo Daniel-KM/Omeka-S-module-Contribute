@@ -384,11 +384,19 @@ trait ContributionTrait
             if ($useMessenger && $errors) {
                 /** @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger */
                 $messenger = $this->messenger();
+                // Nested forms with medias create multiple levels of messages.
+                // The module fixes core, but may be absent.
                 foreach ($errorStore->getErrors() as $messages) {
                     foreach ($messages as $message) {
                         if (is_array($message)) {
                             foreach ($message as $msg) {
-                                $messenger->addError($this->translate($msg));
+                                if (is_array($msg)) {
+                                    foreach ($msg as $mg) {
+                                        $messenger->addError($this->translate($mg));
+                                    }
+                                } else {
+                                    $messenger->addError($this->translate($msg));
+                                }
                             }
                         } else {
                             $messenger->addError($this->translate($message));
