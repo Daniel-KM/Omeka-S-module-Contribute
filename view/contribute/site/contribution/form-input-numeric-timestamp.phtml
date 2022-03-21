@@ -82,13 +82,13 @@ $day = trim((string) $day, '- ');
         <div class="input">
             <label class="value input-container">
                 <?= $translate('Month') ?>
-                <input type="tel" pattern="^\d{1,2}$" class="form-control input-value" data-input-part="month" name="<?= $baseName . '[month]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($month) ?>"/>
+                <input type="tel" pattern="^(?:0?[1-9]|1[0-2])$" class="form-control input-value" data-input-part="month" name="<?= $baseName . '[month]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($month) ?>"/>
             </label>
         </div>
         <div class="input">
             <label class="value input-container">
                 <?= $translate('Day') ?>
-                <input type="tel" pattern="^\d{1,2}$" class="form-control input-value" data-input-part="day" name="<?= $baseName . '[day]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($day) ?>"/>
+                <input type="tel" pattern="^(?:0?[1-9]|[1-2]\d|3[0-1])$" class="form-control input-value" data-input-part="day" name="<?= $baseName . '[day]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($day) ?>"/>
             </label>
         </div>
     </div>

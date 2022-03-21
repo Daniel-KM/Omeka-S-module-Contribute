@@ -41,7 +41,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource brow
             <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->url('edit')) ?>"><?= $escape($translate('Edit')) ?></a></li>
             <?php endif; ?>
             <?php if ($contribution->userIsAllowed('delete')): ?>
-            <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
+            <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->url('delete')) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
             <?php endif; ?>
         </ul>
         <?php endif; ?>

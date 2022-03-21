@@ -57,9 +57,9 @@ $(document).ready(function() {
         main.val(regex.test(iso) ? iso : '');
     }
 
-    function contributionDelete(id){
+    function contributionDelete(id, url){
         $.post({
-            url: siteContributionUrl + id + '/delete',
+            url: url,
             data: {
                 id: id,
                 confirmform_csrf: confirmFormCsrf,
@@ -72,8 +72,6 @@ $(document).ready(function() {
             window.location.reload();
          });
     }
-
-    $(':not(.contribute_template) .chosen-select').chosen(chosenOptions);
 
     // On load, hide all buttons "more" where the number of values is greater
     // than the allowed max.
@@ -89,6 +87,16 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Manage some special fields that may be pre-loaded.
+
+    $(':not(.contribute_template) .chosen-select').chosen(chosenOptions);
+
+    $('#edit-resource').on('blur change', '[data-input-part=year], [data-input-part=month], [data-input-part=day]', fillDate);
+
+    if (typeof valueSuggestAutocomplete === 'function') {
+        $(':not(.contribute_template) .valuesuggest-input').on('load', valueSuggestAutocomplete);
+    }
 
     $('#edit-resource').on('click', '.inputs .add-value', function(ev) {
         ev.stopPropagation();
@@ -117,10 +125,7 @@ $(document).ready(function() {
         var newElement,
             name,
             namel,
-            newInput,
-            newInput1,
-            newInput2,
-            newInput3;
+            newInput;
 
         const currentFields = isMedia ? mediaFields : fields;
         var maxValues = currentFields[term] && currentFields[term]['max_values']
@@ -181,21 +186,18 @@ $(document).ready(function() {
                 .removeAttr('readonly')
                 .val('');
             // Other elements are not submitted, but fill the hidden input on blur.
-            newInput1 = $(newElement).find('[data-input-part=year]')
+            $(newElement).find('[data-input-part=year]')
                 .prop('name', namel + '[year]')
                 .removeAttr('readonly')
                 .val('');
-            newInput2 = $(newElement).find('[data-input-part=month]')
+            $(newElement).find('[data-input-part=month]')
                 .prop('name', namel + '[month]')
                 .removeAttr('readonly')
                 .val('');
-            newInput3 = $(newElement).find('[data-input-part=day]')
+            $(newElement).find('[data-input-part=day]')
                 .prop('name', namel + '[day]')
                 .removeAttr('readonly')
                 .val('');
-            newInput1.on('blur', fillDate);
-            newInput2.on('blur', fillDate);
-            newInput3.on('blur', fillDate);
         }
 
         if (target.hasClass('add-value-custom-vocab')) {
@@ -276,6 +278,11 @@ $(document).ready(function() {
         // dynamically. so there only the input file name should be set.
         fieldsetMedia.find('input[type=file]')
             .prop('name', baseName('file', 0, indexMedia) + '[@value]');
+        // Nevertheless, required fields are added by default in the template
+        // and should be updated.
+        fieldsetMedia.find('[name^="media[]"]').each(function() {
+            $(this).prop('name', 'media[' + indexMedia + ']' + $(this).prop('name').substring(7));
+        });
         fieldsetMedia.find('.chosen-container').remove();
         fieldsetMedia.find('.chosen-select').chosen(chosenOptions);
         fieldsetMedias
@@ -293,10 +300,11 @@ $(document).ready(function() {
     $('.remove-contribution').on('click', function(ev) {
         ev.stopPropagation();
         ev.preventDefault();
-        var id = $(this).data('contribution-id');
-        var message = $(this).closest('.actions').data('message-remove-contribution');
-        if (id && confirm(message)) {
-            contributionDelete(id);
+        const id = $(this).data('contribution-id');
+        const urlDelete = $(this).data('contribution-url');
+        const message = $(this).closest('.actions').data('message-remove-contribution');
+        if (urlDelete && confirm(message)) {
+            contributionDelete(id, urlDelete);
         }
         return false;
     });

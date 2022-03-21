@@ -51,7 +51,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
     <?php endif; ?>
     <li><a class="o-icon-submit button submit-button submit-contribution" href="<?= $escapeAttr($contribution->url('submit')) ?>"><?= $escape($translate('Submit')) ?></a></li>
     <?php if ($contribution->userIsAllowed('delete')): ?>
-    <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#<?php //= $escapeAttr($contribution->url('delete')) ?>"><?= $escape($translate('Delete')) ?></a></li>
+    <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->url('delete')) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
     <?php endif; ?>
 </ul>
 <?php endif; ?>
