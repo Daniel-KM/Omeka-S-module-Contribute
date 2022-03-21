@@ -49,21 +49,27 @@ $mapLabels = [
 ?>
 
 <div class="container">
-    <h2 class="text-primary my-3"><?= $resource->displayTitle() ?></h2>
+    <h2><?= $resource->displayTitle() ?></h2>
     <?= $this->pageTitle(sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>
-    <?= $this->messages() ?>
-    <?php if (count($fields)):
-    $this->trigger('view.edit.before');
-    echo $this->partial('contribute/site/contribution/form', [
-        'site' => $site,
-        'form' => $form,
-        'resource' => $resource,
-        'contribution' => $contribution,
-        'fields' => $fields,
-        'action' => 'edit',
-        'submitLabel' => $translate('Submit'),
-    ]);
-    $this->trigger('view.edit.after');
-    endif; ?>
-    ?>
+    <div class="messages">
+        <p><?= $this->messages() ?></p>
+    </div>
+    <?php if (count($fields) && $form): ?>
+        <?php
+        $this->trigger('view.edit.before');
+        echo $this->partial('contribute/site/contribution/form', [
+            'site' => $site,
+            'form' => $form,
+            'resource' => $resource,
+            'contribution' => $contribution,
+            'fields' => $fields,
+            'action' => 'edit',
+            'submitLabel' => $translate('Submit'),
+        ]);
+        $this->trigger('view.edit.after');
+    else: ?>
+        <div class="messages">
+            <p><?= $translate('A template with fields is required to edit this resource. Ask the administrator for more information.') ?></p>
+        </div>
+    <?php endif; ?>
 </div>

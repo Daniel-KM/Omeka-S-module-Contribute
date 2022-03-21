@@ -47,20 +47,31 @@ $mapLabels = [
 ?>
 
 <div class="container">
-    <h2 class="text-primary my-3"><?= $translate('New resource') ?></h2>
+    <h2><?= $translate('New resource') ?></h2>
     <?= $this->pageTitle(sprintf($translate('Add %s'), $translate($mapLabels['items'])), 3) ?>
-    <?= $this->messages() ?>
-    <?php if (count($fields)):
-    $this->trigger('view.edit.before');
-    echo $this->partial('contribute/site/contribution/form', [
-        'site' => $site,
-        'form' => $form,
-        'resource' => null,
-        'contribution' => null,
-        'fields' => $fields,
-        'action' => 'add',
-        'submitLabel' => $translate('Submit'),
-    ]);
-    $this->trigger('view.edit.after');
-    endif; ?>
+    <div class="messages">
+        <p><?= $this->messages() ?></p>
+    </div>
+    <?php if (count($fields)): ?>
+        <?php
+        $this->trigger('view.edit.before');
+        echo $this->partial('contribute/site/contribution/form', [
+            'site' => $site,
+            'form' => $form,
+            'resource' => null,
+            'contribution' => null,
+            'fields' => $fields,
+            'action' => 'add',
+            'submitLabel' => $translate('Submit'),
+        ]);
+        $this->trigger('view.edit.after');
+    elseif ($form): // First step form to select a resource template.
+        $form->prepare()->init();
+        $form->get('submit')->setValue('Select a template'); // @translate
+        echo $this->form($form);
+    else: ?>
+    <div class="messages">
+        <p><?= $translate('A template with fields is required to add a resource. Ask the administrator for more information.') ?></p>
+    </div>
+    <?php endif; ?>
 </div>

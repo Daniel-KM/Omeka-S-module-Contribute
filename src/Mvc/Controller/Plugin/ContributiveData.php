@@ -17,7 +17,9 @@ class ContributiveData extends AbstractPlugin
      * Get contributive data (editable, fillable, etc.) of a resource template.
      *
      *  The list comes from the resource template if it is configured, else the
-     *  default list is used.
+     *  list of the first allowed resource template is used.
+     *
+     * @todo Remove code that set fields or use default datatypes without resource template.
      *
      * @param \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|\Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
      */
@@ -42,6 +44,7 @@ class ContributiveData extends AbstractPlugin
 
         // TODO Manage valuesuggest and custom vocab differently, because it is not a single datatype.
         // TODO Remove default data types (or limit it to literal) (currently hard coded like omeka, so useless).
+        // TODO Check if these check are useless, since a resource template is required.
         if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
             unset($this->data['datatypes_default'][$has]);
         }
@@ -50,10 +53,19 @@ class ContributiveData extends AbstractPlugin
         }
 
         $resourceTemplate = $this->resourceTemplate($resourceTemplate);
+        $allowedResourceTemplates = $settings->get('contribute_templates', []);
 
-        if (!$resourceTemplate) {
-            $resourceTemplateId = $settings->get('contribute_templates', []);
-            $resourceTemplateId = reset($resourceTemplateId);
+        // When a resource template is set, it should be allowed too.
+        // Anyway, if it is not prepared, it won't be editable/fillable (below).
+        // Else first resource template.
+        if ($resourceTemplate) {
+            $resourceTemplateId = $resourceTemplate->id();
+            if (!in_array($resourceTemplateId, $allowedResourceTemplates)) {
+                $controller->logger()->err('The resource template is not in the list of allowed contribution templates.'); // @translate
+                return $this;
+            }
+        } else {
+            $resourceTemplateId = reset($allowedResourceTemplates);
             if ($resourceTemplateId) {
                 $resourceTemplate = $controller->api()->searchOne('resource_templates', ['id' => $resourceTemplateId])->getContent();
             }
@@ -90,6 +102,7 @@ class ContributiveData extends AbstractPlugin
             }
         }
 
+        // The resource template is checked above.
         $this->data['is_contributive'] = count($this->data['datatypes_default'])
             || count($this->data['editable'])
             || count($this->data['fillable'])

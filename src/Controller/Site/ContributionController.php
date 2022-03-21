@@ -10,11 +10,13 @@ use Laminas\View\Model\ViewModel;
 // use Omeka\Form\ResourceForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\Message;
+use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
 class ContributionController extends AbstractActionController
 {
     public function addAction()
     {
+        $site = $this->currentSite();
         $resourceType = $this->params('resource');
 
         $resourceTypeMap = [
@@ -31,6 +33,7 @@ class ContributionController extends AbstractActionController
         if ($resourceType === 'contribution') {
             $resourceType = 'item';
         }
+        // TODO Use the resource name to store the contribution (always items here for now).
         // $resourceName = $resourceTypeMap[$resourceType];
 
         $settings = $this->settings();
@@ -49,21 +52,56 @@ class ContributionController extends AbstractActionController
             return $this->viewError403();
         }
 
+        // A template is required to contribute: set by query or previous form.
+        $template = $this->params()->fromQuery('template')
+            ?: $this->params()->fromPost('template');
+        $resourceTemplate = $this->useResourceTemplate($template);
+        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
+        if ($resourceTemplate) {
+            $templates = [];
+        } elseif ($template || !$allowedResourceTemplates) {
+            $this->logger()->err('A template is required to add a resource. Ask the administrator for more information.'); // @translate
+            return new ViewModel([
+                'site' => $site,
+                'user' => $user,
+                'form' => null,
+                'resource' => null,
+                'contribution' => null,
+                'fields' => [],
+            ]);
+        } else {
+            $templates = $this->api()->search('resource_templates', ['id' => $allowedResourceTemplates], ['returnScalar' => 'label'])->getContent();
+        }
+
         $currentUrl = $this->url()->fromRoute(null, [], true);
 
         /** @var \Contribute\Form\ContributeForm $form */
         $form = $this->getForm(ContributeForm::class)
+            // Use setOptions, not getForm().
+            ->setTemplates($templates)
             ->setAttribute('action', $currentUrl)
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
-        $form->get('submit')->setLabel('Add'); // @translate
 
-        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
-        $contributive = $this->contributiveData();
-        if (!$contributive->isContributive()) {
-            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
-        } elseif ($this->getRequest()->isPost()) {
+        // First step: select a template if not set.
+        if (!$resourceTemplate) {
+            return new ViewModel([
+                'site' => $site,
+                'user' => $user,
+                'form' => $form,
+                'resource' => null,
+                'contribution' => null,
+                'fields' => [],
+            ]);
+        }
+
+        $form->get('template')->setValue($resourceTemplate->id());
+        $step = $this->params()->fromPost('step');
+
+        // Second step: fill the template and create a contribution, even partial.
+        if ($this->getRequest()->isPost() && !$step) {
             $post = $this->params()->fromPost();
+            $post['template'] = $resourceTemplate->id();
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
@@ -72,168 +110,11 @@ class ContributionController extends AbstractActionController
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $proposal = $this->prepareProposal($data);
-                // The resource isn’t updated, but the proposition of contribute
-                // is saved for moderation.
-                $data = [
-                    'o:resource' => null,
-                    'o:owner' => $user ? ['o:id' => $user->getId()] : null,
-                    'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
-                    'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
-                    'o-module-contribute:reviewed' => false,
-                    'o-module-contribute:proposal' => $proposal,
-                ];
-                $response = $this->api($form)->create('contributions', $data);
-                if ($response) {
-                    $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                    $this->prepareContributionEmail($response->getContent());
-                    $eventManager = $this->getEventManager();
-                    $eventManager->trigger('contribute.submit', $this, [
-                        'contribution' => $response->getContent(),
-                        'resource' => null,
-                        'data' => $data,
-                    ]);
-                    return $this->redirect()->toUrl($currentUrl);
-                }
-            } else {
-                $this->messenger()->addError('An error occurred: check your input.'); // @translate
-                $this->messenger()->addFormErrors($form);
-            }
-        }
-
-        $template = $this->params()->fromQuery('template');
-        /** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
-        $resourceTemplate = $template
-            ? $this->api()->searchOne('resource_templates', is_numeric($template) ? ['id' => $template] : ['label' => $template])->getContent()
-            : null;
-
-        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
-
-        $fields = [];
-        if ($template && !$resourceTemplate) {
-            $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
-            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
-        } elseif ($resourceTemplate && !in_array($resourceTemplate->id(), $allowedResourceTemplates)) {
-            $this->logger()->warn(new Message('A user tried to add a resource with a non-allowed template "%s".', $template)); // @translate
-            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
-        } elseif (!count($allowedResourceTemplates)) {
-            $this->logger()->warn(new Message('No template defined for contribution.')); // @translate
-            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
-        } elseif (!$resourceTemplate && count($allowedResourceTemplates) === 1) {
-            $resourceTemplate = reset($allowedResourceTemplates);
-            $resourceTemplate = $this->api()->searchOne('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
-            if ($resourceTemplate) {
-                /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
-                $contributionFields = $this->viewHelpers()->get('contributionFields');
-                $fields = $contributionFields(null, null, $resourceTemplate);
-            } else {
-                $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
-                $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
-            }
-        } elseif (!$resourceTemplate && count($allowedResourceTemplates) > 1) {
-            // TODO Add a resource template selector.
-            $this->logger()->warn(new Message('You must select a template for contribution.')); // @translate
-            $this->messenger()->addError('No resource can be added. Ask the administrator for more information.'); // @translate
-        } else {
-            /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
-            $contributionFields = $this->viewHelpers()->get('contributionFields');
-            $fields = $contributionFields(null, null, $resourceTemplate);
-        }
-
-        return new ViewModel([
-            'site' => $this->currentSite(),
-            'user' => $user,
-            'form' => $form,
-            'resource' => null,
-            'contribution' => null,
-            'fields' => $fields,
-        ]);
-    }
-
-    public function editAction()
-    {
-        $api = $this->api();
-        $resourceType = $this->params('resource');
-        $resourceId = $this->params('id');
-
-        $resourceTypeMap = [
-            'contribution' => 'items',
-            'item' => 'items',
-            'media' => 'media',
-            'item-set' => 'item_sets',
-        ];
-        // Useless, because managed by route, but the config may be overridden.
-        if (!isset($resourceTypeMap[$resourceType])) {
-            return $this->notFoundAction();
-        }
-
-        if ($resourceType === 'contribution') {
-            $resourceType = 'item';
-        }
-        $resourceName = $resourceTypeMap[$resourceType];
-
-        // Allow to check if the resource is public for the user.
-        /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-        $resource = $api
-            ->searchOne($resourceName, ['id' => $resourceId])
-            ->getContent();
-        if (empty($resource)) {
-            return $this->notFoundAction();
-        }
-
-        $settings = $this->settings();
-        $user = $this->identity();
-        $contributeMode = $settings->get('contribute_mode');
-
-        $token = $this->checkToken($resource);
-        if (!$token
-            && (
-                !in_array($contributeMode, ['user', 'open'])
-                || ($contributeMode === 'user' && !$user)
-            )
-        ) {
-            return $this->viewError403();
-        }
-
-        if ($token) {
-            $contribution = $api
-                ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
-                ->getContent();
-            $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
-        } elseif ($user) {
-            $contribution = $api
-                ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
-                ->getContent();
-            $currentUrl = $this->url()->fromRoute(null, [], true);
-        } else {
-            $contribution = null;
-            $currentUrl = $this->url()->fromRoute(null, [], true);
-        }
-
-        /** @var \Contribute\Form\ContributeForm $form */
-        $form = $this->getForm(ContributeForm::class)
-            ->setAttribute('action', $currentUrl)
-            ->setAttribute('enctype', 'multipart/form-data')
-            ->setAttribute('id', 'edit-resource');
-
-        $contributive = $this->contributiveData($resource->resourceTemplate());
-        if (!$contributive->isContributive()) {
-            $this->messenger()->addError('This resource cannot be edited. Ask the administrator for more information.'); // @translate
-        } elseif ($this->getRequest()->isPost()) {
-            $post = $this->params()->fromPost();
-            $form->setData($post);
-            // TODO There is no check currently (html form), except the csrf.
-            if ($form->isValid()) {
-                // TODO Manage file data.
-                // $fileData = $this->getRequest()->getFiles()->toArray();
-                // $data = $form->getData();
-                $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
-                $proposal = $this->prepareProposal($data, $resource);
-                // The resource isn’t updated, but the proposition of contribute
-                // is saved for moderation.
-                $response = null;
-                if (empty($contribution)) {
+                if ($proposal) {
+                    // When there is a resource, it isn’t updated, but the
+                    // proposition of contribution is saved for moderation.
                     $data = [
-                        'o:resource' => ['o:id' => $resourceId],
+                        'o:resource' => null,
                         'o:owner' => $user ? ['o:id' => $user->getId()] : null,
                         'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
                         'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
@@ -244,29 +125,185 @@ class ContributionController extends AbstractActionController
                     if ($response) {
                         $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
                         $this->prepareContributionEmail($response->getContent());
-                    }
-                } elseif ($proposal !== $contribution->proposal()) {
-                    $data = [
-                        'o-module-contribute:reviewed' => false,
-                        'o-module-contribute:proposal' => $proposal,
-                    ];
-                    $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
-                    if ($response) {
-                        $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                        $this->prepareContributionEmail($response->getContent());
+                        $eventManager = $this->getEventManager();
+                        $eventManager->trigger('contribute.submit', $this, [
+                            'contribution' => $response->getContent(),
+                            'resource' => null,
+                            'data' => $data,
+                        ]);
+                        return $this->redirect()->toUrl($currentUrl);
                     }
                 } else {
-                    $this->messenger()->addWarning('No change.'); // @translate
-                    $response = true;
+                    // The only error for now is a missing template, and it
+                    // should not occurs since it is checked above.
+                    $this->messenger()->addError('Contribution not submitted: a template is required.'); // @translate
+                    $this->messenger()->addFormErrors($form);
                 }
-                if ($response) {
-                    $eventManager = $this->getEventManager();
-                    $eventManager->trigger('contribute.submit', $this, [
-                        'contribution' => $contribution,
-                        'resource' => $resource,
-                        'data' => $data,
-                    ]);
-                    return $this->redirect()->toUrl($currentUrl);
+            } else {
+                $this->messenger()->addError('An error occurred: check your input.'); // @translate
+                $this->messenger()->addFormErrors($form);
+            }
+        }
+
+        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
+        $contributionFields = $this->viewHelpers()->get('contributionFields');
+        $fields = $contributionFields(null, null, $resourceTemplate);
+
+        return new ViewModel([
+            'site' => $site,
+            'user' => $user,
+            'form' => $form,
+            'resource' => null,
+            'contribution' => null,
+            'fields' => $fields,
+            'template' => $resourceTemplate,
+        ]);
+    }
+
+    public function editAction()
+    {
+        $site = $this->currentSite();
+        $api = $this->api();
+        $resourceType = $this->params('resource');
+        $resourceId = $this->params('id');
+
+        // Unlike addAction(), when edition is always the right contribution or
+        // resource.
+        $resourceTypeMap = [
+            'contribution' => 'contributions',
+            'item' => 'items',
+            'media' => 'media',
+            'item-set' => 'item_sets',
+        ];
+        // Useless, because managed by route, but the config may be overridden.
+        if (!isset($resourceTypeMap[$resourceType])) {
+            return $this->notFoundAction();
+        }
+
+        $resourceName = $resourceTypeMap[$resourceType];
+
+        // Rights are automatically checked.
+        /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
+        $resource = $api->read($resourceName, ['id' => $resourceId])->getContent();
+
+        $settings = $this->settings();
+        $user = $this->identity();
+        $contributeMode = $settings->get('contribute_mode');
+
+        if ($resourceName === 'contributions') {
+            $contribution = $resource;
+            $resource = $contribution->resource();
+            $resourceId = $resource ? $resource->id() : null;
+            $resourceTemplate = $contribution->resourceTemplate();
+            $currentUrl = $this->url()->fromRoute(null, [], true);
+        } else {
+            $token = $this->checkToken($resource);
+            if (!$token
+                && (
+                    !in_array($contributeMode, ['user', 'open'])
+                    || ($contributeMode === 'user' && !$user)
+                )
+            ) {
+                return $this->viewError403();
+            }
+
+            if ($token) {
+                $contribution = $api
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
+                    ->getContent();
+                $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
+            } elseif ($user) {
+                $contribution = $api
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                    ->getContent();
+                $currentUrl = $this->url()->fromRoute(null, [], true);
+            } else {
+                $contribution = null;
+                $currentUrl = $this->url()->fromRoute(null, [], true);
+            }
+
+            $resourceTemplate = $resource->resourceTemplate();
+        }
+
+        if (!$resourceTemplate || !$this->contributiveData($resourceTemplate)->isContributive()) {
+            $this->logger()->warn('This resource cannot be edited: no resource template, no fields, or not allowed.'); // @translate
+            return new ViewModel([
+                'site' => $site,
+                'user' => $user,
+                'form' => null,
+                'resource' => $resource,
+                'contribution' => $contribution,
+                'fields' => [],
+            ]);
+        }
+
+        /** @var \Contribute\Form\ContributeForm $form */
+        $form = $this->getForm(ContributeForm::class)
+            ->setAttribute('action', $currentUrl)
+            ->setAttribute('enctype', 'multipart/form-data')
+            ->setAttribute('id', 'edit-resource');
+
+        // No need to set the template, but simplify view for form.
+        $form->get('template')->setValue($resourceTemplate->id());
+
+        if ($this->getRequest()->isPost()) {
+            $post = $this->params()->fromPost();
+            $form->setData($post);
+            // TODO There is no check currently (html form), except the csrf.
+            if ($form->isValid()) {
+                // TODO Manage file data.
+                // $fileData = $this->getRequest()->getFiles()->toArray();
+                // $data = $form->getData();
+                // The template cannot be changed once set.
+                $data['template'] = $resourceTemplate->id();
+                $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
+                $proposal = $this->prepareProposal($data, $resource);
+                if ($proposal) {
+                    // The resource isn’t updated, but the proposition of contribute
+                    // is saved for moderation.
+                    $response = null;
+                    if (empty($contribution)) {
+                        $data = [
+                            'o:resource' => $resourceId ? ['o:id' => $resourceId] : null,
+                            'o:owner' => $user ? ['o:id' => $user->getId()] : null,
+                            'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
+                            'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                            'o-module-contribute:reviewed' => false,
+                            'o-module-contribute:proposal' => $proposal,
+                        ];
+                        $response = $this->api($form)->create('contributions', $data);
+                        if ($response) {
+                            $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
+                            $this->prepareContributionEmail($response->getContent());
+                        }
+                    } elseif ($proposal !== $contribution->proposal()) {
+                        $data = [
+                            'o-module-contribute:reviewed' => false,
+                            'o-module-contribute:proposal' => $proposal,
+                        ];
+                        $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
+                        if ($response) {
+                            $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
+                            $this->prepareContributionEmail($response->getContent());
+                        }
+                    } else {
+                        $this->messenger()->addWarning('No change.'); // @translate
+                        $response = true;
+                    }
+                    if ($response) {
+                        $eventManager = $this->getEventManager();
+                        $eventManager->trigger('contribute.submit', $this, [
+                            'contribution' => $contribution,
+                            'resource' => $resource,
+                            'data' => $data,
+                        ]);
+                        return $this->redirect()->toUrl($currentUrl);
+                    }
+                } else {
+                    // The only error for now is a missing template, and it
+                    // should not occurs since it is checked above.
+                    $this->messenger()->addError('Contribution not submitted: a template is required.'); // @translate
+                    $this->messenger()->addFormErrors($form);
                 }
             } else {
                 $this->messenger()->addError('An error occurred: check your input.'); // @translate
@@ -277,12 +314,9 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->viewHelpers()->get('contributionFields');
         $fields = $contributionFields($resource, $contribution);
-        if (!count($fields)) {
-            $this->messenger()->addWarning('No field can be edited. Ask the administrator for more information.'); // @translate
-        }
 
         return new ViewModel([
-            'site' => $this->currentSite(),
+            'site' => $site,
             'user' => $user,
             'form' => $form,
             'resource' => $resource,
@@ -305,11 +339,42 @@ class ContributionController extends AbstractActionController
         return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
     }
 
-    protected function prepareContributionEmail(ContributionRepresentation $contribution): void
+    /**
+     * @param int|string|null $template
+     *
+     * @todo Merge with the check of the default resource template in contributiveData.
+     */
+    protected function useResourceTemplate($template = null): ?ResourceTemplateRepresentation
+    {
+        /** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
+        $resourceTemplate = $template
+            ? $this->api()->searchOne('resource_templates', is_numeric($template) ? ['id' => $template] : ['label' => $template])->getContent()
+            : null;
+
+        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
+
+        if ($template && !$resourceTemplate) {
+            $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+        } elseif ($resourceTemplate && !in_array($resourceTemplate->id(), $allowedResourceTemplates)) {
+            $this->logger()->warn(new Message('A user tried to add a resource with a non-allowed template "%s".', $template)); // @translate
+        } elseif (!count($allowedResourceTemplates)) {
+            $this->logger()->warn(new Message('No template defined for contribution.')); // @translate
+        } elseif (!$resourceTemplate && count($allowedResourceTemplates) === 1) {
+            $resourceTemplate = reset($allowedResourceTemplates);
+            $resourceTemplate = $this->api()->searchOne('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
+            if (!$resourceTemplate) {
+                $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+            }
+        }
+
+        return $resourceTemplate;
+    }
+
+    protected function prepareContributionEmail(ContributionRepresentation $contribution): self
     {
         $emails = $this->settings()->get('contribute_notify', []);
         if (empty($emails)) {
-            return;
+            return $this;
         }
 
         $user = $this->identity();
@@ -328,6 +393,7 @@ class ContributionController extends AbstractActionController
             ) . '</p>';
         }
         $this->sendContributionEmail($emails, $this->translate('[Omeka Contribution] New contribution'), $message); // @translate
+        return $this;
     }
 
     /**
@@ -335,17 +401,40 @@ class ContributionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
-     *
-     * @param array $proposal
-     * @param AbstractResourceEntityRepresentation|null $resource
-     * @return array
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution() and \Contribute\View\Helper\ContributionFields
      */
-    protected function prepareProposal(array $proposal, AbstractResourceEntityRepresentation $resource = null)
+    protected function prepareProposal(array $proposal, ?AbstractResourceEntityRepresentation $resource = null): ?array
     {
-        $result = [];
+        // It's not possible to change the resource template of a resource in
+        // public side.
+        // A resource can be corrected only with a resource template (require
+        // editable or fillable keys).
+        if ($resource) {
+            $resourceTemplate = $resource->resourceTemplate();
+        } elseif (isset($proposal['template'])) {
+            $resourceTemplate = $proposal['template'] ?? null;
+            $resourceTemplate = $this->api()->searchOne('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
+        } else {
+            $resourceTemplate = null;
+        }
+        if (!$resourceTemplate) {
+            return null;
+        }
+
+        // The contribution requires a resource template in allowed templates.
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
+        $contributive = $this->contributiveData($resourceTemplate);
+        $resourceTemplate = $contributive->template();
+        if (!$contributive->isContributive()) {
+            return null;
+        }
+
+        $result = [
+            'template' => $resourceTemplate->id(),
+        ];
 
         // Clean data.
+        unset($proposal['template']);
         foreach ($proposal as &$values) {
             // Manage specific posts.
             if (!is_array($values)) {
@@ -368,14 +457,13 @@ class ContributionController extends AbstractActionController
         }
         unset($values, $value);
 
-        // Process only editable keys.
-        $resourceTemplate = $resource ? $resource->resourceTemplate() : null;
-        $contributive = $this->contributiveData($resourceTemplate);
-
         $propertyIds = $this->propertyIdsByTerms();
         $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
 
+        // Process only editable keys.
+
         // Process editable properties first.
+        // TODO Remove whitelist/blacklist since a resource template is required (but take care of updated template).
         $matches = [];
         switch ($contributive->editableMode()) {
             case 'whitelist':
@@ -389,6 +477,7 @@ class ContributionController extends AbstractActionController
                 $proposalEditableTerms = array_keys($proposal);
                 break;
         }
+
         foreach ($proposalEditableTerms as $term) {
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
             $values = $resource ? $resource->value($term, ['all' => true]) : [];
@@ -508,6 +597,7 @@ class ContributionController extends AbstractActionController
             if (!isset($propertyIds[$term])) {
                 continue;
             }
+
             $propertyId = $propertyIds[$term];
             $type = null;
             $typeTemplate = null;
@@ -532,15 +622,19 @@ class ContributionController extends AbstractActionController
                 if (isset($values[$index])) {
                     continue;
                 }
+
                 if ($typeTemplate) {
                     $type = $typeTemplate;
                 } elseif (array_key_exists('@uri', $proposedValue)) {
                     $type = 'uri';
-                } elseif (array_key_exists('@uri', $proposedValue)) {
+                } elseif (array_key_exists('@resource', $proposedValue)) {
                     $type = 'resource';
-                } else {
+                } elseif (array_key_exists('@value', $proposedValue)) {
                     $type = 'literal';
+                } else {
+                    $type = 'unknown';
                 }
+
                 if (!$contributive->isTermDatatype($term, $type)) {
                     continue;
                 }
@@ -655,21 +749,16 @@ class ContributionController extends AbstractActionController
 
     /**
      * Trim and normalize end of lines of a string.
-     *
-     * @param string $string
-     * @return string
      */
-    protected function cleanString($string)
+    protected function cleanString($string): string
     {
         return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], trim((string) $string));
     }
 
     /**
      * Helper to return a message of error as normal view.
-     *
-     * @return \Laminas\View\Model\ViewModel
      */
-    protected function viewError403()
+    protected function viewError403(): ViewModel
     {
         // TODO Return a normal page instead of an exception.
         // throw new \Omeka\Api\Exception\PermissionDeniedException('Forbidden access.');

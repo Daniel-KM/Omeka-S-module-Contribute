@@ -191,6 +191,7 @@ $labelInfo = $this->setting('property_label_information');
     </div>
     <?php endforeach; // Next field/property. ?>
 
+    <?= $formElement($form->get('template')) ?>
     <?= $formElement($form->get('csrf')) ?>
 
     <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>

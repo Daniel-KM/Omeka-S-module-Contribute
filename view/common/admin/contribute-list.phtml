@@ -111,7 +111,22 @@ $editRight = $resource->userIsAllowed('update');
         <tr class="contribution-value">
             <td>
 
-<?php $proposal = $contribution->proposalCheck(); ?>
+<?php
+$proposal = $contribution->proposalNormalizeForValidation();
+/** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
+$resourceTemplate = $proposal['template'];
+unset($proposal['template']);
+?>
+<div class="property">
+    <h4><?= $translate('Resource template') ?></h4
+    <div class="values">
+        <div>
+            <div>
+                <span class="resource-template"><?= $resourceTemplate ? $resourceTemplate->label() : $translate('No resource template') ?></span>
+            </div>
+        </div>
+    </div>
+</div>
 <?php foreach ($proposal as $term => $propositions):
     if (isset($values[$term])):
         $propertyData = $values[$term];

@@ -1,16 +1,17 @@
 <?php
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation[] $contributions
- * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation[] $resources
+ * @var \Contribute\Api\Representation\ContributionRepresentation[] $contributions
+ * @var \Contribute\Api\Representation\ContributionRepresentation[] $resources
  * @var \Omeka\Form\ConfirmForm $formDeleteSelected
  * @var \Omeka\Form\ConfirmForm $formDeleteAll
  */
 
 $translate = $this->plugin('translate');
-$escape = $this->plugin('escapeHtml');
-$i18n = $this->plugin('i18n');
 $url = $this->plugin('url');
+$i18n = $this->plugin('i18n');
+$escape = $this->plugin('escapeHtml');
+$hyperlink = $this->plugin('hyperlink');
 
 $this->htmlElement('body')->appendAttribute('class', 'contributions browse');
 $sortHeadings = [
@@ -35,7 +36,7 @@ $sortHeadings = [
 
 <div class="browse-controls">
     <?= $this->pagination() ?>
-    <?php //= $this->hyperlink($translate('Advanced search'), $this->url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
+    <?php //= $hyperlink($translate('Advanced search'), $url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
     <?= $this->sortSelector($sortHeadings) ?>
 </div>
 
@@ -60,8 +61,8 @@ $sortHeadings = [
         </select>
         <div class="batch-actions">
             <button type="button" class="default active" disabled="true"><?= $translate('Go') ?></button>
-            <input type="submit" class="validate-selected" name="validate_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($this->url(null, ['action' => 'batch-edit'], true)) ?>">
-            <input type="submit" class="validate-all" name="validate_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($this->url(null, ['action' => 'batch-edit-all'], true)) ?>">
+            <input type="submit" class="validate-selected" name="validate_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit'], true)) ?>">
+            <input type="submit" class="validate-all" name="validate_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit-all'], true)) ?>">
             <input type="hidden" name="query" class="batch-query" value="<?= $escape(json_encode($this->params()->fromQuery())) ?>">
             <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
             <a class="delete button sidebar-content delete-all" data-sidebar-selector="#sidebar-delete-all"><?= $translate('Go') ?></a>
@@ -78,13 +79,10 @@ $sortHeadings = [
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($contributions as $contribution): ?>
-        <?php
+        <?php foreach ($contributions as $contribution):
+        $resourceTemplate = $contribution->resourceTemplate();
         if ($owner = $contribution->owner()) {
-            $ownerText = $this->hyperlink(
-                $owner->name(),
-                $this->url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()])
-            );
+            $ownerText = $hyperlink($owner->name(), $url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]));
         } else {
             $ownerText = $contribution->email() ?: $translate('[no owner]');
         }
@@ -95,6 +93,7 @@ $sortHeadings = [
                 <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
                 <?php endif; ?>
                 <span class="title"><?= $contribution->linkResource($contribution->displayTitle()) ?></span>
+                <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
                 <ul class="actions">
                     <?php if ($contribution->userIsAllowed('update')): ?>
                     <li><span class="single actions"><a href="#"
@@ -111,7 +110,7 @@ $sortHeadings = [
                         'title' => $translate('Edit'),
                     ]) ?>
                     <?php else: ?>
-                    <?= $this->hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
+                    <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
                         'class' => 'o-icon-add',
                         'data-id' => $contribution->id(),
                         'title' => $translate('Create resource to be validated'),
@@ -120,14 +119,14 @@ $sortHeadings = [
                     </li>
                     <?php endif; ?>
                     <?php if ($contribution->userIsAllowed('delete')): ?>
-                    <li><?= $this->hyperlink('', '#', [
+                    <li><?= $hyperlink('', '#', [
                         'data-sidebar-selector' => '#sidebar',
                         'data-sidebar-content-url' => $contribution->url('delete-confirm'),
                         'class' => 'o-icon-delete sidebar-content',
                         'title' => $translate('Delete'),
                     ]) ?></li>
                     <?php endif; ?>
-                    <li><?= $this->hyperlink('', '#', [
+                    <li><?= $hyperlink('', '#', [
                         'data-sidebar-selector' => '#sidebar',
                         'data-sidebar-content-url' => $contribution->url('show-details'),
                         'class' => 'o-icon-more sidebar-content',
@@ -150,14 +149,14 @@ $sortHeadings = [
 </div>
 
 <div id="sidebar" class="sidebar">
-    <?= $this->hyperlink('', '#', [
+    <?= $hyperlink('', '#', [
         'class' => 'sidebar-close o-icon-close',
         'title' => $translate('Close'),
     ]) ?>
     <div class="sidebar-content"></div>
 </div>
 <div id="sidebar-delete-selected" class="sidebar">
-    <?= $this->hyperlink('', '#', [
+    <?= $hyperlink('', '#', [
         'class' => 'sidebar-close o-icon-close',
         'title' => $translate('Close'),
     ]) ?>
@@ -175,7 +174,7 @@ $sortHeadings = [
     </div>
 </div>
 <div id="sidebar-delete-all" class="sidebar">
-    <?= $this->hyperlink('', '#', [
+    <?= $hyperlink('', '#', [
         'class' => 'sidebar-close o-icon-close',
         'title' => $translate('Close'),
     ]) ?>

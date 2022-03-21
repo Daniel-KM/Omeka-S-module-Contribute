@@ -529,7 +529,7 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorUnauthorized();
         }
 
-        $this->validateContribution($contribution);
+        $this->validateAndUpdateContribution($contribution);
 
         $data = [];
         $data['o-module-contribute:reviewed'] = true;
@@ -579,7 +579,7 @@ class ContributionController extends AbstractActionController
             return $this->returnError('Missing term or key.'); // @translate
         }
 
-        $this->validateContribution($contribution, $term, $key);
+        $this->validateAndUpdateContribution($contribution, $term, $key);
 
         return new JsonModel([
             'status' => Response::STATUS_CODE_200,
@@ -594,29 +594,26 @@ class ContributionController extends AbstractActionController
     /**
      * Update existing values of the contributed resource with the proposal.
      *
-     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
+     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal() and \Contribute\View\Helper\ContributionFields
      *
      * @param ContributionRepresentation $contribution
      * @param string|null $term Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key.
      */
-    protected function validateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null): void
+    protected function validateAndUpdateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null): bool
     {
+        // The contribution requires a resource template in allowed templates.
         $contributive = $contribution->contributiveData();
         if (!$contributive->isContributive()) {
-            return;
+            return false;
         }
 
         // Right to update the resource is already checked.
+        // There is always a resource template.
+        $resourceTemplate = $contributive->template();
         $resource = $contribution->resource();
-        if ($resource) {
-            $resourceTemplate = $resource->resourceTemplate();
-            $existingValues = $resource->values();
-        } else {
-            $resourceTemplate = null;
-            $existingValues = [];
-        }
-        $proposal = $contribution->proposalCheck();
+        $existingValues = $resource ? $resource->values() : [];
+        $proposal = $contribution->proposalNormalizeForValidation();
         $hasProposedKey = !is_null($proposedKey);
 
         $api = $this->api();
@@ -625,7 +622,11 @@ class ContributionController extends AbstractActionController
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
 
-        $data = [];
+        $data = [
+            'template' => $resourceTemplate ? $resourceTemplate->id() : null,
+        ];
+        unset($proposal['template']);
+
         foreach ($existingValues as $term => $propertyData) {
             // Keep all existing values.
             $data[$term] = array_map(function ($v) {
@@ -743,17 +744,16 @@ class ContributionController extends AbstractActionController
                     continue;
                 }
 
-                $type = 'unknown';
                 if ($typeTemplate) {
                     $type = $typeTemplate;
+                } elseif (array_key_exists('@uri', $proposition['original'])) {
+                    $type = 'uri';
+                } elseif (array_key_exists('@resource', $proposition['original'])) {
+                    $type = 'resource';
+                } elseif (array_key_exists('@value', $proposition['original'])) {
+                    $type = 'literal';
                 } else {
-                    if (array_key_exists('@uri', $proposition['original'])) {
-                        $type = 'uri';
-                    } elseif (array_key_exists('@resource', $proposition['original'])) {
-                        $type = 'resource';
-                    } else {
-                        $type = 'literal';
-                    }
+                    $type = 'unknown';
                 }
 
                 $typeColon = strtok($type, ':');
@@ -802,6 +802,7 @@ class ContributionController extends AbstractActionController
         }
 
         $api->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
+        return true;
     }
 
     /**

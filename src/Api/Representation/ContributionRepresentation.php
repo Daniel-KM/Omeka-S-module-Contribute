@@ -3,10 +3,20 @@
 namespace Contribute\Api\Representation;
 
 use DateTime;
+use Omeka\Api\Exception;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
+use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
 class ContributionRepresentation extends AbstractEntityRepresentation
 {
+    /**
+     * Get the resource name of the corresponding entity API adapter.
+     */
+    public function resourceName(): string
+    {
+        return 'contributions';
+    }
+
     public function getControllerName()
     {
         return 'contribution';
@@ -85,6 +95,32 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     public function proposal(): array
     {
         return $this->resource->getProposal();
+    }
+
+    /**
+     * The resource template is the resource one once submitted or when
+     * correcting, else the one proposed by the user.
+     */
+    public function resourceTemplate(): ?ResourceTemplateRepresentation
+    {
+        $resource = $this->resource();
+        if ($resource) {
+            $resourceTemplate = $resource->resourceTemplate();
+        }
+        if (empty($resourceTemplate)) {
+            $proposal = $this->resource->getProposal();
+            $resourceTemplate = $proposal['template'] ?? null;
+            if ($resourceTemplate) {
+                $templateAdapter = $this->getAdapter('resource_templates');
+                try {
+                    $resourceTemplate = $templateAdapter->findEntity(['id' => $resourceTemplate]);
+                    $resourceTemplate = $templateAdapter->getRepresentation($resourceTemplate);
+                } catch (Exception\NotFoundException $e) {
+                    $resourceTemplate = null;
+                }
+            }
+        }
+        return $resourceTemplate;
     }
 
     public function token(): ?\Contribute\Api\Representation\TokenRepresentation
@@ -243,20 +279,32 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Check proposed contribution against the current resource.
+     * Check proposed contribution against current resource and normalize it.
      */
-    public function proposalCheck(): array
+    public function proposalNormalizeForValidation(): array
     {
+        // Use the resource template of the resource or the default one.
+        $contributive = $this->contributiveData();
+        $resourceTemplate = $contributive->template();
+
+        // A template is required, but its check should be done somewhere else:
+        // here, it's more about standardization of the proposal.
+        // if (!$resourceTemplate) {
+        //     return [];
+        // }
+
         $services = $this->getServiceLocator();
         $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms');
         $propertyIds = $propertyIds();
-
-        $contributive = $this->contributiveData();
-        $resourceTemplate = $this->resource()->resourceTemplate();
         $customVocabBaseTypes = $this->getViewHelper('customVocabBaseType')();
 
         $proposal = $this->proposal();
+        $proposal['template'] = $resourceTemplate;
+
         foreach ($proposal as $term => $propositions) {
+            if ($term === 'template') {
+                continue;
+            }
             $isEditable = $contributive->isTermEditable($term);
             $isFillable = $contributive->isTermFillable($term);
             if (!$isEditable && !$isFillable) {
@@ -293,14 +341,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 $type = 'unknown';
                 if ($typeTemplate) {
                     $type = $typeTemplate;
-                } else {
-                    if (array_key_exists('@uri', $proposition['original'])) {
-                        $type = 'uri';
-                    } elseif (array_key_exists('@resource', $proposition['original'])) {
-                        $type = 'resource';
-                    } elseif (array_key_exists('@value', $proposition['original'])) {
-                        $type = 'literal';
-                    }
+                } elseif (array_key_exists('@uri', $proposition['original'])) {
+                    $type = 'uri';
+                } elseif (array_key_exists('@resource', $proposition['original'])) {
+                    $type = 'resource';
+                } elseif (array_key_exists('@value', $proposition['original'])) {
+                    $type = 'literal';
                 }
 
                 $isTermDatatype = $contributive->isTermDatatype($term, $type);
@@ -542,15 +588,14 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     }
 
     /**
-     * Get the editable data (editable, fillable, etc.) of the resource.
+     * Get contributive data (editable, fillable, etc.) via resource template.
      */
     public function contributiveData(): \Contribute\Mvc\Controller\Plugin\ContributiveData
     {
         $contributiveData = $this->getServiceLocator()->get('ControllerPluginManager')
             ->get('contributiveData');
-        $res = $this->resource();
-        $template = $res ? $res->resourceTemplate() : null;
-        return $contributiveData($template);
+        $resourceTemplate = $this->resourceTemplate();
+        return $contributiveData($resourceTemplate);
     }
 
     /**
@@ -561,14 +606,6 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     public function isPublic(): bool
     {
         return false;
-    }
-
-    /**
-     * Get the resource name of the corresponding entity API adapter.
-     */
-    public function resourceName(): string
-    {
-        return 'contributions';
     }
 
     /**

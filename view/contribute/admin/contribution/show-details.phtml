@@ -32,12 +32,24 @@ $escape = $this->plugin('escapeHtml');
         <?php if ($resource->resource()): ?>
         <div class="value"><?= $resource->resource()->linkPretty() ?></div>
         <?php else: ?>
-        <p><?= $translate('New resource or no more resource.') ?></p>
+        <p><?= $translate('Contribution not submitted or no more resource.') ?></p>
         <?php endif; ?>
     </div>
     <div class="meta-group contribution">
         <h4><?= $escape($translate('Proposal')) ?></h4>
-        <?php $proposal = $resource->proposal(); ?>
+        <?php
+        $resourceTemplate = $resource->resourceTemplate();
+        ?>
+        <ul>
+            <li>
+                <strong><?= $translate('Resource template') ?></strong>
+                <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
+            </li>
+        </ul>
+        <?php
+        $proposal = $resource->proposal();
+        unset($proposal['template']);
+        ?>
         <?php if (count($proposal)): ?>
         <ul>
             <?php foreach ($proposal as $term => $propositions): ?>

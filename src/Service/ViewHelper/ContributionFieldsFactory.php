@@ -14,8 +14,9 @@ class ContributionFieldsFactory implements FactoryInterface
         return new ContributionFields(
             $plugins->get('propertyIdsByTerms')(),
             $plugins->get('contributiveData'),
-            // In Omeka, it is simpler to check the class than the module.
-            class_exists(\AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation::class)
+            // Check if module AdvancedResourceTemplate is available.
+            // Anyway, it is a required dependency.
+            ($module = $services->get('Omeka\ModuleManager')->getModule('AdvancedResourceTemplate')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE
         );
     }
 }

@@ -114,6 +114,7 @@ class ContributionFields extends AbstractHelper
         }
         $contributive = $this->contributiveData->__invoke($resourceTemplate);
 
+        // The template is required.
         if (!$contributive->hasTemplate()) {
             return [];
         }
