@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var \Omeka\Entity\User $user
  * @var array $fields
  * @var array $fieldsByMedia
@@ -16,6 +16,7 @@
  * @var ?int $indexMedia
  * @var array $fieldsMedia
  *
+ * @var \Laminas\View\Helper\Url $url
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
@@ -32,6 +33,7 @@
  * @var array $field
  * @var string $term
  * @var int $indexFieldInput
+ * @var ?\Omeka\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty
  * @var ?\Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
  * @var ?array $fieldContribution
@@ -44,8 +46,8 @@
 
 $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
-$isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
-$isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$isPrivate = $value ? !$value->isPublic() : (isset($templateProperty) ? $templateProperty->isPrivate() : false);
+$isRequired = !empty($field['required']) && (($indexContribution ?? null) === 0);
 
 $class = ['value', 'custom_vocab'];
 if ($isPrivate):
@@ -58,8 +60,8 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
 $customVocabId = (int) substr($fieldContribution['type'], 12);
 $customVocabType = $baseType ?? $customVocabBaseTypes[$customVocabId] ?? 'literal';
 $typeName = $customVocabType === 'literal' ? 'value' : $customVocabType;
-$customVocab = $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent();
-$selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this);
+$customVocab = $customVocabId ? $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent() : null;
+$selectHtml = $customVocab ? (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this) : '<select name="' . $fieldContribution['type'] . '"></select>';
 $name = $isMainForm
     ? sprintf('%s[%s][@%s]', $term, $indexFieldInput, $typeName)
     : sprintf('media[%s][%s][%s][@%s]', $indexMedia, $term, $indexFieldInput, $typeName);
@@ -88,6 +90,6 @@ if (strlen((string) $val)) {
     <?php endif; ?>
     <?= str_replace(array_keys($replace), array_values($replace), $selectHtml) ?>
     <ul class="actions">
-        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+        <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
     </ul>
 </div>

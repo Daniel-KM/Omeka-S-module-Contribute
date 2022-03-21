@@ -2,6 +2,7 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var bool $skipContributeCss
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -11,8 +12,10 @@ $assetUrl = $plugins->get('assetUrl');
 $js = 'const siteBaseUrl = ' . json_encode(substr($url('site/contribution-id', ['action' => 'delete', 'resource' => 'contribution', 'id' => 0], true), 0, -8), 320) . ';
 const confirmFormCsrf = ' . json_encode($site->getServiceLocator()->get('FormElementManager')->get(\Omeka\Form\ConfirmForm::class)->prepare()->get('confirmform_csrf')->getValue()) . ';';
 
-$this->headLink()
-    ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
+if (empty($skipContributeCss)) {
+    $this->headLink()
+        ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
+}
 $this->headScript()
     ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer'])
     ->appendScript($js);

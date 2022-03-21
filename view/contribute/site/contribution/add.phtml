@@ -3,7 +3,7 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Entity\User $user
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
@@ -11,6 +11,7 @@
 
 $plugins = $this->getHelperPluginManager();
 $partial = $plugins->get('partial');
+$escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource') . ' resource');
@@ -24,10 +25,10 @@ $mapLabels = [
 ?>
 
 <div class="container">
-    <h2><?= $translate('New resource') ?></h2>
+    <h2><?= $escape($translate('New resource')) ?></h2>
     <?= $this->pageTitle(sprintf($translate('Add %s'), $translate($mapLabels['items'])), 3) ?>
     <div class="messages">
-        <p><?= $this->messages() ?></p>
+        <?= $this->messages() ?>
     </div>
     <?php if (count($fields)):
         // The two lists of fields are merged in one form by default.
@@ -43,6 +44,7 @@ $mapLabels = [
             'action' => 'add',
             'submitLabel' => $translate('Save'),
             'isMainForm' => true,
+            'skipContributeCss' => false,
         ]);
         $this->trigger('view.edit.after');
     elseif ($form): // First step form to select a resource template.
@@ -51,7 +53,7 @@ $mapLabels = [
         echo $this->form($form);
     else: ?>
     <div class="messages">
-        <p><?= $translate('A template with fields is required to add a resource. Ask the administrator for more information.') ?></p>
+        <p><?= $escape($translate('A template with fields is required to add a resource. Ask the administrator for more information.')) ?></p>
     </div>
     <?php endif; ?>
 </div>

@@ -3,19 +3,85 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Entity\User $user
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm|null $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
  * @var bool $isMainForm
+ * @var bool $skipContributeCss
  */
 
-$plugins = $this->getHelperPluginManager();
-$assetUrl = $plugins->get('assetUrl');
+// Prepare all the variables one time to simplify sub-template and sub-forms.
 
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$partial = $plugins->get('partial');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
+
+// The api manager is needed to create select for Value Suggest.
+// TODO Replace apiManager by FormElementManager.
+$services = $site->getServiceLocator();
+$apiManager = $services->get('Omeka\ApiManager');
+$moduleManager = $services->get('Omeka\ModuleManager');
+$hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+$hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+$hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+
+if ($hasCustomVocab) {
+    $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
+    $CustomVocabBaseTypes = $CustomVocabBaseTypes();
+} else {
+    $CustomVocabBaseTypes = null;
+}
+
+// Prepare resource selects.
+$valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
+// TODO Use module advanced resource template to fill a property with a property query. They are always empty for now, except manually filled.
+$valueResourceQueries = [];
+$shortResourceTitle = function (\Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource): string {
+    return mb_substr($resource->displayTitle(), 0, 80);
+};
+
+$baseUrlFiles = $services->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
+
+$indexMedia = null;
+$fieldsMedia = [];
+
+// Use of a sub-form requires a main form.
+if (isset($form)) $form->prepare();
+
+// Avoid to prepare many variables in sub-templates.
+$vars = $this->vars()->getArrayCopy();
+$vars['indexMedia'] = $indexMedia;
+$vars['fieldsMedia'] = $fieldsMedia;
+$vars['url'] = $url;
+$vars['partial'] = $partial;
+$vars['escape'] = $escape;
+$vars['translate'] = $translate;
+$vars['escapeAttr'] = $escapeAttr;
+$vars['apiManager'] = $apiManager;
+$vars['hasValueSuggest'] = $hasValueSuggest;
+$vars['hasNumericDataTypes'] = $hasNumericDataTypes;
+$vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
+$vars['valueResourceTypes'] = $valueResourceTypes;
+$vars['valueResourceQueries'] = $valueResourceQueries;
+$vars['shortResourceTitle'] = $shortResourceTitle;
+$vars['baseUrlFiles'] = $baseUrlFiles;
+
+$plugins
+    ->get(\Laminas\View\Helper\ViewModel::class)
+    ->getRoot()
+    ->setVariable('contributeVars', $vars);
+
+$assetUrl = $plugins->get('assetUrl');
 $this->headLink()
-    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
-    ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
+    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'));
+if (empty($skipContributeCss)) {
+    $this->headLink()
+        ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
+}
 $this->headScript()
     ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
     ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);

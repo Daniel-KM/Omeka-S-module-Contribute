@@ -4,13 +4,14 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
  * @var bool $isMainForm
+ * @var bool $skipContributeCss
  * When called recursively for sub-fields (media):
  * @var ?int $indexMedia
  * @var array $fieldsMedia
@@ -20,75 +21,39 @@
 
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
+$partial = $plugins->get('partial');
 $hyperlink = $plugins->get('hyperlink');
 $formElement = $plugins->get('formElement');
 
 $vars = $this->vars();
-$labelInfo = $this->setting('property_label_information');
+$labelInfo = $this->siteSetting('property_label_information') ?? $this->setting('property_label_information');
 
 // Prepare variables one time for the form and all sub-forms.
 if ($isMainForm) {
-
-    $partial = $plugins->get('partial');
-    $escape = $plugins->get('escapeHtml');
-    $translate = $plugins->get('translate');
-    $escapeAttr = $plugins->get('escapeHtmlAttr');
-
-    // The api manager is needed to create select for Value Suggest.
-    // TODO Replace apiManager by FormElementManager.
-    $services = $site->getServiceLocator();
-    $apiManager = $services->get('Omeka\ApiManager');
-    $moduleManager = $services->get('Omeka\ModuleManager');
-    $hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-    $hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-    $hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-
-    if ($hasCustomVocab) {
-        $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
-        $CustomVocabBaseTypes = $CustomVocabBaseTypes();
-    } else {
-        $CustomVocabBaseTypes = null;
-    }
-
-    // Prepare resource selects.
-    $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
-    // TODO Use module advanced resource template to fill a property with a property query. They are always empty for now, except manually filled.
-    $valueResourceQueries = [];
-    $shortResourceTitle = function (\Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource): string {
-        return mb_substr($resource->displayTitle(), 0, 80);
-    };
-
-    $baseUrlFiles = $services->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
-
-    $indexMedia = null;
-    $fieldsMedia = [];
-
-    // Avoid to prepare many variables in sub-templates.
-    $vars = $vars->getArrayCopy();
-    $vars['indexMedia'] = null;
-    $vars['fieldsMedia'] = $fieldsMedia;
-    $vars['partial'] = $partial;
-    $vars['escape'] = $escape;
-    $vars['translate'] = $translate;
-    $vars['escapeAttr'] = $escapeAttr;
-    $vars['apiManager'] = $apiManager;
-    $vars['hasValueSuggest'] = $hasValueSuggest;
-    $vars['hasNumericDataTypes'] = $hasNumericDataTypes;
-    $vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
-    $vars['valueResourceTypes'] = $valueResourceTypes;
-    $vars['valueResourceQueries'] = $valueResourceQueries;
-    $vars['shortResourceTitle'] = $shortResourceTitle;
-    $vars['baseUrlFiles'] = $baseUrlFiles;
-    $vars = $this->setVars(new \Laminas\View\Variables($vars))->vars();
-
-    // Don't prepare form if there are no fields.
-    // Use of a sub-form requires a main form.
-    if (count($fields)) {
-        // No echo: only includes css and js.
-        $partial('contribute/site/contribution/form-include');
-    }
-
-    $form->prepare();
+    // No echo: only includes variables, css, and js.
+    $partial('contribute/site/contribution/form-include');
+    /**
+     * @var \Laminas\View\Helper\Url $url
+     * @var \Laminas\View\Helper\Partial $partial
+     * @var \Laminas\View\Helper\EscapeHtml $escape
+     * @var \Laminas\I18n\View\Helper\Translate $translate
+     * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
+     * @var \Omeka\Api\Manager $apiManager
+     * @var bool $hasValueSuggest
+     * @var bool $hasNumericDataTypes
+     * @var ?array $customVocabBaseTypes
+     * @var array $valueResourceTypes
+     * @var array $valueResourceQueries
+     * @var callable $shortResourceTitle
+     * @var string $baseUrlFiles
+     */
+    $contributeVars = $plugins
+        ->get(\Laminas\View\Helper\ViewModel::class)
+        ->getRoot()
+        ->getVariable('contributeVars') ?? [];
+    extract($contributeVars);
+    $vars = $this->setVars(new \Laminas\View\Variables($contributeVars))->vars();
+    unset($contributeVars);
 }
 ?>
 
@@ -98,13 +63,13 @@ if ($isMainForm) {
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 <?php endif; ?>
 
-    <?php // Display the special field for media file (not a property, and cannot be set in resource template). ?>
+    <?php // Display the special field for media file (required, not a property, and cannot be set in resource template). ?>
     <?php if (!$isMainForm):
         // Only one file is allowed by media and it cannot be updated, like in Omeka.
         $file = $fieldsMedia['file']['contributions'][0]['proposed']['store'] ?? null;
         ?>
     <div class="property">
-        <h4><?= $translate('Upload') ?></h4>
+        <h4><?= $escape($translate('Upload')) ?></h4>
         <?php if ($file): ?>
         <div class="values">
             <div class="value">
@@ -116,7 +81,7 @@ if ($isMainForm) {
         <?php else: ?>
         <div class="values">
             <div class="value">
-                <input type="file" class="form-control input-value" data-value-key="@value" name="media[<?= $indexMedia ?>][file][0][@value]"/>
+                <input type="file" class="form-control input-value" data-value-key="@value" name="media[<?= $indexMedia ?>][file][0][@value]" required="required"/>
             </div>
         </div>
         <?php endif; ?>
@@ -130,11 +95,13 @@ if ($isMainForm) {
         // Don't display empty values that are not fillable.
         if (empty($field['contributions']) && !$field['fillable']) continue;
         $indexFieldInput = 0;
+        $templateProperty = $field['template_property'];
         $property = $field['property'];
         $vars->offsetSet('field', $field);
         $vars->offsetSet('term', $term);
-        $vars->offsetSet('indexFieldInput', $indexFieldInput);
         $vars->offsetSet('property', $property);
+        $vars->offsetSet('indexFieldInput', $indexFieldInput);
+        $vars->offsetSet('templateProperty', $templateProperty);
         ?>
 
     <div class="property">
@@ -168,18 +135,17 @@ if ($isMainForm) {
         <?php // Editable fields, that may have been edited or not. ?>
 
         <div class="values">
-           <?php // Display at least one prepared field for all required fields.
-           foreach (count($field['contributions']) ? $field['contributions'] : [null] as $indexContribution => $fieldContribution):
-               // There is no contribution: check if the field is required to display at least one field.
-               if (is_null($fieldContribution)) {
-                   if (empty($field['required']) || !($field['editable'] && $field['fillable'])) continue;
-                   $valueType = reset($field['datatypes']);
-                   if (!$valueType) continue;
-                   $value = null;
-                   // TODO Add the template property to get default privacy.
-                   $fieldContribution = ['type' => $valueType, 'required' => true, 'original' => [], 'proposed' => [], 'template_property' => null];
-               } else {
-                   /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+            <?php // Display at least one prepared field for all required fields.
+            foreach (count($field['contributions']) ? $field['contributions'] : [null] as $indexContribution => $fieldContribution):
+                // There is no contribution: check if the field is required to display at least one field.
+                if (is_null($fieldContribution)) {
+                    if (empty($field['required']) || !($field['editable'] && $field['fillable'])) continue;
+                    $valueType = reset($field['datatypes']);
+                    if (!$valueType) continue;
+                    $value = null;
+                    $fieldContribution = ['type' => $valueType, 'required' => true, 'original' => [], 'proposed' => [], 'template_property' => $templateProperty];
+                } else {
+                    /** @var \Omeka\Api\Representation\ValueRepresentation $value */
                     $value = $fieldContribution['original']['value'];
                     if (!$value && !$field['fillable']) continue;
                     $typeColon = strtok((string) $fieldContribution['type'], ':');
@@ -188,7 +154,7 @@ if ($isMainForm) {
                     $isValueSuggest = $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall';
                     if ($isNumeric && !$hasNumericDataTypes) continue;
                     if ($isNumeric && !in_array($fieldContribution['type'], ['numeric:integer', 'numeric:timestamp'])) continue;
-                    if ($isCustomVocab && !$hasCustomVocab) continue;
+                    if ($isCustomVocab && empty($customVocabBaseTypes)) continue;
                     if ($isValueSuggest && !$hasValueSuggest) continue;
                 }
                 $vars->offsetSet('indexContribution', $indexContribution);
@@ -268,7 +234,7 @@ if ($isMainForm) {
             $vars->offsetSet('indexMedia', $indexMedia);
             $vars->offsetSet('fieldsMedia', $fieldsMedia);
             ?>
-            <?= $partial('contribute/site/contribution/form', $vars) ?>
+            <?= $partial('contribute/site/contribution/form') ?>
             <ul class="actions">
                 <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
             </ul>
@@ -276,7 +242,7 @@ if ($isMainForm) {
         <?php ++$indexMedia; ?>
         <?php endforeach; ?>
         <div class="inputs inputs-media">
-            <button type="button" class="add-media-new button o-icon-add"><?= $translate('Add file') ?></button>
+            <button type="button" class="add-media-new button o-icon-add"><?= $escape($translate('Add file')) ?></button>
         </div>
     </fieldset>
     <?php
@@ -301,7 +267,7 @@ if ($isMainForm) {
         <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($resource ? $resource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
             ['class' => 'button button-cancel', 'role' => 'button']) ?>
         <?php endif; ?>
-        <button type="submit" name="edit-resource-submit" class="button"><?= $escape($submitLabel) ?></button>
+        <?= $formElement('submit')->setAttribute('class', 'button')->setValue($submitLabel) ?>
     </div>
 
     <?= $this->form()->closeTag() ?>
@@ -318,7 +284,7 @@ if ($isMainForm) {
             $vars->offsetSet('indexMedia', null);
             $vars->offsetSet('fieldsMedia', $fieldsMediaBase);
             ?>
-            <?= $partial('contribute/site/contribution/form', $vars) ?>
+            <?= $partial('contribute/site/contribution/form') ?>
             <?php
             $vars->offsetSet('isMainForm', true);
             $vars->offsetSet('indexMedia', null);

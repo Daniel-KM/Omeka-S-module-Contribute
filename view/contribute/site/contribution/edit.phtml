@@ -5,7 +5,7 @@
  * @var ?\Contribute\Api\Representation\ContributionRepresentation $resource
  * @var ?\Contribute\Api\Representation\ContributionRepresentation $contribution
  * @var \Omeka\Entity\User $user
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
@@ -29,7 +29,7 @@ $mapLabels = [
     <h2><?= $resource->displayTitle() ?></h2>
     <?= $this->pageTitle(sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>
     <div class="messages">
-        <p><?= $this->messages() ?></p>
+        <?= $this->messages() ?>
     </div>
     <?php if (count($fields) && $form):
         // The two lists of fields are merged in one form by default.
@@ -45,6 +45,7 @@ $mapLabels = [
             'action' => 'edit',
             'submitLabel' => $translate('Submit'),
             'isMainForm' => true,
+            'skipContributeCss' => false,
         ]);
         $this->trigger('view.edit.after');
     else: ?>

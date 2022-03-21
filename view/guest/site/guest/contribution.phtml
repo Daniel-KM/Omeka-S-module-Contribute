@@ -13,6 +13,7 @@ $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
+$this->vars()->offsetSet('skipContributeCss', false);
 $partial('contribute/site/contribution/asset-include');
 
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource browse');

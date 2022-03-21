@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var \Omeka\Entity\User $user
  * @var array $fields
  * @var array $fieldsByMedia
@@ -16,6 +16,7 @@
  * @var ?int $indexMedia
  * @var array $fieldsMedia
  *
+ * @var \Laminas\View\Helper\Url $url
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
@@ -32,6 +33,7 @@
  * @var array $field
  * @var string $term
  * @var int $indexFieldInput
+ * @var ?\Omeka\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty
  * @var ?\Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
  * @var ?array $fieldContribution
@@ -41,14 +43,15 @@
 
 $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
-$isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
-$isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$isPrivate = $value ? !$value->isPublic() : (isset($templateProperty) ? $templateProperty->isPrivate() : false);
+$isRequired = !empty($field['required']) && (($indexContribution ?? null) === 0);
+
 $baseName = $isMainForm
     ? sprintf('%s[%s]', $term, $indexFieldInput)
     : sprintf('media[%s][%s][%s]', $indexMedia, $term, $indexFieldInput);
 
-$val = $proposed['@uri'] ?? $original['@uri'];
-$label = $proposed['@label'] ?? $original['@label'];
+$val = $proposed['@uri'] ?? $original['@uri'] ?? '';
+$label = $proposed['@label'] ?? $original['@label'] ?? '';
 
 $class = ['value'];
 $class[] = 'uri';
@@ -74,6 +77,6 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
         </div>
     </div>
     <ul class="actions">
-        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+        <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
     </ul>
 </div>

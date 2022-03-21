@@ -145,7 +145,7 @@ $sortHeadings = [
                 </ul>
             </td>
             <td><?= $ownerText ?></td>
-            <td><?= $escape($i18n->dateFormat($contribution->created())) ?></td>
+            <td><?= $escape($i18n->dateFormat($contribution->created(), 'medium', 'short')) ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>

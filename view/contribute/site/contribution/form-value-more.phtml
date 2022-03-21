@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var \Omeka\Entity\User $user
  * @var array $fields
  * @var array $fieldsByMedia
@@ -16,6 +16,7 @@
  * @var ?int $indexMedia
  * @var array $fieldsMedia
  *
+ * @var \Laminas\View\Helper\Url $url
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
@@ -32,6 +33,7 @@
  * @var array $field
  * @var string $term
  * @var int $indexFieldInput
+ * @var ?\Omeka\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty
  * @var \Omeka\Api\Representation\PropertyRepresentation $property
  * @var \Omeka\Api\Representation\ValueRepresentation $value
  */
@@ -45,19 +47,19 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
 
             case 'literal':
             ?>
-        <div class="add-value add-value-new<?= $addForMedia ?> button o-icon-add"><?= $translate('Add value') ?></div>
+        <button type="button" class="add-value add-value-new<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add value')) ?></button>
                 <?php
                 break;
 
             case 'numeric:integer':
                 ?>
-        <div class="add-value add-value-numeric-integer<?= $addForMedia ?> button o-icon-add"><?= $translate('Add number') ?></div>
+        <button type="button" class="add-value add-value-numeric-integer<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add number')) ?></button>
                 <?php
                 break;
 
             case 'numeric:timestamp':
                 ?>
-        <div class="add-value add-value-numeric-timestamp<?= $addForMedia ?> button o-icon-add"><?= $translate('Add date') ?></div>
+        <button type="button" class="add-value add-value-numeric-timestamp<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add date')) ?></button>
                 <?php
                 break;
 
@@ -79,13 +81,13 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                         $valueOptions[] = ['v' => $k, 't' => $v];
                     }
                 ?>
-        <div class="add-value add-value-resource<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $datatype ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $translate('Add linked resource') ?></div>
+        <button type="button" class="add-value add-value-resource<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $datatype ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $escape($translate('Add linked resource')) ?></button>
                 <?php endif;
                 break;
 
             case 'uri':
                 ?>
-        <div class="add-value add-value-uri<?= $addForMedia ?> button o-icon-uri" data-data-type="uri"><?= $translate('Add URI') ?></div>
+        <button type="button" class="add-value add-value-uri<?= $addForMedia ?> button o-icon-uri" data-data-type="uri"><?= $escape($translate('Add URI')) ?></button>
                 <?php break;
 
             case substr($datatype, 0, 12) === 'customvocab:':
@@ -115,17 +117,16 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                     }
                 }
                 ?>
-        <div class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $datatype ?>" data-basetype="<?= $baseType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $translate('Add value') ?></div>
+        <button type="button" class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $datatype ?>" data-basetype="<?= $baseType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $escape($translate('Add value')) ?></button>
                 <?php break;
 
             case substr($datatype, 0, 12) === 'valuesuggest': // Or valuesuggestall.
                 ?>
-        <div class="add-value add-value-value-suggest<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $datatype ?>"><?= $translate('Add linked data') ?></div>
+        <button type="button" class="add-value add-value-value-suggest<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $datatype ?>"><?= $escape($translate('Add linked data')) ?></button>
                 <?php break;
 
             default:
                 // TODO Other types are not managed.
         endswitch; ?>
-        <div class="clearfix"></div>
     </div>
 </div>

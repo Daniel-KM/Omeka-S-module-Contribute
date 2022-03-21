@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
- * @var \Omeka\Form\ResourceForm $form
+ * @var \Contribute\Form\ContributeForm $form
  * @var \Omeka\Entity\User $user
  * @var array $fields
  * @var array $fieldsByMedia
@@ -16,6 +16,7 @@
  * @var ?int $indexMedia
  * @var array $fieldsMedia
  *
+ * @var \Laminas\View\Helper\Url $url
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
@@ -34,13 +35,17 @@
 // They are outside the template form and marked readonly to not be included in the form.
 // The names are updated through js, so don't need to check for main form or sub form.
 
+$moduleManager = $site->getServiceLocator()->get('Omeka\ModuleManager');
+$hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+$hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+
 $args = $this->vars()->getArrayCopy();
-$args['field'] = ['template_property' => null];
+$args['field'] = ['template_property' => null, 'requried' => false];
 $args['term'] = 'field-to-set';
 $args['indexFieldInput'] = 0;
 $args['property'] = null;
 $args['value'] = null;
-$args['fieldContribution'] = ['type' => null, 'required' => false, 'original' => [], 'proposed' => [], 'template_property' => null];
+$args['fieldContribution'] = ['type' => null, 'original' => [], 'proposed' => []];
 $args['indexContribution'] = null;
 $args['readonly'] = true;
 ?>
@@ -54,7 +59,7 @@ $args['readonly'] = true;
         <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
     <ul class="actions">
-        <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+        <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
     </ul>
 </div>
 
@@ -80,19 +85,19 @@ $args['readonly'] = true;
     <div class="value custom_vocab" data-basetype="literal">
         <select class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
         <ul class="actions">
-            <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+            <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
         </ul>
     </div>
     <div class="value custom_vocab" data-basetype="resource">
         <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
         <ul class="actions">
-            <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+            <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
         </ul>
     </div>
     <div class="value custom_vocab" data-basetype="uri">
         <select class="form-control input-value" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
         <ul class="actions">
-            <li><a class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></a></li>
+            <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
         </ul>
     </div>
 </div>

@@ -13,13 +13,15 @@ $translate = $plugins->get('translate');
 $siteSetting = $plugins->get('siteSetting');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
-$medias = $contribution->valuesMedias();
-$embedMedia = $siteSetting('item_media_embed', false);
+// Medias are displayed through displayValues() for now.
+// $medias = $contribution->valuesMedias();
+// $embedMedia = $siteSetting('item_media_embed', false);
 
 $filterLocale = (bool) $siteSetting('filter_locale_values');
 $siteLang = $plugins->get('lang')();
 $lang = $filterLocale ? $siteLang : null;
 
+$this->vars()->offsetSet('skipContributeCss', false);
 $partial('contribute/site/contribution/asset-include');
 
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource show');
@@ -35,28 +37,12 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 </ul>
 
 <div class="messages">
-    <p><?= $this->messages() ?></p>
+    <?= $this->messages() ?>
 </div>
 
 <?php $this->trigger('view.show.before'); ?>
 
-<?php if ($embedMedia && $medias): ?>
-    <div class="media-embeds">
-    <?php foreach ($medias as $media): ?>
-        <?= $media->render() ?>
-    <?php endforeach; ?>
-    </div>
-<?php endif; ?>
-
 <?= $contribution->displayValues() ?>
-
-<?php if (!$embedMedia && $medias): ?>
-<div class="media-list">
-    <?php foreach ($medias as $media): ?>
-        <?= $media->linkPretty() ?>
-    <?php endforeach; ?>
-</div>
-<?php endif; ?>
 
 <?php if (!$contribution->isSubmitted()): ?>
 <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
@@ -65,7 +51,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
     <?php endif; ?>
     <li><a class="o-icon-submit button submit-button submit-contribution" href="<?= $escapeAttr($contribution->url('submit')) ?>"><?= $escape($translate('Submit')) ?></a></li>
     <?php if ($contribution->userIsAllowed('delete')): ?>
-    <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
+    <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" href="#<?php //= $escapeAttr($contribution->url('delete')) ?>"><?= $escape($translate('Delete')) ?></a></li>
     <?php endif; ?>
 </ul>
 <?php endif; ?>
