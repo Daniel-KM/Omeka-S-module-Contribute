@@ -12,6 +12,12 @@ $(document).ready(function() {
         include_group_label_in_selected: true,
     };
 
+    function baseName(field, index, indexMedia) {
+        return Number.isInteger(indexMedia)
+            ? ('media[' + indexMedia + '][' + field + '][' + index + ']')
+            : (field + '[' + index + ']');
+    }
+
     function fillSelectOptions(newInput, name, target) {
         newInput
             .prop('name', name)
@@ -62,6 +68,8 @@ $(document).ready(function() {
         var selector = target.closest('.default-selector');
         var term = selector.data('next-term');
         var index = selector.data('next-index') ? parseInt(selector.data('next-index')) : 0;
+        var isMedia = target.hasClass('add-value-media');
+        var indexMedia = isMedia ? parseInt(target.closest('.contribute-medias').data('next-index-media')) : null;
         var inputs = target.closest('.property').find('.values').first();
         var newElement,
             name,
@@ -81,7 +89,7 @@ $(document).ready(function() {
 
         if (target.hasClass('add-value-new')) {
             newElement = $('#edit_template_value > .value').clone();
-            name = term + '[' + index + '][@value]';
+            name = baseName(term, index, indexMedia) + '[@value]';
             newInput = $(newElement).find('textarea')
                 .prop('name', name)
                 .removeAttr('readonly')
@@ -90,15 +98,15 @@ $(document).ready(function() {
 
         if (target.hasClass('add-value-resource')) {
             newElement = $('#edit_template_resource > .value').clone();
-            name = term + '[' + index + '][@resource]';
+            name = baseName(term, index, indexMedia) + '[@resource]';
             newInput = $(newElement).find('select');
             fillSelectOptions(newInput, name, target);
         }
 
         if (target.hasClass('add-value-uri')) {
             newElement = $('#edit_template_uri > .value').clone();
-            name = term + '[' + index + '][@uri]';
-            namel = term + '[' + index + '][@label]';
+            name = baseName(term, index, indexMedia) + '[@uri]';
+            namel = baseName(term, index, indexMedia) + '[@label]';
             $(newElement).find('input[data-value-key="@uri"]')
                 .prop('name', name)
                 .removeAttr('readonly')
@@ -111,7 +119,7 @@ $(document).ready(function() {
 
         if (target.hasClass('add-value-numeric-integer')) {
             newElement = $('#edit_template_numeric-integer > .value').clone();
-            name = term + '[' + index + '][@value]';
+            name = baseName(term, index, indexMedia) + '[@value]';
             newInput = $(newElement).find('input')
                 .prop('name', name)
                 .removeAttr('readonly')
@@ -120,8 +128,8 @@ $(document).ready(function() {
 
         if (target.hasClass('add-value-numeric-timestamp')) {
             newElement = $('#edit_template_numeric-timestamp > .value').clone();
-            name = term + '[' + index + '][@value]';
-            namel = term + '[' + index + ']';
+            namel = baseName(term, index, indexMedia);
+            name = namel + '[@value]';
             newInput = $(newElement).find('input[data-value-key="@value"]')
                 .prop('name', name)
                 .removeAttr('readonly')
@@ -148,20 +156,21 @@ $(document).ready(function() {
             const basetype = target.data('basetype');
             newElement = $('#edit_template_customvocab > .value[data-basetype=' + basetype + ']').clone();
             newInput = $(newElement).find('select');
+            namel = baseName(term, index, indexMedia);
             if (basetype === 'resource') {
-                name = term + '[' + index + '][@resource]';
+                name = namel + '[@resource]';
             } else if (basetype === 'uri') {
                 // The label is managed by the server.
-                name = term + '[' + index + '][@uri]';
+                name = namel + '[@uri]';
             } else {
-                name = term + '[' + index + '][@value]';
+                name = namel + '[@value]';
             }
             fillSelectOptions(newInput, name, target);
         }
 
         if (target.hasClass('add-value-value-suggest')) {
             newElement = $('#edit_template_valuesuggest > .value').clone();
-            name = term + '[' + index + '][@uri]';
+            name = baseName(term, index, indexMedia) + '[@uri]';
             newInput = $(newElement).find('input').first();
             newInput
                 .prop('name', name)

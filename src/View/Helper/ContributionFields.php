@@ -90,6 +90,10 @@ class ContributionFields extends AbstractHelper
      *
      * @todo Remove the "@" in proposition values (or build a class).
      *
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
+     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
+     * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
+     *
      * @var bool $isSubTemplate Allow to check the good allowed template via
      *   contributiveData(), so the allowed resource templates or allowed
      *   resource templages for media). No other difference, so invoke the right
@@ -100,7 +104,8 @@ class ContributionFields extends AbstractHelper
         ?AbstractResourceEntityRepresentation $resource = null,
         ?ContributionRepresentation $contribution = null,
         ?ResourceTemplateRepresentation $resourceTemplate = null,
-        ?bool $isSubTemplate = false
+        ?bool $isSubTemplate = false,
+        ?int $indexProposalMedia = null
     ): array {
         $fields = [];
 
@@ -123,7 +128,15 @@ class ContributionFields extends AbstractHelper
         $values = [];
         if ($contribution) {
             $resource = $contribution->resource();
-            $resourceTemplate = $contribution->resourceTemplate();
+            if ($resource) {
+                $values = $resource->values();
+                if (!$isSubTemplate) {
+                    $resourceTemplate = $resource->resourceTemplate();
+                }
+            }
+            if (!$isSubTemplate) {
+                $resourceTemplate = $contribution->resourceTemplate();
+            }
         } elseif ($resource) {
             $resourceTemplate = $resource->resourceTemplate();
             $values = $resource->values();
@@ -132,6 +145,11 @@ class ContributionFields extends AbstractHelper
         $contributive = clone $this->contributiveData;
         $contributive = $contributive->__invoke($resourceTemplate, $isSubTemplate);
         $resourceTemplate = $contributive->template();
+
+        // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+        if ($isSubTemplate) {
+            $values = [];
+        }
 
         $customVocabBaseTypes = $this->getView()->plugin('customVocabBaseType')();
 
@@ -243,9 +261,13 @@ class ContributionFields extends AbstractHelper
         }
 
         $proposals = $contribution->proposal();
+        if (is_int($indexProposalMedia)) {
+            $proposals = $proposals['media'][$indexProposalMedia] ?? [];
+        }
 
-        // Clean old proposals.
-        unset($proposals['template']);
+        // Clean data for the special keys.
+        unset($proposals['template'], $proposals['media']);
+
         foreach ($proposals as $term => $termProposal) {
             foreach ($termProposal as $key => $proposal) {
                 if (isset($proposal['proposed']['@uri'])) {

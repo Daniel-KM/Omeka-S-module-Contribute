@@ -606,14 +606,21 @@ class ContributionController extends AbstractActionController
     /**
      * Update existing values of the contributed resource with the proposal.
      *
-     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal() and \Contribute\View\Helper\ContributionFields
+     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
+     * @todo Factorize with \Contribute\View\Helper\ContributionFields
+     * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      *
      * @param ContributionRepresentation $contribution
      * @param string|null $term Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key.
      */
-    protected function validateAndUpdateContribution(ContributionRepresentation $contribution, $term = null, $proposedKey = null): bool
-    {
+    protected function validateAndUpdateContribution(
+        ContributionRepresentation $contribution,
+        ?string $term = null,
+        $proposedKey = null,
+        ?bool $isSubTemplate = false,
+        ?int $indexProposalMedia = null
+    ): bool {
         // The contribution requires a resource template in allowed templates.
         $contributive = $contribution->contributiveData();
         if (!$contributive->isContributive()) {
@@ -622,10 +629,18 @@ class ContributionController extends AbstractActionController
 
         // Right to update the resource is already checked.
         // There is always a resource template.
+        if ($isSubTemplate) {
+            $contributive = $contributive->contributiveMedia();
+            // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+            $resource = null;
+            $existingValues = [];
+        } else {
+            $resource = $contribution->resource();
+            $existingValues = $resource ? $resource->values() : [];
+        }
+
         $resourceTemplate = $contributive->template();
-        $resource = $contribution->resource();
-        $existingValues = $resource ? $resource->values() : [];
-        $proposal = $contribution->proposalNormalizeForValidation();
+        $proposal = $contribution->proposalNormalizeForValidation($indexProposalMedia);
         $hasProposedKey = !is_null($proposedKey);
 
         $api = $this->api();
@@ -636,8 +651,12 @@ class ContributionController extends AbstractActionController
 
         $data = [
             'template' => $resourceTemplate ? $resourceTemplate->id() : null,
+            'media' => [],
         ];
-        unset($proposal['template']);
+
+        // Clean data for the special keys.
+        $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
+        unset($proposal['template'], $proposal['media']);
 
         foreach ($existingValues as $term => $propertyData) {
             // Keep all existing values.
@@ -811,6 +830,14 @@ class ContributionController extends AbstractActionController
                         // Nothing.
                         continue 2;
                 }
+            }
+        }
+
+        if (!$isSubTemplate) {
+            foreach (array_keys($proposalMedias) as $indexProposalMedia) {
+                $indexProposalMedia = (int) $indexProposalMedia;
+                // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+                $data['media'][$indexProposalMedia] = $this->validateAndUpdateContribution($contribution, $term, $proposedKey, true, $indexProposalMedia);
             }
         }
 

@@ -5,13 +5,15 @@
  * @var \Contribute\Api\Representation\ContributionRepresentation $contribution
  * @var array $templateProperties
  * @var array $values
+ * @var array $valuesMedias
  */
 
 $plugins = $this->getHelperPluginManager();
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 
-if ($this->status()->isSiteRequest()) {
+$isSiteRequest = $this->status()->isSiteRequest();
+if ($isSiteRequest) {
     $siteSetting = $plugins->get('siteSetting');
     $labelInfo = $siteSetting('property_label_information');
     $showLocale = (bool) $siteSetting('show_locale_label', true);
@@ -20,71 +22,36 @@ if ($this->status()->isSiteRequest()) {
     $labelInfo = $setting('property_label_information');
     $showLocale = true;
 }
-?>
 
-<?php foreach ($values as /* $term => */ $propertyData): ?>
-    <?php if (empty($propertyData['contributions'])) continue; ?>
-    <div class="property">
-        <h4>
-            <?= $escape($propertyData['alternate_label'] ?: $translate($propertyData['property']->label())) ?>
-            <?php if ('term' === $labelInfo): ?>
-            <span class="field-term">(<?= $escape($propertyData['property']->term()) ?>)</span>
-            <?php elseif ('vocab' === $labelInfo): ?>
-            <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>
-            <?php endif; ?>
-        </h4>
-        <div class="values">
-            <?php foreach ($propertyData['contributions'] as $contribution):
-                $valueType = $contribution['type'];
-                $valueBaseType = $contribution['basetype'];
-                $valueLang = $contribution['lang'] ?? '';
-                $class = ['value'];
-                if ($valueBaseType === 'resource') {
-                    $class[] = 'resource';
-                    // Only item is supported for now.
-                    $class[] = substr($valueType, 0, 9) === 'resource:' ? substr($valueType, 9) : 'item';
-                } elseif ($valueBaseType === 'uri') {
-                    $class[] = 'uri';
-                }
-                ?>
-            <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($valueLang) ?>">
-                <?php if ($showLocale && $valueLang): ?>
-                <span class="language"><?= $valueLang ?></span>
-                <?php endif; ?>
-                    <?php if (!empty($contribution['new'])): ?>
-                <span class="value-content"><?php
-                        if ($valueBaseType === 'uri'):
-                            echo $contribution['proposed']['@uri'] . ' / ' . $contribution['proposed']['@label'];
-                        elseif ($valueBaseType === 'resource'):
-                            echo $contribution['proposed']['@resource'];
-                        else:
-                            echo $contribution['proposed']['@value'];
-                        endif;
-                ?></span>
-                    <?php else: ?>
-                <dl>
-                    <dd>
-                        <?php if ($valueBaseType === 'uri'):
-                            echo $contribution['original']['@uri'] . ' / ' . $contribution['original']['@label'];
-                        elseif ($valueBaseType === 'resource'):
-                            echo $contribution['original']['@resource'];
-                        else:
-                            echo $contribution['original']['@value'];
-                        endif; ?>
-                    </dd>
-                    <dt>
-                        <?php if ($valueBaseType === 'uri'):
-                            echo $contribution['proposed']['@uri'] . ' / ' . $contribution['proposed']['@label'];
-                        elseif ($valueBaseType === 'resource'):
-                            echo $contribution['proposed']['@resource'];
-                        else:
-                            echo $contribution['proposed']['@value'];
-                        endif; ?>
-                    </dt>
-                </dl>
-                <?php endif; ?>
-            </div>
-            <?php endforeach; ?>
-        </div>
+$varsBase = [
+    'site' => $site,
+    'contribution' => $contribution,
+    'templateProperties' => $templateProperties,
+    'escape' => $escape,
+    'translate' => $translate,
+    'isSiteRequest' => $isSiteRequest,
+    'labelInfo' => $labelInfo,
+    'showLocale' => $showLocale,
+    'values' => $values,
+    'isSub' => false,
+    'indexValuesMedia' => null,
+];
+
+echo $this->partial('common/contribution-values-part', $varsBase);
+
+if (count($valuesMedias)): ?>
+    <div class="contribution-medias">
+        <h4 class="contribution-medias-label"><?= $isSiteRequest ? $translate('Files') : $translate('Medias') ?></h4>
+        <?php
+        $varsBase['isSub'] = true;
+        $varsForLoop = [];
+        foreach ($valuesMedias ?? [] as $indexValuesMedia => $valuesMedia) {
+            $varsBase['values'] = $valuesMedia;
+            $varsBase['indexValuesMedia'] = $indexValuesMedia;
+            $varsForLoop[] = $varsBase;
+        }
+        echo $this->partialLoop('common/contribution-values-part', $varsForLoop);
+        ?>
     </div>
-<?php endforeach; ?>
+    <?php
+endif;

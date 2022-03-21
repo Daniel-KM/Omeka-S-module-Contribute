@@ -410,9 +410,11 @@ class ContributionController extends AbstractActionController
         // Only items can have a sub resource template for medias.
         if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
             $resourceTemplateMedia = $contributive->contributiveMedia()->template();
-            foreach ([] /*$contribution->medias() */ as $contributionMedia) {
+            $fieldsByMedia = [];
+            foreach (array_keys($contribution->proposalMedias()) as $indexProposalMedia) {
                 // TODO Match resource medias and contribution (for now only allowed until submission).
-                $fieldsByMedia = $contributionFields(null, $contributionMedia, $resourceTemplateMedia, true);
+                $indexProposalMedia = (int) $indexProposalMedia;
+                $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, true, $indexProposalMedia);
             }
             // Add a list of fields without values for new media.
             $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), true);
@@ -478,10 +480,15 @@ class ContributionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution() and \Contribute\View\Helper\ContributionFields
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
+     * @todo Factorize with \Contribute\View\Helper\ContributionFields
+     * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      */
-    protected function prepareProposal(array $proposal, ?AbstractResourceEntityRepresentation $resource = null, ?bool $isSubTemplate = false): ?array
-    {
+    protected function prepareProposal(
+        array $proposal,
+        ?AbstractResourceEntityRepresentation $resource = null,
+        ?bool $isSubTemplate = false
+    ): ?array {
         $isSubTemplate = (bool) $isSubTemplate;
 
         // It's not possible to change the resource template of a resource in
@@ -502,18 +509,21 @@ class ContributionController extends AbstractActionController
 
         // The contribution requires a resource template in allowed templates.
         /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
-        $contributive = $this->contributiveData($resourceTemplate, $isSubTemplate);
-        $resourceTemplate = $contributive->template();
+        $contributive = clone $this->contributiveData($resourceTemplate, $isSubTemplate);
         if (!$contributive->isContributive()) {
             return null;
         }
 
+        $resourceTemplate = $contributive->template();
         $result = [
             'template' => $resourceTemplate->id(),
+            'media' => [],
         ];
 
-        // Clean data.
-        unset($proposal['template']);
+        // Clean data for the special keys.
+        $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
+        unset($proposal['template'], $proposal['media']);
+
         foreach ($proposal as &$values) {
             // Manage specific posts.
             if (!is_array($values)) {
@@ -796,6 +806,22 @@ class ContributionController extends AbstractActionController
                     default:
                         // Nothing to do.
                         continue 2;
+                }
+            }
+        }
+
+        if (!$isSubTemplate) {
+            $contributiveMedia = $contributive->contributiveMedia();
+            if ($contributiveMedia) {
+                $templateMedia = $contributiveMedia->template()->id();
+                foreach ($proposalMedias as $indexProposalMedia => $proposalMedia) {
+                    // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+                    $proposalMedia['template'] = $templateMedia;
+                    $proposalMediaClean = $this->prepareProposal($proposalMedia, null, true);
+                    // Skip empty media (without keys "template" and "media").
+                    if (count($proposalMediaClean) > 2) {
+                        $result['media'][$indexProposalMedia] = $proposalMediaClean;
+                    }
                 }
             }
         }

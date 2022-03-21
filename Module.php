@@ -398,7 +398,7 @@ HTML;
 
         echo '<div id="contribution" class="section">';
         echo $view->partial('common/admin/contribute-list', [
-            'resource' => $view->resource,
+            'resource' => $resource,
             'contributions' => $contributions,
             'unusedTokens' => $unusedTokens,
             'siteSlug' => $siteSlug,

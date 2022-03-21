@@ -8,15 +8,14 @@
  * @var string $siteSlug
  */
 
-$translate = $this->plugin('translate');
-$escape = $this->plugin('escapeHtml');
-$hyperlink = $this->plugin('hyperlink');
-$api = $this->plugin('api');
-
-$labelInfo = $this->setting('property_label_information');
-
-$values = $resource->values();
+$plugins = $this->getHelperPluginManager();
+$api = $plugins->get('api');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
 ?>
+
 <div class="contributions">
     <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id(), 'limit' => 0])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
@@ -110,222 +109,38 @@ $editRight = $resource->userIsAllowed('update');
     <tbody>
         <tr class="contribution-value">
             <td>
-
-<?php
-$proposal = $contribution->proposalNormalizeForValidation();
-/** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
-$resourceTemplate = $proposal['template'];
-unset($proposal['template']);
-?>
-<div class="property">
-    <h4><?= $translate('Resource template') ?></h4
-    <div class="values">
-        <div>
-            <div>
-                <span class="resource-template"><?= $resourceTemplate ? $resourceTemplate->label() : $translate('No resource template') ?></span>
-            </div>
-        </div>
-    </div>
-</div>
-<?php foreach ($proposal as $term => $propositions):
-    if (isset($values[$term])):
-        $propertyData = $values[$term];
-    else:
-        $property = $api->searchOne('properties', ['term' => $term])->getContent();
-        // In the case the property was removed after the contribute.
-        if (empty($property)) continue;
-        $propertyData = [
-            'property' => $property,
-            'alternate_label' => null,
-            'alternate_comment' => null,
-            'values' => [],
-        ];
-    endif;
-?>
-    <div class="property">
-        <h4>
-            <?= $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())) ?>
-            <?php if ('term' === $labelInfo): ?>
-            <span class="field-term">(<?= $escape($propertyData['property']->term()) ?>)</span>
-            <?php elseif ('vocab' === $labelInfo): ?>
-            <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>
-            <?php endif; ?>
-        </h4>
-        <div class="values">
-
-        <?php foreach ($propositions as $key => $proposition):
-            // TODO Manage all types.
-            if (array_key_exists('@uri', $proposition['original'])) {
-                $type = 'uri';
-            } elseif (array_key_exists('@resource', $proposition['original'])) {
-                $type = 'resource';
-            } else {
-                $type = 'literal';
-            }
-            switch ($type):
-            case 'resource':
-                $original = $proposition['original']['@resource'];
-                $proposed = $proposition['proposed']['@resource'];
-                $isValidated = $proposition['validated'];
-                $process = $proposition['process'];
-
-                try {
-                    /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $originalResource */
-                    $originalResource = $api->read('resources', ['id' => $original])->getContent();
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    $originalResource = null;
-                }
-                try {
-                    /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $proposedResource */
-                    $proposedResource = $api->read('resources', ['id' => $proposed])->getContent();
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    $proposedResource = null;
-                }
-
-                $class = ['value'];
-                if ($isValidated) $class[] = 'validated-value';
-                ?>
-                <div>
-                    <?php if ($process === 'remove'): ?>
-                    <div class="<?= implode(' ', $class); ?> <?= $originalResource ? $originalResource->resourceName() : '' ?>">
-                        <span data-name="<?= $term . '[' . $key . '][@resource]'; ?>" class="remove-value"><?= $originalResource->linkPretty() ?></span>
-                    </div>
-                    <?php else: ?>
-                        <?php if ($original): ?>
-                    <div class="<?= implode(' ', $class); ?> <?= $originalResource ? $originalResource->resourceName() : '' ?>">
-                        <span data-name="<?= $term . '[' . $key . '][@resource]'; ?>" class="original-value"><?= $originalResource->linkPretty() ?></span>
-                    </div>
-                        <?php endif; ?>
-                    <div class="<?= implode(' ', $class); ?> <?= $proposedResource ? $proposedResource->resourceName() : '' ?>">
-                        <span data-name="<?= $term . '[' . $key . '][@resource]'; ?>" class="<?= $process; ?>-value"><?= $proposedResource->linkPretty() ?></span>
-                    </div>
-                    <?php endif; ?>
-
-                    <span class="single actions">
-                    <?php if ($isValidated): ?>
-                        <span class="no-action o-icon-validated-value" aria-label="<?= $escape($translate('Validated')) ?>"></span>
-                    <?php elseif ($process === 'keep'): ?>
-                        <span class="no-action o-icon-not-validable-value" aria-label="<?= $escape($translate('Not validable')) ?>"></span>
-                    <?php elseif (!$editRight): ?>
-                        <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escape($translate('No right to write')) ?>"></span>
-                    <?php else: ?>
-                        <a href="#"
-                            class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
-                            data-status="validate-value"
-                            aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
-                            title="<?= $txt ?>"></a>
-                    <?php endif; ?>
-                    </span>
-                </div>
-                 <?php
-                break;
-
-            case 'uri':
-                $original_uri = $proposition['original']['@uri'];
-                $proposed_uri = $proposition['proposed']['@uri'];
-                $original_label = $proposition['original']['@label'];
-                $proposed_label = $proposition['proposed']['@label'];
-
-                $isValidated = $proposition['validated'];
-                $process = $proposition['process'];
-
-                $class = ['value'];
-                if ($isValidated) $class[] = 'validated-value';
-                $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
-                ?>
-                <div class="<?= implode(' ', $class); ?>" lang="<?= $escape($language) ?>">
-                    <?php if ($language): ?>
-                    <span class="language"><?= $language ?></span>
-                    <?php endif; ?>
-
-                    <?php if ($process === 'remove'): ?>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_label) ?></span><span>:</span>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_uri) ?></span>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_label) ?></span><span>:</span>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original_uri) ?></span>
-                    <?php else: ?>
-                        <?php if ($original_label): ?>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original_label) ?></span><span>:</span>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original_uri) ?></span>
-                    <br/>
-                        <?php endif; ?>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed_label) ?></span><span>:</span>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed_uri) ?></span>
-                    <?php endif; ?>
-
-                    <span class="single actions">
-                    <?php if ($isValidated): ?>
-                        <span class="no-action o-icon-validated-value" aria-label="<?= $escape($translate('Validated')) ?>"></span>
-                    <?php elseif ($process === 'keep'): ?>
-                        <span class="no-action o-icon-not-validable-value" aria-label="<?= $escape($translate('Not validable')) ?>"></span>
-                    <?php elseif (!$editRight): ?>
-                        <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escape($translate('No right to write')) ?>"></span>
-                    <?php else: ?>
-                        <a href="#"
-                            class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
-                            data-status="validate-value"
-                            aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
-                            title="<?= $txt ?>"></a>
-                    <?php endif; ?>
-                    </span>
-                </div>
                 <?php
-                break;
-
-            case 'literal':
-            default:
-                $original = $proposition['original']['@value'];
-                $proposed = $proposition['proposed']['@value'];
-                $isValidated = $proposition['validated'];
-                $process = $proposition['process'];
-
-                $class = ['value'];
-                if ($isValidated) $class[] = 'validated-value';
-                $language = $proposition['value'] ? $escape($proposition['value']->lang()) : null;
-                ?>
-                <div class="<?= implode(' ', $class); ?>" lang="<?= $escape($language) ?>">
-                    <?php if ($language): ?>
-                    <span class="language"><?= $language ?></span>
-                    <?php endif; ?>
-
-                    <?php if ($process === 'remove'): ?>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="remove-value"><?= $escape($original) ?></span>
-                    <?php else: ?>
-                        <?php if ($original): ?>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="original-value"><?= $escape($original) ?></span>
-                    <br/>
-                        <?php endif; ?>
-                    <span data-name="<?= $term . '[' . $key . '][@value]'; ?>" class="<?= $process; ?>-value"><?= $escape($proposed) ?></span>
-                    <?php endif; ?>
-
-                    <span class="single actions">
-                    <?php if ($isValidated): ?>
-                        <span class="no-action o-icon-validated-value" aria-label="<?= $escape($translate('Validated')) ?>"></span>
-                    <?php elseif ($process === 'keep'): ?>
-                        <span class="no-action o-icon-not-validable-value" aria-label="<?= $escape($translate('Not validable')) ?>"></span>
-                    <?php elseif (!$editRight): ?>
-                        <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escape($translate('No right to write')) ?>"></span>
-                    <?php else: ?>
-                        <a href="#"
-                            class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escape($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
-                            data-status="validate-value"
-                            aria-label="<?= $txt = $escape(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
-                            title="<?= $txt ?>"></a>
-                    <?php endif; ?>
-                    </span>
-                </div>
-                 <?php
-                break;
-            endswitch;
-        endforeach;
-        ?>
-        </div>
-    </div>
-<?php endforeach; ?>
-
+                $proposal = $contribution->proposalNormalizeForValidation();
+                $vars = $this->vars();
+                $varsBase = $vars->getArrayCopy();
+                $varsBase['api'] = $api;
+                $varsBase['escape'] = $escape;
+                $varsBase['translate'] = $translate;
+                $varsBase['hyperlink'] = $hyperlink;
+                $varsBase['escapeAttr'] = $escapeAttr;
+                $varsBase['contribution'] = $contribution;
+                $varsBase['editRight'] = $editRight;
+                $varsBase['labelInfo'] = $this->setting('property_label_information');
+                $varsBase['values'] = $resource->values();
+                $varsBase['isSubProposal'] = false;
+                $varsBase['proposal'] = $proposal;
+                echo $this->partial('common/admin/contribute-list-part', $varsBase);
+                if (isset($proposal['media']) && count($proposal['media'])):
+                    ?>
+                    <div class><?= $translate('Medias') ?>
+                        <?php
+                        // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+                        $varsBase['values'] = [];
+                        $varsBase['isSubProposal'] = true;
+                        $varsForLoop = [];
+                        foreach ($proposal['media'] ?? [] as $subProposal) {
+                            $varsBase['proposal'] = $subProposal;
+                            $varsForLoop[] = $varsBase;
+                        }
+                        echo $this->partialLoop('common/admin/contribute-list-part', $varsForLoop);
+                        ?>
+                    </div>
+                <?php endif; ?>
             </td>
         </tr>
         <?php endforeach; ?>

@@ -15,6 +15,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     protected $values;
 
     /**
+     * @var array
+     */
+    protected $valuesMedias;
+
+    /**
      * Get the resource name of the corresponding entity API adapter.
      */
     public function resourceName(): string
@@ -100,6 +105,16 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     public function proposal(): array
     {
         return $this->resource->getProposal();
+    }
+
+    /**
+     * Get all media proposals of this contribution.
+     *
+     * This is a shortcut to the key "media" of the proposal.
+     */
+    public function proposalMedias(): array
+    {
+        return $this->resource->getProposal()['media'] ?? [];
     }
 
     /**
@@ -285,11 +300,32 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Check proposed contribution against current resource and normalize it.
+     *
+     * The sub-contributed medias are checked too via a recursive call.
+     *
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
+     * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
+     * @todo Factorize with \Contribute\View\Helper\ContributionFields
      */
-    public function proposalNormalizeForValidation(): array
+    public function proposalNormalizeForValidation(?int $indexProposalMedia = null): array
     {
-        // Use the resource template of the resource or the default one.
         $contributive = $this->contributiveData();
+        $proposal = $this->proposal();
+
+        // Normalize sub-proposal.
+        if (is_int($indexProposalMedia)) {
+            $contributive = $contributive->contributiveMedia();
+            if (!$contributive) {
+                return [];
+            }
+            $proposal = $proposal['media'][$indexProposalMedia] ?? [];
+        }
+
+        $services = $this->getServiceLocator();
+        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
+        $customVocabBaseTypes = $this->getViewHelper('customVocabBaseType')();
+
+        // Use the resource template of the resource or the default one.
         $resourceTemplate = $contributive->template();
 
         // A template is required, but its check should be done somewhere else:
@@ -298,16 +334,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         //     return [];
         // }
 
-        $services = $this->getServiceLocator();
-        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms');
-        $propertyIds = $propertyIds();
-        $customVocabBaseTypes = $this->getViewHelper('customVocabBaseType')();
-
-        $proposal = $this->proposal();
         $proposal['template'] = $resourceTemplate;
+        $proposal['media'] = [];
 
         foreach ($proposal as $term => $propositions) {
-            if ($term === 'template') {
+            // Skip special keys.
+            if ($term === 'template' || $term === 'media') {
                 continue;
             }
 
@@ -595,6 +627,15 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             }
         }
 
+        // Normalize sub-proposal.
+        if (!is_int($indexProposalMedia)) {
+            foreach (array_keys($proposal['media']) ?? [] as $indexProposalMedia) {
+                $indexProposalMedia = (int) $indexProposalMedia;
+                // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+                $proposal['media'][$indexProposalMedia] = $this->proposalNormalizeForValidation($indexProposalMedia);
+            }
+        }
+
         return $proposal;
     }
 
@@ -603,11 +644,14 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function contributiveData(): \Contribute\Mvc\Controller\Plugin\ContributiveData
     {
-        $contributive = $this->getServiceLocator()->get('ControllerPluginManager')
-            ->get('contributiveData');
-        $contributive = clone $contributive;
-        $resourceTemplate = $this->resourceTemplate();
-        return $contributive($resourceTemplate);
+        static $contributive;
+        if (!$contributive) {
+            $contributive = $this->getServiceLocator()->get('ControllerPluginManager')
+                ->get('contributiveData');
+            $contributive = clone $contributive;
+            $contributive($this->resourceTemplate());
+        }
+        return $contributive;
     }
 
     /**
@@ -665,6 +709,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Get all proposal of this contribution by term with template property.
      *
+     * Values of the linked template (media) are not included.
+     *
      * @see \Omeka\Api\Representation\AbstractResourceEntityRepresentation::values()
      * @uses \Contribute\View\Helper\ContributionFields
      */
@@ -677,13 +723,51 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->getViewHelper('contributionFields');
         // No event triggered for now.
-        $this->values = $contributionFields($this->resource(), $this);
+        $resource = $this->resource();
+        $this->values = $contributionFields($resource, $this);
         return $this->values;
     }
 
     /**
-     * Get the display markup for all values of this resource.
+     * Get media proposals of this contribution by term with template property.
      *
+     * @see \Omeka\Api\Representation\AbstractResourceEntityRepresentation::values()
+     * @uses \Contribute\View\Helper\ContributionFields
+     */
+    public function valuesMedias(): array
+    {
+        if (isset($this->valuesMedias)) {
+            return $this->valuesMedias;
+        }
+
+        $this->valuesMedia = [];
+
+        // No event triggered for now.
+        $resource = $this->resource();
+        if ($resource && !$resource instanceof \Omeka\Api\Representation\ItemRepresentation) {
+            return [];
+        }
+
+        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
+        $contributionFields = $this->getViewHelper('contributionFields');
+        $contributive = $this->contributiveData();
+        $contributiveMedia = $contributive->contributiveMedia();
+        if (!$contributiveMedia) {
+            return [];
+        }
+
+        $resourceTemplateMedia = $contributiveMedia->template();
+        foreach (array_keys($this->proposalMedias()) as $indexProposalMedia) {
+            // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+            // So, there is no resource, but a proposal for a new media.
+            $this->valuesMedia[$indexProposalMedia] = $contributionFields(null, $this, $resourceTemplateMedia, true, $indexProposalMedia);
+        }
+        return $this->valuesMedia;
+    }
+
+    /**
+     * Get the display markup for all values of this resource, medias included.
+     *      *
      * Options:
      *
      * + viewName: Name of view script, or a view model. Default
@@ -700,6 +784,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
         // No event triggered for now.
         $options['values'] = $this->values();
+        $options['valuesMedias'] = $this->valuesMedias();
 
         $template = $this->resourceTemplate();
         $options['templateProperties'] = $template ? $template->resourceTemplateProperties() : [];

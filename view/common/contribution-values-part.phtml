@@ -1,0 +1,114 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Contribute\Api\Representation\ContributionRepresentation $contribution
+ * @var array $templateProperties
+ *
+ * For loop:
+ * @var \Laminas\View\Helper\EscapeHtml $escape
+ * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var bool $isSiteRequest
+ * @var string $labelInfo
+ * @var bool $showLocale
+ *
+ * @var array $values
+ * @var bool $isSub
+ * @var ?int $indexValuesMedia
+ */
+?>
+
+<?php if ($isSub): ?>
+<div class="contribution-media">
+    <h4 class="contribution-media-label"><?= sprintf($isSiteRequest ? $translate('File #%s') : $translate('Media #%s'), $this->partialLoop()->getPartialCounter()) ?></h4>
+<?php else: ?>
+<div class="contribution">
+<?php endif; ?>
+
+<?php foreach ($values as /* $term => */ $propertyData): ?>
+    <?php if (empty($propertyData['contributions'])) continue; ?>
+    <div class="property">
+        <h4>
+            <?= $escape($propertyData['alternate_label'] ?: $translate($propertyData['property']->label())) ?>
+            <?php if ('term' === $labelInfo): ?>
+            <span class="field-term">(<?= $escape($propertyData['property']->term()) ?>)</span>
+            <?php elseif ('vocab' === $labelInfo): ?>
+            <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>
+            <?php endif; ?>
+        </h4>
+        <div class="values">
+            <?php foreach ($propertyData['contributions'] as $contribution):
+                $valueType = $contribution['type'];
+                $valueBaseType = $contribution['basetype'];
+                $valueLang = $contribution['lang'] ?? '';
+                $class = ['value'];
+                if ($valueBaseType === 'resource') {
+                    $class[] = 'resource';
+                    // Only item is supported for now.
+                    $class[] = substr($valueType, 0, 9) === 'resource:' ? substr($valueType, 9) : 'item';
+                } elseif ($valueBaseType === 'uri') {
+                    $class[] = 'uri';
+                }
+                ?>
+            <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($valueLang) ?>">
+                <?php if ($showLocale && $valueLang): ?>
+                <span class="language"><?= $valueLang ?></span>
+                <?php endif; ?>
+                    <?php if (!empty($contribution['new'])): ?>
+                <span class="value-content"><?php
+                        if ($valueBaseType === 'uri'):
+                            echo $escape($contribution['proposed']['@uri'] . ' / ' . $contribution['proposed']['@label']);
+                        elseif ($valueBaseType === 'resource'):
+                            try {
+                                $res = $api->read('resources', ['id' => $contribution['proposed']['@resource']])->getContent();
+                                echo $res->link($res->displayTitle());
+                            } catch (\Exception $e) {
+                                echo sprintf($translate('%s [unavailable]'), $contribution['proposed']['@resource']);
+                            }
+                        else:
+                            echo $escape($contribution['proposed']['@value']);
+                        endif;
+                ?></span>
+                    <?php else: ?>
+                <dl>
+                    <dd>
+                        <?php if ($valueBaseType === 'uri'):
+                            echo $escape($contribution['original']['@uri'] . ' / ' . $contribution['original']['@label']);
+                        elseif ($valueBaseType === 'resource'):
+                            try {
+                                $res = $api->read('resources', ['id' => $contribution['original']['@resource']])->getContent();
+                                echo $res->link($res->displayTitle());
+                            } catch (\Exception $e) {
+                                echo sprintf($translate('%s [unavailable]'), $contribution['original']['@resource']);
+                            };
+                        else:
+                            echo $escape($contribution['original']['@value']);
+                        endif; ?>
+                    </dd>
+                    <dt>
+                        <?php if ($valueBaseType === 'uri'):
+                            echo $escape($contribution['proposed']['@uri'] . ' / ' . $contribution['proposed']['@label']);
+                        elseif ($valueBaseType === 'resource'):
+                            try {
+                                $res = $api->read('resources', ['id' => $contribution['proposed']['@resource']])->getContent();
+                                echo $res->link($res->displayTitle());
+                            } catch (\Exception $e) {
+                                echo sprintf($translate('%s [unavailable]'), $contribution['proposed']['@resource']);
+                            }
+                        else:
+                            echo $escape($contribution['proposed']['@value']);
+                        endif; ?>
+                    </dt>
+                </dl>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endforeach; ?>
+
+<?php if ($isSub): ?>
+</div>
+<?php else: ?>
+</div>
+<?php endif; ?>

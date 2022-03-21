@@ -18,7 +18,7 @@
 
 // See common/resource-values.
 
-$plugins = $this->getHelperPluginManager();@
+$plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
 $hyperlink = $plugins->get('hyperlink');
 $formElement = $plugins->get('formElement');
@@ -223,14 +223,14 @@ if ($isMainForm) {
 <?php if ($isMainForm): ?>
 
     <?php if (count($fieldsMediaBase)): ?>
-    <fieldset class="sub-forms">
+    <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>">
         <?php // For end user, "media" means "files". ?>
         <legend><?= $escape($translate('Files')) ?></legend>
         <?php
         $vars->offsetSet('isMainForm', false);
         $indexMedia = 0;
         foreach ($fieldsByMedia as $fieldsMedia): ?>
-        <fieldset class="sub-form" name="media[<?= $indexMedia ?>]" >
+        <fieldset class="contribute-media sub-form" name="media[<?= $indexMedia ?>]" >
             <legend><?= $escape(sprintf($translate('File %s'), $indexMedia + 1)) ?></legend>
             <?php
             $vars->offsetSet('indexMedia', $indexMedia);
@@ -240,7 +240,7 @@ if ($isMainForm) {
         </fieldset>
         <?php ++$indexMedia; ?>
         <?php endforeach; ?>
-        <fieldset class="contribute sub-form" name="media[]" >
+        <fieldset class="contribute sub-form" name="media[]">
             <legend><?= $escape($translate('File')) ?></legend>
             <?php
             $vars->offsetSet('indexMedia', null);
