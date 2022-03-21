@@ -313,7 +313,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $proposal = $this->proposal();
 
         // Normalize sub-proposal.
-        if (is_int($indexProposalMedia)) {
+        $isSubTemplate = is_int($indexProposalMedia);
+        if ($isSubTemplate) {
             $contributive = $contributive->contributiveMedia();
             if (!$contributive) {
                 return [];
@@ -334,12 +335,24 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         //     return [];
         // }
 
+        $medias = $proposal['media'] ?? [];
         $proposal['template'] = $resourceTemplate;
         $proposal['media'] = [];
 
         foreach ($proposal as $term => $propositions) {
             // Skip special keys.
             if ($term === 'template' || $term === 'media') {
+                continue;
+            }
+
+            // File is specific: for media only, one value only, not updatable,
+            // not a property and not in resource template.
+            if ($term === 'file') {
+                $prop = &$proposal[$term][0];
+                $prop['value'] = null;
+                $prop['value_updated'] = $prop['proposed']['@value'];
+                $prop['validated'] = false;
+                $prop['process'] = 'append';
                 continue;
             }
 
@@ -628,8 +641,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
 
         // Normalize sub-proposal.
-        if (!is_int($indexProposalMedia)) {
-            foreach (array_keys($proposal['media']) ?? [] as $indexProposalMedia) {
+        if (!$isSubTemplate) {
+            foreach ($medias ? array_keys($medias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;
                 // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
                 $proposal['media'][$indexProposalMedia] = $this->proposalNormalizeForValidation($indexProposalMedia);
@@ -760,6 +773,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         foreach (array_keys($this->proposalMedias()) as $indexProposalMedia) {
             // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
             // So, there is no resource, but a proposal for a new media.
+            $indexProposalMedia = (int) $indexProposalMedia;
             $this->valuesMedia[$indexProposalMedia] = $contributionFields(null, $this, $resourceTemplateMedia, true, $indexProposalMedia);
         }
         return $this->valuesMedia;

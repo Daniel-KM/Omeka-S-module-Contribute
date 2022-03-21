@@ -2,6 +2,7 @@
 
 namespace Contribute;
 
+use Omeka\Module\Exception\ModuleCannotInstallException;
 use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
 
@@ -174,4 +175,18 @@ if (version_compare($oldVersion, '3.3.0.16', '<')) {
     $settings->delete('contribute_properties_fillable');
     $settings->delete('contribute_properties_datatype');
     $settings->delete('contribute_property_queries');
+}
+
+if (version_compare($oldVersion, '3.3.0.17', '<')) {
+    $settings->set('contribute_templates_media', []);
+
+    $config = $services->get('Config');
+    $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+    if (!$this->checkDestinationDir($basePath . '/contribution')) {
+        $message = new Message(
+            'The directory "%s" is not writeable.', // @translate
+            $basePath . '/contribution'
+        );
+        throw new ModuleCannotInstallException((string) $message);
+    }
 }

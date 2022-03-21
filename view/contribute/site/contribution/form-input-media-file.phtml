@@ -7,8 +7,6 @@
  * @var \Omeka\Form\ResourceForm $form
  * @var \Omeka\Entity\User $user
  * @var array $fields
- * @var array $fieldsByMedia
- * @var array $fieldsMediaBase
  * @var string $action "add" or "edit"
  * @var string $submitLabel
  * @var bool $isMainForm
@@ -44,22 +42,18 @@ $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
 $isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
 $name = $isMainForm
-    ? sprintf('%s[%s][@uri]', $term, $indexFieldInput)
-    : sprintf('media[%s][%s][%s][@uri]', $indexMedia, $term, $indexFieldInput);
+    ? sprintf('%s[%s][@value]', $term, $indexFieldInput)
+    : sprintf('media[%s][%s][%s][@value]', $indexMedia, $term, $indexFieldInput);
 
-$val = $proposed['@uri'] ?? $original['@uri'];
-$label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];
+$val = $proposed['@media'] ?? $original['@media'];
 
-$class = ['value', 'value-suggest'];
+$class = ['value'];
+$class[] = 'uri';
 if ($isPrivate):
     $class[] = 'private';
 endif;
-$language = isset($proposed['@uri']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
 ?>
 
-<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
-    <?php if ($language): ?>
-    <span class="language"><?= $language ?></span>
-    <?php endif; ?>
-    <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="<?= $name ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<?php if ($val): ?><a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a><?php endif; ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
+<div class="<?= implode(' ', $class) ?>">
+    <input type="file" class="form-control input-value" data-value-key="@value" name="<?= $name ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
 </div>

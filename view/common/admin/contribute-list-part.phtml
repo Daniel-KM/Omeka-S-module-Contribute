@@ -23,13 +23,13 @@
  */
 
 /** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
-$resourceTemplate = $proposal['template'];
+$resourceTemplate = $proposal['template'] ?? null;
 // Clean data for the special keys.
 unset($proposal['template'], $proposal['media']);
 ?>
 
 <?php if ($isSubProposal): ?>
-<div class="property proposal-media">
+<div class="proposal-media">
     <h4><?= sprintf($translate('Media %s'), $this->partialLoop()->getPartialCounter()) ?></h4>
 <?php endif; ?>
 
@@ -46,6 +46,13 @@ unset($proposal['template'], $proposal['media']);
 <?php foreach ($proposal as $term => $propositions):
     if (isset($values[$term])):
         $propertyData = $values[$term];
+    elseif ($term === 'file'):
+        $propertyData = [
+            'property' => null,
+            'alternate_label' => $translate('File'),
+            'alternate_comment' => null,
+            'values' => [],
+        ];
     else:
         $property = $api->searchOne('properties', ['term' => $term])->getContent();
         // In the case the property was removed after the contribute.
@@ -61,7 +68,9 @@ unset($proposal['template'], $proposal['media']);
     <div class="property">
         <h4>
             <?= $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())) ?>
-            <?php if ('term' === $labelInfo): ?>
+            <?php if (!isset($propertyData['property'])):?>
+            <?php // Nothing to do (file). ?>
+            <?php elseif ('term' === $labelInfo): ?>
             <span class="field-term">(<?= $escape($propertyData['property']->term()) ?>)</span>
             <?php elseif ('vocab' === $labelInfo): ?>
             <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>

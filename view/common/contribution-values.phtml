@@ -9,8 +9,11 @@
  */
 
 $plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$api = $plugins->get('api');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
 
 $isSiteRequest = $this->status()->isSiteRequest();
 if ($isSiteRequest) {
@@ -23,12 +26,17 @@ if ($isSiteRequest) {
     $showLocale = true;
 }
 
+$baseUrlFiles = $contribution->getServiceLocator()->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
+
 $varsBase = [
     'site' => $site,
     'contribution' => $contribution,
     'templateProperties' => $templateProperties,
+    'api' => $api,
     'escape' => $escape,
     'translate' => $translate,
+    'escapeAttr' => $escapeAttr,
+    'baseUrlFiles' => $baseUrlFiles,
     'isSiteRequest' => $isSiteRequest,
     'labelInfo' => $labelInfo,
     'showLocale' => $showLocale,

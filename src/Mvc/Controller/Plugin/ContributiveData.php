@@ -23,6 +23,8 @@ class ContributiveData extends AbstractPlugin
      * The template can contain a sub-template for files. It is set in the main
      * resource template too (one level recursivity).
      *
+     * The input for a file is specific and not managed here.
+     *
      * @todo Remove code that set fields or use default datatypes without resource template.
      *
      * @param \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|\Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template

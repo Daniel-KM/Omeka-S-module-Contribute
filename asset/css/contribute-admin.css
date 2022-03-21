@@ -167,6 +167,15 @@
         content: "";
     }
 
+    .contribution-medias-label {
+        border-bottom: solid 1px;
+    }
+
+    .proposal-media {
+        border-bottom: solid 1px;
+        opacity: 0.7;
+    }
+
     .single-action {
         margin: 0 0 0 auto;
         padding: 0;

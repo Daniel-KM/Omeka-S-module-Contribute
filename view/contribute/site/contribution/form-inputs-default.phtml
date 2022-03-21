@@ -24,10 +24,10 @@
  * @var bool $hasValueSuggest
  * @var bool $hasNumericDataTypes
  * @var ?array $customVocabBaseTypes
- *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
  * @var callable $shortResourceTitle
+ * @var string $baseUrlFiles
  */
 
 // Templates for the fields according to the datatype.
@@ -57,6 +57,10 @@ $args['readonly'] = true;
 
 <div id="edit_template_uri" class="contribute_template uri" style="display:none;">
     <?= $partial('contribute/site/contribution/form-input-uri', $args) ?>
+</div>
+
+<div id="edit_template_media-file" class="contribute_template media" style="display:none;">
+    <?= $partial('contribute/site/contribution/form-input-media-file', $args) ?>
 </div>
 
 <?php if ($hasNumericDataTypes): ?>

@@ -179,10 +179,10 @@ class ContributionController extends AbstractActionController
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
-                // TODO Manage file data.
-                // $fileData = $this->getRequest()->getFiles()->toArray();
+                // TODO There is no validation by the form, except csrf, since elements are added through views. So use form (but includes non-updatable values, etc.).
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
+                $data = $this->checkAndIncludeFileData($data);
                 $proposal = $this->prepareProposal($data);
                 if ($proposal) {
                     // When there is a resource, it isn’t updated, but the
@@ -359,10 +359,9 @@ class ContributionController extends AbstractActionController
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
-                // TODO Manage file data.
-                // $fileData = $this->getRequest()->getFiles()->toArray();
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
+                $data = $this->checkAndIncludeFileData($data);
                 $proposal = $this->prepareProposal($data, $resource);
                 if ($proposal) {
                     // The resource isn’t updated, but the proposition of
@@ -570,6 +569,20 @@ class ContributionController extends AbstractActionController
             'media' => [],
         ];
 
+        // File is specific: for media only, one value only, not updatable,
+        // not a property and not in resource template.
+        if (isset($proposal['file'][0]['@value']) && $proposal['file'][0]['@value'] !== '') {
+            $result['file'] = [];
+            $result['file'][0] = [
+                'original' => [
+                    '@value' => null,
+                ],
+                'proposed' => [
+                    '@value' => $proposal['file'][0]['@value'],
+                ],
+            ];
+        }
+
         // Clean data for the special keys.
         $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
         unset($proposal['template'], $proposal['media']);
@@ -618,6 +631,11 @@ class ContributionController extends AbstractActionController
         }
 
         foreach ($proposalEditableTerms as $term) {
+            // File is a special type: for media only, single value only, not updatable.
+            if ($term === 'file') {
+                continue;
+            }
+
             /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
             $values = $resource ? $resource->value($term, ['all' => true]) : [];
             foreach ($values as $index => $value) {
@@ -864,7 +882,7 @@ class ContributionController extends AbstractActionController
             $contributiveMedia = $contributive->contributiveMedia();
             if ($contributiveMedia) {
                 $templateMedia = $contributiveMedia->template()->id();
-                foreach ($proposalMedias as $indexProposalMedia => $proposalMedia) {
+                foreach ($proposalMedias ?: [] as $indexProposalMedia => $proposalMedia) {
                     // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
                     $proposalMedia['template'] = $templateMedia;
                     $proposalMediaClean = $this->prepareProposal($proposalMedia, null, true);
@@ -902,6 +920,14 @@ class ContributionController extends AbstractActionController
             $uriLabels[$customVocabId] = $values;
         }
         return $uriLabels[$customVocabId];
+    }
+
+    /**
+     * Early check files and move data into main data.
+     */
+    protected function checkAndIncludeFileData(array $data): array
+    {
+        return $data;
     }
 
     /**

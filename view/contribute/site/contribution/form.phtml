@@ -36,8 +36,9 @@ if ($isMainForm) {
 
     // The api manager is needed to create select for Value Suggest.
     // TODO Replace apiManager by FormElementManager.
-    $apiManager = $site->getServiceLocator()->get('Omeka\ApiManager');
-    $moduleManager = $site->getServiceLocator()->get('Omeka\ModuleManager');
+    $services = $site->getServiceLocator();
+    $apiManager = $services->get('Omeka\ApiManager');
+    $moduleManager = $services->get('Omeka\ModuleManager');
     $hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
     $hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
     $hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
@@ -57,6 +58,8 @@ if ($isMainForm) {
         return mb_substr($resource->displayTitle(), 0, 80);
     };
 
+    $baseUrlFiles = $services->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
+
     $indexMedia = null;
     $fieldsMedia = [];
 
@@ -75,6 +78,7 @@ if ($isMainForm) {
     $vars['valueResourceTypes'] = $valueResourceTypes;
     $vars['valueResourceQueries'] = $valueResourceQueries;
     $vars['shortResourceTitle'] = $shortResourceTitle;
+    $vars['baseUrlFiles'] = $baseUrlFiles;
     $vars = $this->setVars(new \Laminas\View\Variables($vars))->vars();
 
     // Don't prepare form if there are no fields.
@@ -94,9 +98,33 @@ if ($isMainForm) {
     <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 <?php endif; ?>
 
+    <?php // Display the special field for media file (not a property, and cannot be set in resource template). ?>
+    <?php if (!$isMainForm):
+        // Only one file is allowed by media and it cannot be updated.
+        $file = $fieldsMedia['file']['contributions'][0]['proposed']['store'] ?? null;
+        ?>
+    <div class="property">
+        <h4><?= $translate('Upload') ?></h4>
+        <?php if ($file): ?>
+        <div class="values">
+            <div class="value">
+                <a href="<?= $escapeAttr($baseUrlFiles . '/contribution/' . $file) ?>" download="download"><?= $escape($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?></a>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="values">
+            <div class="value">
+                <input type="file" class="form-control input-value" data-value-key="@value" name="media[<?= $indexMedia ?>][file][0][@value]"/>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <?php // Display the edited resource, with edited or non-edited fields, plus the non-editable original fields. ?>
 
     <?php foreach ($isMainForm ? $fields : $fieldsMedia as $term => $field):
+        if ($term === 'file') continue;
         // Don't display empty values that are not fillable.
         if (empty($field['contributions']) && !$field['fillable']) continue;
         $indexFieldInput = 0;
@@ -111,10 +139,12 @@ if ($isMainForm) {
         <?php // Display property label. ?>
         <h4>
             <?= isset($field['alternate_label']) ? $escape($field['alternate_label']) : $escape($translate($property->label())) ?>
-            <?php if ($labelInfo === 'term'): ?>
+            <?php if (!isset($field['property'])):?>
+            <?php // Nothing to do (file). ?>
+            <?php elseif ($labelInfo === 'term'): ?>
             <span class="field-term">(<?= $escape($field['property']->term()) ?>)</span>
             <?php elseif ($labelInfo === 'vocab'): ?>
-            <span class="field-term">(<?= $escape($property->vocabulary()->label()) ?>)</span>
+            <span class="field-term">(<?= $escape($field['property']->vocabulary()->label()) ?>)</span>
             <?php endif; ?>
         </h4>
 
@@ -230,7 +260,7 @@ if ($isMainForm) {
         $vars->offsetSet('isMainForm', false);
         $indexMedia = 0;
         foreach ($fieldsByMedia as $fieldsMedia): ?>
-        <fieldset class="contribute-media sub-form" name="media[<?= $indexMedia ?>]" >
+        <fieldset class="contribute-media sub-form" name="media[<?= $indexMedia ?>]" data-index-media="<?= $indexMedia ?>">
             <legend><?= $escape(sprintf($translate('File %s'), $indexMedia + 1)) ?></legend>
             <?php
             $vars->offsetSet('indexMedia', $indexMedia);
@@ -277,7 +307,7 @@ if ($isMainForm) {
 
     <?php if (count($fieldsMediaBase)): ?>
     <div id="edit_template_media" class="contribute_template media" style="display:none;">
-        <fieldset class="contribute-media sub-form" name="media[]">
+        <fieldset class="contribute-media sub-form" name="media[]" data-index-media="">
             <legend><?= $escape($translate('File')) ?></legend>
             <?php
             $vars->offsetSet('isMainForm', false);

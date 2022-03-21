@@ -654,6 +654,14 @@ class ContributionController extends AbstractActionController
             'media' => [],
         ];
 
+        // File is specific: for media only, one value only, not updatable,
+        // not a property and not in resource template.
+        if (isset($proposal['file'][0]['proposed']['@value']) && $proposal['file'][0]['proposed']['@value'] !== '') {
+            $data['o:ingester'] = 'contribution';
+            $data['o:source'] = $proposal['file'][0]['proposed']['@value'];
+            $data['store'] = $proposal['file'][0]['proposed']['store'] ?? null;
+        }
+
         // Clean data for the special keys.
         $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
         unset($proposal['template'], $proposal['media']);
@@ -834,7 +842,7 @@ class ContributionController extends AbstractActionController
         }
 
         if (!$isSubTemplate) {
-            foreach (array_keys($proposalMedias) as $indexProposalMedia) {
+            foreach ($proposalMedias ? array_keys($proposalMedias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;
                 // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
                 $data['media'][$indexProposalMedia] = $this->validateAndUpdateContribution($contribution, $term, $proposedKey, true, $indexProposalMedia);

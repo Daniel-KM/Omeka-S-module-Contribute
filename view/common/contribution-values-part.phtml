@@ -6,8 +6,11 @@
  * @var array $templateProperties
  *
  * For loop:
+ * @var \Omeka\View\Helper\Api $api
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
+ * @var string $baseUrlFiles
  * @var bool $isSiteRequest
  * @var string $labelInfo
  * @var bool $showLocale
@@ -25,12 +28,14 @@
 <div class="contribution">
 <?php endif; ?>
 
-<?php foreach ($values as /* $term => */ $propertyData): ?>
+<?php foreach ($values as $term => $propertyData): ?>
     <?php if (empty($propertyData['contributions'])) continue; ?>
     <div class="property">
         <h4>
             <?= $escape($propertyData['alternate_label'] ?: $translate($propertyData['property']->label())) ?>
-            <?php if ('term' === $labelInfo): ?>
+            <?php if (!isset($propertyData['property'])):?>
+            <?php // Nothing to do (file). ?>
+            <?php elseif ('term' === $labelInfo): ?>
             <span class="field-term">(<?= $escape($propertyData['property']->term()) ?>)</span>
             <?php elseif ('vocab' === $labelInfo): ?>
             <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>
@@ -65,6 +70,8 @@
                             } catch (\Exception $e) {
                                 echo sprintf($translate('%s [unavailable]'), $contribution['proposed']['@resource']);
                             }
+                        elseif ($term === 'file'): // File is always a new value.
+                            echo '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contribution['proposed']['@value']) . '" download="download">' . $escape($contribution['proposed']['@value']) . '</a>';
                         else:
                             echo $escape($contribution['proposed']['@value']);
                         endif;

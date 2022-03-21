@@ -296,6 +296,43 @@ class ContributionFields extends AbstractHelper
             return $fields;
         }
 
+        // File is specific: for media only, one value only, not updatable,
+        // not a property and not in resource template.
+        if (isset($proposals['file'][0]['proposed']['@value']) && $proposals['file'][0]['proposed']['@value'] !== '') {
+            $fields['file'] = [
+                'template_property' => null,
+                'property' => null,
+                'alternate_label' => $this->getView()->translate('File'),
+                'alternate_comment' => null,
+                'required' => true,
+                'max_values' => 1,
+                'editable' => false,
+                'fillable' => true,
+                'datatypes' => ['file'],
+                'values' => [],
+                'contributions' => [],
+            ];
+            $fields['file']['contributions'][] = [
+                'type' => 'file',
+                'basetype' => 'literal',
+                'lang' => null,
+                'new' => true,
+                'original' => [
+                    'value' => null,
+                    '@resource' => null,
+                    '@value' => null,
+                    '@uri' => null,
+                    '@label' => null,
+                ],
+                'proposed' => [
+                    '@value' => $proposals['file'][0]['proposed']['@value'],
+                    '@resource' => null,
+                    '@uri' => null,
+                    '@label' => null,
+                ],
+            ];
+        }
+
         // Fill the proposed contributions, according to the original value.
         foreach ($fields as $term => &$field) {
             if (!isset($proposals[$term])) {

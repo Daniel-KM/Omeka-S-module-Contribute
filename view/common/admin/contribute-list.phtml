@@ -126,8 +126,10 @@ $editRight = $resource->userIsAllowed('update');
                 $varsBase['proposal'] = $proposal;
                 echo $this->partial('common/admin/contribute-list-part', $varsBase);
                 if (isset($proposal['media']) && count($proposal['media'])):
+                    // No upper div to simplify admin theme.
                     ?>
-                    <div class><?= $translate('Medias') ?>
+                    <div class="contribution-medias">
+                        <h4 class="contribution-medias-label"><?= $translate('Medias') ?></h4>
                         <?php
                         // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
                         $varsBase['values'] = [];

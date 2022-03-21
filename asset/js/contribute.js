@@ -61,7 +61,17 @@ $(document).ready(function() {
         ev.stopPropagation();
 
         var target = $(ev.target);
-        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-numeric-integer, .add-value-numeric-timestamp, .add-value-custom-vocab, .add-value-value-suggest')) {
+        const adds = [
+            '.add-value-new',
+            '.add-value-resource',
+            '.add-value-uri',
+            '.add-value-numeric-integer',
+            '.add-value-numeric-timestamp',
+            '.add-value-custom-vocab',
+            '.add-value-value-suggest',
+            '.add-value-media-file',
+        ];
+        if (!target.is(adds.join(','))) {
             return;
         }
 
@@ -69,7 +79,7 @@ $(document).ready(function() {
         var term = selector.data('next-term');
         var index = selector.data('next-index') ? parseInt(selector.data('next-index')) : 0;
         var isMedia = target.hasClass('add-value-media');
-        var indexMedia = isMedia ? parseInt(target.closest('.contribute-medias').data('next-index-media')) : null;
+        var indexMedia = isMedia ? parseInt(target.closest('.contribute-media').data('index-media')) : null;
         var inputs = target.closest('.property').find('.values').first();
         var newElement,
             name,
@@ -196,13 +206,16 @@ $(document).ready(function() {
     $('#edit-resource').on('click', '.inputs-media .add-media-new', function(ev) {
         var target = $(ev.target);
         var fieldsetMedias = target.closest('.contribute-medias');
-        var indexMedia = parseInt(fieldsetMedias.data('next-index-media'));
+        var indexMedia = 0 + parseInt(fieldsetMedias.data('next-index-media'));
         var fieldsetMedia = $('#edit_template_media > .sub-form').clone();
         // Set all names and indexes.
-        fieldsetMedia.prop('name', 'media[' + indexMedia + ']');
-        fieldsetMedia.find('input, select, textarea').each(function(index, element) {
-            console.log(element.prop('name'));
-        });
+        fieldsetMedia
+            .prop('name', 'media[' + indexMedia + ']')
+            .data('index-media', indexMedia);
+        // In fact, required names are already set and new ones are set
+        // dynamically. so there only the input file name should be set.
+        fieldsetMedia.find('input[type=file]')
+            .prop('name', baseName('file', 0, indexMedia) + '[@value]');
         fieldsetMedias
             .data('next-index-media', indexMedia + 1)
             .find('.inputs-media')
