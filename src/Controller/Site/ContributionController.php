@@ -653,7 +653,7 @@ class ContributionController extends AbstractActionController
         }
 
         // Validate the contribution with the contribution process.
-        $resourceData = $this->validateContribution($contribution);
+        $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
             $message = new Message(
                 'Contribution is not valid: check template.' // @translate
@@ -800,9 +800,9 @@ class ContributionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Factorize with \Contribute\Admin\ContributionController::validateContribution()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
+     * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalToResourceData()
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      */

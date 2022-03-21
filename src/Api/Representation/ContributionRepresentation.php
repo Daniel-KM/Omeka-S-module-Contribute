@@ -327,9 +327,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * The sub-contributed medias are checked too via a recursive call.
      *
-     * @todo Factorize with \Contribute\Admin\ContributionController::validateContribution()
      * @todo Factorize with \Contribute\Site\ContributionController::prepareProposal()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
+     * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalToResourceData()
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      */
@@ -676,6 +676,268 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
 
         return $proposal;
+    }
+
+    /**
+     * Check values of the exiting resource with the proposal and get api data.
+     *
+     * @todo Factorize with \Contribute\Site\ContributionController::prepareProposal()
+     * @todo Factorize with \Contribute\View\Helper\ContributionFields
+     * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
+     *
+     * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
+     *
+     * @param string|null $term Validate only a specific term.
+     * @param int|null $proposedKey Validate only a specific key.
+     * @return array Data to be used for api. Files for media are in key file.
+     */
+    public function proposalToResourceData(
+        ?string $term = null,
+        $proposedKey = null,
+        ?bool $isSubTemplate = false,
+        ?int $indexProposalMedia = null
+    ): ?array {
+        // The contribution requires a resource template in allowed templates.
+        $contributive = $this->contributiveData();
+        if (!$contributive->isContributive()) {
+            return null;
+        }
+
+        // Right to update the resource is already checked.
+        // There is always a resource template.
+        if ($isSubTemplate) {
+            $contributive = $contributive->contributiveMedia();
+            // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+            $resource = null;
+            $existingValues = [];
+        } else {
+            $resource = $this->resource();
+            $existingValues = $resource ? $resource->values() : [];
+        }
+
+        $resourceTemplate = $contributive->template();
+        $proposal = $this->proposalNormalizeForValidation($indexProposalMedia);
+        $hasProposedKey = !is_null($proposedKey);
+
+        $services = $this->getServiceLocator();
+        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
+        $customVocabBaseTypes = $services->get('ViewHelperManager')->get('customVocabBaseType')();
+
+        // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
+
+        $data = [
+            'o:resource_template' => null,
+            'o:resource_class' => null,
+            'o:media' => [],
+            'file' => [],
+        ];
+        if ($resourceTemplate) {
+            $resourceClass = $resourceTemplate->resourceClass();
+            $data['o:resource_template'] = ['o:id' => $resourceTemplate->id()];
+            $data['o:resource_class'] = $resourceClass ? ['o:id' => $resourceClass->id()] : null;
+        }
+
+        // File is specific: for media only, one value only, not updatable,
+        // not a property and not in resource template.
+        if (isset($proposal['file'][0]['proposed']['@value']) && $proposal['file'][0]['proposed']['@value'] !== '') {
+            $data['o:ingester'] = 'contribution';
+            $data['o:source'] = $proposal['file'][0]['proposed']['@value'];
+            $data['store'] = $proposal['file'][0]['proposed']['store'] ?? null;
+        }
+
+        // Clean data for the special keys.
+        $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
+        unset($proposal['template'], $proposal['media']);
+
+        foreach ($existingValues as $term => $propertyData) {
+            // Keep all existing values.
+            $data[$term] = array_map(function ($v) {
+                return $v->jsonSerialize();
+            }, $propertyData['values']);
+            if (!$contributive->isTermContributive($term)) {
+                continue;
+            }
+            /** @var \Omeka\Api\Representation\ValueRepresentation $existingValue */
+            foreach ($propertyData['values'] as $existingValue) {
+                if (!isset($proposal[$term])) {
+                    continue;
+                }
+                if (!$contributive->isTermDatatype($term, $existingValue->type())) {
+                    continue;
+                }
+
+                // Values have no id and the order key is not saved, so the
+                // check should be redone.
+                $existingVal = $existingValue->value();
+                $existingUri = $existingValue->uri();
+                $existingResourceId = $existingValue->valueResource() ? $existingValue->valueResource()->id() : null;
+                foreach ($proposal[$term] as $key => $proposition) {
+                    if ($hasProposedKey && $proposedKey != $key) {
+                        continue;
+                    }
+                    if ($proposition['validated']) {
+                        continue;
+                    }
+                    if (!in_array($proposition['process'], ['remove', 'update'])) {
+                        continue;
+                    }
+
+                    $isUri = array_key_exists('@uri', $proposition['original']);
+                    $isResource = array_key_exists('@resource', $proposition['original']);
+                    $isValue = array_key_exists('@value', $proposition['original']);
+
+                    if ($isUri) {
+                        if ($proposition['original']['@uri'] === $existingUri) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['@id'] = $proposition['proposed']['@uri'];
+                                    $data[$term][$key]['o:label'] = $proposition['proposed']['@label'];
+                                    break;
+                            }
+                            break;
+                        }
+                    } elseif ($isResource) {
+                        if ($proposition['original']['@resource'] === $existingResourceId) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['value_resource_id'] = $proposition['proposed']['@resource'];
+                                    break;
+                            }
+                            break;
+                        }
+                    } elseif ($isValue) {
+                        if ($proposition['original']['@value'] === $existingVal) {
+                            switch ($proposition['process']) {
+                                case 'remove':
+                                    unset($data[$term][$key]);
+                                    break;
+                                case 'update':
+                                    $data[$term][$key]['@value'] = $proposition['proposed']['@value'];
+                                    break;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Convert last remaining propositions into array.
+        // Only process "append" should remain.
+        foreach ($proposal as $term => $propositions) {
+            if (!$contributive->isTermContributive($term)) {
+                continue;
+            }
+            $propertyId = $propertyIds[$term] ?? null;
+            if (!$propertyId) {
+                continue;
+            }
+
+            $typeTemplate = null;
+            if ($resourceTemplate) {
+                $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
+                if ($resourceTemplateProperty) {
+                    $typeTemplate = $resourceTemplateProperty->dataType();
+                }
+            }
+
+            $baseType = null;
+            $uriLabels = [];
+            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
+                $customVocabId = (int) substr($typeTemplate, 12);
+                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
+                $uriLabels = $this->customVocabUriLabels($customVocabId);
+            }
+
+            foreach ($propositions as $key => $proposition) {
+                if ($hasProposedKey && $proposedKey != $key) {
+                    continue;
+                }
+                if ($proposition['validated']) {
+                    continue;
+                }
+                if ($proposition['process'] !== 'append') {
+                    continue;
+                }
+
+                if ($typeTemplate) {
+                    $type = $typeTemplate;
+                } elseif (array_key_exists('@uri', $proposition['original'])) {
+                    $type = 'uri';
+                } elseif (array_key_exists('@resource', $proposition['original'])) {
+                    $type = 'resource';
+                } elseif (array_key_exists('@value', $proposition['original'])) {
+                    $type = 'literal';
+                } else {
+                    $type = 'unknown';
+                }
+
+                $typeColon = strtok($type, ':');
+                switch ($type) {
+                    case 'literal':
+                    case 'boolean':
+                    case 'html':
+                    case 'xml':
+                    case $typeColon === 'numeric':
+                    case $typeColon === 'customvocab' && $baseType === 'literal':
+                        $data[$term][] = [
+                            'type' => $type,
+                            'property_id' => $propertyId,
+                            '@value' => $proposition['proposed']['@value'],
+                            'is_public' => true,
+                            // '@language' => null,
+                        ];
+                        break;
+                    case $typeColon === 'resource':
+                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                        $data[$term][] = [
+                            'type' => $type,
+                            'property_id' => $propertyId,
+                            'o:label' => null,
+                            'value_resource_id' => $proposition['proposed']['@resource'],
+                            '@id' => null,
+                            'is_public' => true,
+                            '@language' => null,
+                        ];
+                        break;
+                    case $typeColon === 'customvocab' && $baseType === 'uri':
+                        $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? '';
+                        // No break.
+                    case 'uri':
+                    case $typeColon === 'valuesuggest':
+                    case $typeColon === 'valuesuggestall':
+                        $data[$term][] = [
+                            'type' => $type,
+                            'property_id' => $propertyId,
+                            'o:label' => $proposition['proposed']['@label'],
+                            '@id' => $proposition['proposed']['@uri'],
+                            'is_public' => true,
+                        ];
+                        break;
+                    default:
+                        // Nothing.
+                        continue 2;
+                }
+            }
+        }
+
+        if (!$isSubTemplate) {
+            foreach ($proposalMedias ? array_keys($proposalMedias) : [] as $indexProposalMedia) {
+                $indexProposalMedia = (int) $indexProposalMedia;
+                // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
+                $data['o:media'][$indexProposalMedia] = $this->proposalToResourceData($term, $proposedKey, true, $indexProposalMedia);
+                unset($data['o:media'][$indexProposalMedia]['o:media']);
+                unset($data['o:media'][$indexProposalMedia]['file']);
+            }
+        }
+
+        return $data;
     }
 
     /**

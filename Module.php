@@ -251,19 +251,19 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ItemAdapter::class,
             'api.hydrate.post',
-            [$this, 'validateContribution'],
+            [$this, 'handleValidateContribution'],
             -1000
         );
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ItemSetAdapter::class,
             'api.hydrate.post',
-            [$this, 'validateContribution'],
+            [$this, 'handleValidateContribution'],
             -1000
         );
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\MediaAdapter::class,
             'api.hydrate.post',
-            [$this, 'validateContribution'],
+            [$this, 'handleValidateContribution'],
             -1000
         );
 
@@ -382,7 +382,7 @@ class Module extends AbstractModule
     /**
      * Add an error during hydration to avoid to save a resource to validate.
      */
-    public function validateContribution(Event $event): void
+    public function handleValidateContribution(Event $event): void
     {
         /** @var \Omeka\Api\Request $request */
         $request = $event->getParam('request');

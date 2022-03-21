@@ -511,7 +511,7 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorUnauthorized();
         }
 
-        $resourceData = $this->validateContribution($contribution);
+        $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
                 'Contribution is not valid: check template.' // @translate
@@ -560,7 +560,7 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorUnauthorized();
         }
 
-        $resourceData = $this->validateContribution($contribution);
+        $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
                 'Contribution is not valid.' // @translate
@@ -624,7 +624,7 @@ class ContributionController extends AbstractActionController
             return $this->returnError('Missing term or key.'); // @translate
         }
 
-        $resourceData = $this->validateContribution($contribution, $term, $key);
+        $resourceData = $contribution->proposalToResourceData($term, $key);
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
                 'Contribution is not valid.' // @translate
