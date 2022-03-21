@@ -160,6 +160,14 @@ class Module extends AbstractModule
             // Administration.
             ->allow(
                 $validators,
+                [\Contribute\Entity\Contribution::class],
+            )
+            ->allow(
+                $validators,
+                [\Contribute\Api\Adapter\ContributionAdapter::class],
+            )
+            ->allow(
+                $validators,
                 ['Contribute\Controller\Admin\Contribution']
             )
         ;
