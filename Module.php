@@ -113,7 +113,12 @@ class Module extends AbstractModule
         $contributeMode = $services->get('Omeka\Settings')->get('contribute_mode', 'user');
         $isOpenContribution = $contributeMode === 'open' || $contributeMode === 'token';
 
-        /** @var \Omeka\Permissions\Acl $acl */
+        /**
+         * For default rights:
+         * @see \Omeka\Service\AclFactory
+         *
+         * @var \Omeka\Permissions\Acl $acl
+         */
         $acl = $services->get('Omeka\Acl');
 
         // Since Omeka 1.4, modules are ordered, so Guest come after Contribute.
@@ -135,17 +140,19 @@ class Module extends AbstractModule
             \Omeka\Permissions\Acl::ROLE_REVIEWER,
         ];
 
-        // TODO Limit rights to self contribution (IsSelfAssertion).
+        // Nobody can view contributions except owner and admins.
+        // So anonymous contributor cannot view or edit a contribution.
+        // Once submitted, the contribution cannot be updated by the owner.
+        // Once reviewed, the contribution can be viewed like the resource.
 
         $acl
             // Contribution.
             ->allow(
                 $contributors,
                 ['Contribute\Controller\Site\Contribution'],
-                // "view" is forwarded to "show" internally.
+                // TODO "view" is forwarded to "show" internally (will be removed).
                 ['show', 'view', 'add', 'edit', 'delete', 'delete-confirm']
             )
-
             ->allow(
                 $contributors,
                 [\Contribute\Api\Adapter\ContributionAdapter::class],
@@ -161,8 +168,19 @@ class Module extends AbstractModule
             ->allow(
                 $contributors,
                 [\Contribute\Entity\Contribution::class],
-                ['read', 'update', 'delete'],
-                new \Omeka\Permissions\Assertion\OwnsEntityAssertion
+                ['read'],
+                (new \Laminas\Permissions\Acl\Assertion\AssertionAggregate)
+                    ->setMode(\Laminas\Permissions\Acl\Assertion\AssertionAggregate::MODE_AT_LEAST_ONE)
+                    ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
+                    ->addAssertion(new \Contribute\Permissions\Assertion\IsSubmittedAndReviewedAndHasPublicResource)
+            )
+            ->allow(
+                $contributors,
+                [\Contribute\Entity\Contribution::class],
+                ['update', 'delete'],
+                (new \Laminas\Permissions\Acl\Assertion\AssertionAggregate)
+                    ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
+                    ->addAssertion(new \Contribute\Permissions\Assertion\IsNotSubmitted)
             )
 
             ->allow(
@@ -176,6 +194,7 @@ class Module extends AbstractModule
                 ['update']
             )
 
+            // Administration in public side (module Guest).
             ->allow(
                 $contributors,
                 ['Contribute\Controller\Site\GuestBoard']
