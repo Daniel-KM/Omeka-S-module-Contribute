@@ -36,57 +36,6 @@ class ContributionAdapter extends AbstractEntityAdapter
         return \Contribute\Entity\Contribution::class;
     }
 
-    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
-    {
-        // TODO Use shouldHydrate() and validateEntity().
-        /** @var \Contribute\Entity\Contribution $entity */
-        $data = $request->getContent();
-        if (Request::CREATE === $request->getOperation()) {
-            $this->hydrateOwner($request, $entity);
-            $resource = empty($data['o:resource']['o:id'])
-                ? null
-                : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
-            $token = empty($data['o-module-contribute:token'])
-                ? null
-                : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
-            $email = empty($data['o:email']) ? null : $data['o:email'];
-            $reviewed = !empty($data['o-module-contribute:reviewed']);
-            $proposal = empty($data['o-module-contribute:proposal'])
-                ? []
-                : $data['o-module-contribute:proposal'];
-            $entity
-                ->setResource($resource)
-                ->setToken($token)
-                ->setEmail($email)
-                ->setReviewed($reviewed)
-                ->setProposal($proposal);
-        } elseif (Request::UPDATE === $request->getOperation()) {
-            if (!$entity->getResource() && $this->shouldHydrate($request, 'o:resource', $data)) {
-                $resource = empty($data['o:resource']['o:id'])
-                    ? null
-                    : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
-                if ($resource) {
-                    $entity
-                        ->setResource($resource);
-                }
-            }
-            if ($this->shouldHydrate($request, 'o-module-contribute:reviewed', $data)) {
-                $reviewed = !empty($data['o-module-contribute:reviewed']);
-                $entity
-                    ->setReviewed($reviewed);
-            }
-            if ($this->shouldHydrate($request, 'o-module-contribute:proposal', $data)) {
-                $proposal = empty($data['o-module-contribute:proposal'])
-                    ? []
-                    : $data['o-module-contribute:proposal'];
-                $entity
-                    ->setProposal($proposal);
-            }
-        }
-
-        $this->updateTimestamps($request, $entity);
-    }
-
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
         $expr = $qb->expr();
@@ -161,5 +110,56 @@ class ContributionAdapter extends AbstractEntityAdapter
                 $this->createNamedParameter($qb, $query['modified'])
             ));
         }
+    }
+
+    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
+    {
+        // TODO Use shouldHydrate() and validateEntity().
+        /** @var \Contribute\Entity\Contribution $entity */
+        $data = $request->getContent();
+        if (Request::CREATE === $request->getOperation()) {
+            $this->hydrateOwner($request, $entity);
+            $resource = empty($data['o:resource']['o:id'])
+                ? null
+                : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+            $token = empty($data['o-module-contribute:token'])
+                ? null
+                : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
+            $email = empty($data['o:email']) ? null : $data['o:email'];
+            $reviewed = !empty($data['o-module-contribute:reviewed']);
+            $proposal = empty($data['o-module-contribute:proposal'])
+                ? []
+                : $data['o-module-contribute:proposal'];
+            $entity
+                ->setResource($resource)
+                ->setToken($token)
+                ->setEmail($email)
+                ->setReviewed($reviewed)
+                ->setProposal($proposal);
+        } elseif (Request::UPDATE === $request->getOperation()) {
+            if (!$entity->getResource() && $this->shouldHydrate($request, 'o:resource', $data)) {
+                $resource = empty($data['o:resource']['o:id'])
+                    ? null
+                    : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+                if ($resource) {
+                    $entity
+                        ->setResource($resource);
+                }
+            }
+            if ($this->shouldHydrate($request, 'o-module-contribute:reviewed', $data)) {
+                $reviewed = !empty($data['o-module-contribute:reviewed']);
+                $entity
+                    ->setReviewed($reviewed);
+            }
+            if ($this->shouldHydrate($request, 'o-module-contribute:proposal', $data)) {
+                $proposal = empty($data['o-module-contribute:proposal'])
+                    ? []
+                    : $data['o-module-contribute:proposal'];
+                $entity
+                    ->setProposal($proposal);
+            }
+        }
+
+        $this->updateTimestamps($request, $entity);
     }
 }

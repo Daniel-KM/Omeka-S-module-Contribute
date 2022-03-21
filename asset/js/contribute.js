@@ -11,7 +11,9 @@ $(document).ready(function() {
         var term = selector.data('next-term');
         var index = selector.data('next-index');
         var inputs = target.closest('.property').find('.values').first();
-        var newElement, name, namel;
+        var newElement,
+            name,
+            namel;
 
         if (target.hasClass('add-value-new')) {
             newElement = $('#edit_value_template > .value').clone();
@@ -37,14 +39,14 @@ $(document).ready(function() {
                     text : item.t
                 }));
             });
-            let chosenOptions = {
+            let specificChosenOptions = {
                 allow_single_deselect: true,
                 disable_search_threshold: 10,
                 width: '100%',
                 include_group_label_in_selected: true,
                 placeholder_text_single: target.attr('data-placeholder'),
             };
-            select.chosen(chosenOptions);
+            select.chosen(specificChosenOptions);
         }
 
         if (target.hasClass('add-value-uri')) {

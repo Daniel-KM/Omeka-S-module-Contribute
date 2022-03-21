@@ -2,7 +2,6 @@
 
 namespace Contribute\Form;
 
-use Contribute\Form\Element as ContributeElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 use Omeka\Form\Element as OmekaElement;

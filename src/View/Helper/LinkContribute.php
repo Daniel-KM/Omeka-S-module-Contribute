@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\View\Helper;
 
 use Contribute\Mvc\Controller\Plugin\CheckToken;

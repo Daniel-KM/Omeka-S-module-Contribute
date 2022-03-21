@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Mvc\Controller\Plugin;
 
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
@@ -17,10 +18,8 @@ class PropertyIdsByTerms extends AbstractPlugin
 
     /**
      * Get all property ids by terms.
-     *
-     * @return array
      */
-    public function __invoke()
+    public function __invoke(): array
     {
         return $this->properties;
     }

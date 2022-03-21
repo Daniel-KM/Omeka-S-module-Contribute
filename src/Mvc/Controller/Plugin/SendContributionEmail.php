@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\Mvc\Controller\Plugin;
 
 use Laminas\Log\Logger;
@@ -21,10 +22,6 @@ class SendContributionEmail extends AbstractPlugin
      */
     protected $logger;
 
-    /**
-     * @param MailerService $mailer
-     * @param Logger $logger
-     */
     public function __construct(MailerService $mailer, Logger $logger)
     {
         $this->mailer = $mailer;

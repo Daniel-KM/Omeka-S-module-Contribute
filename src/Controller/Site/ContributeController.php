@@ -5,9 +5,9 @@ namespace Contribute\Controller\Site;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Form\ContributeForm;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 // TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
-use Laminas\View\Model\ViewModel;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\Message;
 
@@ -94,6 +94,7 @@ class ContributeController extends AbstractActionController
             }
         }
 
+        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->viewHelpers()->get('contributionFields');
 
         return new ViewModel([
@@ -225,6 +226,7 @@ class ContributeController extends AbstractActionController
             }
         }
 
+        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->viewHelpers()->get('contributionFields');
 
         return new ViewModel([
@@ -531,7 +533,7 @@ class ContributeController extends AbstractActionController
      */
     protected function cleanString($string)
     {
-        return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], trim($string));
+        return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], trim((string) $string));
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute\View\Helper;
 
 use Contribute\Api\Representation\ContributionRepresentation;
@@ -18,10 +19,6 @@ class ContributionFields extends AbstractHelper
      */
     protected $contributiveData;
 
-    /**
-     * @param array $propertiesByTerm
-     * @param ContributiveData $contributiveData
-     */
     public function __construct(
         array $propertiesByTerm,
         ContributiveData $contributiveData
@@ -40,42 +37,42 @@ class ContributionFields extends AbstractHelper
      * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
-     * properties, and four more keys, editable, fillable, datatype and
+     * properties, and four more keys, editable, fillable, datatypes and
      * contributions.
      *
      * <code>
-     * array(
-     *   {term} => array(
+     * [
+     *   {term} => [
      *     'template_property' => {ResourceTemplatePropertyRepresentation},
      *     'property' => {PropertyRepresentation},
      *     'alternate_label' => {label},
      *     'alternate_comment' => {comment},
-     *     'editable' => {bool}
-     *     'fillable' => {bool}
-     *     'datatypes' => {array}
-     *     'values' => array(
+     *     'editable' => {bool},
+     *     'fillable' => {bool},
+     *     'datatypes' => {array},
+     *     'values' => [
      *       {ValueRepresentation}, …
-     *     ),
-     *     'contributions' => array(
-     *       array(
+     *     ],
+     *     'contributions' => [
+     *       [
      *         'type' => {string},
-     *         'original' => array(
+     *         'original' => [
      *           'value' => {ValueRepresentation},
      *           '@value' => {string},
-     *           '@resource' => {int}
+     *           '@resource' => {int},
      *           '@uri' => {string},
      *           '@label' => {string},
-     *         ),
-     *         'proposed' => array(
+     *         ],
+     *         'proposed' => [
      *           '@value' => {string},
      *           '@resource' => {int}
      *           '@uri' => {string},
      *           '@label' => {string},
-     *         ),
-     *       ), …
-     *     ),
-     *   ),
-     * )
+     *         ],
+     *       ], …
+     *     ],
+     *   ],
+     * ]
      * </code>
      *
      * @return array

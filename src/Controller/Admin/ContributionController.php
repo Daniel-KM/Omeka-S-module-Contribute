@@ -608,7 +608,7 @@ class ContributionController extends AbstractActionController
         $api = $this->api();
         $propertyIds = $this->propertyIdsByTerms();
 
-        // TODO How to update only one property to avoid to update unmodified terms?
+        // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
 
         $data = [];
         foreach ($existingValues as $term => $propertyData) {

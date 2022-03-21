@@ -12,7 +12,7 @@ $i18n = $plugins->get('i18n');
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource browse');
 
 $this->headLink()
-    ->appendStylesheet($this->assetUrl('css/contributecss', 'Contribute'));
+    ->appendStylesheet($this->assetUrl('css/contribute.css', 'Contribute'));
 $this->headScript()
     ->appendFile($this->assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
 ?>

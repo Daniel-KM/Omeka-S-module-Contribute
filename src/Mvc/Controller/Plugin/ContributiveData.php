@@ -4,6 +4,7 @@ namespace Contribute\Mvc\Controller\Plugin;
 
 use ArrayObject;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
 class ContributiveData extends AbstractPlugin
 {
@@ -19,9 +20,8 @@ class ContributiveData extends AbstractPlugin
      *  default list is used.
      *
      * @param \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|\Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
-     * @return self
      */
-    public function __invoke($resourceTemplate = null)
+    public function __invoke($resourceTemplate = null): self
     {
         $this->data = new ArrayObject([
             'is_contributive' => false,
@@ -89,120 +89,75 @@ class ContributiveData extends AbstractPlugin
         return $this;
     }
 
-    /**
-     * @return ArrayObject
-     */
-    public function data()
+    public function data(): ArrayObject
     {
         return $this->data;
     }
 
-    /**
-     * @return bool
-     */
-    public function isContributive()
+    public function isContributive(): bool
     {
         return $this->data['is_contributive'];
     }
 
-    /**
-     * @return bool
-     */
-    public function hasTemplate()
+    public function hasTemplate(): bool
     {
         return !empty($this->data['template']);
     }
 
-    /**
-     * @return \Omeka\Api\Representation\ResourceTemplateRepresentation|null
-     */
-    public function template()
+    public function template(): ?ResourceTemplateRepresentation
     {
         return $this->data['template'];
     }
 
-    /**
-     * @return bool
-     */
-    public function useDefaultProperties()
+    public function useDefaultProperties(): bool
     {
         return $this->data['default_properties'];
     }
 
-    /**
-     * @return string
-     */
-    public function editableMode()
+    public function editableMode(): string
     {
         return $this->data['editable_mode'];
     }
 
-    /**
-     * @return array
-     */
-    public function editableProperties()
+    public function editableProperties(): array
     {
         return $this->data['editable'];
     }
 
-    /**
-     * @return string
-     */
-    public function fillableMode()
+    public function fillableMode(): string
     {
         return $this->data['fillable_mode'];
     }
 
-    /**
-     * @return array
-     */
-    public function fillableProperties()
+    public function fillableProperties(): array
     {
         return $this->data['fillable'];
     }
 
-    /**
-     * @return array
-     */
-    public function datatypeProperties()
+    public function datatypeProperties(): array
     {
         return $this->data['datatype'];
     }
 
-    /**
-     * @return array
-     */
-    public function defaultDatatypes()
+    public function defaultDatatypes(): array
     {
         return $this->data['datatypes_default'];
     }
 
-    /**
-     * @param string
-     * @return array
-     */
-    public function datatypeTerm($term)
+    public function datatypeTerm(?string $term): array
     {
         return empty($this->data['datatype'][$term])
             ? $this->data['datatypes_default']
             : $this->data['datatype'][$term];
     }
 
-    /**
-     * @param string $term
-     * @return bool
-     */
-    public function isTermContributive($term)
+    public function isTermContributive(?string $term): bool
     {
         return $this->isTermEditable($term)
             || $this->isTermFillable($term);
     }
 
-    /**
-     * @param string $term
-     * @return bool
-     */
-    public function isTermEditable($term)
+    public function isTermEditable(?string $term): bool
     {
         if ($this->hasTemplate()) {
             return isset($this->data['editable'][$term])
@@ -216,11 +171,7 @@ class ContributiveData extends AbstractPlugin
             );
     }
 
-    /**
-     * @param string $term
-     * @return bool
-     */
-    public function isTermFillable($term)
+    public function isTermFillable(?string $term): bool
     {
         if ($this->hasTemplate()) {
             return isset($this->data['fillable'][$term])
@@ -236,12 +187,8 @@ class ContributiveData extends AbstractPlugin
 
     /**
      * Check if the datatype is managed for the specified term.
-     *
-     * @param string $term
-     * @param string $datatype
-     * @return bool
      */
-    public function isTermDatatype($term, $datatype)
+    public function isTermDatatype(?string $term, ?string $datatype): bool
     {
         if ($this->hasTemplate()) {
             return !empty($this->data['datatype'][$term])
@@ -250,11 +197,7 @@ class ContributiveData extends AbstractPlugin
         return $this->isDefaultDatatype($datatype);
     }
 
-    /**
-     * @param string $datatype
-     * @return bool
-     */
-    public function isDefaultDatatype($datatype)
+    public function isDefaultDatatype(?string $datatype): bool
     {
         return in_array($datatype, $this->data['datatypes_default']);
     }
@@ -263,9 +206,8 @@ class ContributiveData extends AbstractPlugin
      * Get the resource template.
      *
      * @var \Omeka\Api\Representation\ResourceTemplateRepresentation|int|string|null $resourceTemplate
-     * @return \Omeka\Api\Representation\ResourceTemplateRepresentation|null
      */
-    protected function resourceTemplate($resourceTemplate)
+    protected function resourceTemplate($resourceTemplate): ?ResourceTemplateRepresentation
     {
         if (empty($resourceTemplate) || is_object($resourceTemplate)) {
             return $resourceTemplate;
