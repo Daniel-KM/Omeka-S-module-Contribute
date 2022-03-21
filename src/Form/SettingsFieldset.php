@@ -2,6 +2,7 @@
 
 namespace Contribute\Form;
 
+use AdvancedResourceTemplate\Form\Element as AdvancedResourceTemplateElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 use Omeka\Form\Element as OmekaElement;
@@ -47,7 +48,7 @@ info@example2.org',
 
             ->add([
                 'name' => 'contribute_templates',
-                'type' => OmekaElement\ResourceTemplateSelect::class,
+                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Resource templates allowed for contribution', // @translate
                     'empty_option' => '',
@@ -63,7 +64,7 @@ info@example2.org',
 
             ->add([
                 'name' => 'contribute_templates_media',
-                'type' => OmekaElement\ResourceTemplateSelect::class,
+                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Resource templates allowed for media (linked contribution)', // @translate
                     'empty_option' => '',
