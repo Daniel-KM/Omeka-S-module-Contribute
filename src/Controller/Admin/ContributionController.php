@@ -5,11 +5,11 @@ namespace Contribute\Controller\Admin;
 use Contribute\Api\Representation\ContributionRepresentation;
 use DateInterval;
 use DateTime;
-use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use Omeka\Form\ConfirmForm;
+use Omeka\Stdlib\ErrorStore;
 use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
@@ -375,11 +375,13 @@ class ContributionController extends AbstractActionController
         $resource = $contribution ? $contribution->resource() : null;
         if (!$resource) {
             return new JsonModel([
-                'status' => Response::STATUS_CODE_200,
+                'status' => 'success',
                 // Status is updated, so inverted.
-                'content' => [
-                    'status' => 'unreviewed',
-                    'statusLabel' => $this->translate('Unreviewed'),
+                'data' => [
+                    'contribution' => [
+                        'status' => 'unreviewed',
+                        'statusLabel' => $this->translate('Unreviewed'),
+                    ],
                 ],
             ]);
         }
@@ -400,11 +402,13 @@ class ContributionController extends AbstractActionController
         }
 
         return new JsonModel([
-            'status' => Response::STATUS_CODE_200,
+            'status' => 'success',
             // Status is updated, so inverted.
-            'content' => [
-                'status' => $isReviewed ? 'unreviewed' : 'reviewed',
-                'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'),
+            'data' => [
+                'contribution' => [
+                    'status' => $isReviewed ? 'unreviewed' : 'reviewed',
+                    'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'),
+                ],
             ],
         ]);
     }
@@ -441,10 +445,12 @@ class ContributionController extends AbstractActionController
                 return $this->jsonErrorUnauthorized();
             }
             return new JsonModel([
-                'status' => Response::STATUS_CODE_200,
-                'content' => [
-                    'status' => 'no-token',
-                    'statusLabel' => $this->translate('No token'),
+                'status' => 'success',
+                'data' => [
+                    'contribution_token' => [
+                        'status' => 'no-token',
+                        'statusLabel' => $this->translate('No token'),
+                    ],
                 ],
             ]);
         }
@@ -458,10 +464,12 @@ class ContributionController extends AbstractActionController
         }
 
         return new JsonModel([
-            'status' => Response::STATUS_CODE_200,
-            'content' => [
-                'status' => 'expired',
-                'statusLabel' => $this->translate('Expired'),
+            'status' => 'success',
+            'data' => [
+                'contribution_token' => [
+                    'status' => 'expired',
+                    'statusLabel' => $this->translate('Expired'),
+                ],
             ],
         ]);
     }
@@ -502,7 +510,7 @@ class ContributionController extends AbstractActionController
 
         return new JsonModel([
             'status' => 'success',
-            'content' => [
+            'data' => [
                 'contribution' => $contribution,
                 'url' => $contribution->adminUrl(),
             ],
@@ -540,14 +548,16 @@ class ContributionController extends AbstractActionController
         }
 
         return new JsonModel([
-            'status' => Response::STATUS_CODE_200,
+            'status' => 'success',
             // Status is updated, so inverted.
-            'content' => [
-                'status' => 'validated',
-                'statusLabel' => $this->translate('Validated'),
-                'reviewed' => [
-                    'status' => 'reviewed',
-                    'statusLabel' => $this->translate('Reviewed'),
+            'data' => [
+                'contribution' => [
+                    'status' => 'validated',
+                    'statusLabel' => $this->translate('Validated'),
+                    'reviewed' => [
+                        'status' => 'reviewed',
+                        'statusLabel' => $this->translate('Reviewed'),
+                    ],
                 ],
             ],
         ]);
@@ -582,11 +592,13 @@ class ContributionController extends AbstractActionController
         $this->validateAndUpdateContribution($contribution, $term, $key);
 
         return new JsonModel([
-            'status' => Response::STATUS_CODE_200,
+            'status' => 'success',
             // Status is updated, so inverted.
-            'content' => [
-                'status' => 'validated-value',
-                'statusLabel' => $this->translate('Validated value'),
+            'data' => [
+                'contribution' => [
+                    'status' => 'validated-value',
+                    'statusLabel' => $this->translate('Validated value'),
+                ],
             ],
         ]);
     }
@@ -830,31 +842,31 @@ class ContributionController extends AbstractActionController
         return $uriLabels[$customVocabId];
     }
 
-    protected function jsonErrorUnauthorized(): JsonModel
+    protected function jsonErrorUnauthorized($message = null, $errors = null): JsonModel
     {
-        return $this->returnError($this->translate('Unauthorized access.'), Response::STATUS_CODE_403); // @translate
+        return $this->returnError($message ?? $this->translate('Unauthorized access.'), 'error', $errors); // @translate
     }
 
-    protected function jsonErrorNotFound(): JsonModel
+    protected function jsonErrorNotFound($message = null, $errors = null): JsonModel
     {
-        return $this->returnError($this->translate('Resource not found.'), Response::STATUS_CODE_404); // @translate
+        return $this->returnError($message && $this->translate('Resource not found.'), 'error', $errors); // @translate
     }
 
-    protected function jsonErrorUpdate(): JsonModel
+    protected function jsonErrorUpdate($message = null, $errors = null): JsonModel
     {
-        return $this->returnError($this->translate('An internal error occurred.'), Response::STATUS_CODE_500); // @translate
+        return $this->returnError($message ?? $this->translate('An internal error occurred.'), 'error', $errors); // @translate
     }
 
-    protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null): JsonModel
+    protected function returnError($message, string $statusCode = 'error', $errors = null): JsonModel
     {
-        $response = $this->getResponse();
-        $response->setStatusCode($statusCode);
         $result = [
             'status' => $statusCode,
             'message' => $message,
         ];
-        if (is_array($errors)) {
-            $result['errors'] = $errors;
+        if (is_array($errors) && count($errors)) {
+            $result['data'] = $errors;
+        } elseif (is_object($errors) && $errors instanceof ErrorStore && $errors->hasErrors()) {
+            $result['data'] = $errors->getErrors();
         }
         return new JsonModel($result);
     }

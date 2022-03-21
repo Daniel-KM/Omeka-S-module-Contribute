@@ -1,3 +1,5 @@
+// TODO Remove dead code.
+
 // Kept as long as pull request #1260 is not passed.
 Omeka.contributionManageSelectedActions = function() {
     var selectedOptions = $('[value="update-selected"], [value="delete-selected"], #batch-form .batch-inputs .batch-selected');
@@ -106,6 +108,28 @@ $(document).ready(function() {
     //     }
     // }
 
+    function alertFail(jqXHR, textStatus) {
+        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+            alert(jqXHR.responseJSON.message);
+        } else {
+            alert(Omeka.jsTranslate('Something went wrong'));
+        }
+    }
+
+    function alertDataError(data) {
+        if (data.data && Object.keys(data.data).length) {
+            var message = '';
+            Object.keys(data.data).reduce(function (r, k) {
+                message += data.data[k] + "\n";
+            }, []);
+            alert(message);
+        } else if (data.message) {
+            alert(data.message);
+        } else {
+            alert(Omeka.jsTranslate('Something went wrong'));
+        }
+    }
+
     $('#create_contribution_token').on('click', function(ev){
         modal.style.display = 'block';
         ev.preventDefault();
@@ -125,23 +149,16 @@ $(document).ready(function() {
             }
         })
         .done(function(data) {
-            if (!data.content) {
-                alert(Omeka.jsTranslate('Something went wrong'));
+            if (!data.status || data.status !== 'success') {
+                alertDataError(data);
             } else {
-                var content = data.content;
-                status = content.status;
+                status = data.data.contribution.status;
                 button.data('status', status);
-                button.prop('title', content.statusLabel);
-                button.prop('aria-label', content.statusLabel);
+                button.prop('title', data.data.contribution.statusLabel);
+                button.prop('aria-label', data.data.contribution.statusLabel);
             }
         })
-        .fail(function(jqXHR, textStatus) {
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                alert(jqXHR.responseJSON.message);
-            } else {
-                alert(Omeka.jsTranslate('Something went wrong'));
-            }
-        })
+        .fail(alertFail)
         .always(function () {
             button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
@@ -161,22 +178,15 @@ $(document).ready(function() {
             }
         })
         .done(function(data) {
-            if (!data.content) {
-                alert(Omeka.jsTranslate('Something went wrong'));
+            if (!data.status || data.status !== 'success') {
+                alertDataError(data);
             } else {
-                var content = data.content;
                 status = 'expired';
-                button.prop('title', content.statusLabel);
-                button.prop('aria-label', content.statusLabel);
+                button.prop('title', data.data.contribution_token.statusLabel);
+                button.prop('aria-label', data.data.contribution_token.statusLabel);
             }
         })
-        .fail(function(jqXHR, textStatus) {
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                alert(jqXHR.responseJSON.message);
-            } else {
-                alert(Omeka.jsTranslate('Something went wrong'));
-            }
-        })
+        .fail(alertFail)
         .always(function () {
             button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status + '-token');
         });
@@ -195,25 +205,19 @@ $(document).ready(function() {
             }
         })
         .done(function(data) {
-            if (data.status !== 'success') {
-                alert(Omeka.jsTranslate('Something went wrong'));
+            if (!data.status || data.status !== 'success') {
+                alertDataError(data);
             } else {
                 button.closest('td').find('span.title')
-                    .wrap('<a href="' + data.content.url + '"></a>');
+                    .wrap('<a href="' + data.data.url + '"></a>');
                 let newButton = '<a class="o-icon-edit"'
                     + ' title="'+ Omeka.jsTranslate('Edit') + '"'
-                    + ' href="' + data.content.url + '"'
+                    + ' href="' + data.data.url + '"'
                     + ' aria-label="' + Omeka.jsTranslate('Edit') + '"></a>';
                 button.replaceWith(newButton);
             }
         })
-        .fail(function(jqXHR, textStatus) {
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                alert(jqXHR.responseJSON.message);
-            } else {
-                alert(Omeka.jsTranslate('Something went wrong'));
-            }
-        })
+        .fail(alertFail)
         .always(function () {
             button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
@@ -232,19 +236,17 @@ $(document).ready(function() {
             }
         })
         .done(function(data) {
-            if (!data.content) {
-                alert(Omeka.jsTranslate('Something went wrong'));
+            if (!data.status || data.status !== 'success') {
+                alertDataError(data);
             } else {
                 // Set the contribution reviewed in all cases.
-                var content = data.content.reviewed;
-                status = content.status;
+                status = data.data.contribution.reviewed.status;
                 buttonReviewed = button.closest('th').find('a.status-toggle');
                 buttonReviewed.data('status', status);
                 buttonReviewed.addClass('o-icon-' + status);
 
                 // Update the validate button.
-                content = data.content;
-                status = content.status;
+                status = data.data.contribution.status;
                 // button.prop('title', statusLabel);
                 // button.prop('aria-label', statusLabel);
 
@@ -253,13 +255,7 @@ $(document).ready(function() {
                 location.reload();
             }
         })
-        .fail(function(jqXHR, textStatus) {
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                alert(jqXHR.responseJSON.message);
-            } else {
-                alert(Omeka.jsTranslate('Something went wrong'));
-            }
-        })
+        .fail(alertFail)
         .always(function () {
             button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
@@ -279,24 +275,17 @@ $(document).ready(function() {
             }
         })
         .done(function(data) {
-            if (!data.content) {
-                alert(Omeka.jsTranslate('Something went wrong'));
+            if (!data.status || data.status !== 'success') {
+                alertDataError(data);
             } else {
                 // Update the validate button.
-                var content = data.content;
-                status = content.status;
-                button.prop('title', content.statusLabel);
-                button.prop('aria-label', content.statusLabel);
+                status = data.data.contribution.status;
+                button.prop('title', data.data.contribution.statusLabel);
+                button.prop('aria-label', data.data.contribution.statusLabel);
                 // TODO Update the value in the main metadata tab.
             }
         })
-        .fail(function(jqXHR, textStatus) {
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                alert(jqXHR.responseJSON.message);
-            } else {
-                alert(Omeka.jsTranslate('Something went wrong'));
-            }
-        })
+        .fail(alertFail)
         .always(function () {
             button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
