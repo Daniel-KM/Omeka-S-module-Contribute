@@ -86,6 +86,28 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
             ])
 
             ->add([
+                'name' => 'contribute_message_add',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Message displayed when a contribution is added', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_message_add',
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_message_edit',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Message displayed when a contribution is edited', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_message_edit',
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_author_confirmation_subject',
                 'type' => Element\Text::class,
                 'options' => [

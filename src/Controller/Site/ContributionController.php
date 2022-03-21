@@ -287,8 +287,13 @@ class ContributionController extends AbstractActionController
                         ];
                         $response = $this->api($form)->create('contributions', $data);
                         if ($response) {
-                            $this->messenger()->addSuccess('Contribution successfully saved!'); // @translate
-                            $this->messenger()->addWarning('Review it before its submission.'); // @translate
+                            $message = $this->settings()->get('contribute_message_add');
+                            if ($message) {
+                                $this->messenger()->addSuccess($message);
+                            } else {
+                                $this->messenger()->addSuccess('Contribution successfully saved!'); // @translate
+                                $this->messenger()->addWarning('Review it before its submission.'); // @translate
+                            }
                             // $this->prepareContributionEmail($response->getContent(), 'prepare');
                             $eventManager = $this->getEventManager();
                             $eventManager->trigger('contribute.submit', $this, [
@@ -514,7 +519,12 @@ class ContributionController extends AbstractActionController
                             ];
                             $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
                             if ($response) {
-                                $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
+                                $message = $this->settings()->get('contribute_message_edit');
+                                if ($message) {
+                                    $this->messenger()->addSuccess($message);
+                                } else {
+                                    $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
+                                }
                                 // $this->prepareContributionEmail($response->getContent(), 'update');
                             }
                         }
