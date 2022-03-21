@@ -230,6 +230,9 @@ if ($isMainForm) {
     <?php endif; ?>
 
     <?= $formElement($form->get('template')) ?>
+    <?= $formElement($form->get('step')) ?>
+    <?php // This value is designed to be customized for complex workflow, or used with submit or any button. ?>
+    <?//= $formElement($form->get('next')) ?>
     <?= $formElement($form->get('csrf')) ?>
 
     <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>

@@ -123,7 +123,8 @@ return [
                                 'id' => '\d+',
                                 // "show" can be used only for contribution, so use "view".
                                 // "view" is always forwarded to "show".
-                                'action' => 'view|edit|delete-confirm|delete|submit',
+                                // "add" is added to manage complex workflow. The id is useless for it.
+                                'action' => 'add|view|edit|delete-confirm|delete|submit',
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'Contribute\Controller\Site',

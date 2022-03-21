@@ -218,7 +218,7 @@ class ContributionController extends AbstractActionController
 
         // Second step: fill the template and create a contribution, even partial.
         $hasError = false;
-        if ($this->getRequest()->isPost() && !$step) {
+        if ($this->getRequest()->isPost() && $step !== 'template') {
             $post = $this->params()->fromPost();
             // The template cannot be changed once set.
             $post['template'] = $resourceTemplate->id();
@@ -255,7 +255,10 @@ class ContributionController extends AbstractActionController
                                 'resource' => null,
                                 'data' => $data,
                             ]);
-                            return $this->redirect()->toUrl($response->getContent()->url());
+                            $content = $response->getContent();
+                            return $content->resource()
+                                ? $this->redirect()->toUrl($content->resource()->url())
+                                : $this->redirectContribution($content);
                         }
                     }
                 }
@@ -464,7 +467,7 @@ class ContributionController extends AbstractActionController
                             $content = $response->getContent();
                             return $content->resource()
                                 ? $this->redirect()->toUrl($content->resource()->url())
-                                : $this->redirect()->toUrl($content->url());
+                                : $this->redirectContribution($content);
                         }
                     }
                 }
@@ -611,6 +614,34 @@ class ContributionController extends AbstractActionController
         $this->prepareContributionEmail($response->getContent(), 'submitted');
 
         return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+    }
+
+    /**
+     * Manage a special redirection in order to manage complex form workflow.
+     *
+     * It uses the post value "next" (generally hidden), that can be overridden
+     * by the query key "next".
+     *
+     * It allows to add files when separated in the form or to use a specific
+     * show view to confirm.
+     * Next step can be another "add", "edit" or "show" (default).
+     * A query can be appended, separated with a "-", to be used in theme.
+     */
+    protected function redirectContribution(ContributionRepresentation $contribution)
+    {
+        $params = $this->params();
+        $next = $params->fromQuery('next') ?? $params->fromPost('next') ?? '';
+        if (!$next) {
+            return $this->redirect()->toUrl($contribution->url());
+        }
+        [$nextAction, $nextQuery] = strpos($next, '-') === false ? [$next, null] : explode('-', $next, 2);
+        if (!$nextAction || $nextAction === 'show' || $nextAction === 'view') {
+            $nextAction = null;
+        }
+        if ($nextQuery) {
+            $nextQuery = '?next=' . rawurlencode($next);
+        }
+        return $this->redirect()->toUrl($contribution->url($nextAction) . $nextQuery);
     }
 
     /**

@@ -14,17 +14,15 @@ class ContributeForm extends Form
 
     public function init(): void
     {
+        // Steps are "template", "add", "edit", "show".
+        // Next can be "add", "edit", "show" + an optional query for complex
+        // workflow. It should be set inside theme.
+        // The "next" post argument can be bypassed by a query argument in order
+        // to manage multiple ways.
+
         // When the template is not set, it is the default one in backend.
         if (count($this->templates)) {
             $this
-                ->add([
-                    'name' => 'step',
-                    'type' => Element\Hidden::class,
-                    'attributes' => [
-                        'id' => 'step',
-                        'value' => 1,
-                    ],
-                ])
                 ->add([
                     'name' => 'template',
                     'type' => Element\Radio::class,
@@ -41,6 +39,22 @@ class ContributeForm extends Form
                         'required' => true,
                     ],
                 ])
+                ->add([
+                    'name' => 'step',
+                    'type' => Element\Hidden::class,
+                    'attributes' => [
+                        'id' => 'step',
+                        'value' => 'template',
+                    ],
+                ])
+                ->add([
+                    'name' => 'next',
+                    'type' => Element\Hidden::class,
+                    'attributes' => [
+                        'id' => 'next',
+                        'value' => 'add',
+                    ],
+                ])
             ;
         } else {
             $this
@@ -49,6 +63,22 @@ class ContributeForm extends Form
                     'type' => Element\Hidden::class,
                     'attributes' => [
                         'id' => 'template',
+                    ],
+                ])
+                ->add([
+                    'name' => 'step',
+                    'type' => Element\Hidden::class,
+                    'attributes' => [
+                        'id' => 'step',
+                        'value' => 'add',
+                    ],
+                ])
+                ->add([
+                    'name' => 'next',
+                    'type' => Element\Hidden::class,
+                    'attributes' => [
+                        'id' => 'next',
+                        'value' => 'show',
                     ],
                 ])
             ;
