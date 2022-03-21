@@ -25,14 +25,35 @@ class ContributionFields extends AbstractHelper
      */
     protected $hasAdvancedTemplate;
 
+    /**
+     * @var bool
+     */
+    protected $hasNumericDataTypes;
+
+    /**
+     * @var bool
+     */
+    protected $hasValueSuggest;
+
+    /**
+     * @var ?array
+     */
+    protected $customVocabBaseTypes;
+
     public function __construct(
         array $propertiesByTerm,
         ContributiveData $contributiveData,
-        bool $hasAdvancedTemplate
+        bool $hasAdvancedTemplate,
+        bool $hasNumericDataTypes,
+        bool $hasValueSuggest,
+        ?array $customVocabBaseTypes
     ) {
         $this->propertiesByTerm = $propertiesByTerm;
         $this->contributiveData = $contributiveData;
         $this->hasAdvancedTemplate = $hasAdvancedTemplate;
+        $this->hasNumericDataTypes = $hasNumericDataTypes;
+        $this->hasValueSuggest = $hasValueSuggest;
+        $this->customVocabBaseTypes = $customVocabBaseTypes;
     }
 
     /**
@@ -49,6 +70,9 @@ class ContributionFields extends AbstractHelper
      *
      * Note that sub-contribution fields for media are not included here.
      *
+     * The minimum number of contributions is managed: empty contributions are
+     * may be added according to the minimal number of values.
+     *
      * <code>
      * [
      *   {term} => [
@@ -57,7 +81,9 @@ class ContributionFields extends AbstractHelper
      *     'alternate_label' => {label},
      *     'alternate_comment' => {comment},
      *     'required' => {bool},
+     *     'min_values' => {int},
      *     'max_values' => {int},
+     *     'more_values' => {int},
      *     'editable' => {bool},
      *     'fillable' => {bool},
      *     'datatypes' => {array},
@@ -69,6 +95,7 @@ class ContributionFields extends AbstractHelper
      *         'type' => {string},
      *         'basetype' => {string},
      *         'new' => {bool},
+     *         'empty' => {bool},
      *         'original' => [
      *           'value' => {ValueRepresentation},
      *           '@value' => {string},
@@ -118,7 +145,9 @@ class ContributionFields extends AbstractHelper
             'alternate_label' => null,
             'alternate_comment' => null,
             'required' => false,
+            'min_values' => 0,
             'max_values' => 0,
+            'more_values' => false,
             'editable' => false,
             'fillable' => false,
             'datatypes' => [],
@@ -160,23 +189,27 @@ class ContributionFields extends AbstractHelper
             $property = $templateProperty->property();
             $term = $property->term();
             if ($this->hasAdvancedTemplate) {
-                $rtpDatas = $templateProperty->data();
-                if (count($rtpDatas)) {
-                    $rtpData = reset($rtpDatas);
-                    $maxValues = (int) $rtpData->dataValue('max_values', 0);
-                }
+                /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty */
+                $minValues = (int) $templateProperty->mainDataValue('min_values', 0);
+                $maxValues = (int) $templateProperty->mainDataValue('max_values', 0);
+            } else {
+                $minValues = 0;
+                $maxValues = 0;
             }
+            $valuesValues = $values[$term]['values'] ?? [];
             $fields[$term] = [
                 'template_property' => $templateProperty,
                 'property' => $property,
                 'alternate_label' => $templateProperty->alternateLabel(),
                 'alternate_comment' => $templateProperty->alternateComment(),
                 'required' => $templateProperty->isRequired(),
-                'max_values' => empty($maxValues) ? 0 : (int) $maxValues,
+                'min_values' => $minValues,
+                'max_values' => $maxValues,
+                'more_values' => $maxValues && count($valuesValues) < $maxValues,
                 'editable' => $contributive->isTermEditable($term),
                 'fillable' => $contributive->isTermFillable($term),
                 'datatypes' => $contributive->datatypeTerm($term),
-                'values' => $values[$term]['values'] ?? [],
+                'values' => $valuesValues,
                 'contributions' => [],
             ];
         }
@@ -187,7 +220,9 @@ class ContributionFields extends AbstractHelper
                 // Value info includes the property and the values.
                 $fields[$term] = $valueInfo;
                 $fields[$term]['required'] = false;
+                $fields[$term]['min_values'] = 0;
                 $fields[$term]['max_values'] = 0;
+                $fields[$term]['more_values'] = false;
                 $fields[$term]['editable'] = false;
                 $fields[$term]['fillable'] = false;
                 $fields[$term]['datatypes'] = [];
@@ -202,6 +237,7 @@ class ContributionFields extends AbstractHelper
         }
 
         // Initialize contributions with existing values, then append contributions.
+
         foreach ($fields as $term => $field) {
             if ($term === 'file') {
                 continue;
@@ -243,7 +279,8 @@ class ContributionFields extends AbstractHelper
                     // The type cannot be changed.
                     'type' => $type,
                     'basetype' => $baseType,
-                    'new' => null,
+                    'new' => false,
+                    'empty' => true,
                     'original' => [
                         'value' => $value,
                         '@value' => $val,
@@ -262,7 +299,7 @@ class ContributionFields extends AbstractHelper
         }
 
         if (!$contribution) {
-            return $fields;
+            return $this->finalize($fields);
         }
 
         $proposals = $contribution->proposal();
@@ -296,9 +333,10 @@ class ContributionFields extends AbstractHelper
                 }
             }
         }
+
         $proposals = array_filter($proposals);
         if (!count($proposals)) {
-            return $fields;
+            return $this->finalize($fields);
         }
 
         // File is specific: for media only, one value only, not updatable,
@@ -312,7 +350,9 @@ class ContributionFields extends AbstractHelper
                 'alternate_label' => $this->getView()->translate('File'),
                 'alternate_comment' => null,
                 'required' => true,
+                'min_values' => 1,
                 'max_values' => 1,
+                'more_values' => false,
                 'editable' => false,
                 'fillable' => true,
                 'datatypes' => ['file'],
@@ -324,6 +364,7 @@ class ContributionFields extends AbstractHelper
                 'basetype' => 'literal',
                 'lang' => null,
                 'new' => true,
+                'empty' => empty($proposals['file'][0]['proposed']['store']),
                 'original' => [
                     'value' => null,
                     '@resource' => null,
@@ -376,6 +417,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
+                    $fieldContribution['empty'] = false;
                     $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => null,
@@ -397,6 +439,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
+                    $fieldContribution['empty'] = false;
                     $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => (int) $proposed['@resource'],
@@ -415,6 +458,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
+                    $fieldContribution['empty'] = false;
                     $fieldContribution['proposed'] = [
                         '@value' => $proposed['@value'],
                         '@resource' => null,
@@ -462,6 +506,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
+                    $fieldContribution['empty'] = false;
                     $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => null,
@@ -483,6 +528,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
+                    $fieldContribution['empty'] = false;
                     $fieldContribution['proposed'] = [
                         '@value' => null,
                         '@resource' => (int) $proposed['@resource'],
@@ -501,6 +547,7 @@ class ContributionFields extends AbstractHelper
                     if (is_null($proposed)) {
                         continue;
                     }
+                    $fieldContribution['empty'] = false;
                     $fieldContribution['proposed'] = [
                         '@value' => $proposed['@value'],
                         '@resource' => null,
@@ -530,6 +577,9 @@ class ContributionFields extends AbstractHelper
                 $typeTemplate = $resourceTemplateProperty->dataType();
             }
             foreach ($termProposal as $proposal) {
+                if (!empty($proposal['empty'])) {
+                    continue;
+                }
                 if ($typeTemplate) {
                     $type = $typeTemplate;
                 } elseif (isset($proposal['proposed']['@uri'])) {
@@ -555,6 +605,7 @@ class ContributionFields extends AbstractHelper
                         'type' => $type,
                         'basetype' => 'uri',
                         'new' => true,
+                        'empty' => false,
                         'original' => [
                             'value' => null,
                             '@resource' => null,
@@ -565,8 +616,8 @@ class ContributionFields extends AbstractHelper
                         'proposed' => [
                             '@value' => null,
                             '@resource' => null,
-                            '@uri' => $proposal['proposed']['@uri'],
-                            '@label' => $proposal['proposed']['@label'],
+                            '@uri' => $proposal['proposed']['@uri'] ?? '',
+                            '@label' => $proposal['proposed']['@label'] ?? '',
                         ],
                     ];
                 } elseif ($typeColon === 'resource'
@@ -576,6 +627,7 @@ class ContributionFields extends AbstractHelper
                         'type' => $type,
                         'basetype' => 'resource',
                         'new' => true,
+                        'empty' => false,
                         'original' => [
                             'value' => null,
                             '@resource' => null,
@@ -585,7 +637,7 @@ class ContributionFields extends AbstractHelper
                         ],
                         'proposed' => [
                             '@value' => null,
-                            '@resource' => (int) $proposal['proposed']['@resource'],
+                            '@resource' => (int) ($proposal['proposed']['@resource'] ?? 0),
                             '@uri' => null,
                             '@label' => null,
                         ],
@@ -595,6 +647,7 @@ class ContributionFields extends AbstractHelper
                         'type' => $type,
                         'basetype' => 'literal',
                         'new' => true,
+                        'empty' => false,
                         'original' => [
                             'value' => null,
                             '@resource' => null,
@@ -603,7 +656,7 @@ class ContributionFields extends AbstractHelper
                             '@label' => null,
                         ],
                         'proposed' => [
-                            '@value' => $proposal['proposed']['@value'],
+                            '@value' => $proposal['proposed']['@value'] ?? '',
                             '@resource' => null,
                             '@uri' => null,
                             '@label' => null,
@@ -613,7 +666,120 @@ class ContributionFields extends AbstractHelper
             }
         }
 
+        return $this->finalize($fields);
+    }
+
+    /**
+     * Finalize: remove invalid contributions and add empty ones when needed.
+     */
+    protected function finalize(array $fields): array
+    {
+        foreach ($fields as $term => &$field) {
+            if ($term === 'file') {
+                continue;
+            }
+            // Remove contributions with an invalid or an unavailable type.
+            // This is a security fix, but it can remove data.
+            foreach ($field['contributions'] as $key => &$fieldContribution) {
+                $type = $fieldContribution['type'] ?? '';
+                $typeColon = strtok($type, ':');
+                $baseType = $this->baseType($type);
+                // FIXME Warning, numeric:interval and numeric:duration are not managed.
+                if (!$this->hasNumericDataTypes && $typeColon === 'numeric') {
+                    unset($field['contributions'][$key]);
+                    continue;
+                }
+                if (!$this->customVocabBaseTypes && $typeColon === 'customvocab') {
+                    unset($field['contributions'][$key]);
+                    continue;
+                }
+                if (!$this->hasValueSuggest && ($typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall')) {
+                    unset($field['contributions'][$key]);
+                    continue;
+                }
+            }
+            unset($fieldContribution);
+
+            // Clean indexes for old contributions.
+            $field['contributions'] = array_values($field['contributions']);
+            if (!$field['fillable']) {
+                continue;
+            }
+
+            // The minimum is 1 when a value is required.
+            $minValues = (int) $field['min_values'] ?: (int) $field['required'];
+            $maxValues = (int) $field['max_values'];
+            if (!$minValues && !$maxValues) {
+                $field['more_values'] = true;
+                continue;
+            }
+
+            // If editable, values and contributions are a single list, else
+            // they are combined.
+            // TODO Check for correction, with some values corrected and some appended.
+            $countValues = count($field['values']);
+            $countContributions = count($field['contributions']);
+            $countExisting = $field['editable']
+                ? max($countValues, $countContributions)
+                : $countValues + $countContributions;
+            $missingValues = $minValues && $minValues > $countExisting
+                ? $minValues - $countExisting
+                : 0;
+            // The button is always added, and managed by js anyway, because the
+            // button should be available when a value is removed.
+            $field['more_values'] = !$maxValues
+                || $maxValues < $missingValues;
+
+            $type = reset($field['datatypes']);
+            $baseType = $this->baseType($type);
+            // Prepare empty contributions to simplify theme.
+            while ($missingValues) {
+                $field['contributions'][] = [
+                    'type' => $type,
+                    'basetype' => $baseType,
+                    'new' => true,
+                    'empty' => true,
+                    'original' => [
+                        'value' => null,
+                        '@value' => null,
+                    ],
+                    'proposed' => [
+                        '@value' => null,
+                    ],
+                ];
+                --$missingValues;
+            }
+        }
         return $fields;
+    }
+
+    protected function baseType(string $type): ?string
+    {
+        static $customVocabBaseTypes;
+        static $baseTypes = [
+            'literal' => 'literal',
+            'numeric' => 'literal',
+            'resource' => 'resource',
+            'resource:item' => 'resource',
+            'resource:itemset' => 'resource',
+            'resoufce:media' => 'resource',
+            'uri' => 'uri',
+            'valuesuggest' => 'uri',
+            'valuesuggestall' => 'uri',
+        ];
+
+        if (!isset($baseTypes[$type])) {
+            $customVocabBaseTypes = $this->getView()->plugin('customVocabBaseType')();
+            $typeColon = strtok($type, ':');
+            if (isset($baseTypes[$typeColon])) {
+                return $baseTypes[$typeColon];
+            }
+            // The only other case is customvocab.
+            if ($typeColon === 'customvocab') {
+                $baseTypes[$typeColon] = $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal';
+            }
+        }
+        return $baseTypes[$type] ?? 'literal';
     }
 
     /**

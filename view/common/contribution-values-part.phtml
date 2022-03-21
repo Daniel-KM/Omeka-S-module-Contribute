@@ -44,6 +44,7 @@
         </h4>
         <div class="values">
             <?php foreach ($propertyData['contributions'] as $contribution):
+                if (!empty($contribution['empty'])) continue;
                 $valueType = $contribution['type'];
                 $valueBaseType = $contribution['basetype'];
                 $valueLang = $contribution['lang'] ?? '';

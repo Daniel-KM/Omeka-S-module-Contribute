@@ -36,6 +36,7 @@ class ContributiveData extends AbstractPlugin
             'is_contributive' => false,
             'template' => null,
             'required' => false,
+            'min_values' => 0,
             'max_values' => 0,
             'editable_mode' => 'whitelist',
             'editable' => [],
@@ -103,12 +104,12 @@ class ContributiveData extends AbstractPlugin
             if (!method_exists($resourceTemplateProperty, 'data')) {
                 continue;
             }
-            $rtpData = $resourceTemplateProperty->data();
-            if (!count($rtpData)) {
+            $rtpData = $resourceTemplateProperty->mainData();
+            if (!$rtpData) {
                 continue;
             }
             // TODO Manage repeatable property.
-            $rtpData = reset($rtpData);
+            $this->data['min_values'] = (int) $rtpData->dataValue('min_values', 0);
             $this->data['max_values'] = (int) $rtpData->dataValue('max_values', 0);
             if ($rtpData->dataValue('editable', false)) {
                 $this->data['editable'][$term] = $propertyId;
@@ -171,6 +172,11 @@ class ContributiveData extends AbstractPlugin
     public function isRequired(): bool
     {
         return $this->data['required'];
+    }
+
+    public function minValues(): int
+    {
+        return $this->data['min_values'];
     }
 
     public function maxValues(): int

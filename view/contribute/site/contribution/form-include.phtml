@@ -24,17 +24,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 // TODO Replace apiManager by FormElementManager.
 $services = $site->getServiceLocator();
 $apiManager = $services->get('Omeka\ApiManager');
-$moduleManager = $services->get('Omeka\ModuleManager');
-$hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-$hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-$hasNumericDataTypes = ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-
-if ($hasCustomVocab) {
-    $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
-    $CustomVocabBaseTypes = $CustomVocabBaseTypes();
-} else {
-    $CustomVocabBaseTypes = null;
-}
+$CustomVocabBaseTypes = $plugins->get('customVocabBaseType')();
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
@@ -62,8 +52,6 @@ $vars['escape'] = $escape;
 $vars['translate'] = $translate;
 $vars['escapeAttr'] = $escapeAttr;
 $vars['apiManager'] = $apiManager;
-$vars['hasValueSuggest'] = $hasValueSuggest;
-$vars['hasNumericDataTypes'] = $hasNumericDataTypes;
 $vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
 $vars['valueResourceTypes'] = $valueResourceTypes;
 $vars['valueResourceQueries'] = $valueResourceQueries;
@@ -86,6 +74,7 @@ $this->headScript()
     ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
     ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
 
+$js = '';
 // To check if ValueSuggest is available, just try to get the routed url.
 try {
     $proxyUrl = $this->url('admin/value-suggest/proxy', [], true);
@@ -93,11 +82,8 @@ try {
         ->appendStylesheet($assetUrl('css/valuesuggest.css', 'Contribute'));
     $this->headScript()
         ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
-        ->appendFile($assetUrl('js/valuesuggest.js', 'Contribute'), 'text/javascript', ['defer' => 'defer'])
-        ->appendScript(sprintf(
-            'const valueSuggestProxyUrl = "%s";',
-            $this->escapeJs($proxyUrl)
-        ));
+        ->appendFile($assetUrl('js/valuesuggest.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
+    $js .= sprintf('const valueSuggestProxyUrl = "%s";', $this->escapeJs($proxyUrl));
 } catch (\Exception $e) {
     // Nothing to prepare.
 }
@@ -107,5 +93,13 @@ $simpleFields = $fields;
 foreach ($simpleFields as &$simpleField) {
     unset($simpleField['template_property'], $simpleField['property'], $simpleField['alternate_comment'], $simpleField['alternate_label'], $simpleField['values'], $simpleField['contributions']);
 }
+unset($simpleField);
+$js .= PHP_EOL . sprintf('const fields = %s;', json_encode($simpleFields, 320));
+$simpleMediaFields = $fieldsMediaBase ?: [];
+foreach ($simpleMediaFields as &$simpleMediaField) {
+    unset($simpleMediaField['template_property'], $simpleMediaField['property'], $simpleMediaField['alternate_comment'], $simpleMediaField['alternate_label'], $simpleMediaField['values'], $simpleMediaField['contributions']);
+}
+unset($simpleMediaField);
+$js .= PHP_EOL . sprintf('const mediaFields = %s;', json_encode($simpleMediaFields, 320));
 $this->headScript()
-    ->appendScript(sprintf('const fields = %s;', json_encode($simpleFields, 320)));
+    ->appendScript($js);

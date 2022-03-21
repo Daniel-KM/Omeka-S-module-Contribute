@@ -39,8 +39,6 @@ if ($isMainForm) {
      * @var \Laminas\I18n\View\Helper\Translate $translate
      * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
      * @var \Omeka\Api\Manager $apiManager
-     * @var bool $hasValueSuggest
-     * @var bool $hasNumericDataTypes
      * @var ?array $customVocabBaseTypes
      * @var array $valueResourceTypes
      * @var array $valueResourceQueries
@@ -68,7 +66,7 @@ if ($isMainForm) {
         // Only one file is allowed by media and it cannot be updated, like in Omeka.
         $file = $fieldsMedia['file']['contributions'][0]['proposed']['store'] ?? null;
         ?>
-    <div class="property">
+    <div class="property" data-term="file">
         <h4><?= $escape($translate('Upload')) ?></h4>
         <?php if ($file): ?>
         <div class="values">
@@ -104,7 +102,7 @@ if ($isMainForm) {
         $vars->offsetSet('templateProperty', $templateProperty);
         ?>
 
-    <div class="property">
+    <div class="property" data-term="<?= $term ?>">
         <?php // Display property label. ?>
         <h4>
             <?= isset($field['alternate_label']) ? $escape($field['alternate_label']) : $escape($translate($property->label())) ?>
@@ -133,30 +131,15 @@ if ($isMainForm) {
             endif; ?>
 
         <?php // Editable fields, that may have been edited or not. ?>
+        <?php // Some contributions may be empty (minimum number of values, or a required one). ?>
 
         <div class="values">
-            <?php // Display at least one prepared field for all required fields.
-            foreach (count($field['contributions']) ? $field['contributions'] : [null] as $indexContribution => $fieldContribution):
-                // There is no contribution: check if the field is required to display at least one field.
-                if (is_null($fieldContribution)) {
-                    if (empty($field['required']) || !($field['editable'] && $field['fillable'])) continue;
-                    $valueType = reset($field['datatypes']);
-                    if (!$valueType) continue;
-                    $value = null;
-                    $fieldContribution = ['type' => $valueType, 'required' => true, 'original' => [], 'proposed' => [], 'template_property' => $templateProperty];
-                } else {
-                    /** @var \Omeka\Api\Representation\ValueRepresentation $value */
-                    $value = $fieldContribution['original']['value'];
-                    if (!$value && !$field['fillable']) continue;
-                    $typeColon = strtok((string) $fieldContribution['type'], ':');
-                    $isNumeric = $typeColon === 'numeric';
-                    $isCustomVocab = $typeColon === 'customvocab';
-                    $isValueSuggest = $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall';
-                    if ($isNumeric && !$hasNumericDataTypes) continue;
-                    if ($isNumeric && !in_array($fieldContribution['type'], ['numeric:integer', 'numeric:timestamp'])) continue;
-                    if ($isCustomVocab && empty($customVocabBaseTypes)) continue;
-                    if ($isValueSuggest && !$hasValueSuggest) continue;
-                }
+            <?php
+            foreach ($field['contributions'] as $indexContribution => $fieldContribution):
+                /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+                $value = $fieldContribution['original']['value'];
+                if (!$value && !$field['fillable']) continue;
+                $typeColon = strtok((string) $fieldContribution['type'], ':');
                 $vars->offsetSet('indexContribution', $indexContribution);
                 $vars->offsetSet('fieldContribution', $fieldContribution);
                 $vars->offsetSet('value', $value);
@@ -183,10 +166,10 @@ if ($isMainForm) {
                         case 'numeric:timestamp':
                             echo $partial('contribute/site/contribution/form-input-numeric-timestamp');
                             break;
-                        case $isCustomVocab:
+                        case $typeColon === 'customvocab':
                             echo $partial('contribute/site/contribution/form-input-custom-vocab');
                             break;
-                        case $isValueSuggest:
+                        case $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall':
                             echo $partial('contribute/site/contribution/form-input-value-suggest');
                             break;
                         default:
@@ -203,17 +186,9 @@ if ($isMainForm) {
             ?>
         </div>
 
-        <?php // Add buttons to add a new value for fillable properties. ?>
-        <?php if ($field['fillable']):
-            if ($field['max_values']) {
-                if (count($field['contributions']) >= $field['max_values'] ||
-                    (!count($field['contributions']) && $field['required'] && $field['max_values'] <= 1)
-                ) {
-                    continue;
-                }
-            } ?>
+        <?php // Add a button to add a new value for fillable properties. ?>
+        <?php // The button is always added to manage value removing. ?>
         <?= $partial('contribute/site/contribution/form-value-more') ?>
-        <?php endif; ?>
 
     </div>
     <?php endforeach; // Next field/property. ?>

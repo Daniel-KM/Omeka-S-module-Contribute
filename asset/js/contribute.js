@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+    // Get fields and mediaFields from html.
+
     /**
      * Chosen default options.
      *
@@ -71,7 +73,22 @@ $(document).ready(function() {
          });
     }
 
-    $('.chosen-select').chosen(chosenOptions);
+    $(':not(.contribute_template) .chosen-select').chosen(chosenOptions);
+
+    // On load, hide all buttons "more" where the number of values is greater
+    // than the allowed max.
+    [typeof fields === 'undefined' ? [] : fields, typeof mediaFields === 'undefined' ? [] : mediaFields].forEach(function(currentFields) {
+        if (!currentFields) return;
+        Object.keys(currentFields).forEach(function(key) {
+            if (currentFields[key]['max_values']) {
+                $('#edit-resource .property[data-term="' + key + '"]').each(function () {
+                    if ($(this).find('.values > .value').length >= currentFields[key]['max_values']) {
+                        $(this).find('.add-values').hide();
+                    }
+                });
+            }
+        });
+    });
 
     $('#edit-resource').on('click', '.inputs .add-value', function(ev) {
         ev.stopPropagation();
@@ -105,13 +122,16 @@ $(document).ready(function() {
             newInput2,
             newInput3;
 
-        var maxValues = fields[term] && fields[term]['max_values'] ? parseInt(fields[term]['max_values']) : 0;
-        if (maxValues && index >= maxValues) {
+        const currentFields = isMedia ? mediaFields : fields;
+        var maxValues = currentFields[term] && currentFields[term]['max_values']
+            ? parseInt(currentFields[term]['max_values'])
+            : 0;
+        if (maxValues && target.closest('.property').find('.values > .value').length >= maxValues) {
             selector.hide();
             return;
         }
 
-        var required = fields[term] && fields[term]['required'];
+        var required = currentFields[term] && currentFields[term]['required'];
 
         if (target.hasClass('add-value-new')) {
             newElement = $('#edit_template_value > .value').clone();
@@ -222,7 +242,25 @@ $(document).ready(function() {
     $('#edit-resource').on('click', '.values .remove-value', function(ev) {
         ev.stopPropagation();
         ev.preventDefault();
-        $(this).closest('.value').remove();
+        // Add a new value when it is a required one and no more value is set.
+        // The button "add-value" or the template may be missing.
+        var val = $(this).closest('.value');
+        val.find('.chosen-option').chosen('destroy');
+        const isRequired = val.find(':input[required]').length;
+        if (isRequired && $(this).closest('.values').find('> .value').length <= 1) {
+            val.find(':input').each(function() {
+                if (this.type === 'checkbox' || this.type === 'radio') {
+                    this.checked = false;
+                } else {
+                    $(this).val('');
+                }
+            });
+            val.find('.chosen-option').chosen(chosenOptions);
+          } else {
+            // Display the button more values in all cases.
+            val.closest('.property').find('.add-values').show();
+            val.remove();
+        }
     });
 
     $('#edit-resource').on('click', '.inputs-media .add-media-new', function(ev) {
@@ -238,6 +276,8 @@ $(document).ready(function() {
         // dynamically. so there only the input file name should be set.
         fieldsetMedia.find('input[type=file]')
             .prop('name', baseName('file', 0, indexMedia) + '[@value]');
+        fieldsetMedia.find('.chosen-container').remove();
+        fieldsetMedia.find('.chosen-select').chosen(chosenOptions);
         fieldsetMedias
             .data('next-index-media', indexMedia + 1)
             .find('.inputs-media')
