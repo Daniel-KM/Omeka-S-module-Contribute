@@ -56,9 +56,10 @@ class Contribution
      * @todo Manage remote storage (extends url downloader?).
      *
      * @param string $filename Filename relative to the store base ("/contribution").
+     * @param string $sourceName The original source name
      * @param ?ErrorStore $errorStore
      */
-    public function toTempFile($filename, ?ErrorStore $errorStore = null): ?TempFile
+    public function toTempFile($filename, ?string $sourceName = null, ?ErrorStore $errorStore = null): ?TempFile
     {
         $filename = (string) $filename;
         if (!strlen($filename)) {
@@ -82,6 +83,10 @@ class Contribution
 
         $tempFile = $this->tempFileFactory->build();
         $tempFile->setTempPath($realPath);
+
+        if ($sourceName) {
+            $tempFile->setSourceName($sourceName);
+        }
 
         return $tempFile;
     }

@@ -44,7 +44,9 @@ class Contribution implements IngesterInterface
             return;
         }
 
-        $tempFile = $this->fileContribution->toTempFile($data['store'], $errorStore);
+        $sourceName = $data['o:source'] ?? null;
+
+        $tempFile = $this->fileContribution->toTempFile($data['store'], $sourceName, $errorStore);
         if (!$tempFile) {
             return;
         }
