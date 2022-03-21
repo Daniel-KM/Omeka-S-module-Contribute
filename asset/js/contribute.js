@@ -32,13 +32,30 @@ $(document).ready(function() {
         newInput.chosen(specificChosenOptions);
     }
 
+    function fillDate() {
+        let group = $(this).closest('.group-input-part');
+        let main = group.find('[data-input-part=main]');
+        let year = group.find('[data-input-part=year]').val();
+        let month = group.find('[data-input-part=month]').val();
+        let day = group.find('[data-input-part=day]').val();
+        if (!year.length && !month.length && !day.length) {
+            main.val('');
+            return;
+        }
+        let iso = ('0000' + year).slice (-4) + '-' + ('00' + month).slice (-2) + '-' + ('00' + day).slice (-2);
+        // Full iso regex, to complete the input pattern one.
+        // @see https://stackoverflow.com/questions/12756159/regex-and-iso8601-formatted-datetime
+        const regex = /^(\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/
+        main.val(regex.test(iso) ? iso : '');
+    }
+
     $('.chosen-select').chosen(chosenOptions);
 
     $('#edit-resource .inputs').on('click', '.add-value', function(ev) {
         ev.stopPropagation();
 
         var target = $(ev.target);
-        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-numeric-integer, .add-value-custom-vocab, .add-value-value-suggest')) {
+        if (!target.is('.add-value-new, .add-value-resource, .add-value-uri, .add-value-numeric-integer, .add-value-numeric-timestamp, .add-value-custom-vocab, .add-value-value-suggest')) {
             return;
         }
 
@@ -49,7 +66,10 @@ $(document).ready(function() {
         var newElement,
             name,
             namel,
-            newInput;
+            newInput,
+            newInput1,
+            newInput2,
+            newInput3;
 
         var maxValues = fields[term] && fields[term]['max_values'] ? parseInt(fields[term]['max_values']) : 0;
         if (maxValues && index >= maxValues) {
@@ -96,6 +116,32 @@ $(document).ready(function() {
                 .prop('name', name)
                 .removeAttr('readonly')
                 .val('');
+        }
+
+        if (target.hasClass('add-value-numeric-timestamp')) {
+            newElement = $('#edit_numeric-timestamp_template > .value').clone();
+            name = term + '[' + index + '][@value]';
+            namel = term + '[' + index + ']';
+            newInput = $(newElement).find('input[data-value-key="@value"]')
+                .prop('name', name)
+                .removeAttr('readonly')
+                .val('');
+            // Other elements are not submitted, but fill the hidden input on blur.
+            newInput1 = $(newElement).find('[data-input-part=year]')
+                .prop('name', namel + '[year]')
+                .removeAttr('readonly')
+                .val('');
+            newInput2 = $(newElement).find('[data-input-part=month]')
+                .prop('name', namel + '[month]')
+                .removeAttr('readonly')
+                .val('');
+            newInput3 = $(newElement).find('[data-input-part=day]')
+                .prop('name', namel + '[day]')
+                .removeAttr('readonly')
+                .val('');
+            newInput1.on('blur', fillDate);
+            newInput2.on('blur', fillDate);
+            newInput3.on('blur', fillDate);
         }
 
         if (target.hasClass('add-value-custom-vocab')) {

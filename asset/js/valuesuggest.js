@@ -9,7 +9,7 @@ $(document).ready(function() {
 
 });
 
-// Note: Currently, language is not managed. See value-suggest-admin.js.
+// @todo Currently, language is not managed. See module valuesuggest.js.
 function valueSuggestAutocomplete(suggestInput) {
     var type = suggestInput.data('data-type');
     if (type.indexOf('valuesuggest:') !== 0 && type.indexOf('valuesuggestall:') !== 0) {
@@ -28,9 +28,7 @@ function valueSuggestAutocomplete(suggestInput) {
     // In case of a failed submission, the value suggest input should be prepared.
     if (suggestInput.val() !== 'undefined' && suggestInput.val() !== '') {
         suggestHidden.val(suggestInput.val());
-        var submittedText = $(suggestInput.val()).text();
-        // var submittedUrl = $(suggestInput.val()).attr('href');
-        suggestInput.val(submittedText);
+        suggestInput.val(suggestInput.data('value'));
     }
 
     var allResults;

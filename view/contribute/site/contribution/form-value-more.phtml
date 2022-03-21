@@ -10,6 +10,7 @@
  * @var string $action "add" or "edit"
  * @var string $submitLabel
  *
+ * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
@@ -44,6 +45,12 @@
             case 'numeric:integer':
                 ?>
         <div class="add-value add-value-numeric-integer button o-icon-add"><?= $translate('Add number') ?></div>
+                <?php
+                break;
+
+            case 'numeric:timestamp':
+                ?>
+        <div class="add-value add-value-numeric-timestamp button o-icon-add"><?= $translate('Add date') ?></div>
                 <?php
                 break;
 

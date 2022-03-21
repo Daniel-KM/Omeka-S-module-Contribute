@@ -1,0 +1,79 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Form\ResourceForm $form
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var array $fields
+ * @var string $action "add" or "edit"
+ * @var string $submitLabel
+ *
+ * @var \Laminas\View\Helper\Partial $partial
+ * @var \Laminas\View\Helper\EscapeHtml $escape
+ * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
+ * @var \Omeka\Api\Manager $apiManager
+ * @var bool $hasValueSuggest
+ * @var bool $hasNumericDataTypes
+ * @var ?array $customVocabBaseTypes
+ *
+ * @var array $valueResourceTypes
+ * @var array $valueResourceQueries
+ * @var callable $shortResourceTitle
+ *
+ * @var array $field
+ * @var string $term
+ * @var int $indexFieldInput
+ * @var ?\Omeka\Api\Representation\PropertyRepresentation $property
+ * @var ?\Omeka\Api\Representation\ValueRepresentation $value
+ * @var ?array $fieldContribution
+ * @var ?int $indexContribution
+ * @var bool $readonly
+ */
+
+$original = $fieldContribution['original'];
+$proposed = $fieldContribution['proposed'];
+$isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
+$isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$propertyId = $property ? $property->id() : '__PROPERTYID__';
+
+$val = $proposed['@value'] ?? $original['@value'] ?? '';
+
+$class = ['value', 'group-input-part'];
+if ($isPrivate):
+    $class[] = 'private';
+endif;
+
+[$year, $month, $day] = explode('-', $val, 3);
+?>
+
+<?php
+// Use a pseudo-hidden "tel" to validate via the form directly and reduce issues.
+// The pattern is only for date for now, not full time.
+// The year/month/date is filled via js (name and value).
+?>
+<div class="<?= implode(' ', $class) ?>" role="group">
+    <input style="display:none;" type="tel" data-input-part="main" data-value-key="@value" name="<?= $term . '[' . $indexFieldInput . '][@value]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($val) ?>" pattern="^(?:19|20)\d\d-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\d|2\d)|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))$" />
+    <div class="input-body">
+        <div class="input">
+            <label class="value input-container">
+                <?= $translate('Year') ?>
+                <input type="tel" pattern="^\d\d\d\d$" class="form-control input-value" data-input-part="year" name="<?= $term . '[' . $indexFieldInput . '][year]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($year) ?>"/>
+            </label>
+        </div>
+        <div class="input">
+            <label class="value input-container">
+                <?= $translate('Month') ?>
+                <input type="tel" pattern="^\d{1,2}$" class="form-control input-value" data-input-part="month" name="<?= $term . '[' . $indexFieldInput . '][month]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($month) ?>"/>
+            </label>
+        </div>
+        <div class="input">
+            <label class="value input-container">
+                <?= $translate('Day') ?>
+                <input type="tel" pattern="^\d{1,2}$" class="form-control input-value" data-input-part="day" name="<?= $term . '[' . $indexFieldInput . '][day]' ?>" aria-labelledby="property-<?= $propertyId ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?> value="<?= $escapeAttr($day) ?>"/>
+            </label>
+        </div>
+    </div>
+</div>

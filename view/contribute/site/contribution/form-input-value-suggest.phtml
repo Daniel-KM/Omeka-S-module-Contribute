@@ -10,6 +10,7 @@
  * @var string $action "add" or "edit"
  * @var string $submitLabel
  *
+ * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
@@ -33,8 +34,8 @@
 
 $original = $fieldContribution['original'];
 $proposed = $fieldContribution['proposed'];
-$isPrivate = $value ? !$value->isPublic() : ($field['template_property'] ? $field['template_property']->isPrivate() : false);
-$isRequired = !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
+$isPrivate = $value ? !$value->isPublic() : (empty($field['template_property']) ? false : $field['template_property']->isPrivate());
+$isRequired = $fieldContribution && !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
 
 $val = $proposed['@uri'] ?? $original['@uri'];
 $label = isset($proposed['@uri']) ? $proposed['@label'] : $original['@label'];

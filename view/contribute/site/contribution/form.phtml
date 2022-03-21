@@ -38,6 +38,7 @@ if ($hasCustomVocab) {
 
 $vars = $this->vars();
 
+$vars->offsetSet('partial', $partial);
 $vars->offsetSet('escape', $escape);
 $vars->offsetSet('translate', $translate);
 $vars->offsetSet('escapeAttr', $escapeAttr);
@@ -137,7 +138,7 @@ $labelInfo = $this->setting('property_label_information');
                     $isCustomVocab = $typeColon === 'customvocab';
                     $isValueSuggest = $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall';
                     if ($isNumeric && !$hasNumericDataTypes) continue;
-                    if ($isNumeric && !in_array($fieldContribution['type'], ['numeric:integer'])) continue;
+                    if ($isNumeric && !in_array($fieldContribution['type'], ['numeric:integer', 'numeric:timestamp'])) continue;
                     if ($isCustomVocab && !$hasCustomVocab) continue;
                     if ($isValueSuggest && !$hasValueSuggest) continue;
                 }
@@ -163,6 +164,9 @@ $labelInfo = $this->setting('property_label_information');
                             break;
                         case 'numeric:integer':
                             echo $partial('contribute/site/contribution/form-input-numeric-integer');
+                            break;
+                        case 'numeric:timestamp':
+                            echo $partial('contribute/site/contribution/form-input-numeric-timestamp');
                             break;
                         case $isCustomVocab:
                             echo $partial('contribute/site/contribution/form-input-custom-vocab');
