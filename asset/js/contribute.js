@@ -57,7 +57,7 @@ $(document).ready(function() {
 
     $('.chosen-select').chosen(chosenOptions);
 
-    $('#edit-resource .inputs').on('click', '.add-value', function(ev) {
+    $('#edit-resource').on('click', '.inputs .add-value', function(ev) {
         ev.stopPropagation();
 
         var target = $(ev.target);
@@ -65,7 +65,7 @@ $(document).ready(function() {
             return;
         }
 
-        var selector = target.closest('.default-selector');
+        var selector = target.closest('.add-values');
         var term = selector.data('next-term');
         var index = selector.data('next-index') ? parseInt(selector.data('next-index')) : 0;
         var isMedia = target.hasClass('add-value-media');
@@ -192,5 +192,21 @@ $(document).ready(function() {
         inputs.append(newElement);
         selector.data('next-index', index);
     });
+
+    $('#edit-resource').on('click', '.inputs-media .add-media-new', function(ev) {
+        var target = $(ev.target);
+        var fieldsetMedias = target.closest('.contribute-medias');
+        var indexMedia = parseInt(fieldsetMedias.data('next-index-media'));
+        var fieldsetMedia = $('#edit_template_media > .sub-form').clone();
+        // Set all names and indexes.
+        fieldsetMedia.prop('name', 'media[' + indexMedia + ']');
+        fieldsetMedia.find('input, select, textarea').each(function(index, element) {
+            console.log(element.prop('name'));
+        });
+        fieldsetMedias
+            .data('next-index-media', indexMedia + 1)
+            .find('.inputs-media')
+            .before(fieldsetMedia);
+    })
 
 });

@@ -236,18 +236,13 @@ if ($isMainForm) {
             $vars->offsetSet('indexMedia', $indexMedia);
             $vars->offsetSet('fieldsMedia', $fieldsMedia);
             ?>
-            <?= $partial('contribute/site/contribution/form') ?>
+            <?= $partial('contribute/site/contribution/form', $vars) ?>
         </fieldset>
         <?php ++$indexMedia; ?>
         <?php endforeach; ?>
-        <fieldset class="contribute sub-form" name="media[]">
-            <legend><?= $escape($translate('File')) ?></legend>
-            <?php
-            $vars->offsetSet('indexMedia', null);
-            $vars->offsetSet('fieldsMedia', $fieldsMediaBase);
-            ?>
-            <?= $partial('contribute/site/contribution/form') ?>
-        </fieldset>
+        <div class="inputs inputs-media">
+            <button type="button" class="add-media-new button o-icon-add"><?= $translate('Add file') ?></button>
+        </div>
     </fieldset>
     <?php
     $indexMedia = null;
@@ -264,20 +259,40 @@ if ($isMainForm) {
     <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
     <div id="page-actions">
-        <?php if ($contribution && $contribution->resource()): ?>
-        <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <?php if ($contributionResource = $contribution && $contribution->resource() ? $contribution->resource() : null): ?>
+        <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $contributionResource->getControllerName(), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
         <?php else: ?>
+        <?php $routeResourceControllerName = $this->params()->fromRoute('resource'); ?>
         <?php //= $this->cancelButton() ?>
-        <?= $hyperlink($translate('Cancel'), $url('site/resource', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'browse'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <?= $hyperlink($translate('Cancel'), $url('site/resource', ['controller' => $routeResourceControllerName === 'contributions' ? 'items' : $routeResourceControllerName === 'contributions', 'action' => 'browse'], true),
+            ['class' => 'button button-cancel', 'role' => 'button']) ?>
         <?php endif; ?>
         <button type="submit" name="edit-resource-submit" class="button"><?= $escape($submitLabel) ?></button>
     </div>
 
     <?= $this->form()->closeTag() ?>
 
+    <?php //= $partial('common/resource-form-templates') ?>
     <?= $partial('contribute/site/contribution/form-inputs-default') ?>
 
-    <?php //= $partial('common/resource-form-templates') ?>
+    <?php if (count($fieldsMediaBase)): ?>
+    <div id="edit_template_media" class="contribute_template media" style="display:none;">
+        <fieldset class="contribute-media sub-form" name="media[]">
+            <legend><?= $escape($translate('File')) ?></legend>
+            <?php
+            $vars->offsetSet('isMainForm', false);
+            $vars->offsetSet('indexMedia', null);
+            $vars->offsetSet('fieldsMedia', $fieldsMediaBase);
+            ?>
+            <?= $partial('contribute/site/contribution/form', $vars) ?>
+            <?php
+            $vars->offsetSet('isMainForm', true);
+            $vars->offsetSet('indexMedia', null);
+            $vars->offsetSet('fieldsMedia', null);
+            ?>
+        </fieldset>
+    </div>
+    <?php endif; ?>
 
 </div>
 
