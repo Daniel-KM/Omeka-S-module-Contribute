@@ -26,10 +26,11 @@
  * @var array $field
  * @var string $term
  * @var int $indexFieldInput
- * @var \Omeka\Api\Representation\PropertyRepresentation $property
+ * @var ?\Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
  * @var ?array $fieldContribution
  * @var ?int $indexContribution
+ * @var bool $readonly
  */
 
 $original = $fieldContribution['original'];
@@ -78,10 +79,13 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
                     'required' => $isRequired,
                     'multiple' => false,
                     'data-value-key' => '@resource',
-                    'aria-labelledby' => 'property-' . $property->id() . '-label',
+                    'aria-labelledby' => 'property-' . ($property ? $property->id() : '__PROPERTYID__') . '-label',
                     'data-placeholder' => $translate('Select a resource…'),
                     'value' => $val,
                 ]);
+                if (!empty($readonly)) {
+                    $element->setAttribute('readonly', 'readonly');
+                }
             echo $this->formElement($element);
         endif; ?>
     </div>

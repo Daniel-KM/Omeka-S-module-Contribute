@@ -26,10 +26,11 @@
  * @var array $field
  * @var string $term
  * @var int $indexFieldInput
- * @var \Omeka\Api\Representation\PropertyRepresentation $property
+ * @var ?\Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
  * @var ?array $fieldContribution
  * @var ?int $indexContribution
+ * @var bool $readonly
  */
 
 $original = $fieldContribution['original'];
@@ -51,5 +52,5 @@ $language = isset($proposed['@uri']) ? null : (isset($original['value']) ? $orig
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
-    <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a>"<?= $isRequired ? ' required="required"' : '' ?>/>
+    <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<?php if ($val): ?><a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a><?php endif; ?>" aria-labelledby="property-<?= $property ? $property->id() : '__PROPERTYID__' ?>-label" <?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
 </div>

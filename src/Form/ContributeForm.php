@@ -29,7 +29,8 @@ class ContributeForm extends Form
                     'name' => 'template',
                     'type' => Element\Radio::class,
                     'options' => [
-                        'label' => 'Template', // @translate
+                        // End user doesn't know what is a "resource template".
+                        'label' => 'Type of item', // @translate
                         'value_options' => $this->templates,
                         'label_attributes' => [
                             'class' => 'required',

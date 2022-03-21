@@ -14,12 +14,16 @@
 // See common/resource-values.
 
 $plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
-$escapeAttr = $this->plugin('escapeHtmlAttr');
-$formElement = $this->plugin('formElement');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
+$formElement = $plugins->get('formElement');
+
+$vars = $this->vars();
+$labelInfo = $this->setting('property_label_information');
 
 // The api manager is needed to create select for Value Suggest.
 // TODO Replace apiManager by FormElementManager.
@@ -36,17 +40,6 @@ if ($hasCustomVocab) {
     $CustomVocabBaseTypes = null;
 }
 
-$vars = $this->vars();
-
-$vars->offsetSet('partial', $partial);
-$vars->offsetSet('escape', $escape);
-$vars->offsetSet('translate', $translate);
-$vars->offsetSet('escapeAttr', $escapeAttr);
-$vars->offsetSet('apiManager', $apiManager);
-$vars->offsetSet('hasValueSuggest', $hasValueSuggest);
-$vars->offsetSet('hasNumericDataTypes', $hasNumericDataTypes);
-$vars->offsetSet('customVocabBaseTypes', $CustomVocabBaseTypes);
-
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
 // TODO Use module advanced resource template to fill a property with a property query. They are always empty for now, except manually filled.
@@ -55,21 +48,28 @@ $shortResourceTitle = function (\Omeka\Api\Representation\AbstractResourceEntity
     return mb_substr($resource->displayTitle(), 0, 80);
 };
 
-$vars->offsetSet('valueResourceTypes', $valueResourceTypes);
-$vars->offsetSet('valueResourceQueries', $valueResourceQueries);
-$vars->offsetSet('shortResourceTitle', $shortResourceTitle);
+// Avoid to prepare many variables in sub-templates.
+$vars = $vars->getArrayCopy();
+$vars['partial'] = $partial;
+$vars['escape'] = $escape;
+$vars['translate'] = $translate;
+$vars['escapeAttr'] = $escapeAttr;
+$vars['apiManager'] = $apiManager;
+$vars['hasValueSuggest'] = $hasValueSuggest;
+$vars['hasNumericDataTypes'] = $hasNumericDataTypes;
+$vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
+$vars['valueResourceTypes'] = $valueResourceTypes;
+$vars['valueResourceQueries'] = $valueResourceQueries;
+$vars['shortResourceTitle'] = $shortResourceTitle;
+$vars = $this->setVars(new \Laminas\View\Variables($vars))->vars();
 
-// Store in js basic config of the fields.
-$simpleFields = $fields;
-foreach ($simpleFields as &$simpleField) {
-    unset($simpleField['template_property'], $simpleField['property'], $simpleField['alternate_comment'], $simpleField['alternate_label'], $simpleField['values'], $simpleField['contributions']);
+// Don't prepare form if there are no fields.
+if (count($fields)) {
+    // No echo: only includes css and js.
+    $partial('contribute/site/contribution/form-include');
 }
-$this->headScript()
-    ->appendScript(sprintf('const fields = %s;', json_encode($simpleFields, 320)));
 
 $form->prepare();
-
-$labelInfo = $this->setting('property_label_information');
 ?>
 
 <div class="contribute-main-form">
@@ -210,10 +210,10 @@ $labelInfo = $this->setting('property_label_information');
 
     <div id="page-actions">
         <?php if ($resource): ?>
-        <?= $hyperlink($translate('Go back to resource'), $this->url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
         <?php else: ?>
         <?php //= $this->cancelButton() ?>
-        <?= $hyperlink($translate('Cancel'), $this->url('site/resource', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'browse'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+        <?= $hyperlink($translate('Cancel'), $url('site/resource', ['controller' => $this->params()->fromRoute('resource'), 'action' => 'browse'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
         <?php endif; ?>
         <button type="submit" name="edit-resource-submit" class="button"><?= $escape($submitLabel) ?></button>
     </div>

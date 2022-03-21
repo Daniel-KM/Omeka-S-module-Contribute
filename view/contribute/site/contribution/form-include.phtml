@@ -1,0 +1,42 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Entity\User $user
+ * @var \Omeka\Form\ResourceForm $form
+ * @var array $fields
+ */
+
+$plugins = $this->getHelperPluginManager();
+$assetUrl = $plugins->get('assetUrl');
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
+    ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
+$this->headScript()
+    ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
+    ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
+
+// To check if ValueSuggest is available, just try to get the routed url.
+try {
+    $proxyUrl = $this->url('admin/value-suggest/proxy', [], true);
+    $this->headLink()
+        ->appendStylesheet($assetUrl('css/valuesuggest.css', 'Contribute'));
+    $this->headScript()
+        ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
+        ->appendFile($assetUrl('js/valuesuggest.js', 'Contribute'), 'text/javascript', ['defer' => 'defer'])
+        ->appendScript(sprintf(
+            'const valueSuggestProxyUrl = "%s";',
+            $this->escapeJs($proxyUrl)
+        ));
+} catch (\Exception $e) {
+    // Nothing to prepare.
+}
+
+// Store in js basic config of the fields.
+$simpleFields = $fields;
+foreach ($simpleFields as &$simpleField) {
+    unset($simpleField['template_property'], $simpleField['property'], $simpleField['alternate_comment'], $simpleField['alternate_label'], $simpleField['values'], $simpleField['contributions']);
+}
+$this->headScript()
+    ->appendScript(sprintf('const fields = %s;', json_encode($simpleFields, 320)));

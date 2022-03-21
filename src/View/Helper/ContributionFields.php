@@ -36,7 +36,7 @@ class ContributionFields extends AbstractHelper
     }
 
     /**
-     * Get all fields that are updatable for this resource.
+     * Get all fields for this resource, updatable or not.
      *
      * The order is the one of the resource template.
      *
@@ -153,9 +153,10 @@ class ContributionFields extends AbstractHelper
             ];
         }
 
-        // The remaining values are never editable.
+        // The remaining values don't have a template and are never editable.
         foreach ($values as $term => $valueInfo) {
             if (!isset($fields[$term])) {
+                // Value info includes the property and the values.
                 $fields[$term] = $valueInfo;
                 $fields[$term]['required'] = false;
                 $fields[$term]['max_values'] = 0;

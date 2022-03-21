@@ -26,10 +26,11 @@
  * @var array $field
  * @var string $term
  * @var int $indexFieldInput
- * @var \Omeka\Api\Representation\PropertyRepresentation $property
+ * @var ?\Omeka\Api\Representation\PropertyRepresentation $property
  * @var ?\Omeka\Api\Representation\ValueRepresentation $value
  * @var ?array $fieldContribution
  * @var ?int $indexContribution
+ * @var bool $readonly
  */
 
 $original = $fieldContribution['original'];
@@ -53,13 +54,13 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
         <div class="input">
             <label class="value input-container">
                 <?= $translate('URI') ?>
-                <input type="text" class="form-control value" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?>/>
+                <input type="text" class="form-control value" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?><?= empty($readonly) ? '' : ' readonly="readonly"' ?>/>
             </label>
         </div>
         <div class="input">
             <label class="value-label label-container">
                 <?= $translate('Label') ?>
-                <textarea class="form-control value-label" rows="1" data-value-key="@label" name="<?= $term . '[' . $indexFieldInput . '][@label]' ?>"><?= $escape($label) ?></textarea>
+                <textarea class="form-control value-label" rows="1" data-value-key="@label" name="<?= $term . '[' . $indexFieldInput . '][@label]' ?>"<?= empty($readonly) ? '' : ' readonly="readonly"' ?>><?= $escape($label) ?></textarea>
             </label>
         </div>
     </div>

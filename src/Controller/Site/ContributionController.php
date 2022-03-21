@@ -169,6 +169,7 @@ class ContributionController extends AbstractActionController
         // Second step: fill the template and create a contribution, even partial.
         if ($this->getRequest()->isPost() && !$step) {
             $post = $this->params()->fromPost();
+            // The template cannot be changed once set.
             $post['template'] = $resourceTemplate->id();
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
@@ -235,7 +236,7 @@ class ContributionController extends AbstractActionController
         $resourceType = $this->params('resource');
         $resourceId = $this->params('id');
 
-        // Unlike addAction(), when edition is always the right contribution or
+        // Unlike addAction(), edition is always the right contribution or
         // resource.
         $resourceTypeMap = [
             'contribution' => 'contributions',
@@ -275,6 +276,7 @@ class ContributionController extends AbstractActionController
                 return $this->viewError403();
             }
 
+            // There may be no contribution when it is a correction.
             if ($token) {
                 $contribution = $api
                     ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
@@ -293,7 +295,9 @@ class ContributionController extends AbstractActionController
             $resourceTemplate = $resource->resourceTemplate();
         }
 
-        if (!$resourceTemplate || !$this->contributiveData($resourceTemplate)->isContributive()) {
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
+        $contributive = $this->contributiveData($resourceTemplate);
+        if (!$resourceTemplate || !$contributive->isContributive()) {
             $this->logger()->warn('This resource cannot be edited: no resource template, no fields, or not allowed.'); // @translate
             return new ViewModel([
                 'site' => $site,

@@ -49,7 +49,7 @@ info@example2.org',
                 'name' => 'contribute_templates',
                 'type' => OmekaElement\ResourceTemplateSelect::class,
                 'options' => [
-                    'label' => 'Templates for new contribution', // @translate
+                    'label' => 'Resource templates allowed for contribution', // @translate
                     'empty_option' => '',
                 ],
                 'attributes' => [

@@ -8,38 +8,13 @@
  */
 
 $plugins = $this->getHelperPluginManager();
+$partial = $plugins->get('partial');
 $translate = $plugins->get('translate');
-$assetUrl = $plugins->get('assetUrl');
-
-// Don't prepare form if there are no fields.
-if (count($fields)) {
-    $this->headLink()
-        ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'))
-        ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
-    $this->headScript()
-        ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
-        ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
-
-    // To check if ValueSuggest is available, just try to get the routed url.
-    try {
-        $proxyUrl = $this->url('admin/value-suggest/proxy', [], true);
-        $this->headLink()
-            ->appendStylesheet($assetUrl('css/valuesuggest.css', 'Contribute'));
-        $this->headScript()
-            ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
-            ->appendFile($assetUrl('js/valuesuggest.js', 'Contribute'), 'text/javascript', ['defer' => 'defer'])
-            ->appendScript(sprintf(
-                'const valueSuggestProxyUrl = "%s";',
-                $this->escapeJs($proxyUrl)
-            ));
-    } catch (\Exception $e) {
-        // Nothing to prepare.
-    }
-}
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items' . $this->params()->fromRoute('resource') . ' resource');
 
 $mapLabels = [
+    'contributions' => 'item',
     'items' => 'item',
     'media' => 'media',
     'item_sets' => 'item set',
@@ -55,7 +30,7 @@ $mapLabels = [
     <?php if (count($fields)): ?>
         <?php
         $this->trigger('view.edit.before');
-        echo $this->partial('contribute/site/contribution/form', [
+        echo $partial('contribute/site/contribution/form', [
             'site' => $site,
             'form' => $form,
             'resource' => null,
@@ -67,7 +42,7 @@ $mapLabels = [
         $this->trigger('view.edit.after');
     elseif ($form): // First step form to select a resource template.
         $form->prepare()->init();
-        $form->get('submit')->setValue('Select a template'); // @translate
+        $form->get('submit')->setValue('Select'); // @translate
         echo $this->form($form);
     else: ?>
     <div class="messages">
