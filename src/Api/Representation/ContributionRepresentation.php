@@ -958,11 +958,110 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * A contribution is never public and is managed only by admins and owner.
      *
+     * @todo Allow to make contribution public after submission and validation.
+     *
      * This method is added only to simplify views.
      */
     public function isPublic(): bool
     {
         return false;
+    }
+
+    /**
+     * Check if the proposal matches a resource-like query.
+     */
+    public function match($query): bool
+    {
+        if (empty($query)) {
+            return true;
+        }
+        if (!is_array($query)) {
+            $query = trim((string) $query, "? \n\t\r");
+            $params = [];
+            parse_str($query, $params);
+            $query = $params;
+            unset($params);
+        }
+        if (empty($query)) {
+            return true;
+        }
+
+        $services = $this->getServiceLocator();
+        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
+
+        $resourceData = $this->proposalToResourceData();
+
+        foreach ($query as $field => $value) {
+            if ($value === '' || is_null($value) || $value === []) {
+                continue;
+            }
+
+            if ($field === 'resource_template_id') {
+                $current = $resourceData['o:resource_template']['o:id'] ?? null;
+                $vals = is_array($value) ? $value : [$value];
+                if (!in_array($current, $vals)) {
+                    return false;
+                }
+            }
+
+            if ($field === 'resource_class_id') {
+                $current = $resourceData['o:resource_class']['o:id'] ?? null;
+                $vals = is_array($value) ? $value : [$value];
+                if (!in_array($current, $vals)) {
+                    return false;
+                }
+            }
+
+            // TODO Currently, only "eq" is managed.
+            if ($field === 'property') {
+                if (!is_array($value)) {
+                    return false;
+                }
+                foreach ($value as $propertyQuery) {
+                    $prop = $propertyQuery['property'] ?? null;
+                    if (empty($prop)) {
+                        return false;
+                    }
+                    if (is_numeric($prop)) {
+                        $prop = array_search($prop, $propertyIds);
+                        if (!$prop) {
+                            return false;
+                        }
+                    } elseif (!isset($prop, $propertyIds)) {
+                        return false;
+                    }
+                    if (!isset($resourceData[$prop])) {
+                        return false;
+                    }
+                    $text = $propertyQuery['text'];
+                    if ($text === '' || $text === null || $text === []) {
+                        return false;
+                    }
+                    $texts = is_array($text) ? array_values($text) : [$text];
+                    $resourceDataValues = [];
+                    foreach ($resourceData[$prop] as $resourceDataValue) {
+                        if (isset($resourceDataValue['@value'])) {
+                            $resourceDataValues[] = $resourceDataValue['@value'];
+                        }
+                        if (isset($resourceDataValue['@id'])) {
+                            $resourceDataValues[] = $resourceDataValue['@id'];
+                        }
+                        if (isset($resourceDataValue['value_resource_id'])) {
+                            $resourceDataValues[] = $resourceDataValue['value_resource_id'];
+                        }
+                        if (isset($resourceDataValue['o:label'])) {
+                            $resourceDataValues[] = $resourceDataValue['o:label'];
+                        }
+                    }
+                    // TODO Manage "and".
+                    if (!array_intersect($texts, $resourceDataValues)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
