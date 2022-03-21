@@ -94,15 +94,33 @@ class ContributeController extends AbstractActionController
             }
         }
 
-        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
-        $contributionFields = $this->viewHelpers()->get('contributionFields');
+        $template = $this->params()->fromQuery('template');
+        /** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
+        $resourceTemplate = $template
+            ? $this->api()->searchOne('resource_templates', is_numeric($template) ? ['id' => $template] : ['label' => $template])->getContent()
+            : null;
+
+        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
+
+        $fields = [];
+        if ($template && !$resourceTemplate) {
+            $this->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+        } elseif ($resourceTemplate && !in_array($resourceTemplate->id(), $allowedResourceTemplates)) {
+            $this->logger()->warn(new Message('A user tried to add a resource with a non-allowed template "%s".', $template)); // @translate
+        } elseif (!count($allowedResourceTemplates)) {
+            $this->logger()->warn(new Message('No template defined for contribution.')); // @translate
+        } else {
+            /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
+            $contributionFields = $this->viewHelpers()->get('contributionFields');
+            $fields = $contributionFields(null, null, $resourceTemplate);
+        }
 
         return new ViewModel([
             'site' => $this->currentSite(),
             'form' => $form,
             'resource' => null,
             'contribution' => null,
-            'fields' => $contributionFields(),
+            'fields' => $fields,
         ]);
     }
 

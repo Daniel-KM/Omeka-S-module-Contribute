@@ -6,6 +6,7 @@ use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Mvc\Controller\Plugin\ContributiveData;
 use Laminas\View\Helper\AbstractHelper;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
 class ContributionFields extends AbstractHelper
 {
@@ -74,15 +75,12 @@ class ContributionFields extends AbstractHelper
      *   ],
      * ]
      * </code>
-     *
-     * @return array
-     *
-     * @param AbstractResourceEntityRepresentation|null $resource
-     * @param ContributionRepresentation|null $contribution
-     * @return array
      */
-    public function __invoke(AbstractResourceEntityRepresentation $resource = null, ContributionRepresentation $contribution = null)
-    {
+    public function __invoke(
+        ?AbstractResourceEntityRepresentation $resource = null,
+        ?ContributionRepresentation $contribution = null,
+        ?ResourceTemplateRepresentation $resourceTemplate = null
+    ): array {
         $fields = [];
 
         $defaultField = [
@@ -101,7 +99,6 @@ class ContributionFields extends AbstractHelper
             $resourceTemplate = $resource->resourceTemplate();
             $values = $resource->values();
         } else {
-            $resourceTemplate = null;
             $values = [];
         }
         $contributive = $this->contributiveData->__invoke($resourceTemplate);
