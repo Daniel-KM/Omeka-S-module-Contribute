@@ -373,7 +373,7 @@ class ContributionController extends AbstractActionController
         $contributive = $this->contributiveData($resourceTemplate);
 
         $propertyIds = $this->propertyIdsByTerms();
-        $customVocabSubTypes = $this->viewHelpers()->get('customVocabSubType')();
+        $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
 
         // Process editable properties first.
         $matches = [];
@@ -401,15 +401,18 @@ class ContributionController extends AbstractActionController
                     continue;
                 }
 
-                $subType = null;
-                if (substr((string) $type, 0, 12) === 'customvocab:') {
-                    $subType = $customVocabSubTypes[substr($type, 12)] ?? 'literal';
+                $typeColon = strtok($type, ':');
+                $baseType = null;
+                $uriLabels = [];
+                if ($typeColon === 'customvocab') {
+                    $customVocabId = (int) substr($type, 12);
+                    $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
+                    $uriLabels = $this->customVocabUriLabels($customVocabId);
                 }
 
-                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case $typeColon === 'customvocab' && $subType === 'literal':
+                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
                         }
@@ -423,7 +426,7 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $subType === 'resource':
+                    case $typeColon === 'customvocab' && $baseType === 'resource':
                         if (!isset($proposal[$term][$index]['@resource'])) {
                             continue 2;
                         }
@@ -437,8 +440,10 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
+                    case $typeColon === 'customvocab' && $baseType === 'uri':
+                        $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri'] ?? ''] ?? '';
+                        // No break.
                     case 'uri':
-                    case $typeColon === 'customvocab' && $subType === 'uri':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
@@ -504,6 +509,7 @@ class ContributionController extends AbstractActionController
                 continue;
             }
             $propertyId = $propertyIds[$term];
+            $type = null;
             $typeTemplate = null;
             if ($resourceTemplate) {
                 $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
@@ -512,9 +518,12 @@ class ContributionController extends AbstractActionController
                 }
             }
 
-            $subType = null;
+            $baseType = null;
+            $uriLabels = [];
             if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $subType = $customVocabSubTypes[substr($typeTemplate, 12)] ?? 'literal';
+                $customVocabId = (int) substr($typeTemplate, 12);
+                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
+                $uriLabels = $this->customVocabUriLabels($customVocabId);
             }
 
             foreach ($proposal[$term] as $index => $proposedValue) {
@@ -539,7 +548,7 @@ class ContributionController extends AbstractActionController
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case $typeColon === 'customvocab' && $subType === 'literal':
+                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;
                         }
@@ -552,8 +561,8 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case strtok($type, ':') === 'resource':
-                    case $typeColon === 'customvocab' && $subType === 'resource':
+                    case $typeColon === 'resource':
+                    case $typeColon === 'customvocab' && $baseType === 'resource':
                         if (!isset($proposedValue['@resource']) || !(int) $proposedValue['@resource']) {
                             continue 2;
                         }
@@ -566,8 +575,10 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
+                    case $typeColon === 'customvocab' && $baseType === 'uri':
+                        $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
+                        // No break.
                     case 'uri':
-                    case $typeColon === 'customvocab' && $subType === 'uri':
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }
@@ -615,6 +626,31 @@ class ContributionController extends AbstractActionController
         }
 
         return $result;
+    }
+
+    /**
+     * Get the list of uris and labels of a specific custom vocab.
+     *
+     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
+     */
+    protected function customVocabUriLabels(int $customVocabId): array
+    {
+        static $uriLabels = [];
+        if (!isset($uriLabels[$customVocabId])) {
+            $uris = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
+            $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
+            $matches = [];
+            $values = [];
+            foreach ($uris as $uri) {
+                if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                    $values[$matches[1]] = $matches[2];
+                } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                    $values[$matches[1]] = '';
+                }
+            }
+            $uriLabels[$customVocabId] = $values;
+        }
+        return $uriLabels[$customVocabId];
     }
 
     /**

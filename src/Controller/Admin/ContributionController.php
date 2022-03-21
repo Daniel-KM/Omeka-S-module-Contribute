@@ -621,7 +621,7 @@ class ContributionController extends AbstractActionController
 
         $api = $this->api();
         $propertyIds = $this->propertyIdsByTerms();
-        $customVocabSubTypes = $this->viewHelpers()->get('customVocabSubType')();
+        $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
 
@@ -724,9 +724,12 @@ class ContributionController extends AbstractActionController
                 }
             }
 
-            $subType = null;
+            $baseType = null;
+            $uriLabels = [];
             if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $subType = $customVocabSubTypes[substr($typeTemplate, 12)] ?? 'literal';
+                $customVocabId = (int) substr($typeTemplate, 12);
+                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
+                $uriLabels = $this->customVocabUriLabels($customVocabId);
             }
 
             foreach ($propositions as $key => $proposition) {
@@ -756,7 +759,7 @@ class ContributionController extends AbstractActionController
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case $typeColon === 'customvocab' && $subType === 'literal':
+                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -766,7 +769,7 @@ class ContributionController extends AbstractActionController
                         ];
                         break;
                     case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $subType === 'resource':
+                    case $typeColon === 'customvocab' && $baseType === 'resource':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -777,8 +780,10 @@ class ContributionController extends AbstractActionController
                             '@language' => null,
                         ];
                         break;
+                    case $typeColon === 'customvocab' && $baseType === 'uri':
+                        $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? '';
+                        // No break.
                     case 'uri':
-                    case $typeColon === 'customvocab' && $subType === 'uri':
                     case $typeColon === 'valuesuggest':
                     case $typeColon === 'valuesuggestall':
                         $data[$term][] = [
@@ -799,22 +804,47 @@ class ContributionController extends AbstractActionController
         $api->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
     }
 
-    protected function jsonErrorUnauthorized()
+    /**
+     * Get the list of uris and labels of a specific custom vocab.
+     *
+     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
+     */
+    protected function customVocabUriLabels(int $customVocabId): array
+    {
+        static $uriLabels = [];
+        if (!isset($uriLabels[$customVocabId])) {
+            $uris = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
+            $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
+            $matches = [];
+            $values = [];
+            foreach ($uris as $uri) {
+                if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                    $values[$matches[1]] = $matches[2];
+                } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                    $values[$matches[1]] = '';
+                }
+            }
+            $uriLabels[$customVocabId] = $values;
+        }
+        return $uriLabels[$customVocabId];
+    }
+
+    protected function jsonErrorUnauthorized(): JsonModel
     {
         return $this->returnError($this->translate('Unauthorized access.'), Response::STATUS_CODE_403); // @translate
     }
 
-    protected function jsonErrorNotFound()
+    protected function jsonErrorNotFound(): JsonModel
     {
         return $this->returnError($this->translate('Resource not found.'), Response::STATUS_CODE_404); // @translate
     }
 
-    protected function jsonErrorUpdate()
+    protected function jsonErrorUpdate(): JsonModel
     {
         return $this->returnError($this->translate('An internal error occurred.'), Response::STATUS_CODE_500); // @translate
     }
 
-    protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)
+    protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null): JsonModel
     {
         $response = $this->getResponse();
         $response->setStatusCode($statusCode);

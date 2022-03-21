@@ -118,7 +118,7 @@ class ContributionFields extends AbstractHelper
             return [];
         }
 
-        $customVocabSubTypes = $this->getView()->plugin('customVocabSubType')();
+        $customVocabBaseTypes = $this->getView()->plugin('customVocabBaseType')();
 
         // List the fields for the resource.
         foreach ($contributive->template()->resourceTemplateProperties() as $templateProperty) {
@@ -167,19 +167,19 @@ class ContributionFields extends AbstractHelper
                 // Method value() is label or value depending on type.
                 $type = $value->type();
                 $typeColon = strtok($type, ':');
-                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
-                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                $baseType = $typeColon === 'customvocab'
+                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
                     : null;
                 // TODO No need to check if the datatype is managed?
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                    || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
                     $val = null;
                     $res = null;
                     $uri = $value->uri();
                     $label = $value->value();
                 } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                    || ($typeColon === 'customvocab' && $baseType === 'resource')
                 ) {
                     $vr = $value->valueResource();
                     $val = null;
@@ -259,13 +259,15 @@ class ContributionFields extends AbstractHelper
                     continue;
                 }
                 $typeColon = strtok($type, ':');
-                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
-                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                $baseType = $typeColon === 'customvocab'
+                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
                     : null;
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                    || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
+                        // For the customvocab, the label is static, so use the
+                        // original one, but here the label is already checked.
                         if (isset($proposal['original']['@uri'])
                             && $proposal['original']['@uri'] === $fieldContribution['original']['@uri']
                             && $proposal['original']['@label'] === $fieldContribution['original']['@label']
@@ -284,7 +286,7 @@ class ContributionFields extends AbstractHelper
                         '@label' => $proposed['@label'],
                     ];
                 } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                    || ($typeColon === 'customvocab' && $baseType === 'resource')
                 ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@resource'])
@@ -342,11 +344,11 @@ class ContributionFields extends AbstractHelper
                     continue;
                 }
                 $typeColon = strtok($type, ':');
-                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
-                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                $baseType = $typeColon === 'customvocab'
+                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
                     : null;
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                    || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
@@ -367,7 +369,7 @@ class ContributionFields extends AbstractHelper
                         '@label' => $proposed['@label'],
                     ];
                 } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                    || ($typeColon === 'customvocab' && $baseType === 'resource')
                 ) {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@resource'])
@@ -439,11 +441,11 @@ class ContributionFields extends AbstractHelper
                     continue;
                 }
                 $typeColon = strtok($type, ':');
-                $subType = $typeColon === 'customvocab' && is_array($customVocabSubTypes)
-                    ? $customVocabSubTypes[(int) substr($type, 12)] ?? 'literal'
+                $baseType = $typeColon === 'customvocab' && is_array($customVocabBaseTypes)
+                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
                     : null;
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $subType === 'uri')
+                    || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
@@ -462,7 +464,7 @@ class ContributionFields extends AbstractHelper
                         ],
                     ];
                 } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $subType === 'resource')
+                    || ($typeColon === 'customvocab' && $baseType === 'resource')
                 ) {
                     $fields[$term]['contributions'][] = [
                         'type' => $type,
@@ -482,7 +484,7 @@ class ContributionFields extends AbstractHelper
                     ];
                 } else {
                     $fields[$term]['contributions'][] = [
-                        'type' => 'literal',
+                        'type' => $type,
                         'original' => [
                             'value' => null,
                             '@resource' => null,

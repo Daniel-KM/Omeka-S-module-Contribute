@@ -252,10 +252,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $propertyIds = $propertyIds();
 
         $contributive = $this->contributiveData();
-
         $resourceTemplate = $this->resource()->resourceTemplate();
-
-        $customVocabSubTypes = $services->get('ViewHelperManager')->get('customVocabSubType')();
+        $customVocabBaseTypes = $this->getViewHelper('customVocabBaseType')();
 
         $proposal = $this->proposal();
         foreach ($proposal as $term => $propositions) {
@@ -281,9 +279,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
 
-            $subType = null;
+            $baseType = null;
+            $uriLabels = [];
             if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $subType = $customVocabSubTypes[substr($typeTemplate, 12)] ?? 'literal';
+                $customVocabId = (int) substr($typeTemplate, 12);
+                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
+                $uriLabels = $this->customVocabUriLabels($customVocabId);
             }
 
             foreach ($propositions as $key => $proposition) {
@@ -307,7 +308,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case $typeColon === 'customvocab' && $subType === 'literal':
+                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         $original = $proposition['original']['@value'] ?? '';
                         $proposed = $proposition['proposed']['@value'] ?? '';
 
@@ -374,7 +375,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
 
                     case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $subType === 'resource':
+                    case $typeColon === 'customvocab' && $baseType === 'resource':
                         $original = $proposition['original']['@resource'];
                         $proposed = $proposition['proposed']['@resource'];
 
@@ -440,8 +441,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         unset($prop);
                         break;
 
+                    case $typeColon === 'customvocab' && $baseType === 'uri':
+                        $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
+                        // No break.
                     case 'uri':
-                    case $typeColon === 'customvocab' && $subType === 'uri':
                     case $typeColon === 'valuesuggest':
                     case $typeColon === 'valuesuggestall':
                         $originalUri = $proposition['original']['@uri'] ?? '';
@@ -718,5 +721,31 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             ],
             ['force_canonical' => $canonical]
         );
+    }
+
+    /**
+     * Get the list of uris and labels of a specific custom vocab.
+     *
+     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
+     */
+    protected function customVocabUriLabels(int $customVocabId): array
+    {
+        static $uriLabels = [];
+        if (!isset($uriLabels[$customVocabId])) {
+            $api = $this->getServiceLocator()->get('ControllerPluginManager')->get('api');
+            $uris = $api->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
+            $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
+            $matches = [];
+            $values = [];
+            foreach ($uris as $uri) {
+                if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                    $values[$matches[1]] = $matches[2];
+                } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                    $values[$matches[1]] = '';
+                }
+            }
+            $uriLabels[$customVocabId] = $values;
+        }
+        return $uriLabels[$customVocabId];
     }
 }

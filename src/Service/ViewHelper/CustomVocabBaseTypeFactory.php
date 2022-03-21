@@ -2,11 +2,11 @@
 
 namespace Contribute\Service\ViewHelper;
 
-use Contribute\View\Helper\CustomVocabSubType;
+use Contribute\View\Helper\CustomVocabBaseType;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
-class CustomVocabSubTypeFactory implements FactoryInterface
+class CustomVocabBaseTypeFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
@@ -33,12 +33,12 @@ SELECT
 FROM `custom_vocab`
 ORDER BY `id`;
 SQL;
-            $customVocabSubTypes = $services->get('Omeka\Connection')->executeQuery($sql)->fetchAllKeyValue() ?: [];
+            $customVocabBaseTypes = $services->get('Omeka\Connection')->executeQuery($sql)->fetchAllKeyValue() ?: [];
         } else {
-            $customVocabSubTypes = null;
+            $customVocabBaseTypes = null;
         }
-        return new CustomVocabSubType(
-            $customVocabSubTypes
+        return new CustomVocabBaseType(
+            $customVocabBaseTypes
         );
     }
 }

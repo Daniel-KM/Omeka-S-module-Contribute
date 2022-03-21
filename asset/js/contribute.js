@@ -88,15 +88,14 @@ $(document).ready(function() {
         }
 
         if (target.hasClass('add-value-custom-vocab')) {
-            const subtype = target.data('subtype');
-            newElement = $('#edit_customvocab_template > .value[data-subtype=' + subtype + ']').clone();
+            const basetype = target.data('basetype');
+            newElement = $('#edit_customvocab_template > .value[data-basetype=' + basetype + ']').clone();
             newInput = $(newElement).find('select');
-            if (subtype === 'itemset') {
+            if (basetype === 'resource') {
                 name = term + '[' + index + '][@resource]';
-            } else if (subtype === 'uri') {
+            } else if (basetype === 'uri') {
+                // The label is managed by the server.
                 name = term + '[' + index + '][@uri]';
-                // TODO Manage storage of label in custom vocab uri (on select, set label value).
-                // namel = term + '[' + index + '][@label]';
             } else {
                 name = term + '[' + index + '][@value]';
             }

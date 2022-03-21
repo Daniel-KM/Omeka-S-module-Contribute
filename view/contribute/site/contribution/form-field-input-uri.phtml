@@ -15,7 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
- * @var ?array $customVocabSubTypes
+ * @var ?array $customVocabBaseTypes
  *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
@@ -36,7 +36,7 @@ $isPrivate = $value ? !$value->isPublic() : ($field['template_property'] ? $fiel
 $isRequired = !empty($fieldContribution['required']) && (($indexContribution ?? null) === 0);
 
 $val = $proposed['@uri'] ?? $original['@uri'];
-$label = $proposed['@uri'] ?? $original['@label'];
+$label = $proposed['@label'] ?? $original['@label'];
 
 $class = ['value'];
 $class[] = 'uri';
@@ -51,13 +51,13 @@ $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $or
         <div class="input">
             <label class="value input-container">
                 <?= $translate('URI') ?>:
-                <input type="text" class="form-control value to-require" data-value-key="@id" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?>/>
+                <input type="text" class="form-control value to-require" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?> " value="<?= $escapeAttr($val) ?>"<?= $isRequired ? ' required="required"' : '' ?>/>
             </label>
         </div>
         <div class="input">
             <label class="value-label label-container">
                 <?= $translate('Label') ?>:
-                <textarea class="form-control value-label" rows="1" data-value-key="o:label" name="<?= $term . '[' . $indexFieldInput . '][@label]' ?>"><?= $escape($label) ?></textarea>
+                <textarea class="form-control value-label" rows="1" data-value-key="@label" name="<?= $term . '[' . $indexFieldInput . '][@label]' ?>"><?= $escape($label) ?></textarea>
             </label>
         </div>
     </div>

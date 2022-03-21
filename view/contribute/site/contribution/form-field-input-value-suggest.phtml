@@ -15,7 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
- * @var ?array $customVocabSubTypes
+ * @var ?array $customVocabBaseTypes
  *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
@@ -42,12 +42,12 @@ $class = ['value', 'value-suggest'];
 if ($isPrivate):
     $class[] = 'private';
 endif;
-$language = isset($proposed['@value']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
+$language = isset($proposed['@uri']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
 ?>
 
 <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>">
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
-    <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a>"<?= $isRequired ? ' required="required"' : '' ?>/>
+    <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="<?= $term . '[' . $indexFieldInput . '][@uri]' ?>" data-data-type="<?= $escapeAttr($fieldContribution['type']) ?>" data-uri="<?= $escapeAttr($val) ?>" data-value="<?= $escapeAttr($label) ?>" value="<a href=&quot;<?= $escapeAttr($val) ?>&quot; target=&quot;_blank&quot;><?= $escapeAttr($label) ?></a>"<?= $isRequired ? ' required="required"' : '' ?>/>
 </div>

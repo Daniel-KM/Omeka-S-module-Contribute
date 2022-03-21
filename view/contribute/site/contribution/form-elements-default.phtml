@@ -15,7 +15,7 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var bool $hasValueSuggest
- * @var ?array $customVocabSubTypes
+ * @var ?array $customVocabBaseTypes
  *
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
@@ -34,7 +34,7 @@
 
 <div id="edit_resource_template" class="contribute_template resource" style="display:none;">
     <div class="value resource">
-        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
 </div>
 
@@ -44,7 +44,7 @@
             <div class="input">
                 <label class="value input-container">
                     <?= $translate('URI') ?>:
-                    <input type="text" class="form-control value to-require" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" readonly="readonly"/>
+                    <input type="text" class="form-control value" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" readonly="readonly"/>
                 </label>
             </div>
             <div class="input">
@@ -57,16 +57,16 @@
     </div>
 </div>
 
-<?php if (!is_null($customVocabSubTypes)): ?>
+<?php if (!empty($customVocabBaseTypes)): ?>
 <div id="edit_customvocab_template" class="contribute_template custom_vocab" style="display:none;">
-    <div class="value custom_vocab" data-subtype="literal">
+    <div class="value custom_vocab" data-basetype="literal">
         <select class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
-    <div class="value custom_vocab" data-subtype="resource">
-        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+    <div class="value custom_vocab" data-basetype="resource">
+        <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
-    <div class="value custom_vocab" data-subtype="uri">
-        <select class="form-control input-value" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
+    <div class="value custom_vocab" data-basetype="uri">
+        <select class="form-control input-value" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
 </div>
 <?php endif; ?>
@@ -74,7 +74,7 @@
 <?php if ($hasValueSuggest): ?>
 <div id="edit_valuesuggest_template" class="contribute_template value_suggest" style="display:none;">
     <div class="value value_suggest">
-        <input type="text" class="form-control valuesuggest-input" data-value-key="@id" name="dcterms:title[__INDEX__][@value]" data-data-type="" data-uri="" data-value="" value="" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"/>
+        <input type="text" class="form-control valuesuggest-input" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" data-data-type="" data-uri="" data-value="" value="" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"/>
     </div>
 </div>
 <?php endif; ?>

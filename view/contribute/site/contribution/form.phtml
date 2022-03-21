@@ -29,10 +29,10 @@ $hasCustomVocab = ($module = $moduleManager->getModule('CustomVocab')) && $modul
 $hasValueSuggest = ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
 
 if ($hasCustomVocab) {
-    $CustomVocabSubTypes = $plugins->get('customVocabSubType');
-    $CustomVocabSubTypes = $CustomVocabSubTypes();
+    $CustomVocabBaseTypes = $plugins->get('customVocabBaseType');
+    $CustomVocabBaseTypes = $CustomVocabBaseTypes();
 } else {
-    $CustomVocabSubTypes = null;
+    $CustomVocabBaseTypes = null;
 }
 
 $vars = $this->vars();
@@ -42,7 +42,7 @@ $vars->offsetSet('translate', $translate);
 $vars->offsetSet('escapeAttr', $escapeAttr);
 $vars->offsetSet('apiManager', $apiManager);
 $vars->offsetSet('hasValueSuggest', $hasValueSuggest);
-$vars->offsetSet('customVocabSubTypes', $CustomVocabSubTypes);
+$vars->offsetSet('customVocabBaseTypes', $CustomVocabBaseTypes);
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
