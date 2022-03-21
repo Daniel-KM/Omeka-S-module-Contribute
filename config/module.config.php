@@ -39,7 +39,6 @@ return [
     'view_helpers' => [
         'factories' => [
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
-            'customVocabBaseType' => Service\ViewHelper\CustomVocabBaseTypeFactory::class,
             'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,
         ],
     ],
