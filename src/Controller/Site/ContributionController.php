@@ -434,7 +434,7 @@ class ContributionController extends AbstractActionController
                             }
                         } else {
                             $this->messenger()->addWarning('No change.'); // @translate
-                            $response = true;
+                            $response = $this->api()->read('contributions', $contribution->id());
                         }
                         if ($response) {
                             $eventManager = $this->getEventManager();
@@ -985,8 +985,10 @@ class ContributionController extends AbstractActionController
         // Only one file by media.
         $uploadeds = $this->getRequest()->getFiles()->toArray();
         $hasError = false;
+        // TODO Support edition of a media directly (not in a sub template).
         foreach ($uploadeds['media'] ?? [] as $key => $mediaFiles) {
-            foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
+            $uploadeds['media'][$key]['file'] = empty($mediaFiles['file']) ? [] : array_values($mediaFiles['file']);
+            foreach ($uploadeds['media'][$key]['file'] as $mediaFile) {
                 $uploaded = $mediaFile['@value'];
                 if (empty($uploaded) || $uploaded['error'] == UPLOAD_ERR_NO_FILE) {
                     unset($data['media'][$key]['file']);

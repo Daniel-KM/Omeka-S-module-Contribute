@@ -226,7 +226,8 @@ class ContributionAdapter extends AbstractEntityAdapter
     protected function uploadProposedFiles(array $proposal): array
     {
         foreach ($proposal['media'] ?? [] as $key => $mediaFiles) {
-            foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
+            $proposal['media'][$key]['file'] = empty($mediaFiles['file']) ? [] : array_values($mediaFiles['file']);
+            foreach ($proposal['media'][$key]['file'] as $mediaFile) {
                 if (!empty($mediaFile['proposed']['store'])) {
                     continue;
                 }

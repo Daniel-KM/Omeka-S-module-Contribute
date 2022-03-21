@@ -537,7 +537,8 @@ HTML;
      */
     public function deleteContributionFiles(Event $event)
     {
-        $store = $this->getServiceLocator()->get('Omeka\File\Store');
+        $services = $this->getServiceLocator();
+        $store = $services->get('Omeka\File\Store');
         $entity = $event->getTarget();
         $proposal = $entity->getProposal();
         foreach ($proposal['media'] ?? [] as $key => $mediaFiles) {
@@ -546,6 +547,40 @@ HTML;
                     $storagePath = 'contribution/' . $mediaFile['proposed']['store'];
                     $store->delete($storagePath);
                 }
+            }
+        }
+
+        // The entity is flushed, so it is possible to remove all remaining
+        // files (after update or deletion of a proposal).
+        // It is simpler to manage globally than individually because the
+        // storage reference is removed currently.
+        // TODO Add a column for files.
+        $sql = <<<SQL
+SELECT
+    JSON_EXTRACT( proposal, "$.media[*].file[*].proposed.store" ) AS proposal_json
+FROM contribution
+HAVING proposal_json IS NOT NULL;
+SQL;
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $services->get('Omeka\Connection');
+        $storeds = $connection->executeQuery($sql)->fetchFirstColumn();
+        $storeds = array_map('json_decode', $storeds);
+        $storeds = $storeds ? array_unique(array_merge(...$storeds)) : [];
+
+        $config = $services->get('Config');
+        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+        $dirPath = rtrim($basePath, '/') . '/contribution';
+
+        // TODO Scan dir is local store only for now.
+        $files = array_diff(scandir($dirPath), ['.', '..']);
+        foreach ($files as $file) {
+            $path = $dirPath . '/' . $file;
+            if (!is_dir($path)
+                && is_file($path)
+                && is_writeable($path)
+                && !in_array($file, $storeds)
+            ) {
+                @unlink($path);
             }
         }
     }
