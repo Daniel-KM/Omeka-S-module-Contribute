@@ -19,6 +19,7 @@
  * @var bool $isSub
  * @var ?int $indexValuesMedia
  */
+
 ?>
 
 <?php if ($isSub): ?>
@@ -71,7 +72,9 @@
                                 echo sprintf($translate('%s [unavailable]'), $contribution['proposed']['@resource']);
                             }
                         elseif ($term === 'file'): // File is always a new value.
-                            echo '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contribution['proposed']['@value']) . '" download="download">' . $escape($contribution['proposed']['@value']) . '</a>';
+                            echo isset($contribution['proposed']['store'])
+                                ? '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contribution['proposed']['store']) . '" download="download">' . $escape($contribution['proposed']['@value']) . '</a>'
+                                : sprintf('%s [missing file]', $escape($contribution['proposed']['@value']));
                         else:
                             echo $escape($contribution['proposed']['@value']);
                         endif;

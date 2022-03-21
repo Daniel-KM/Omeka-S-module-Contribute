@@ -42,8 +42,10 @@ return [
     'controllers' => [
         'invokables' => [
             'Contribute\Controller\Admin\Contribution' => Controller\Admin\ContributionController::class,
-            'Contribute\Controller\Site\Contribution' => Controller\Site\ContributionController::class,
             'Contribute\Controller\Site\GuestBoard' => Controller\Site\GuestBoardController::class,
+        ],
+        'factories' => [
+            'Contribute\Controller\Site\Contribution' => Service\Controller\SiteContributionControllerFactory::class,
         ],
     ],
     'controller_plugins' => [

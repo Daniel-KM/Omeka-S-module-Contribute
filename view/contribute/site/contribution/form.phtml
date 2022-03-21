@@ -100,7 +100,7 @@ if ($isMainForm) {
 
     <?php // Display the special field for media file (not a property, and cannot be set in resource template). ?>
     <?php if (!$isMainForm):
-        // Only one file is allowed by media and it cannot be updated.
+        // Only one file is allowed by media and it cannot be updated, like in Omeka.
         $file = $fieldsMedia['file']['contributions'][0]['proposed']['store'] ?? null;
         ?>
     <div class="property">
@@ -109,6 +109,8 @@ if ($isMainForm) {
         <div class="values">
             <div class="value">
                 <a href="<?= $escapeAttr($baseUrlFiles . '/contribution/' . $file) ?>" download="download"><?= $escape($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?></a>
+                <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][store]" value="<?= $escapeAttr($file) ?>"/>
+                <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][@value]" value="<?= $escapeAttr($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?>"/>
             </div>
         </div>
         <?php else: ?>

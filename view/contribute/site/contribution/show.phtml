@@ -38,6 +38,10 @@ function contributionDelete(id){
 <?= $this->pageTitle($contribution->displayTitle(null, $lang), 2); ?>
 <h3><?= $translate('Contribution') ?></h3>
 
+<div class="messages">
+    <p><?= $this->messages() ?></p>
+</div>
+
 <?php $this->trigger('view.show.before'); ?>
 
 <?php if ($embedMedia && $medias): ?>

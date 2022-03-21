@@ -849,8 +849,25 @@ class ContributionController extends AbstractActionController
             }
         }
 
-        $api->update($resource->resourceName(), $resource->id(), $data, [], ['isPartial' => true]);
-        return true;
+        try {
+            $files = $data['file'] ?? [];
+            unset($data['file']);
+            if ($resource) {
+                $api->update($resource->resourceName(), $resource->id(), $data, $files, ['isPartial' => true]);
+            } else {
+                // TODO This is a new contribution, so a new item for now.
+                $api->create('items', $data, $files);
+            }
+            return true;
+        } catch (\Exception $e) {
+            $message = new Message(
+                'Unable to store the contribution: %s',
+                $e->getMessage()
+            );
+            $this->logger()->err($message);
+            $this->messenger()->addError($message);
+            return false;
+        }
     }
 
     /**

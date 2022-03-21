@@ -4,15 +4,57 @@ namespace Contribute\Controller\Site;
 
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Form\ContributeForm;
+use Doctrine\ORM\EntityManager;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 // TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\File\TempFileFactory;
+use Omeka\File\Uploader;
 use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
 {
+    /**
+     * @var \Omeka\File\Uploader
+     */
+    protected $uploader;
+
+    /**
+     * @var \Omeka\File\TempFileFactory
+     */
+    protected $tempFileFactory;
+
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    protected $entityManager;
+
+    /**
+     * @var string
+     */
+    protected $string;
+
+    /**
+     * @var array
+     */
+     protected $config;
+
+    public function __construct(
+        Uploader $uploader,
+        TempFileFactory $tempFileFactory,
+        EntityManager $entityManager,
+        $basePath,
+        array $config
+    ) {
+        $this->uploader = $uploader;
+        $this->tempFileFactory = $tempFileFactory;
+        $this->entityManager = $entityManager;
+        $this->basePath = $basePath;
+        $this->config = $config;
+    }
+
     public function showAction()
     {
         $site = $this->currentSite();
@@ -183,37 +225,35 @@ class ContributionController extends AbstractActionController
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $data = $this->checkAndIncludeFileData($data);
-                $proposal = $this->prepareProposal($data);
-                if ($proposal) {
-                    // When there is a resource, it isn’t updated, but the
-                    // proposition of contribution is saved for moderation.
-                    $data = [
-                        'o:resource' => null,
-                        'o:owner' => $user ? ['o:id' => $user->getId()] : null,
-                        'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
-                        'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
-                        'o-module-contribute:reviewed' => false,
-                        'o-module-contribute:proposal' => $proposal,
-                    ];
-                    $response = $this->api($form)->create('contributions', $data);
-                    if ($response) {
-                        $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                        $this->prepareContributionEmail($response->getContent());
-                        $eventManager = $this->getEventManager();
-                        $eventManager->trigger('contribute.submit', $this, [
-                            'contribution' => $response->getContent(),
-                            'resource' => null,
-                            'data' => $data,
-                        ]);
-                        return $this->redirect()->toUrl($response->getContent()->url());
+                if (empty($data['has_error'])) {
+                    $proposal = $this->prepareProposal($data);
+                    if ($proposal) {
+                        // When there is a resource, it isn’t updated, but the
+                        // proposition of contribution is saved for moderation.
+                        $data = [
+                            'o:resource' => null,
+                            'o:owner' => $user ? ['o:id' => $user->getId()] : null,
+                            'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
+                            'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                            'o-module-contribute:reviewed' => false,
+                            'o-module-contribute:proposal' => $proposal,
+                        ];
+                        $response = $this->api($form)->create('contributions', $data);
+                        if ($response) {
+                            $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
+                            $this->prepareContributionEmail($response->getContent());
+                            $eventManager = $this->getEventManager();
+                            $eventManager->trigger('contribute.submit', $this, [
+                                'contribution' => $response->getContent(),
+                                'resource' => null,
+                                'data' => $data,
+                            ]);
+                            return $this->redirect()->toUrl($response->getContent()->url());
+                        }
                     }
-                    $hasError = true;
-                } else {
-                    $hasError = true;
                 }
-            } else {
-                $hasError = true;
             }
+            $hasError = true;
         }
 
         if ($hasError) {
@@ -362,58 +402,56 @@ class ContributionController extends AbstractActionController
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $data = $this->checkAndIncludeFileData($data);
-                $proposal = $this->prepareProposal($data, $resource);
-                if ($proposal) {
-                    // The resource isn’t updated, but the proposition of
-                    // contribute is saved for moderation.
-                    $response = null;
-                    if (empty($contribution)) {
-                        $data = [
-                            'o:resource' => $resourceId ? ['o:id' => $resourceId] : null,
-                            'o:owner' => $user ? ['o:id' => $user->getId()] : null,
-                            'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
-                            'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
-                            'o-module-contribute:reviewed' => false,
-                            'o-module-contribute:proposal' => $proposal,
-                        ];
-                        $response = $this->api($form)->create('contributions', $data);
-                        if ($response) {
-                            $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
-                            $this->prepareContributionEmail($response->getContent());
+                if (empty($data['has_error'])) {
+                    $proposal = $this->prepareProposal($data, $resource);
+                    if ($proposal) {
+                        // The resource isn’t updated, but the proposition of
+                        // contribute is saved for moderation.
+                        $response = null;
+                        if (empty($contribution)) {
+                            $data = [
+                                'o:resource' => $resourceId ? ['o:id' => $resourceId] : null,
+                                'o:owner' => $user ? ['o:id' => $user->getId()] : null,
+                                'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
+                                'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                                'o-module-contribute:reviewed' => false,
+                                'o-module-contribute:proposal' => $proposal,
+                            ];
+                            $response = $this->api($form)->create('contributions', $data);
+                            if ($response) {
+                                $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
+                                $this->prepareContributionEmail($response->getContent());
+                            }
+                        } elseif ($proposal !== $contribution->proposal()) {
+                            $data = [
+                                'o-module-contribute:reviewed' => false,
+                                'o-module-contribute:proposal' => $proposal,
+                            ];
+                            $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
+                            if ($response) {
+                                $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
+                                $this->prepareContributionEmail($response->getContent());
+                            }
+                        } else {
+                            $this->messenger()->addWarning('No change.'); // @translate
+                            $response = true;
                         }
-                    } elseif ($proposal !== $contribution->proposal()) {
-                        $data = [
-                            'o-module-contribute:reviewed' => false,
-                            'o-module-contribute:proposal' => $proposal,
-                        ];
-                        $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
                         if ($response) {
-                            $this->messenger()->addSuccess('Contribution successfully updated!'); // @translate
-                            $this->prepareContributionEmail($response->getContent());
+                            $eventManager = $this->getEventManager();
+                            $eventManager->trigger('contribute.submit', $this, [
+                                'contribution' => $contribution,
+                                'resource' => $resource,
+                                'data' => $data,
+                            ]);
+                            $content = $response->getContent();
+                            return $content->resource()
+                                ? $this->redirect()->toUrl($content->resource()->url())
+                                : $this->redirect()->toUrl($content->url());
                         }
-                    } else {
-                        $this->messenger()->addWarning('No change.'); // @translate
-                        $response = true;
                     }
-                    if ($response) {
-                        $eventManager = $this->getEventManager();
-                        $eventManager->trigger('contribute.submit', $this, [
-                            'contribution' => $contribution,
-                            'resource' => $resource,
-                            'data' => $data,
-                        ]);
-                        $content = $response->getContent();
-                        return $content->resource()
-                            ? $this->redirect()->toUrl($content->resource()->url())
-                            : $this->redirect()->toUrl($content->url());
-                    }
-                    $hasError = true;
-                } else {
-                    $hasError = true;
                 }
-            } else {
-                $hasError = true;
             }
+            $hasError = true;
         }
 
         if ($hasError) {
@@ -572,6 +610,7 @@ class ContributionController extends AbstractActionController
         // File is specific: for media only, one value only, not updatable,
         // not a property and not in resource template.
         if (isset($proposal['file'][0]['@value']) && $proposal['file'][0]['@value'] !== '') {
+            $store = $proposal['file'][0]['store'] ?? null;
             $result['file'] = [];
             $result['file'][0] = [
                 'original' => [
@@ -579,6 +618,7 @@ class ContributionController extends AbstractActionController
                 ],
                 'proposed' => [
                     '@value' => $proposal['file'][0]['@value'],
+                    $store ? 'store' : 'file' => $store ?? $proposal['file'][0]['file'],
                 ],
             ];
         }
@@ -924,9 +964,74 @@ class ContributionController extends AbstractActionController
 
     /**
      * Early check files and move data into main data.
+     *
+     * @todo Use the error store when the form will be ready and use only adapter anyway.
      */
     protected function checkAndIncludeFileData(array $data): array
     {
+        $translate = $this->getPluginManager()->get('translate');
+        $uploadErrorCodes = [
+            UPLOAD_ERR_OK => $translate('File successfuly uploaded.'), // @translate
+            UPLOAD_ERR_INI_SIZE => $translate('The total of file sizes exceeds the the server limit directive.'), // @translate
+            UPLOAD_ERR_FORM_SIZE => $translate('The file size exceeds the specified limit.'), // @translate
+            UPLOAD_ERR_PARTIAL => $translate('The file was only partially uploaded.'), // @translate
+            UPLOAD_ERR_NO_FILE => $translate('No file was uploaded.'), // @translate
+            UPLOAD_ERR_NO_TMP_DIR => $translate('The temporary folder to store the file is missing.'), // @translate
+            UPLOAD_ERR_CANT_WRITE => $translate('Failed to write file to disk.'), // @translate
+            UPLOAD_ERR_EXTENSION => $translate('A PHP extension stopped the file upload.'), // @translate
+        ];
+
+        // Make format compatible with default Omeka.
+        // Only one file by media.
+        $uploadeds = $this->getRequest()->getFiles()->toArray();
+        $hasError = false;
+        foreach ($uploadeds['media'] ?? [] as $key => $mediaFiles) {
+            foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
+                $uploaded = $mediaFile['@value'];
+                if (empty($uploaded) || $uploaded['error'] == UPLOAD_ERR_NO_FILE) {
+                    unset($data['media'][$key]['file']);
+                } elseif ($uploaded['error']) {
+                    $hasError = true;
+                    unset($data['media'][$key]['file']);
+                    $this->messenger()->addError(new Message(
+                        'File %s: %s', // @translate
+                        $key, $uploadErrorCodes[$uploaded['error']]
+                    ));
+                } elseif (!$uploaded['size']) {
+                    $hasError = true;
+                    unset($data['media'][$key]['file']);
+                    $this->messenger()->addError(new Message(
+                        'Empty file for key %s', // @translate
+                        $key
+                    ));
+                } else {
+                    // Don't use uploader here, but only in adapter, else
+                    // Laminas will believe it's an attack after renaming.
+                    $tempFile = $this->tempFileFactory->build();
+                    $tempFile->setSourceName($uploaded['name']);
+                    $tempFile->setTempPath($uploaded['tmp_name']);
+                    if (!(new \Omeka\File\Validator())->validate($tempFile)) {
+                        $hasError = true;
+                        unset($data['media'][$key]['file']);
+                        $this->messenger()->addError(new Message(
+                            'Invalid file type for key %s', // @translate
+                            $key
+                        ));
+                    } else {
+                        // Take care of automatic rename of uploader (not used).
+                        $data['media'][$key]['file'] = [
+                            [
+                                '@value' => $uploaded['name'],
+                                'file' => $uploaded,
+                            ],
+                        ];
+                    }
+                }
+            }
+        }
+        if ($hasError) {
+            $data['error'] = true;
+        }
         return $data;
     }
 

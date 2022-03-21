@@ -201,6 +201,9 @@ class ContributionFields extends AbstractHelper
 
         // Initialize contributions with existing values, then append contributions.
         foreach ($fields as $term => $field) {
+            if ($term === 'file') {
+                continue;
+            }
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($field['values'] as $value) {
                 // Method value() is label or value depending on type.
@@ -299,6 +302,8 @@ class ContributionFields extends AbstractHelper
         // File is specific: for media only, one value only, not updatable,
         // not a property and not in resource template.
         if (isset($proposals['file'][0]['proposed']['@value']) && $proposals['file'][0]['proposed']['@value'] !== '') {
+            // Fill the file first to keep it first.
+            $fields = array_merge(['file' => []], $fields);
             $fields['file'] = [
                 'template_property' => null,
                 'property' => null,
@@ -325,6 +330,7 @@ class ContributionFields extends AbstractHelper
                     '@label' => null,
                 ],
                 'proposed' => [
+                    'store' => $proposals['file'][0]['proposed']['store'] ?? null,
                     '@value' => $proposals['file'][0]['proposed']['@value'],
                     '@resource' => null,
                     '@uri' => null,
@@ -335,6 +341,9 @@ class ContributionFields extends AbstractHelper
 
         // Fill the proposed contributions, according to the original value.
         foreach ($fields as $term => &$field) {
+            if ($term === 'file') {
+                continue;
+            }
             if (!isset($proposals[$term])) {
                 continue;
             }
@@ -420,6 +429,9 @@ class ContributionFields extends AbstractHelper
         // contributions may have been accepted or the resource updated, so check
         // if there are remaining contributions that were validated.
         foreach ($fields as $term => &$field) {
+            if ($term === 'file') {
+                continue;
+            }
             if (!isset($proposals[$term])) {
                 continue;
             }
