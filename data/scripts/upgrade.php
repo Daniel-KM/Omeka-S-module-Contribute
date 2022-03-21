@@ -163,7 +163,8 @@ if (version_compare($oldVersion, '3.3.0.16', '<')) {
     $messenger->addWarning($message);
     $services->get('Omeka\Logger')->warn($message);
 
-    $templateId = $settings->get('contribute_template_default') ?: $api->searchOne('resource_templates', ['label' => 'Contribution'], ['returnScalar' => 'id'])->getContent();
+    $templateId = $settings->get('contribute_template_default') ?: $api
+        ->searchOne('resource_templates', ['label' => 'Contribution'], ['returnScalar' => 'id'])->getContent();
     $settings->set('contribute_templates', $templateId ? [$templateId] : []);
     $settings->delete('contribute_template_default');
 

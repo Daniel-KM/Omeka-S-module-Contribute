@@ -41,8 +41,20 @@ class Module extends AbstractModule
 
     protected function postInstall(): void
     {
-        // Upgrade from old module Correction if any.
         $services = $this->getServiceLocator();
+
+        // Set the id of the resource templates.
+        $api = $services->get('ControllerPluginManager')->get('api');
+        $settings = $services->get('Omeka\Settings');
+        $templateNames = $settings->get('contribute_templates', []);
+        $templateIds = [];
+        foreach ($templateNames as $templateName) {
+            $templateIds[] = $api
+                ->searchOne('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName], ['returnScalar' => 'id'])->getContent();
+        }
+        $settings->set('contribute_templates', array_filter($templateIds));
+
+        // Upgrade from old module Correction if any.
 
         /** @var \Omeka\Module\Manager $moduleManager */
         $moduleManager = $services->get('Omeka\ModuleManager');

@@ -220,6 +220,7 @@ return [
             'contribute_mode' => 'user',
             'contribute_notify' => [],
             'contribute_templates' => [
+                // The id is set during install.
                 'Contribution',
             ],
             // Days.
