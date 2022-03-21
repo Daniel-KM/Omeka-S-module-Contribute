@@ -3,6 +3,11 @@
 namespace Contribute;
 
 return [
+    'service_manager' => [
+        'factories' => [
+            File\Contribution::class => Service\File\ContributionFactory::class,
+        ],
+    ],
     'api_adapters' => [
         'invokables' => [
             'contributions' => Api\Adapter\ContributionAdapter::class,
@@ -15,6 +20,12 @@ return [
         ],
         'proxy_paths' => [
             dirname(__DIR__) . '/data/doctrine-proxies',
+        ],
+    ],
+    'media_ingesters' => [
+        'factories' => [
+            // This is an internal ingester.
+            'contribution' => Service\Media\Ingester\ContributionFactory::class,
         ],
     ],
     'view_manager' => [
