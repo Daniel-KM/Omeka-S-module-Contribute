@@ -801,7 +801,8 @@ class ContributionController extends AbstractActionController
 
     protected function confirmContribution(ContributionRepresentation $contribution, string $action = 'update'): self
     {
-        $confirms = $this->settings()->get('contribute_author_confirmations', []);
+        $settings = $this->settings();
+        $confirms = $settings->get('contribute_author_confirmations', []);
         if (empty($confirms) || !in_array($action, $confirms)) {
             return $this;
         }
@@ -814,13 +815,23 @@ class ContributionController extends AbstractActionController
 
         $translate = $this->getPluginManager()->get('translate');
 
-        $message = '<p>' . new Message(
-            "Hi,\nThanks for your contribution.\n\nThe librarians will validate it soon.\n\n, Sincerely" // @translate
-        ) . '</p>';
+        $subject = $settings->get('contribute_author_confirmation_subject') ?: $translate('[Omeka] Contribution');
+        $message = $settings->get('contribute_author_confirmation_body') ?: new Message(
+            "Hi,\nThanks for your contribution.\n\nThe administrators will validate it as soon as possible.\n\n, Sincerely" // @translate
+        );
+
+        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
+        $template = $contribution->resourceTemplate();
+        if ($template) {
+            $subject = $template->dataValue('contribute_author_confirmation_subject') ?: $subject;
+            $message = $template->dataValue('contribute_author_confirmation_body') ?: $message;
+        }
+
+        $message = '<p>' . $message . '</p>';
 
         $name = count($emails) === 1 && $contribution->owner() ? $contribution->owner()->name() : null;
 
-        $this->sendContributionEmail($emails, $translate('[Omeka] Contribution'), $message, $name); // @translate
+        $this->sendContributionEmail($emails, $subject, $message, $name); // @translate
         return $this;
     }
 

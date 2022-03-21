@@ -611,6 +611,31 @@ HTML;
                     'data-setting-key' => 'contribute_template_media',
                     'data-placeholder' => 'Select resource template for media…', // @translate
                 ],
+            ])
+            // Specific messages for the contributor.
+            ->add([
+                'name' => 'contribute_author_confirmation_subject',
+                'type' => \Laminas\Form\Element\Text::class,
+                'options' => [
+                    'label' => 'Specific confirmation subject to the contributor', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_confirmation_subject',
+                    'data-setting-key' => 'contribute_author_confirmation_subject',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_author_confirmation_body',
+                'type' => \Laminas\Form\Element\Textarea::class,
+                'options' => [
+                    'label' => 'Specific confirmation message to the contributor', // @translate
+                    // 'info' => 'Possible placeholders: {main_title}, {main_url}, {site_title}, {site_url}, {email}, {name}, {object}, {subject}, {message}.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_confirmation_body',
+                    'rows' => 5,
+                    'data-setting-key' => 'contribute_author_confirmation_body',
+                ],
             ]);
     }
 

@@ -242,6 +242,8 @@ return [
             'contribute_notify_recipients' => [],
             'contribute_author_emails' => [],
             'contribute_author_confirmations' => [],
+            'contribute_author_confirmation_subject' => '',
+            'contribute_author_confirmation_body' => '',
             'contribute_templates' => [
                 // The id is set during install.
                 'Contribution',
