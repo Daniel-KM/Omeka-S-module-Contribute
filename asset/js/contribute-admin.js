@@ -108,7 +108,7 @@ $(document).ready(function() {
     //     }
     // }
 
-    function alertFail(jqXHR, textStatus) {
+    const alertFail = (jqXHR, textStatus) => {
         if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
             alert(jqXHR.responseJSON.message);
         } else {
@@ -116,12 +116,28 @@ $(document).ready(function() {
         }
     }
 
-    function alertDataError(data) {
+    const alertDataError = (data) => {
         if (data.data && Object.keys(data.data).length) {
-            var message = '';
-            Object.keys(data.data).reduce(function (r, k) {
-                message += data.data[k] + "\n";
-            }, []);
+            var i = 0;
+            const flat = (obj, out) => {
+                Object.keys(obj).forEach(key => {
+                    if (typeof obj[key] == 'object') {
+                        out = flat(obj[key], out);
+                    } else if (key in out) {
+                        out[key + '_' + (++i).toString()] = obj[key];
+                    } else {
+                        out[key] = obj[key];
+                    }
+                })
+                return out;
+            }
+            var message = data.message && data.message.length
+                ? data.message
+                : Omeka.jsTranslate('Contribution is not valid.');
+            var flatData = flat(data.data, {});
+            Object.keys(flatData).reduce(function (r, k) {
+                message += "\n" + flatData[k];
+             }, []);
             alert(message);
         } else if (data.message) {
             alert(data.message);

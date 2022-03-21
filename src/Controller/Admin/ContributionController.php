@@ -8,6 +8,7 @@ use DateTime;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Form\ConfirmForm;
 use Omeka\Stdlib\ErrorStore;
 use Omeka\Stdlib\Message;
@@ -56,7 +57,7 @@ class ContributionController extends AbstractActionController
             $message = new Message('This contribution is a new resource or has no more resource.'); // @translate
             $this->messenger()->addError($message);
             $params['action'] = 'browse';
-            return $this->forward()->dispatch(__CLASS__, $params);
+            return $this->forward()->dispatch('Contribute\Controller\Admin\Contribution', $params);
         }
 
         $params = [];
@@ -480,31 +481,38 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorNotFound();
         }
 
-        // Only people who can edit the resource can validate.
         $id = $this->params('id');
+
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $this->api()->read('contributions', $id)->getContent();
 
         // If there is a resource, it can't be created.
-        $resource = $contribution->resource();
-        if ($resource) {
+        $contributionResource = $contribution->resource();
+        if ($contributionResource) {
             return $this->jsonErrorUpdate();
         }
 
+        // Only people who can create resource can validate.
         $acl = $contribution->getServiceLocator()->get('Omeka\Acl');
         if (!$acl->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create')) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $owner = $contribution->owner() ?: null;
-        $resource = $this->api()->create('items', ['o:owner' => $owner ? ['o:id' => $owner->id()] : null])->getContent();
+        $resourceData = $this->validateContribution($contribution);
+        if (!$resourceData) {
+            return $this->jsonErrorUpdate(new Message(
+                'Contribution is not valid: check template.' // @translate
+            ));
+        }
 
-        $data = [];
-        $data['o-module-contribute:reviewed'] = false;
-        $data['o:resource'] = ['o:id' => $resource->id()];
-        $response = $this->api()
-            ->update('contributions', $id, $data, [], ['isPartial' => true]);
-        if (!$response) {
+        $errorStore = new ErrorStore();
+        $resource = $this->createOrUpdate($contribution, $resourceData, $errorStore, true);
+        if ($errorStore->hasErrors()) {
+            return $this->jsonErrorUpdate(new Message(
+                'Contribution is not valid: check values.' // @translate
+            ), $errorStore);
+        }
+        if (!$resource) {
             return $this->jsonErrorUpdate();
         }
 
@@ -512,7 +520,8 @@ class ContributionController extends AbstractActionController
             'status' => 'success',
             'data' => [
                 'contribution' => $contribution,
-                'url' => $contribution->adminUrl(),
+                'is_new' => true,
+                'url' => $resource->adminUrl(),
             ],
         ]);
     }
@@ -523,27 +532,36 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorNotFound();
         }
 
-        // Only people who can edit the resource can validate.
         $id = $this->params('id');
+
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $this->api()->read('contributions', $id)->getContent();
 
-        $resource = $contribution->resource();
-        if (!$resource) {
-            return $this->jsonErrorUpdate();
-        }
+        // If there is no resource, create it as a whole.
+        $contributionResource = $contribution->resource();
 
-        if (!$resource->userIsAllowed('update')) {
+        // Only people who can edit the resource can validate.
+        if (($contributionResource && !$contributionResource->userIsAllowed('update'))
+            || (!$contributionResource && !$contribution->getServiceLocator()->get('Omeka\Acl')->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create'))
+        ) {
             return $this->jsonErrorUnauthorized();
         }
 
-        $this->validateAndUpdateContribution($contribution);
+        $resourceData = $this->validateContribution($contribution);
+        if (!$resourceData) {
+            return $this->jsonErrorUpdate(new Message(
+                'Contribution is not valid.' // @translate
+            ));
+        }
 
-        $data = [];
-        $data['o-module-contribute:reviewed'] = true;
-        $response = $this->api()
-            ->update('contributions', $id, $data, [], ['isPartial' => true]);
-        if (!$response) {
+        $errorStore = new ErrorStore();
+        $resource = $this->createOrUpdate($contribution, $resourceData, $errorStore, true);
+        if ($errorStore->hasErrors()) {
+            return $this->jsonErrorUpdate(new Message(
+                'Contribution is not valid: check values.' // @translate
+            ), $errorStore);
+        }
+        if (!$resource) {
             return $this->jsonErrorUpdate();
         }
 
@@ -559,6 +577,8 @@ class ContributionController extends AbstractActionController
                         'statusLabel' => $this->translate('Reviewed'),
                     ],
                 ],
+                'is_new' => !$contribution->isPatch(),
+                'url' => $resource->adminUrl(),
             ],
         ]);
     }
@@ -569,17 +589,19 @@ class ContributionController extends AbstractActionController
             return $this->jsonErrorNotFound();
         }
 
-        // Only people who can edit the resource can validate.
         $id = $this->params('id');
+
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $this->api()->read('contributions', $id)->getContent();
 
-        $resource = $contribution->resource();
-        if (!$resource) {
+        // A resource is required to update it.
+        $contributionResource = $contribution->resource();
+        if (!$contributionResource) {
             return $this->jsonErrorUpdate();
         }
 
-        if (!$resource->userIsAllowed('update')) {
+        // Only people who can edit the resource can validate.
+        if (!$contributionResource->userIsAllowed('update')) {
             return $this->jsonErrorUnauthorized();
         }
 
@@ -589,7 +611,23 @@ class ContributionController extends AbstractActionController
             return $this->returnError('Missing term or key.'); // @translate
         }
 
-        $this->validateAndUpdateContribution($contribution, $term, $key);
+        $resourceData = $this->validateContribution($contribution, $term, $key);
+        if (!$resourceData) {
+            return $this->jsonErrorUpdate(new Message(
+                'Contribution is not valid.' // @translate
+            ));
+        }
+
+        $errorStore = new ErrorStore();
+        $resource = $this->createOrUpdate($contribution, $resourceData, $errorStore, true);
+        if ($errorStore->hasErrors()) {
+            return $this->jsonErrorUpdate(new Message(
+                'Contribution is not valid: check values.' // @translate
+            ), $errorStore);
+        }
+        if (!$resource) {
+            return $this->jsonErrorUpdate();
+        }
 
         return new JsonModel([
             'status' => 'success',
@@ -604,7 +642,7 @@ class ContributionController extends AbstractActionController
     }
 
     /**
-     * Update existing values of the contributed resource with the proposal.
+     * Check values of the exiting resource with the proposal and get api data.
      *
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
@@ -615,18 +653,19 @@ class ContributionController extends AbstractActionController
      * @param ContributionRepresentation $contribution
      * @param string|null $term Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key.
+     * @return array Data to be used for api. Files for media are in key file.
      */
-    protected function validateAndUpdateContribution(
+    protected function validateContribution(
         ContributionRepresentation $contribution,
         ?string $term = null,
         $proposedKey = null,
         ?bool $isSubTemplate = false,
         ?int $indexProposalMedia = null
-    ): bool {
+    ): ?array {
         // The contribution requires a resource template in allowed templates.
         $contributive = $contribution->contributiveData();
         if (!$contributive->isContributive()) {
-            return false;
+            return null;
         }
 
         // Right to update the resource is already checked.
@@ -645,16 +684,22 @@ class ContributionController extends AbstractActionController
         $proposal = $contribution->proposalNormalizeForValidation($indexProposalMedia);
         $hasProposedKey = !is_null($proposedKey);
 
-        $api = $this->api();
         $propertyIds = $this->propertyIdsByTerms();
         $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
 
         $data = [
-            'template' => $resourceTemplate ? $resourceTemplate->id() : null,
-            'media' => [],
+            'o:resource_template' => null,
+            'o:resource_class' => null,
+            'o:media' => [],
+            'file' => [],
         ];
+        if ($resourceTemplate) {
+            $resourceClass = $resourceTemplate->resourceClass();
+            $data['o:resource_template'] = ['o:id' => $resourceTemplate->id()];
+            $data['o:resource_class'] = $resourceClass ? ['o:id' => $resourceClass->id()] : null;
+        }
 
         // File is specific: for media only, one value only, not updatable,
         // not a property and not in resource template.
@@ -847,29 +892,89 @@ class ContributionController extends AbstractActionController
             foreach ($proposalMedias ? array_keys($proposalMedias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;
                 // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
-                $data['media'][$indexProposalMedia] = $this->validateAndUpdateContribution($contribution, $term, $proposedKey, true, $indexProposalMedia);
+                $data['o:media'][$indexProposalMedia] = $this->validateContribution($contribution, $term, $proposedKey, true, $indexProposalMedia);
+                unset($data['o:media'][$indexProposalMedia]['o:media']);
+                unset($data['o:media'][$indexProposalMedia]['file']);
             }
         }
 
+        return $data;
+    }
+
+    /**
+     * Create or update a resource from data.
+     */
+    protected function createOrUpdate(
+        ContributionRepresentation $contribution,
+        array $resourceData,
+        ErrorStore $errorStore,
+        bool $reviewed = false
+    ): ?AbstractResourceEntityRepresentation {
+        $contributionResource = $contribution->resource();
+
+        // Nothing to update or create.
+        if (!$resourceData) {
+            return $contributionResource;
+        }
+
+        // Use a fake form to get the validation messages.
+        /** @see \Omeka\Mvc\Controller\Plugin\Api::handleValidationException() */
+        $form = new \Laminas\Form\Form;
+
+        /** @var \Omeka\Mvc\Controller\Plugin\Api $api */
+        $api = $this->api($form);
+
+        // Files are managed through media (already stored).
+        // @see validateContribution()
+        unset($resourceData['file']);
+
+        // TODO Remove the template to avoid issues on saving?
+        // TODO Save separately?
+        // TODO Check on submission?
+
         try {
-            $files = $data['file'] ?? [];
-            unset($data['file']);
-            if ($resource) {
-                $api->update($resource->resourceName(), $resource->id(), $data, $files, ['isPartial' => true]);
+            if ($contributionResource) {
+                $response = $api
+                    ->update($contributionResource->resourceName(), $contributionResource->id(), $resourceData, [], ['isPartial' => true]);
             } else {
                 // TODO This is a new contribution, so a new item for now.
-                $api->create('items', $data, $files);
+                // The validator is not the contributor.
+                // The validator will be added automatically.
+                $owner = $contribution->owner() ?: null;
+                $resourceData['o:owner'] = $owner ? ['o:id' => $owner->id()] : null;
+                $response = $api
+                    ->create('items', $resourceData, []);
             }
-            return true;
         } catch (\Exception $e) {
             $message = new Message(
-                'Unable to store the contribution: %s',
+                'Unable to store the resource of the contribution: %s', // @translate
                 $e->getMessage()
             );
             $this->logger()->err($message);
-            $this->messenger()->addError($message);
-            return false;
+            // Message are included in messenger automatically.
+            $this->messenger()->clear();
+            $errorStore->addError('store', $message);
+            return null;
         }
+
+        // Here, contribution may be invalid (request checks).
+        if (!$response) {
+            // Message are included in messenger automatically.
+            $this->messenger()->clear();
+            $errorStore->addValidatorMessages('contribution', $form->getMessages());
+            return null;
+        }
+
+        $contributionResource = $response->getContent();
+
+        // TODO Reviewed is always true?
+        $data = [];
+        $data['o:resource'] = ['o:id' => $contributionResource->id()];
+        $data['o-module-contribute:reviewed'] = $reviewed;
+        $response = $this->api()
+            ->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
+
+        return $contributionResource;
     }
 
     /**

@@ -57,12 +57,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             ];
         }
 
-        $res = $this->resource();
+        $contributionResource = $this->resource();
         $owner = $this->owner();
 
         return [
             'o:id' => $this->id(),
-            'o:resource' => $res ? $res->getReference() : null,
+            'o:resource' => $contributionResource ? $contributionResource->getReference() : null,
             'o:owner' => $owner ? $owner->getReference() : null,
             'o:email' => $owner ? null : $this->email(),
             'o-module-contribute:patch' => $this->isPatch(),
@@ -80,9 +80,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function resource()
     {
-        $res = $this->resource->getResource();
-        return $res
-            ? $this->getAdapter('resources')->getRepresentation($res)
+        $contributionResource = $this->resource->getResource();
+        return $contributionResource
+            ? $this->getAdapter('resources')->getRepresentation($contributionResource)
             : null;
     }
 
@@ -135,9 +135,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function resourceTemplate(): ?ResourceTemplateRepresentation
     {
-        $resource = $this->resource();
-        if ($resource) {
-            $resourceTemplate = $resource->resourceTemplate();
+        $contributionResource = $this->resource();
+        if ($contributionResource) {
+            $resourceTemplate = $contributionResource->resourceTemplate();
         }
         if (empty($resourceTemplate)) {
             $proposal = $this->resource->getProposal();
@@ -255,7 +255,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
-        $values = $this->resource()->value($term, ['all' => true]);
+        $contributionResource = $this->resource();
+        if (!$contributionResource) {
+            return null;
+        }
+        $values = $contributionResource->value($term, ['all' => true]);
         foreach ($values as $value) {
             if ((string) $value->value() === $string) {
                 return $value;
@@ -273,7 +277,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         if (!$int) {
             return null;
         }
-        $values = $this->resource()->value($term, ['all' => true]);
+        $contributionResource = $this->resource();
+        if (!$contributionResource) {
+            return null;
+        }
+        $values = $contributionResource->value($term, ['all' => true]);
         $valueResource = null;
         foreach ($values as $value) {
             $type = $value->type();
@@ -296,8 +304,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         if ($string === '') {
             return null;
         }
+        $contributionResource = $this->resource();
+        if (!$contributionResource) {
+            return null;
+        }
         // To get only uris and value suggest/custom vocab values require to get all values.
-        $values = $this->resource()->value($term, ['all' => true]);
+        $values = $contributionResource->value($term, ['all' => true]);
         foreach ($values as $value) {
             $type = $value->type();
             $typeColon = strtok($type, ':');
@@ -315,7 +327,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * The sub-contributed medias are checked too via a recursive call.
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
      * @todo Factorize with \Contribute\Site\ContributeController::prepareProposal()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      *
@@ -698,39 +710,46 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function thumbnail()
     {
-        $res = $this->resource();
-        return $res
-            ? $res->thumbnail()
+        $contributionResource = $this->resource();
+        return $contributionResource
+            ? $contributionResource->thumbnail()
             : null;
     }
 
     /**
-     * Get the title of this resource (the contributed one).
+     * Get the title of the contributed resource.
      */
     public function title(): string
     {
-        $res = $this->resource();
-        return $res
-            ? (string) $res->getTitle()
+        $contributionResource = $this->resource();
+        return $contributionResource
+            ? (string) $contributionResource->getTitle()
             : '';
     }
 
     /**
-     * Get the display title for this resource (the contributed one).
+     * Get the display title for this contribution.
+     *
+     * The title is the resource one if any, else the proposed one.
      */
     public function displayTitle(?string $default = null): ?string
     {
-        $res = $this->resource();
-        if ($res) {
-            return $res->displayTitle($default);
+        $contributionResource = $this->resource();
+        if ($contributionResource) {
+            return $contributionResource->displayTitle($default);
         }
 
-        if ($default === null) {
-            $translator = $this->getServiceLocator()->get('MvcTranslator');
-            $default = $translator->translate('[Untitled]');
-        }
+        $template = $this->resourceTemplate();
+        $titleTerm = $template && $template->titleProperty()
+            ? $template->titleProperty()->term()
+            : 'dcterms:title';
 
-        return $default;
+        $titles = $this->proposedValues($titleTerm);
+
+        return ($titles ? reset($titles)['proposed']['@value'] ?? null : null)
+            ?? $this->title()
+            ?? $default
+            ?? $this->getServiceLocator()->get('MvcTranslator')->translate('[Untitled]');
     }
 
     /**
@@ -750,8 +769,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
         $contributionFields = $this->getViewHelper('contributionFields');
         // No event triggered for now.
-        $resource = $this->resource();
-        $this->values = $contributionFields($resource, $this);
+        $contributionResource = $this->resource();
+        $this->values = $contributionFields($contributionResource, $this);
         return $this->values;
     }
 
@@ -770,8 +789,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $this->valuesMedia = [];
 
         // No event triggered for now.
-        $resource = $this->resource();
-        if ($resource && !$resource instanceof \Omeka\Api\Representation\ItemRepresentation) {
+        $contributionResource = $this->resource();
+        if ($contributionResource && !$contributionResource instanceof \Omeka\Api\Representation\ItemRepresentation) {
             return [];
         }
 
@@ -830,11 +849,16 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function linkResource(string $text, ?string $action = null, array $attributes = []): string
     {
-        $res = $this->resource();
-        if (!$res) {
+        $contributionResource = $this->resource();
+        if (!$contributionResource) {
             return $text;
         }
-        $link = $res->link($text, $action, $attributes);
+        $link = $contributionResource->link($text, $action, $attributes);
+        // When the resource is a new one, go directly to the resource, since
+        // the contribution is the source of the resource.
+        if (!$this->isPatch()) {
+            return $link;
+        }
         // TODO Improve the way to append the fragment.
         return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
     }
@@ -884,11 +908,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $action = null,
         array $attributes = null
     ): string {
-        $res = $this->resource();
-        if (!$res) {
+        $contributionResource = $this->resource();
+        if (!$contributionResource) {
             return $this->displayTitle($titleDefault);
         }
-        $link = $res->linkPretty($thumbnailType, $titleDefault, $action, $attributes);
+        $link = $contributionResource->linkPretty($thumbnailType, $titleDefault, $action, $attributes);
         // TODO Improve the way to append the fragment.
         return preg_replace('~ href="(.+?)"~', ' href="$1#contribution"', $link, 1);
     }
@@ -914,9 +938,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     public function siteUrlResource($siteSlug = null, $canonical = false)
     {
-        $resource = $this->resource();
-        return $resource
-            ? $this->resource()->siteUrl($siteSlug, $canonical)
+        $contributionResource = $this->resource();
+        return $contributionResource
+            ? $contributionResource->siteUrl($siteSlug, $canonical)
             : null;
     }
 

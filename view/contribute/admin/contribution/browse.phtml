@@ -7,11 +7,14 @@
  * @var \Omeka\Form\ConfirmForm $formDeleteAll
  */
 
+// TODO Batch edition.
+
 $translate = $this->plugin('translate');
 $url = $this->plugin('url');
 $i18n = $this->plugin('i18n');
 $escape = $this->plugin('escapeHtml');
 $hyperlink = $this->plugin('hyperlink');
+$escapeAttr = $this->plugin('escapeHtmlAttr');
 
 $this->htmlElement('body')->appendAttribute('class', 'contributions browse');
 $sortHeadings = [
@@ -80,6 +83,7 @@ $sortHeadings = [
     </thead>
     <tbody>
         <?php foreach ($contributions as $contribution):
+        $contributionResource = $contribution->resource();
         $resourceTemplate = $contribution->resourceTemplate();
         if ($owner = $contribution->owner()) {
             $ownerText = $hyperlink($owner->name(), $url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]));
@@ -89,13 +93,19 @@ $sortHeadings = [
         ?>
         <tr class="contribution">
             <td>
-                <?php if ($contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
+                <?php if (false && $contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
                 <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
                 <?php endif; ?>
                 <span class="title"><?= $contribution->linkResource($contribution->displayTitle()) ?></span>
                 <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
                 <ul class="actions">
-                    <?php if ($contribution->userIsAllowed('update')): ?>
+                    <li><span class="no-action"><span
+                        class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
+                        data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
+                        aria-label="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"
+                        title="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"></span>
+                    </span></li>
+                    <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
                     <li><span class="single actions"><a href="#"
                         class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                         data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
@@ -103,19 +113,19 @@ $sortHeadings = [
                         aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                         title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
                     </span></li>
-                    <li>
-                    <?php if ($contribution->resource()): ?>
-                    <?= $contribution->linkResource('', 'show', [
-                        'class' => 'o-icon-edit',
-                        'title' => $translate('Edit'),
-                    ]) ?>
-                    <?php else: ?>
-                    <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
-                        'class' => 'o-icon-add',
-                        'data-id' => $contribution->id(),
-                        'title' => $translate('Create resource to be validated'),
-                    ]) ?>
                     <?php endif; ?>
+                    <li>
+                    <?php if ($contributionResource): ?>
+                        <?= $contribution->linkResource('', 'show', [
+                            'class' => 'o-icon-edit',
+                            'title' => $translate('Edit'),
+                        ]) ?>
+                    <?php else: ?>
+                        <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
+                            'class' => 'o-icon-add',
+                            'data-id' => $contribution->id(),
+                            'title' => $translate('Create resource to be validated'),
+                        ]) ?>
                     </li>
                     <?php endif; ?>
                     <?php if ($contribution->userIsAllowed('delete')): ?>

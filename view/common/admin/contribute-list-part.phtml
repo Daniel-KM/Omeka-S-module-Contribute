@@ -126,6 +126,7 @@ unset($proposal['template'], $proposal['media']);
                     </div>
                     <?php endif; ?>
 
+                    <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
                     <span class="single actions">
                     <?php if ($isValidated): ?>
                         <span class="no-action o-icon-validated-value" aria-label="<?= $escapeAttr($translate('Validated')) ?>"></span>
@@ -142,6 +143,7 @@ unset($proposal['template'], $proposal['media']);
                             title="<?= $txt ?>"></a>
                     <?php endif; ?>
                     </span>
+                    <?php endif; ?>
                 </div>
                  <?php
                 break;
@@ -179,6 +181,7 @@ unset($proposal['template'], $proposal['media']);
                     <span data-name="<?= $term . '[' . $key . '][@value]' ?>" class="<?= $process ?>-value"><?= $escape($proposed_uri) ?></span>
                     <?php endif; ?>
 
+                    <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
                     <span class="single actions">
                     <?php if ($isValidated): ?>
                         <span class="no-action o-icon-validated-value" aria-label="<?= $escapeAttr($translate('Validated')) ?>"></span>
@@ -195,6 +198,7 @@ unset($proposal['template'], $proposal['media']);
                             title="<?= $txt ?>"></a>
                     <?php endif; ?>
                     </span>
+                    <?php endif; ?>
                 </div>
                 <?php
                 break;
@@ -225,6 +229,7 @@ unset($proposal['template'], $proposal['media']);
                     <span data-name="<?= $term . '[' . $key . '][@value]' ?>" class="<?= $process ?>-value"><?= $escape($proposed) ?></span>
                     <?php endif; ?>
 
+                    <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
                     <span class="single actions">
                     <?php if ($isValidated): ?>
                         <span class="no-action o-icon-validated-value" aria-label="<?= $escapeAttr($translate('Validated')) ?>"></span>
@@ -241,6 +246,7 @@ unset($proposal['template'], $proposal['media']);
                             title="<?= $txt ?>"></a>
                     <?php endif; ?>
                     </span>
+                    <?php endif; ?>
                 </div>
                  <?php
                 break;

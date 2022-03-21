@@ -49,11 +49,12 @@
         font-style: italic;
     }
 
+    .contribution .no-action,
     .contribution .single.actions {
         float: right;
     }
+    .contribution .no-action span::before,
     .contribution .single.actions a::before {
-        text-align: inherit;
     }
     .contribution .o-icon-users,
     .contribution .no-action::before {
@@ -78,15 +79,6 @@
         word-wrap: break-word;
     }
 
-    .contribution.meta-group::before,
-    .contribution .status-toggle::before,
-    .contribution .resource-name::before {
-        display: inline-block;
-        font-family: "Font Awesome 5 Free";
-        padding-left: 3px;
-        padding-right: 3px;
-        width: 24px;
-    }
     .contribution .resource-name.item-set::before {
         content: ""; /* item set */
     }
@@ -95,6 +87,16 @@
     }
     .contribution .resource-name.media::before {
         content: ""; /* media */
+    }
+    .contribution .o-icon-unsubmitted::before {
+        color: #FF0000;
+        content: ""; /* bookmark */
+        opacity: 0.5;
+    }
+    .contribution .o-icon-submitted::before {
+        color: #00FF00;
+        content: ""; /* bookmark */
+        opacity: 0.5;
     }
     .contribution .o-icon-unreviewed::before {
         color: #FF0000;

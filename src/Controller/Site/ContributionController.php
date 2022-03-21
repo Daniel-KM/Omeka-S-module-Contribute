@@ -680,7 +680,7 @@ class ContributionController extends AbstractActionController
      *
      * The check is done comparing the keys of original values and the new ones.
      *
-     * @todo Factorize with \Contribute\Admin\ContributeController::validateAndUpdateContribution()
+     * @todo Factorize with \Contribute\Admin\ContributeController::validateContribution()
      * @todo Factorize with \Contribute\View\Helper\ContributionFields
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()
      *

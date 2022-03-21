@@ -131,7 +131,7 @@ class TokenRepresentation extends AbstractEntityRepresentation
             }
         }
 
-        $resource = $this->resource();
+        $contributionResource = $this->resource();
         $query = ['token' => $this->token()];
 
         $url = $this->getViewHelper('Url');
@@ -139,8 +139,8 @@ class TokenRepresentation extends AbstractEntityRepresentation
             'site/resource-id',
             [
                 'site-slug' => $siteSlug,
-                'controller' => $resource->getControllerName(),
-                'id' => $resource->id(),
+                'controller' => $contributionResource->getControllerName(),
+                'id' => $contributionResource->id(),
                 'action' => 'edit',
             ],
             [

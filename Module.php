@@ -140,6 +140,16 @@ class Module extends AbstractModule
             \Omeka\Permissions\Acl::ROLE_REVIEWER,
         ];
 
+        // Only admins can delete a contribution.
+        $simpleValidators = [
+            \Omeka\Permissions\Acl::ROLE_REVIEWER,
+        ];
+        $adminValidators = [
+            \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
+            \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
+            \Omeka\Permissions\Acl::ROLE_EDITOR,
+        ];
+
         // Nobody can view contributions except owner and admins.
         // So anonymous contributor cannot view or edit a contribution.
         // Once submitted, the contribution cannot be updated by the owner.
@@ -210,8 +220,14 @@ class Module extends AbstractModule
                 [\Contribute\Api\Adapter\ContributionAdapter::class],
             )
             ->allow(
-                $validators,
+                $simpleValidators,
                 [\Contribute\Entity\Contribution::class],
+                ['read', 'update']
+            )
+            ->allow(
+                $adminValidators,
+                [\Contribute\Entity\Contribution::class],
+                ['read', 'update', 'delete']
             )
             //  TODO Remove this hack to allow validators to change owner.
             ->allow(
@@ -577,7 +593,7 @@ HTML;
         $store = $services->get('Omeka\File\Store');
         $entity = $event->getTarget();
         $proposal = $entity->getProposal();
-        foreach ($proposal['media'] ?? [] as $key => $mediaFiles) {
+        foreach ($proposal['media'] ?? [] as $mediaFiles) {
             foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
                 if (isset($mediaFile['proposed']['store'])) {
                     $storagePath = 'contribution/' . $mediaFile['proposed']['store'];

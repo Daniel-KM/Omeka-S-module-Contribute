@@ -77,6 +77,7 @@ $editRight = $resource->userIsAllowed('update');
                 <span> / </span>
                 <span class="contribution-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
                 <?php endif; ?>
+                <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
                 <?php if ($editRight): ?>
                 <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
                 <span class="single actions"><a href="#"
@@ -91,6 +92,7 @@ $editRight = $resource->userIsAllowed('update');
                     data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                     aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                     title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a></span>
+                <?php endif; ?>
                 <?php if ($token && $token->isExpired()): ?>
                 <span class="single no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
                 <?php elseif ($token): ?>
