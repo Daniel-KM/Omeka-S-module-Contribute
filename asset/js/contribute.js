@@ -170,7 +170,7 @@ $(document).ready(function() {
                 .removeAttr('readonly')
                 .val('');
             // Other elements are not submitted, but fill the hidden input on blur.
-            $(newElement).find('[data-input-part]').each(function(index, element) {
+            $(newElement).find('[data-input-part]:not([data-input-part=main])').each(function(index, element) {
                 $(this)
                     .prop('name', namel + '[' + (index + 1) + ']')
                     .removeAttr('readonly')
