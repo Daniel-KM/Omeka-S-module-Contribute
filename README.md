@@ -5,8 +5,9 @@ Contribute (module for Omeka S)
 > are available on [GitLab], which seems to respect users and privacy better
 > than the previous repository.__
 
-[Contribute] is a module for [Omeka S] that allows visitors to edit, complete or
-translate metadata of the resources without access to the admin board.
+[Contribute] is a module for [Omeka S] that allows visitors to add, edit,
+complete or translate metadata of the resources without access to the admin
+board.
 
 Access to the contribute and to the edit page may be controlled by a token, that
 you can send to your users, or to users only (in particular guest users), or to
