@@ -891,7 +891,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             'property_id' => $propertyId,
                             '@value' => $proposition['proposed']['@value'],
                             'is_public' => true,
-                            // '@language' => null,
+                            '@language' => $proposition['proposed']['@language'] ?? null,
                         ];
                         break;
                     case $typeColon === 'resource':
@@ -918,6 +918,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             'o:label' => $proposition['proposed']['@label'],
                             '@id' => $proposition['proposed']['@uri'],
                             'is_public' => true,
+                            '@language' => $proposition['proposed']['@language'] ?? null,
                         ];
                         break;
                     default:
