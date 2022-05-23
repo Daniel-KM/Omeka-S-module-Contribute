@@ -86,4 +86,15 @@
     form.readonly .actions input {
         display: none;
     }
+
+    /* Fix required select hidden with chosen. https://stackoverflow.com/questions/25717842/how-i-can-highlight-as-required-field-with-chosen-plugin/52978520 */
+    select.chosen-select:invalid {
+        height: 0 !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        display: flex !important;
+    }
+    select.chosen-select:invalid[multiple] {
+        margin-top: 15px !important;
+    }
 }
