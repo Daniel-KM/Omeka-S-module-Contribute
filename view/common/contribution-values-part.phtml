@@ -44,11 +44,11 @@
             <?php endif; ?>
         </h4>
         <div class="values">
-            <?php foreach ($propertyData['contributions'] as $contribution):
-                if (!empty($contribution['empty'])) continue;
-                $valueType = $contribution['type'];
-                $valueBaseType = $contribution['basetype'];
-                $valueLang = $contribution['lang'] ?? '';
+            <?php foreach ($propertyData['contributions'] as $contributionData):
+                if (!empty($contributionData['empty'])) continue;
+                $valueType = $contributionData['type'];
+                $valueBaseType = $contributionData['basetype'];
+                $valueLang = $contributionData['lang'] ?? '';
                 $class = ['value'];
                 if ($valueBaseType === 'resource') {
                     $class[] = 'resource';
@@ -62,53 +62,53 @@
                 <?php if ($showLocale && $valueLang): ?>
                 <span class="language"><?= $valueLang ?></span>
                 <?php endif; ?>
-                    <?php if (!empty($contribution['new'])): ?>
+                    <?php if (!empty($contributionData['new'])): ?>
                 <span class="value-content"><?php
                         if ($valueBaseType === 'uri'):
-                            echo $escape($contribution['proposed']['@uri'] . ' / ' . $contribution['proposed']['@label']);
+                            echo $escape($contributionData['proposed']['@uri'] . ' / ' . $contributionData['proposed']['@label']);
                         elseif ($valueBaseType === 'resource'):
                             try {
-                                $res = $api->read('resources', ['id' => $contribution['proposed']['@resource']])->getContent();
+                                $res = $api->read('resources', ['id' => $contributionData['proposed']['@resource']])->getContent();
                                 echo $res->link($res->displayTitle());
                             } catch (\Exception $e) {
-                                echo sprintf($translate('%s [unavailable]'), $contribution['proposed']['@resource']);
+                                echo sprintf($translate('%s [unavailable]'), $contributionData['proposed']['@resource']);
                             }
                         elseif ($term === 'file'): // File is always a new value.
-                            echo isset($contribution['proposed']['store'])
-                                ? '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contribution['proposed']['store']) . '" download="download">' . $escape($contribution['proposed']['@value']) . '</a>'
-                                : sprintf('%s [missing file]', $escape($contribution['proposed']['@value']));
+                            echo isset($contributionData['proposed']['store'])
+                                ? '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contributionData['proposed']['store']) . '" download="download">' . $escape($contributionData['proposed']['@value']) . '</a>'
+                                : sprintf('%s [missing file]', $escape($contributionData['proposed']['@value']));
                         else:
-                            echo $escape($contribution['proposed']['@value']);
+                            echo $escape($contributionData['proposed']['@value']);
                         endif;
                 ?></span>
                     <?php else: ?>
                 <dl>
                     <dd>
                         <?php if ($valueBaseType === 'uri'):
-                            echo $escape($contribution['original']['@uri'] . ' / ' . $contribution['original']['@label']);
+                            echo $escape($contributionData['original']['@uri'] . ' / ' . $contributionData['original']['@label']);
                         elseif ($valueBaseType === 'resource'):
                             try {
-                                $res = $api->read('resources', ['id' => $contribution['original']['@resource']])->getContent();
+                                $res = $api->read('resources', ['id' => $contributionData['original']['@resource']])->getContent();
                                 echo $res->link($res->displayTitle());
                             } catch (\Exception $e) {
-                                echo sprintf($translate('%s [unavailable]'), $contribution['original']['@resource']);
+                                echo sprintf($translate('%s [unavailable]'), $contributionData['original']['@resource']);
                             };
                         else:
-                            echo $escape($contribution['original']['@value']);
+                            echo $escape($contributionData['original']['@value']);
                         endif; ?>
                     </dd>
                     <dt>
                         <?php if ($valueBaseType === 'uri'):
-                            echo $escape($contribution['proposed']['@uri'] . ' / ' . $contribution['proposed']['@label']);
+                            echo $escape($contributionData['proposed']['@uri'] . ' / ' . $contributionData['proposed']['@label']);
                         elseif ($valueBaseType === 'resource'):
                             try {
-                                $res = $api->read('resources', ['id' => $contribution['proposed']['@resource']])->getContent();
+                                $res = $api->read('resources', ['id' => $contributionData['proposed']['@resource']])->getContent();
                                 echo $res->link($res->displayTitle());
                             } catch (\Exception $e) {
-                                echo sprintf($translate('%s [unavailable]'), $contribution['proposed']['@resource']);
+                                echo sprintf($translate('%s [unavailable]'), $contributionData['proposed']['@resource']);
                             }
                         else:
-                            echo $escape($contribution['proposed']['@value']);
+                            echo $escape($contributionData['proposed']['@value']);
                         endif; ?>
                     </dt>
                 </dl>
