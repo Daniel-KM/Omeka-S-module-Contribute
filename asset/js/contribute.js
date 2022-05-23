@@ -337,6 +337,13 @@ $(document).ready(function() {
         $(this).closest('.contribute-media').remove();
     });
 
+    /* Avoid submission with return key. */
+    $('#edit-resource').on('keypress', ':input:not(textarea):not([type=submit])', function(ev) {
+        if ((ev.keycode || ev.which) == '13') {
+            return false;
+        }
+    });
+
     $('.remove-contribution').on('click', function(ev) {
         ev.stopPropagation();
         ev.preventDefault();
