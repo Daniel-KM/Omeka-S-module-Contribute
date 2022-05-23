@@ -94,13 +94,13 @@ try {
 }
 
 // Store in js basic config of the fields.
-$simpleFields = $fields;
+$simpleFields = $fields ?? [];
 foreach ($simpleFields as &$simpleField) {
     unset($simpleField['template_property'], $simpleField['property'], $simpleField['alternate_comment'], $simpleField['alternate_label'], $simpleField['values'], $simpleField['contributions']);
 }
 unset($simpleField);
 $js .= PHP_EOL . sprintf('const fields = %s;', json_encode($simpleFields, 320));
-$simpleMediaFields = $fieldsMediaBase ?: [];
+$simpleMediaFields = $fieldsMediaBase ?? [];
 foreach ($simpleMediaFields as &$simpleMediaField) {
     unset($simpleMediaField['template_property'], $simpleMediaField['property'], $simpleMediaField['alternate_comment'], $simpleMediaField['alternate_label'], $simpleMediaField['values'], $simpleMediaField['contributions']);
 }
