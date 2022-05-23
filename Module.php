@@ -636,6 +636,31 @@ HTML;
                     'rows' => 5,
                     'data-setting-key' => 'contribute_author_confirmation_body',
                 ],
+            ])
+            // Specific messages for the reviewer.
+            ->add([
+                'name' => 'contribute_reviewer_confirmation_subject',
+                'type' => \Laminas\Form\Element\Text::class,
+                'options' => [
+                    'label' => 'Specific confirmation subject to the reviewer', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_reviewer_confirmation_subject',
+                    'data-setting-key' => 'contribute_reviewer_confirmation_subject',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_reviewer_confirmation_body',
+                'type' => \Laminas\Form\Element\Textarea::class,
+                'options' => [
+                    'label' => 'Specific confirmation message to the reviewer', // @translate
+                    'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_reviewer_confirmation_body',
+                    'rows' => 5,
+                    'data-setting-key' => 'contribute_reviewer_confirmation_body',
+                ],
             ]);
     }
 

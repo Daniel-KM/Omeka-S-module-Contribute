@@ -136,6 +136,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Subject of the confirmation email to the reviewers', // @translate
+                    'info' => 'May be overridden by a specific subject set in the resource template', // @translate
                 ],
                 'attributes' => [
                     'id' => 'contribute_reviewer_confirmation_subject',

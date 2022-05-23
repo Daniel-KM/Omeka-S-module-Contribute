@@ -776,6 +776,13 @@ class ContributionController extends AbstractActionController
         $subject = $settings->get('contribute_reviewer_confirmation_subject') ?: sprintf($translate('[Omeka] Contribution %s'), $action);
         $message = $settings->get('contribute_reviewer_confirmation_body');
 
+        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
+        $template = $contribution->resourceTemplate();
+        if ($template) {
+            $subject = $template->dataValue('contribute_reviewer_confirmation_subject') ?: $subject;
+            $message = $template->dataValue('contribute_reviewer_confirmation_body') ?: $message;
+        }
+
         if ($message) {
             $message = $this->replacePlaceholders($message, $contribution);
             $this->sendContributionEmail($emails, $subject, $message); // @translate
