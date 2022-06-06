@@ -1321,7 +1321,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 'resource' => 'contribution',
                 // TODO The default action "view" will be "show" later.
                 'action' => $action ?? 'view',
-                'id' => $this->id(),
+                // Casting to integer avoids an issue when the id is not set.
+                'id' => (int) $this->id(),
             ],
             ['force_canonical' => $canonical]
         );
