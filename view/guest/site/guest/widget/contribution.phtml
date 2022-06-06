@@ -3,9 +3,18 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  */
 
-$translate = $this->plugin('translate');
-$url = $this->plugin('url');
-$hyperlink = $this->plugin('hyperlink');
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$setting = $plugins->get('setting');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+
+$user = $this->identity();
+$contributeMode = $setting('contribute_mode');
+$contributeRoles = $setting('contribute_roles', []) ?: [];
+$canEditWithoutToken = $contributeMode === 'open'
+    || ($user && $contributeMode === 'user')
+    || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
 ?>
 
 <ul>
@@ -15,7 +24,7 @@ $hyperlink = $this->plugin('hyperlink');
             $url('site/guest/contribution', [], true)
         ) ?>
     </li>
-    <?php if (in_array($this->setting('contribute_mode'), ['user', 'open'])): ?>
+    <?php if ($canEditWithoutToken): ?>
     <li>
         <?= $hyperlink($translate('Add a new record'), $url('site/contribution', [], true)) ?>
     </li>

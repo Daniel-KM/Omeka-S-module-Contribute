@@ -22,6 +22,7 @@ class SettingsFieldset extends Fieldset
                     'value_options' => [
                         'user_token' => 'Authenticated users with token', // @translate
                         'user' => 'Authenticated users', // @translate
+                        'role' => 'Roles', // @translate
                         'token' => 'With token', // @translate
                         'open' => 'Open to any visitor', // @translate
                     ],
@@ -33,11 +34,30 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
+                // This element is a select built with a factory, not a class.
+                // Anyway, it cannot be used simply, because it requires a value.
+                // 'type' => 'Omeka\Form\Element\RoleSelect',
+                'type' => AdvancedResourceTemplateElement\OptionalRoleSelect::class,
+                'name' => 'contribute_roles',
+                'options' => [
+                    'label' => 'Roles allowed to contribute (option "Roles" above)', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_roles',
+                    'multiple' => true,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select roles…', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_notify_recipients',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Emails to notify contributions', // @translate
-                    'info' => 'A query can be appended to limit notifications to specific contributions.'
+                    'info' => 'A query can be appended to limit notifications to specific contributions.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'contribute_notify_recipients',

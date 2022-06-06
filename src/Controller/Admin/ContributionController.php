@@ -451,11 +451,16 @@ class ContributionController extends AbstractActionController
             $token = $contribution->token();
         }
 
+        // Check rights to edit without token.
         if (!$token) {
-            $contributeMode = $this->settings()->get('contribute_mode');
-            if (!in_array($contributeMode, ['user', 'open'])
-                || ($contributeMode === 'user' && !$this->identity())
-            ) {
+            $user = $this->identity();
+            $settings = $this->settings();
+            $contributeMode = $settings->get('contribute_mode');
+            $contributeRoles = $settings->get('contribute_roles', []) ?: [];
+            $canEditWithoutToken = $contributeMode === 'open'
+                || ($user && $contributeMode === 'user')
+                || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+            if (!$canEditWithoutToken) {
                 return $this->jsonErrorUnauthorized();
             }
             return new JsonModel([

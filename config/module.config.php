@@ -238,6 +238,7 @@ return [
     'contribute' => [
         'settings' => [
             'contribute_mode' => 'user',
+            'contribute_roles' => [],
             'contribute_notify_recipients' => [],
             'contribute_author_emails' => [],
             'contribute_message_add' => '',

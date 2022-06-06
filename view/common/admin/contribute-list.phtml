@@ -10,6 +10,7 @@
 
 $plugins = $this->getHelperPluginManager();
 $api = $plugins->get('api');
+$setting = $plugins->get('setting');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
@@ -19,7 +20,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 <div class="contributions">
     <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id(), 'limit' => 0])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
-        <?php if (in_array($this->setting('contribute_mode'), ['user_token', 'token'])): ?>
+        <?php if (in_array($setting('contribute_mode'), ['user_token', 'token'])): ?>
     <div class="no-resources no-tokens">
         <p><?= $translate('There are no tokens for this resource or contribution mode doesn’t use token.') ?></p>
     </div>
@@ -136,7 +137,7 @@ $editRight = $resource->userIsAllowed('update');
                 $varsBase['escapeAttr'] = $escapeAttr;
                 $varsBase['contribution'] = $contribution;
                 $varsBase['editRight'] = $editRight;
-                $varsBase['labelInfo'] = $this->setting('property_label_information');
+                $varsBase['labelInfo'] = $setting('property_label_information');
                 $varsBase['values'] = $resource->values();
                 $varsBase['isSubProposal'] = false;
                 $varsBase['proposal'] = $proposal;

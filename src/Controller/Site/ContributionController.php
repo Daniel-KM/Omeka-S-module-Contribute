@@ -125,19 +125,19 @@ class ContributionController extends AbstractActionController
         // TODO Use the resource name to store the contribution (always items here for now).
         $resourceName = $resourceTypeMap[$resourceType];
 
-        $settings = $this->settings();
         $user = $this->identity();
+        $settings = $this->settings();
         $contributeMode = $settings->get('contribute_mode');
+        $contributeRoles = $settings->get('contribute_roles', []) ?: [];
+        $canEditWithoutToken = $contributeMode === 'open'
+            || ($user && $contributeMode === 'user')
+            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
 
         // TODO Allow to use a token to add a resource.
         // $token = $this->checkToken($resource);
         $token = null;
-        if (!$token
-            && (
-                !in_array($contributeMode, ['user', 'open'])
-                || ($contributeMode === 'user' && !$user)
-            )
-        ) {
+        // Check rights to edit without token.
+        if (!$token && !$canEditWithoutToken) {
             return $this->viewError403();
         }
 
@@ -390,9 +390,13 @@ class ContributionController extends AbstractActionController
         /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $api->read($resourceName, ['id' => $resourceId])->getContent();
 
-        $settings = $this->settings();
         $user = $this->identity();
+        $settings = $this->settings();
         $contributeMode = $settings->get('contribute_mode');
+        $contributeRoles = $settings->get('contribute_roles', []) ?: [];
+        $canEditWithoutToken = $contributeMode === 'open'
+            || ($user && $contributeMode === 'user')
+            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
 
         if ($resourceName === 'contributions') {
             $contribution = $resource;
@@ -401,12 +405,7 @@ class ContributionController extends AbstractActionController
             $currentUrl = $this->url()->fromRoute(null, [], true);
         } else {
             $token = $this->checkToken($resource);
-            if (!$token
-                && (
-                    !in_array($contributeMode, ['user', 'open'])
-                    || ($contributeMode === 'user' && !$user)
-                )
-            ) {
+            if (!$token && !$canEditWithoutToken) {
                 return $this->viewError403();
             }
 

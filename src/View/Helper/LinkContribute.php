@@ -45,12 +45,14 @@ class LinkContribute extends AbstractHelper
         $options += $defaultOptions;
 
         $user = $view->identity();
-        $contributeMode = $view->setting('contribute_mode');
+        $setting = $view->plugin('setting');
+        $contributeMode = $setting('contribute_mode');
+        $contributeRoles = $setting('contribute_roles', []) ?: [];
 
-        $helper = $this->checkToken;
-        $canEdit = ($resource && $helper($resource))
+        $canEdit = ($resource && $this->checkToken->__invoke($resource))
             || $contributeMode === 'open'
-            || ($user && $contributeMode === 'user');
+            || ($user && $contributeMode === 'user')
+            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
 
         $template = $options['template'];
         unset($options['template']);
