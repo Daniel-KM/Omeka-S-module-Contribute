@@ -13,6 +13,17 @@ class TokenAdapter extends AbstractEntityAdapter
     protected $sortFields = [
         'id' => 'id',
         'resource' => 'resource',
+        'token' => 'token',
+        'email' => 'email',
+        'expire' => 'expire',
+        'created' => 'created',
+        'accessed' => 'accessed',
+    ];
+
+    protected $scalarFields = [
+        'id' => 'id',
+        'resource' => 'resource',
+        'token' => 'token',
         'email' => 'email',
         'expire' => 'expire',
         'created' => 'created',

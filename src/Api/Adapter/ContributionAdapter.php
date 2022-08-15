@@ -16,7 +16,23 @@ class ContributionAdapter extends AbstractEntityAdapter
         'resource' => 'resource',
         'owner' => 'owner',
         'email' => 'email',
+        'patch' => 'patch',
+        'submitted' => 'submitted',
         'reviewed' => 'reviewed',
+        'token' => 'token',
+        'created' => 'created',
+        'modified' => 'modified',
+    ];
+
+    protected $scalarFields = [
+        'id' => 'id',
+        'resource' => 'resource',
+        'owner' => 'owner',
+        'email' => 'email',
+        'patch' => 'patch',
+        'submitted' => 'submitted',
+        'reviewed' => 'reviewed',
+        'proposal' => 'proposal',
         'token' => 'token',
         'created' => 'created',
         'modified' => 'modified',
