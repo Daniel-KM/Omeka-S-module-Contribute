@@ -209,7 +209,7 @@ SQL;
         }
     }
 
-    public function validateRequest(Request $request, ErrorStore $errorStore)
+    public function validateRequest(Request $request, ErrorStore $errorStore): void
     {
         $data = $request->getContent();
         if (array_key_exists('o-module-contribute:proposal', $data)) {

@@ -571,7 +571,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
                     case $typeColon === 'customvocab' && $baseType === 'uri':
                         $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
-                        // No break.
+                        // no break.
                     case 'uri':
                     case $typeColon === 'valuesuggest':
                     case $typeColon === 'valuesuggestall':
@@ -908,7 +908,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
                     case $typeColon === 'customvocab' && $baseType === 'uri':
                         $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? '';
-                        // No break.
+                        // no break.
                     case 'uri':
                     case $typeColon === 'valuesuggest':
                     case $typeColon === 'valuesuggestall':

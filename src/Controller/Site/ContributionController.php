@@ -43,7 +43,7 @@ class ContributionController extends AbstractActionController
     /**
      * @var array
      */
-     protected $config;
+    protected $config;
 
     public function __construct(
         Uploader $uploader,
@@ -592,7 +592,7 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
-    public function deleteConfirmAction()
+    public function deleteConfirmAction(): void
     {
         throw new \Omeka\Mvc\Exception\PermissionDeniedException('The delete confirm action is currently unavailable');
     }
@@ -1170,7 +1170,7 @@ class ContributionController extends AbstractActionController
                         break;
                     case $typeColon === 'customvocab' && $baseType === 'uri':
                         $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri'] ?? ''] ?? '';
-                        // No break.
+                        // no break.
                     case 'uri':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
@@ -1329,7 +1329,7 @@ class ContributionController extends AbstractActionController
                         break;
                     case $typeColon === 'customvocab' && $baseType === 'uri':
                         $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
-                        // No break.
+                        // no break.
                     case 'uri':
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;

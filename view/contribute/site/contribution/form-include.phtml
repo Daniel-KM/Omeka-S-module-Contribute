@@ -70,13 +70,13 @@ $plugins
 
 $assetUrl = $plugins->get('assetUrl');
 $this->headLink()
-    ->appendStylesheet($assetUrl('vendor/chosen-js/chosen.css', 'Omeka'));
+    ->prependStylesheet($assetUrl('vendor/chosen-js/chosen.min.css', 'Omeka'));
 if (empty($skipContributeCss)) {
     $this->headLink()
         ->appendStylesheet($assetUrl('css/contribute.css', 'Contribute'));
 }
 $this->headScript()
-    ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
+    ->appendFile($assetUrl('vendor/chosen-js/chosen.jquery.min.js', 'Omeka'), 'text/javascript', ['defer' => 'defer'])
     ->appendFile($assetUrl('js/contribute.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
 
 $js = '';

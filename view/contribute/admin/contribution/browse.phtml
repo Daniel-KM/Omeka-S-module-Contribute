@@ -9,12 +9,15 @@
 
 // TODO Batch edition.
 
-$translate = $this->plugin('translate');
-$url = $this->plugin('url');
-$i18n = $this->plugin('i18n');
-$escape = $this->plugin('escapeHtml');
-$hyperlink = $this->plugin('hyperlink');
-$escapeAttr = $this->plugin('escapeHtmlAttr');
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$i18n = $plugins->get('i18n');
+$escape = $plugins->get('escapeHtml');
+$sortLink = $plugins->get('sortLink');
+$assetUrl = $plugins->get('assetUrl');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
 
 $this->htmlElement('body')->appendAttribute('class', 'contributions browse');
 $sortHeadings = [
@@ -31,6 +34,8 @@ $sortHeadings = [
         'value' => 'created',
     ],
 ];
+
+$userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\ContributionAdapter::class, 'batch_delete');
 ?>
 
 <?= $this->pageTitle($translate('Contributions')) ?>
@@ -47,7 +52,7 @@ $sortHeadings = [
 </div>
 
 <?php $this->trigger('view.browse.before'); ?>
-<?php if ($contributions): ?>
+<?php if (count($contributions)): ?>
 <form method="post" id="batch-form" class="disable-unsaved-warning">
     <?php if (false && $this->userIsAllowed(\Contribute\Api\Adapter\ContributionAdapter::class, 'batch_update')): ?>
     <div class="batch-inputs">
@@ -73,83 +78,84 @@ $sortHeadings = [
     </div>
     <?php endif; ?>
 
-<table class="tablesaw batch-edit" data-tablesaw-mode="stack">
-    <thead>
-        <tr>
-            <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
-            <th><?= $translate('Contributor') ?></th>
-            <th><?= $translate('Created') ?></th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($contributions as $contribution):
-        $contributionResource = $contribution->resource();
-        $resourceTemplate = $contribution->resourceTemplate();
-        if ($owner = $contribution->owner()) {
-            $ownerText = $hyperlink($owner->name(), $url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]));
-        } else {
-            $ownerText = $contribution->email() ?: $translate('[no owner]');
-        }
-        ?>
-        <tr class="contribution">
-            <td>
-                <?php if (false && $contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
-                <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
-                <?php endif; ?>
-                <span class="title"><?= $contribution->linkResource($contribution->displayTitle()) ?></span>
-                <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
-                <ul class="actions">
-                    <li><span class="no-action"><span
-                        class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
-                        data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
-                        aria-label="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"
-                        title="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"></span>
-                    </span></li>
-                    <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
-                    <li><span class="single actions"><a href="#"
-                        class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
-                        data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
-                        data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
-                        aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
-                        title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
-                    </span></li>
+    <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
+        <thead>
+            <tr>
+                <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
+                <th><?= $translate('Contributor') ?></th>
+                <th><?= $translate('Created') ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($contributions as $contribution):
+            $contributionResource = $contribution->resource();
+            $resourceTemplate = $contribution->resourceTemplate();
+            $owner = $contribution->owner();
+            if ($owner) {
+                $ownerText = $hyperlink($owner->name(), $url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $owner->id()]));
+            } else {
+                $ownerText = $contribution->email() ?: $translate('[no owner]');
+            }
+            ?>
+            <tr class="contribution">
+                <td>
+                    <?php if (false && $contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
+                    <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
                     <?php endif; ?>
-                    <li>
-                    <?php if ($contributionResource): ?>
-                        <?= $contribution->linkResource('', 'show', [
-                            'class' => 'o-icon-edit',
-                            'title' => $translate('Edit'),
-                        ]) ?>
-                    <?php else: ?>
-                        <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
-                            'class' => 'o-icon-add',
-                            'data-id' => $contribution->id(),
-                            'title' => $translate('Create resource to be validated'),
-                        ]) ?>
-                    </li>
-                    <?php endif; ?>
-                    <?php if ($contribution->userIsAllowed('delete')): ?>
-                    <li><?= $hyperlink('', '#', [
-                        'data-sidebar-selector' => '#sidebar',
-                        'data-sidebar-content-url' => $contribution->url('delete-confirm'),
-                        'class' => 'o-icon-delete sidebar-content',
-                        'title' => $translate('Delete'),
-                    ]) ?></li>
-                    <?php endif; ?>
-                    <li><?= $hyperlink('', '#', [
-                        'data-sidebar-selector' => '#sidebar',
-                        'data-sidebar-content-url' => $contribution->url('show-details'),
-                        'class' => 'o-icon-more sidebar-content',
-                        'title' => $translate('Details'),
-                    ]) ?></li>
-                </ul>
-            </td>
-            <td><?= $ownerText ?></td>
-            <td><?= $escape($i18n->dateFormat($contribution->created(), 'medium', 'short')) ?></td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+                    <span class="title"><?= $contribution->linkResource($contribution->displayTitle()) ?></span>
+                    <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
+                    <ul class="actions">
+                        <li><span class="no-action"><span
+                            class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
+                            data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
+                            aria-label="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"
+                            title="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"></span>
+                        </span></li>
+                        <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
+                        <li><span class="single actions"><a href="#"
+                            class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                            data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
+                            data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                            aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
+                            title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
+                        </span></li>
+                        <?php endif; ?>
+                        <li>
+                        <?php if ($contributionResource): ?>
+                            <?= $contribution->linkResource('', 'show', [
+                                'class' => 'o-icon-edit',
+                                'title' => $translate('Edit'),
+                            ]) ?>
+                        <?php else: ?>
+                            <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
+                                'class' => 'o-icon-add',
+                                'data-id' => $contribution->id(),
+                                'title' => $translate('Create resource to be validated'),
+                            ]) ?>
+                        </li>
+                        <?php endif; ?>
+                        <?php if ($contribution->userIsAllowed('delete')): ?>
+                        <li><?= $hyperlink('', '#', [
+                            'data-sidebar-selector' => '#sidebar',
+                            'data-sidebar-content-url' => $contribution->url('delete-confirm'),
+                            'class' => 'o-icon-delete sidebar-content',
+                            'title' => $translate('Delete'),
+                        ]) ?></li>
+                        <?php endif; ?>
+                        <li><?= $hyperlink('', '#', [
+                            'data-sidebar-selector' => '#sidebar',
+                            'data-sidebar-content-url' => $contribution->url('show-details'),
+                            'class' => 'o-icon-more sidebar-content',
+                            'title' => $translate('Details'),
+                        ]) ?></li>
+                    </ul>
+                </td>
+                <td><?= $ownerText ?></td>
+                <td><?= $escape($i18n->dateFormat($contribution->created(), 'medium', 'short')) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
 </form>
 
@@ -165,6 +171,9 @@ $sortHeadings = [
     ]) ?>
     <div class="sidebar-content"></div>
 </div>
+
+<?php if ($userIsAllowedBatchDelete): ?>
+
 <div id="sidebar-delete-selected" class="sidebar">
     <?= $hyperlink('', '#', [
         'class' => 'sidebar-close o-icon-close',
@@ -227,6 +236,8 @@ $('#sidebar-delete-all').on('click', 'input[name="confirm-delete-all-check"]', f
     $('#confirm-delete-all input[type="submit"]').prop('disabled', this.checked ? false : true);
 });
 </script>
+
+<?php endif; ?>
 
 <?php else: ?>
 

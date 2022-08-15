@@ -14,6 +14,7 @@ class SettingsFieldset extends Fieldset
     public function init(): void
     {
         $this
+            ->setAttribute('id', 'contribute')
             ->add([
                 'name' => 'contribute_mode',
                 'type' => Element\Radio::class,

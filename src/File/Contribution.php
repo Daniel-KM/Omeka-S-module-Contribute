@@ -4,10 +4,10 @@ namespace Contribute\File;
 
 use Laminas\Log\Logger;
 use Omeka\File\Store\StoreInterface;
+use Omeka\File\TempFile;
 use Omeka\File\TempFileFactory;
 use Omeka\Stdlib\ErrorStore;
 use Omeka\Stdlib\Message;
-use Omeka\File\TempFile;
 
 /**
  * File contribution service (store).

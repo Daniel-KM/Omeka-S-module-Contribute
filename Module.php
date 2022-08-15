@@ -171,9 +171,11 @@ class Module extends AbstractModule
             ->allow(
                 $contributors,
                 [\Contribute\Entity\Contribution::class],
-                ['create',
-                // TODO Remove right to change owner of the contribution (only set it first time).
-                'change-owner']
+                [
+                    'create',
+                    // TODO Remove right to change owner of the contribution (only set it first time).
+                    'change-owner',
+                ]
             )
             ->allow(
                 $contributors,
@@ -217,7 +219,7 @@ class Module extends AbstractModule
             )
             ->allow(
                 $validators,
-                [\Contribute\Api\Adapter\ContributionAdapter::class],
+                [\Contribute\Api\Adapter\ContributionAdapter::class]
             )
             // TODO Give right to deletion to reviewer?
             ->allow(
@@ -700,7 +702,7 @@ HTML;
      *
      * Processed via an event to be sure that the contribution is removed.
      */
-    public function deleteContributionFiles(Event $event)
+    public function deleteContributionFiles(Event $event): void
     {
         $services = $this->getServiceLocator();
         $store = $services->get('Omeka\File\Store');
