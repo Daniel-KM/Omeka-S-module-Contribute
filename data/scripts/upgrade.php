@@ -238,4 +238,16 @@ SQL;
         'It’s now possible to edit a contribution until it is submitted.' // @translate
     );
     $messenger->addSuccess($message);
+    $message = new Message(
+        'This version does not allow to correct resources. The feature will be reincluded in version 3.3.0.18.' // @translate
+    );
+    $messenger->addWarning($message);
+}
+
+if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
+    $messenger = new Messenger();
+    $message = new Message(
+        'It’s now possible for admin to search contributions.' // @translate
+    );
+    $messenger->addSuccess($message);
 }
