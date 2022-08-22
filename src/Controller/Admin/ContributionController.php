@@ -73,6 +73,10 @@ class ContributionController extends AbstractActionController
         $formSearch->setData($data);
 
         $this->setBrowseDefaults('created', 'desc');
+        if (!isset($params['sort_by'])) {
+            $params['sort_by'] = 'created';
+            $params['sort_order'] = 'desc';
+        }
 
         $response = $this->api()->search('contributions', $params);
         $this->paginator($response->getTotalResults());
