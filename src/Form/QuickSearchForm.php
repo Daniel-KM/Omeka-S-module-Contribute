@@ -5,14 +5,13 @@ namespace Contribute\Form;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 use Laminas\View\Helper\Url;
-use Omeka\Form\Element as OmekaElement;
 
 class QuickSearchForm extends Form
 {
     /**
      * @var array
      */
-    protected $contributeTemplates = [];
+    protected $resourceTemplates = [];
 
     /**
      * @var Url
@@ -31,11 +30,11 @@ class QuickSearchForm extends Form
         $this
             ->add([
                 'name' => 'resource_template_id',
-                'type' => OmekaElement\ResourceTemplateSelect::class,
+                'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Template', // @translate
-                    'disable_group_by_owner' => true,
                     'empty_option' => '',
+                    'value_options' => $this->resourceTemplates,
                 ],
                 'attributes' => [
                     'id' => 'resource_template_id',
@@ -171,11 +170,17 @@ class QuickSearchForm extends Form
                     'type' => 'submit',
                 ],
             ]);
+
+        $this->getInputFilter()
+            ->add([
+                'name' => 'resource_template_id',
+                'required' => false,
+            ]);
     }
 
-    public function setContributeTemplates(array $contributeTemplates): self
+    public function setResourceTemplates(array $resourceTemplates): self
     {
-        $this->contributeTemplates = $contributeTemplates;
+        $this->resourceTemplates = $resourceTemplates;
         return $this;
     }
 
