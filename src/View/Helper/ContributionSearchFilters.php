@@ -58,8 +58,8 @@ class ContributionSearchFilters extends AbstractHelper
                     $filters[$filterLabel][] = $filterValue;
                     break;
 
-                case 'title':
-                    $filterLabel = $translate('Title'); // @translate
+                case 'fulltext_search':
+                    $filterLabel = $translate('Text'); // @translate
                     $filterValue = $value;
                     $filters[$filterLabel][] = $filterValue;
                     break;

@@ -44,6 +44,17 @@ class QuickSearchForm extends Form
             ])
 
             ->add([
+                'name' => 'fulltext_search',
+                'type' => Element\Search::class,
+                'options' => [
+                    'label' => 'Texte', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'fulltext_search',
+                ],
+            ])
+
+            ->add([
                 'name' => 'created',
                 'type' => Element\Text::class,
                 'options' => [
@@ -52,18 +63,6 @@ class QuickSearchForm extends Form
                 'attributes' => [
                     'id' => 'created',
                     'placeholder' => 'Set a date with optional comparator…', // @translate
-                ],
-            ])
-
-            ->add([
-                'name' => 'title',
-                'type' => Element\Text::class,
-                'options' => [
-                    'label' => 'Title', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'title',
-                    'placeholder' => 'Set a title…', // @translate
                 ],
             ])
 
