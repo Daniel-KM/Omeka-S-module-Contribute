@@ -37,7 +37,7 @@ class ContributionController extends AbstractActionController
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'browse'], true))
             ->setAttribute('id', 'contribution-search');
 
-        // Fix form radio for empty value.
+        // Fix form radio for empty value and form select.
         $data = $params;
         if (isset($data['patch'])) {
             if ($data['patch'] === '0') {
@@ -59,6 +59,14 @@ class ContributionController extends AbstractActionController
             } elseif ($params['reviewed'] === '00') {
                 $params['reviewed'] = '0';
             }
+        }
+        if (isset($data['resource_template_id']) && is_array($data['resource_template_id'])) {
+            $data['resource_template_id'] = empty($data['resource_template_id']) ? '' : reset($data['resource_template_id']);
+            $params['resource_template_id'] = $data['resource_template_id'];
+        }
+        if (isset($data['owner_id']) && is_array($data['owner_id'])) {
+            $data['owner_id'] = empty($data['owner_id']) ? '' : reset($data['owner_id']);
+            $params['owner_id'] = $data['owner_id'];
         }
 
         // Don't check validity: this is a search form.
