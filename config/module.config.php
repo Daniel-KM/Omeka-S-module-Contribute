@@ -37,6 +37,9 @@ return [
         ],
     ],
     'view_helpers' => [
+        'invokables' => [
+            'contributionSearchFilters' => View\Helper\ContributionSearchFilters::class,
+        ],
         'factories' => [
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
             'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,

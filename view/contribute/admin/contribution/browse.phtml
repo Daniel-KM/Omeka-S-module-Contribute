@@ -47,11 +47,11 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
 
 <?= $this->pageTitle($translate('Contributions')) ?>
 
-<?= $this->searchFilters() ?>
+<?= $this->contributionSearchFilters() ?>
 
 <div class="browse-controls">
     <?= $this->pagination() ?>
-    <?php //= $hyperlink($translate('Advanced search'), $url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
+    <?= $hyperlink($translate('Quick search / Filter'), '#', ['class' => 'search advanced-search']) ?>
     <?= $this->sortSelector($sortHeadings) ?>
 </div>
 
