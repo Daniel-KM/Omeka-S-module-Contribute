@@ -3,7 +3,7 @@
 namespace Contribute\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
-use Omeka\Api\Exception\NotFoundException;
+use Omeka\Api\Manager as ApiManager;
 
 /**
  * View helper for rendering search filters.
@@ -16,6 +16,17 @@ class ContributionSearchFilters extends AbstractHelper
     public const PARTIAL_NAME = 'common/search-filters';
 
     /**
+     * @var ApiManager
+     */
+    protected $api;
+
+    public function __construct(ApiManager $api)
+    {
+        // The view api doesn't manage options like "returnScalar".
+        $this->api = $api;
+    }
+
+    /**
      * Render filters from search query.
      */
     public function __invoke($partialName = null): string
@@ -26,7 +37,6 @@ class ContributionSearchFilters extends AbstractHelper
         $translate = $view->plugin('translate');
 
         $filters = [];
-        $api = $view->api();
         $query = $view->params()->fromQuery();
 
         foreach ($query as $key => $value) {
@@ -34,6 +44,14 @@ class ContributionSearchFilters extends AbstractHelper
                 continue;
             }
             switch ($key) {
+                case 'resource_template_id':
+                    $filterLabel = $translate('Template'); // @translate
+                    if (!is_array($value)) {
+                        $value = [$value];
+                    }
+                    $filters[$filterLabel] = $this->api->search('resource_templates', ['id' => $value], ['returnScalar' => 'label'])->getContent();
+                    break;
+
                 case 'created':
                     $filterLabel = $translate('Created'); // @translate
                     $filterValue = $value;
@@ -72,12 +90,14 @@ class ContributionSearchFilters extends AbstractHelper
 
                 case 'owner_id':
                     $filterLabel = $translate('User'); // @translate
-                    try {
-                        $filterValue = $api->read('users', $value)->getContent()->name();
-                    } catch (NotFoundException $e) {
-                        $filterValue = $translate('Unknown user'); // @translate
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
-                    $filters[$filterLabel][] = $filterValue;
+                    try {
+                        $filters[$filterLabel] = $this->api->search('users', ['id' => $value], ['returnScalar' => 'name'])->getContent();
+                    } catch (\Exception $e) {
+                        // Avoid issue with rights.
+                    }
                     break;
 
                 case 'email':
