@@ -57,7 +57,7 @@ class ContributionAdapter extends AbstractEntityAdapter
     {
         $expr = $qb->expr();
 
-        if (isset($query['resource_id'])) {
+        if (isset($query['resource_id']) && $query['resource_id'] !== '' && $query['resource_id'] !== []) {
             if (!is_array($query['resource_id'])) {
                 $query['resource_id'] = [$query['resource_id']];
             }
@@ -72,50 +72,50 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['owner_id']) && is_numeric($query['owner_id'])) {
+        if (isset($query['owner_id']) && $query['owner_id'] !== '' && $query['owner_id'] !== []) {
+            if (!is_array($query['owner_id'])) {
+                $query['owner_id'] = [$query['owner_id']];
+            }
             $userAlias = $this->createAlias();
             $qb->innerJoin(
                 'omeka_root.owner',
                 $userAlias
             );
-            $qb->andWhere($expr->eq(
+            $qb->andWhere($expr->in(
                 "$userAlias.id",
                 $this->createNamedParameter($qb, $query['owner_id']))
             );
         }
 
-        if (isset($query['email'])) {
+        if (isset($query['email']) && $query['email'] !== '') {
             $qb->andWhere($expr->eq(
                 'omeka_root.email',
                 $this->createNamedParameter($qb, $query['email'])
             ));
         }
 
-        if (isset($query['patch']) && is_numeric($query['patch'])) {
+        if (isset($query['patch']) && (is_numeric($query['patch']) || is_bool($query['patch']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.patch',
                 $this->createNamedParameter($qb, (bool) $query['patch'])
             ));
         }
 
-        if (isset($query['submitted']) && is_numeric($query['submitted'])) {
+        if (isset($query['submitted']) && (is_numeric($query['submitted']) || is_bool($query['submitted']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.submitted',
                 $this->createNamedParameter($qb, (bool) $query['submitted'])
             ));
         }
 
-        if (isset($query['reviewed']) && is_numeric($query['reviewed'])) {
+        if (isset($query['reviewed']) && (is_numeric($query['reviewed']) || is_bool($query['reviewed']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.reviewed',
                 $this->createNamedParameter($qb, (bool) $query['reviewed'])
             ));
         }
 
-        if (isset($query['token_id'])) {
-            if (!is_array($query['token_id'])) {
-                $query['token_id'] = [$query['token_id']];
-            }
+        if (isset($query['token_id']) && $query['token'] !== '') {
             $resourceAlias = $this->createAlias();
             $qb->innerJoin(
                 'omeka_root.token',
@@ -127,22 +127,22 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        // TODO Add time comparison (see modules AdvancedSearchPlus or Next).
-        if (isset($query['created'])) {
+        // TODO Add time comparison (see modules AdvancedSearch or Log).
+        if (isset($query['created']) && $query['created'] !== '') {
             $qb->andWhere($expr->eq(
                 'omeka_root.created',
                 $this->createNamedParameter($qb, $query['created'])
             ));
         }
 
-        if (isset($query['modified'])) {
+        if (isset($query['modified']) && $query['modified'] !== '') {
             $qb->andWhere($expr->eq(
                 'omeka_root.modified',
                 $this->createNamedParameter($qb, $query['modified'])
             ));
         }
 
-        if (isset($query['resource_template_id'])) {
+        if (isset($query['resource_template_id']) && $query['resource_template_id'] !== '' && $query['resource_template_id'] !== []) {
             $ids = $query['resource_template_id'];
             if (!is_array($ids)) {
                 $ids = [$ids];
@@ -155,9 +155,9 @@ SELECT `id`
 FROM `contribution`
 WHERE JSON_EXTRACT(`proposal`, "$.template") IN (:templates);
 SQL;
-            /** @var \Doctrine\DBAL\Connection $connection */
+                /** @var \Doctrine\DBAL\Connection $connection */
                 $connection = $this->getServiceLocator()->get('Omeka\Connection');
-                $contributionIds = $connection->executeQuery($sql, ['templates' => $query['resource_template_id']], ['templates' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY])->fetchFirstColumn();
+                $contributionIds = $connection->executeQuery($sql, ['templates' => $ids], ['templates' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY])->fetchFirstColumn();
                 $contributionIds = array_map('intval', $contributionIds);
                 if ($contributionIds) {
                     $qb->andWhere($expr->in(
@@ -174,7 +174,7 @@ SQL;
         }
 
         /** @experimental */
-        if (isset($query['property'])) {
+        if (isset($query['property']) && $query['property'] !== '' && $query['property'] !== []) {
             foreach ($query['property'] as $propertyData) {
                 $property = $propertyData['property'] ?? null;
                 if (is_null($property) || !preg_match('~^[\w-]+\:[\w-]+$~i', $property)) {
