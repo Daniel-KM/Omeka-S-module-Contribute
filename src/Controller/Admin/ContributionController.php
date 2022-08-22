@@ -36,10 +36,33 @@ class ContributionController extends AbstractActionController
         $formSearch
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'browse'], true))
             ->setAttribute('id', 'contribution-search');
-        if ($params) {
-            $formSearch->setData($params);
-            // TODO Don't check validity?
+
+        // Fix form radio for empty value.
+        $data = $params;
+        if (isset($data['patch'])) {
+            if ($data['patch'] === '0') {
+                $data['patch'] = '00';
+            } elseif ($params['patch'] === '00') {
+                $params['patch'] = '0';
+            }
         }
+        if (isset($data['submitted'])) {
+            if ($data['submitted'] === '0') {
+                $data['submitted'] = '00';
+            } elseif ($params['submitted'] === '00') {
+                $params['submitted'] = '0';
+            }
+        }
+        if (isset($data['reviewed'])) {
+            if ($data['reviewed'] === '0') {
+                $data['reviewed'] = '00';
+            } elseif ($params['reviewed'] === '00') {
+                $params['reviewed'] = '0';
+            }
+        }
+
+        // Don't check validity: this is a search form.
+        $formSearch->setData($data);
 
         $this->setBrowseDefaults('created', 'desc');
 

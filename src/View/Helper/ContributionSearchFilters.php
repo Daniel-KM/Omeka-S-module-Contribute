@@ -48,8 +48,7 @@ class ContributionSearchFilters extends AbstractHelper
 
                 case 'patch':
                     $filterLabel = $translate('Type of contribution'); // @translate
-                    $value = (string) $value;
-                    $filterValue = $value === '0'
+                    $filterValue = (int) $value
                         ? $translate('Correction') // @translate
                         : $translate('Full contribution'); // @translate
                     $filters[$filterLabel][] = $filterValue;
@@ -57,19 +56,17 @@ class ContributionSearchFilters extends AbstractHelper
 
                 case 'submitted':
                     $filterLabel = $translate('Is submitted'); // @translate
-                    $value = (string) $value;
-                    $filterValue = $value === '0'
-                        ? $translate('No') // @translate
-                        : $translate('Yes'); // @translate
+                    $filterValue = (int) $value
+                        ? $translate('Yes') // @translate
+                        : $translate('No'); // @translate
                     $filters[$filterLabel][] = $filterValue;
                     break;
 
                 case 'reviewed':
                     $filterLabel = $translate('Is reviewed'); // @translate
-                    $value = (string) $value;
-                    $filterValue = $value === '0'
-                        ? $translate('No') // @translate
-                        : $translate('Yes'); // @translate
+                    $filterValue = (int) $value
+                        ? $translate('Yes') // @translate
+                        : $translate('No'); // @translate
                     $filters[$filterLabel][] = $filterValue;
                     break;
 

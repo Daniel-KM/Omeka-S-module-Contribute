@@ -56,11 +56,12 @@ class QuickSearchForm extends Form
                     'value_options' => [
                         '' => 'Any', // @translate
                         '1' => 'Correction', // @translate
-                        '0' => 'Full contribution', // @translate
+                        '00' => 'Full contribution', // @translate
                     ],
                 ],
                 'attributes' => [
                     'id' => 'submitted',
+                    'value' => '',
                 ],
             ])
             ->add([
@@ -71,11 +72,12 @@ class QuickSearchForm extends Form
                     'value_options' => [
                         '' => 'Any', // @translate
                         '1' => 'Yes', // @translate
-                        '0' => 'No', // @translate
+                        '00' => 'No', // @translate
                     ],
                 ],
                 'attributes' => [
                     'id' => 'submitted',
+                    'value' => '',
                 ],
             ])
             ->add([
@@ -86,11 +88,12 @@ class QuickSearchForm extends Form
                     'value_options' => [
                         '' => 'Any', // @translate
                         '1' => 'Yes', // @translate
-                        '0' => 'No', // @translate
+                        '00' => 'No', // @translate
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'submitted',
+                    'id' => 'reviewed',
+                    'value' => '',
                 ],
             ])
 
