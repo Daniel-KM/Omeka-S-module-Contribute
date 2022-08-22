@@ -311,6 +311,10 @@ class ContributionFields extends AbstractHelper
         unset($proposals['template'], $proposals['media']);
 
         foreach ($proposals as $term => $termProposal) {
+            if (!is_array($termProposal)) {
+                // Data "migrated" = true can be stored here.
+                continue;
+            }
             foreach ($termProposal as $key => $proposal) {
                 if (isset($proposal['proposed']['@uri'])) {
                     $proposal['original']['@uri'] = $this->cleanString($proposal['original']['@uri']);
