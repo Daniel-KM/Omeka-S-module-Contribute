@@ -48,6 +48,9 @@ return [
             Form\Element\ArrayQueryTextarea::class => Form\Element\ArrayQueryTextarea::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
+        'factories' => [
+            Form\QuickSearchForm::class => Service\Form\QuickSearchFormFactory::class,
+        ],
     ],
     'controllers' => [
         'invokables' => [

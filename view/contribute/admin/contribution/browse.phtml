@@ -3,6 +3,7 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Contribute\Api\Representation\ContributionRepresentation[] $contributions
  * @var \Contribute\Api\Representation\ContributionRepresentation[] $resources
+ * @var \Contribute\Form\QuickSearchForm $formSearch
  * @var \Omeka\Form\ConfirmForm $formDeleteSelected
  * @var \Omeka\Form\ConfirmForm $formDeleteAll
  */
@@ -20,6 +21,12 @@ $hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
 $this->htmlElement('body')->appendAttribute('class', 'contributions browse');
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
+$this->headScript()
+    ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
+
 $sortHeadings = [
     [
         'label' => $translate('Title'),
@@ -82,8 +89,8 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
         <thead>
             <tr>
                 <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
-                <th><?= $translate('Contributor') ?></th>
-                <th><?= $translate('Created') ?></th>
+                <th><?= $sortLink($translate('Contributor'), 'email') ?></th>
+                <th><?= $sortLink($translate('Date'), 'created') ?></th>
             </tr>
         </thead>
         <tbody>
@@ -246,3 +253,17 @@ $('#sidebar-delete-all').on('click', 'input[name="confirm-delete-all-check"]', f
 </div>
 
 <?php endif; ?>
+
+<div id="sidebar-search" class="sidebar search">
+    <?= $hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content">
+        <div id="sidebar-search-form" class="disable-unsaved-warning">
+            <h3><?= $translate('Search contribution') ?></h3>
+            <?php // echo $hyperlink($translate('Advanced search'), $url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
+            <?= $this->form($formSearch) ?>
+        </div>
+    </div>
+</div>

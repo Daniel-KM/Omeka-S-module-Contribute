@@ -3,6 +3,7 @@
 namespace Contribute\Controller\Admin;
 
 use Contribute\Controller\ContributionTrait;
+use Contribute\Form\QuickSearchForm;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManager;
@@ -29,23 +30,34 @@ class ContributionController extends AbstractActionController
 
     public function browseAction()
     {
+        $params = $this->params()->fromQuery();
+
+        $formSearch = $this->getForm(QuickSearchForm::class);
+        $formSearch
+            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'browse'], true))
+            ->setAttribute('id', 'contribution-search');
+        if ($params) {
+            $formSearch->setData($params);
+            // TODO Don't check validity?
+        }
+
         $this->setBrowseDefaults('created', 'desc');
 
-        $response = $this->api()->search('contributions', $this->params()->fromQuery());
+        $response = $this->api()->search('contributions', $params);
         $this->paginator($response->getTotalResults());
 
         /** @var \Omeka\Form\ConfirmForm $formDeleteSelected */
         $formDeleteSelected = $this->getForm(ConfirmForm::class);
         $formDeleteSelected
             ->setAttribute('id', 'confirm-delete-selected')
-            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'batch-delete'], true))
+            ->setAttribute('action', $this->url()->fromRoute('admin/contribution/default', ['action' => 'batch-delete'], true))
             ->setButtonLabel('Confirm Delete'); // @translate
 
         /** @var \Omeka\Form\ConfirmForm $formDeleteAll */
         $formDeleteAll = $this->getForm(ConfirmForm::class);
-        $this->getForm(ConfirmForm::class)
+        $formDeleteAll
             ->setAttribute('id', 'confirm-delete-all')
-            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'batch-delete-all'], true))
+            ->setAttribute('action', $this->url()->fromRoute('admin/contribution/default', ['action' => 'batch-delete-all'], true))
             ->setButtonLabel('Confirm Delete'); // @translate
         $formDeleteAll
             ->get('submit')->setAttribute('disabled', true);
@@ -55,6 +67,7 @@ class ContributionController extends AbstractActionController
         return new ViewModel([
             'contributions' => $contributions,
             'resources' => $contributions,
+            'formSearch' => $formSearch,
             'formDeleteSelected' => $formDeleteSelected,
             'formDeleteAll' => $formDeleteAll,
         ]);
