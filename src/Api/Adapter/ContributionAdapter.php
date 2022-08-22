@@ -2,6 +2,7 @@
 
 namespace Contribute\Api\Adapter;
 
+use Doctrine\ORM\Query\Expr\Comparison;
 use Doctrine\ORM\QueryBuilder;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Request;
@@ -129,10 +130,7 @@ class ContributionAdapter extends AbstractEntityAdapter
 
         // TODO Add time comparison (see modules AdvancedSearch or Log).
         if (isset($query['created']) && $query['created'] !== '') {
-            $qb->andWhere($expr->eq(
-                'omeka_root.created',
-                $this->createNamedParameter($qb, $query['created'])
-            ));
+            $this->buildQueryDateComparison($qb, $query, $query['created'], 'created');
         }
 
         if (isset($query['modified']) && $query['modified'] !== '') {
@@ -385,5 +383,125 @@ SQL;
             }
         }
         return $proposal;
+    }
+
+    /**
+     * Add a comparison condition to query from a date.
+     *
+     * @see \Annotate\Api\Adapter\QueryDateTimeTrait::searchDateTime()
+     * @see \Contribute\Api\Adapter\ContributionAdapter::buildQueryDateComparison()
+     * @see \Log\Api\Adapter\LogAdapter::buildQueryDateComparison()
+     */
+    protected function buildQueryDateComparison(QueryBuilder $qb, array $query, $value, $column): void
+    {
+        // TODO Format the date into a standard mysql datetime.
+        $matches = [];
+        preg_match('/^[^\d]+/', $value, $matches);
+        if (!empty($matches[0])) {
+            $operators = [
+                '>=' => Comparison::GTE,
+                '>' => Comparison::GT,
+                '<' => Comparison::LT,
+                '<=' => Comparison::LTE,
+                '<>' => Comparison::NEQ,
+                '=' => Comparison::EQ,
+                'gte' => Comparison::GTE,
+                'gt' => Comparison::GT,
+                'lt' => Comparison::LT,
+                'lte' => Comparison::LTE,
+                'neq' => Comparison::NEQ,
+                'eq' => Comparison::EQ,
+                'ex' => 'IS NOT NULL',
+                'nex' => 'IS NULL',
+            ];
+            $operator = trim($matches[0]);
+            $operator = $operators[$operator] ?? Comparison::EQ;
+            $value = mb_substr($value, mb_strlen($matches[0]));
+        } else {
+            $operator = Comparison::EQ;
+        }
+        $value = trim($value);
+
+        // By default, sql replace missing time by 00:00:00, but this is not
+        // clear for the user. And it doesn't allow partial date/time.
+        // See module Advanced Search Plus.
+
+        $expr = $qb->expr();
+
+        // $qb->andWhere(new Comparison(
+        //     $alias . '.' . $column,
+        //     $operator,
+        //     $this->createNamedParameter($qb, $value)
+        // ));
+        // return;
+
+        $field = 'omeka_root.' . $column;
+        switch ($operator) {
+            case Comparison::GT:
+                if (mb_strlen($value) < 19) {
+                    // TODO Manage mb for substr_replace.
+                    $value = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
+                }
+                $param = $this->createNamedParameter($qb, $value);
+                $predicateExpr = $expr->gt($field, $param);
+                break;
+            case Comparison::GTE:
+                if (mb_strlen($value) < 19) {
+                    $value = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
+                }
+                $param = $this->createNamedParameter($qb, $value);
+                $predicateExpr = $expr->gte($field, $param);
+                break;
+            case Comparison::EQ:
+                if (mb_strlen($value) < 19) {
+                    $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
+                    $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
+                    $paramFrom = $this->createNamedParameter($qb, $valueFrom);
+                    $paramTo = $this->createNamedParameter($qb, $valueTo);
+                    $predicateExpr = $expr->between($field, $paramFrom, $paramTo);
+                } else {
+                    $param = $this->createNamedParameter($qb, $value);
+                    $predicateExpr = $expr->eq($field, $param);
+                }
+                break;
+            case Comparison::NEQ:
+                if (mb_strlen($value) < 19) {
+                    $valueFrom = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
+                    $valueTo = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
+                    $paramFrom = $this->createNamedParameter($qb, $valueFrom);
+                    $paramTo = $this->createNamedParameter($qb, $valueTo);
+                    $predicateExpr = $expr->not(
+                        $expr->between($field, $paramFrom, $paramTo)
+                    );
+                } else {
+                    $param = $this->createNamedParameter($qb, $value);
+                    $predicateExpr = $expr->neq($field, $param);
+                }
+                break;
+            case Comparison::LTE:
+                if (mb_strlen($value) < 19) {
+                    $value = substr_replace('9999-12-31 23:59:59', $value, 0, mb_strlen($value) - 19);
+                }
+                $param = $this->createNamedParameter($qb, $value);
+                $predicateExpr = $expr->lte($field, $param);
+                break;
+            case Comparison::LT:
+                if (mb_strlen($value) < 19) {
+                    $value = substr_replace('0000-01-01 00:00:00', $value, 0, mb_strlen($value) - 19);
+                }
+                $param = $this->createNamedParameter($qb, $value);
+                $predicateExpr = $expr->lt($field, $param);
+                break;
+            case 'IS NOT NULL':
+                $predicateExpr = $expr->isNotNull($field);
+                break;
+            case 'IS NULL':
+                $predicateExpr = $expr->isNull($field);
+                break;
+            default:
+                return;
+        }
+
+        $qb->andWhere($predicateExpr);
     }
 }
