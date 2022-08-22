@@ -254,6 +254,14 @@
     .resource-details .contribution dt {
         margin-bottom: .5em;
     }
+
+    .contributions.browse .sidebar label {
+        margin: 0 0 0 0;
+        padding: 0 24px 0 0;
+    }
+    .contributions.browse .sidebar label::after {
+        top: initial;
+    }
 }
 
 @media screen and (max-width: 640px) {
