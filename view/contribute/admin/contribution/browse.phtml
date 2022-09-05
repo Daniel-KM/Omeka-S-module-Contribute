@@ -88,7 +88,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
     <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
         <thead>
             <tr>
-                <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
+                <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $sortLink($translate('Title'), 'resource_title') ?></th>
                 <th><?= $sortLink($translate('Contributor'), 'email') ?></th>
                 <th><?= $sortLink($translate('Date'), 'created') ?></th>
             </tr>
