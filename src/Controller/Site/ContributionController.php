@@ -942,19 +942,15 @@ class ContributionController extends AbstractActionController
     protected function authorEmails(?ContributionRepresentation $contribution = null): array
     {
         $emails = [];
-        $propertyEmails = $this->settings()->get('contribute_author_emails', []);
-        if (empty($propertyEmails)) {
-            return [];
-        }
+        $propertyEmails = $this->settings()->get('contribute_author_emails', ['owner'])  ?: ['owner'];
 
-        if ($contribution) {
-            if (!in_array('owner', $propertyEmails)) {
-                return [];
-            }
-            $propertyEmails = ['owner'];
+        /*
+        if ($contribution && !in_array('owner', $propertyEmails)) {
+            $propertyEmails[] = 'owner';
         }
+        */
 
-        $resourceData = $contribution->proposalToResourceData();
+        $resourceData = $contribution ? $contribution->proposalToResourceData() : [];
 
         foreach ($propertyEmails as $propertyEmail) {
             if ($propertyEmail === 'owner') {
