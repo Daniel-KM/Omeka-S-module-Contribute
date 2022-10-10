@@ -120,7 +120,7 @@ class QuickSearchForm extends Form
                 'name' => 'owner_id',
                 'type' => OmekaElement\ResourceSelect::class,
                 'options' => [
-                    'label' => 'Owner', // @translate
+                    'label' => 'Owner', // @ translate
                     'resource_value_options' => [
                         'resource' => 'users',
                         'query' => [],
@@ -133,7 +133,7 @@ class QuickSearchForm extends Form
                 'attributes' => [
                     'id' => 'owner_id',
                     'class' => 'chosen-select',
-                    'data-placeholder' => 'Select a user…', // @translate
+                    'data-placeholder' => 'Select a user…', // @ translate
                     'data-api-base-url' => $urlHelper('api/default', ['resource' => 'users']),
                 ],
             ])
