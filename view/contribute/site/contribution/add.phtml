@@ -29,12 +29,15 @@ $mapLabels = [
 ];
 ?>
 
-<div class="container">
-    <h2><?= $escape($translate('New resource')) ?></h2>
-    <?= $this->pageTitle(sprintf($translate('Add %s'), $translate($mapLabels['items'])), 3) ?>
+<div class="contribute-resource conbribute-add container">
+
+    <?= $this->pageTitle(sprintf($translate('Add %s'), $translate($mapLabels['items'])), 2) ?>
+    <h3><?= $escape($translate('New resource')) ?></h3>
+
     <div class="messages">
         <?= $this->messages() ?>
     </div>
+
     <?php if (count($fields)):
         // The two lists of fields are merged in one form by default.
         $this->trigger('view.add.before');
@@ -48,7 +51,7 @@ $mapLabels = [
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'add',
             'mode' => $mode,
-            'submitLabel' => $translate('Save'),
+            'submitLabel' => $translate('Add'),
             'isMainForm' => true,
             'skipContributeCss' => false,
         ]);
@@ -67,4 +70,5 @@ $mapLabels = [
         <p><?= $escape($translate('A template with fields is required to add a resource. Ask the administrator for more information.')) ?></p>
     </div>
     <?php endif; ?>
+
 </div>

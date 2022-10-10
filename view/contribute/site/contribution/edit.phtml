@@ -27,12 +27,15 @@ $mapLabels = [
 ];
 ?>
 
-<div class="container">
-    <h2><?= $resource ? $escape($resource->displayTitle()) : '' ?></h2>
-    <?= $this->pageTitle($resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : $translate('Edit contribution'), 3) ?>
+<div class="contribute-resource conbribute-edit container">
+
+    <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : $translate('New contribution'), 2) ?>
+    <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : $translate('Edit contribution') ?></h3>
+
     <div class="messages">
         <?= $this->messages() ?>
     </div>
+
     <?php if (count($fields) && $form):
         // The two lists of fields are merged in one form by default.
         $this->trigger('view.edit.before');
@@ -52,8 +55,9 @@ $mapLabels = [
         ]);
         $this->trigger('view.edit.after');
     else: ?>
-        <div class="messages">
-            <p><?= $translate('A template with fields is required to edit this resource. Ask the administrator for more information.') ?></p>
-        </div>
+    <div class="messages">
+        <p><?= $translate('A template with fields is required to edit this resource. Ask the administrator for more information.') ?></p>
+    </div>
     <?php endif; ?>
+
 </div>
