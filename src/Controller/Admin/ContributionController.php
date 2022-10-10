@@ -442,7 +442,7 @@ class ContributionController extends AbstractActionController
                 'data' => [
                     'contribution' => [
                         'status' => 'unreviewed',
-                        'statusLabel' => $this->translate('Unreviewed'),
+                        'statusLabel' => $this->translate('Unreviewed'), // @translate
                     ],
                 ],
             ]);
@@ -469,7 +469,7 @@ class ContributionController extends AbstractActionController
             'data' => [
                 'contribution' => [
                     'status' => $isReviewed ? 'unreviewed' : 'reviewed',
-                    'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'),
+                    'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'), // @translate
                 ],
             ],
         ]);
@@ -516,7 +516,7 @@ class ContributionController extends AbstractActionController
                 'data' => [
                     'contribution_token' => [
                         'status' => 'no-token',
-                        'statusLabel' => $this->translate('No token'),
+                        'statusLabel' => $this->translate('No token'), // @translate
                     ],
                 ],
             ]);
@@ -535,7 +535,7 @@ class ContributionController extends AbstractActionController
             'data' => [
                 'contribution_token' => [
                     'status' => 'expired',
-                    'statusLabel' => $this->translate('Expired'),
+                    'statusLabel' => $this->translate('Expired'), // @translate
                 ],
             ],
         ]);
@@ -637,10 +637,10 @@ class ContributionController extends AbstractActionController
             'data' => [
                 'contribution' => [
                     'status' => 'validated',
-                    'statusLabel' => $this->translate('Validated'),
+                    'statusLabel' => $this->translate('Validated'), // @translate
                     'reviewed' => [
                         'status' => 'reviewed',
-                        'statusLabel' => $this->translate('Reviewed'),
+                        'statusLabel' => $this->translate('Reviewed'), // @translate
                     ],
                 ],
                 'is_new' => !$contribution->isPatch(),
@@ -701,7 +701,7 @@ class ContributionController extends AbstractActionController
             'data' => [
                 'contribution' => [
                     'status' => 'validated-value',
-                    'statusLabel' => $this->translate('Validated value'),
+                    'statusLabel' => $this->translate('Validated value'), // @translate
                 ],
             ],
         ]);

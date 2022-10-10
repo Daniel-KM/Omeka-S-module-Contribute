@@ -26,7 +26,7 @@ if ($isSiteRequest) {
     $showLocale = true;
 }
 
-$baseUrlFiles = $contribution->getServiceLocator()->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
+$baseUrlFiles = $site->getServiceLocator()->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
 
 $varsBase = [
     'site' => $site,

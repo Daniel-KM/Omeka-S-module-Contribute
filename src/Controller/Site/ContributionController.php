@@ -96,6 +96,10 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    /**
+     * The action "view" is a proxy to "show", that cannot be used because it is
+     * used by the resources.
+     */
     public function viewAction()
     {
         $params = $this->params()->fromRoute();
@@ -233,7 +237,8 @@ class ContributionController extends AbstractActionController
             $form->get('template')->setValue($resourceTemplate->id());
         }
 
-        // First step: select a template if not set. Mode read is
+        // First step: select a template if not set. Else mode is read only.
+        // The read-only allows to use multi-steps form.
         if (!$resourceTemplate || $mode === 'read') {
             return new ViewModel([
                 'site' => $site,
@@ -355,6 +360,25 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    /**
+     * Edit a new contribution or an existing item.
+     *
+     * Indeed, there are two types of edition:
+     * - edit a contribution not yet approved, so the user is editing his
+     *   contribution, one or multiple times;
+     * - edit an existing item or resouce, so this is a correction and each
+     *   correction is a new correction (or a patch).
+     *
+     * It is always possible to correct an item, but a new contribution cannot
+     * cannot be modified after validation.
+     *
+     * Furthermore, the edition of a new contribution can be done in multi-steps
+     * (template choice, metadata, files and medatada of files).
+     *
+     * @todo Separate all possible workflows.
+     *
+     * @return mixed|\Laminas\View\Model\ViewModel|\Laminas\Http\Response
+     */
     public function editAction()
     {
         $params = $this->params();

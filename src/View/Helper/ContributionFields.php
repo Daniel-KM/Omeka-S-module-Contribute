@@ -70,8 +70,8 @@ class ContributionFields extends AbstractHelper
      *
      * Note that sub-contribution fields for media are not included here.
      *
-     * The minimum number of contributions is managed: empty contributions are
-     * may be added according to the minimal number of values.
+     * The minimum number of contributions is managed: empty contributions may
+     * be added according to the minimal number of values.
      *
      * <code>
      * [
@@ -93,9 +93,9 @@ class ContributionFields extends AbstractHelper
      *     'contributions' => [
      *       [
      *         'type' => {string},
-     *         'basetype' => {string},
-     *         'new' => {bool},
-     *         'empty' => {bool},
+     *         'basetype' => {string}, // To make process easier (literal, resource or uri).
+     *         'new' => {bool}, // Is a new value (edited/filled by user or missing value).
+     *         'empty' => {bool}, // No contribution or removed value.
      *         'original' => [
      *           'value' => {ValueRepresentation},
      *           '@value' => {string},
@@ -104,8 +104,9 @@ class ContributionFields extends AbstractHelper
      *           '@label' => {string},
      *         ],
      *         'proposed' => [
+     *           'store' => {string}, // Path where a file is stored (for media only).
      *           '@value' => {string},
-     *           '@resource' => {int}
+     *           '@resource' => {int},
      *           '@uri' => {string},
      *           '@label' => {string},
      *         ],
@@ -116,6 +117,7 @@ class ContributionFields extends AbstractHelper
      * </code>
      *
      * @todo Remove the "@" in proposition values (or build a class).
+     * @todo Store language.
      *
      * @todo Factorize with \Contribute\Site\ContributionController::prepareProposal()
      * @todo Factorize with \Contribute\Api\Representation\ContributionRepresentation::proposalNormalizeForValidation()

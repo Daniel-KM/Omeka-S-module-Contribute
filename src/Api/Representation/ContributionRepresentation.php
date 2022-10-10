@@ -75,10 +75,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         ];
     }
 
-    /**
-     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null
-     */
-    public function resource()
+    public function resource(): ?\Omeka\Api\Representation\AbstractResourceEntityRepresentation
     {
         $contributionResource = $this->resource->getResource();
         return $contributionResource
@@ -689,7 +686,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * @param string|null $term Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key.
-     * @return array Data to be used for api. Files for media are in key file.
+     * @return array Data to be used for api. Files for media are in key "file".
      */
     public function proposalToResourceData(
         ?string $term = null,
@@ -1176,10 +1173,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Get the display markup for all values of this resource, medias included.
-     *      *
-     * Options:
      *
-     * + viewName: Name of view script, or a view model. Default
+     * Options:
+     * - viewName: Name of view script, or a view model. Default
      *   "site/contribution-values"
      */
     public function displayValues(array $options = []): string
