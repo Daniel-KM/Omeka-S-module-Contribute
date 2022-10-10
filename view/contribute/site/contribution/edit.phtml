@@ -2,8 +2,8 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var ?\Contribute\Api\Representation\ContributionRepresentation $resource
- * @var ?\Contribute\Api\Representation\ContributionRepresentation $contribution
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Omeka\Entity\User $user
  * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
@@ -14,6 +14,7 @@
 
 $plugins = $this->getHelperPluginManager();
 $partial = $plugins->get('partial');
+$escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items ' . $this->params()->fromRoute('resource') . ' resource');
@@ -27,8 +28,8 @@ $mapLabels = [
 ?>
 
 <div class="container">
-    <h2><?= $resource->displayTitle() ?></h2>
-    <?= $this->pageTitle(sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])), 3) ?>
+    <h2><?= $resource ? $escape($resource->displayTitle()) : '' ?></h2>
+    <?= $this->pageTitle($resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : $translate('Edit contribution'), 3) ?>
     <div class="messages">
         <?= $this->messages() ?>
     </div>
@@ -37,8 +38,8 @@ $mapLabels = [
         $this->trigger('view.edit.before');
         echo $partial('contribute/site/contribution/form', [
             'site' => $site,
-            'resource' => $resource,
             'contribution' => $contribution,
+            'resource' => $resource,
             'form' => $form,
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,

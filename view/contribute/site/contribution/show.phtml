@@ -2,8 +2,8 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var \Contribute\Api\Representation\ContributionRepresentation $resource
- * @var \Contribute\Api\Representation\ContributionRepresentation $contribution
+ * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -31,9 +31,9 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 <h3><?= $translate('Contribution') ?></h3>
 
 <ul class="contribution-status">
-    <li class="contribution-resource"><?= $contribution->resource() ? $contribution->resource()->linkPretty() : $escape($translate('No resource')) ?></li>
-    <li class="submitted"><?= $escape($resource->isSubmitted() ? $translate('Is submitted') : $translate('Is not submitted')) ?></li>
-    <li class="reviewed"><?= $escape($resource->isReviewed() ? $translate('Is reviewed') : $translate('Is not reviewed')) ?></li>
+    <li class="contribution-resource"><?= $resource ? $resource->linkPretty() : $escape($translate('No resource')) ?></li>
+    <li class="submitted"><?= $escape($contribution->isSubmitted() ? $translate('Is submitted') : $translate('Is not submitted')) ?></li>
+    <li class="reviewed"><?= $escape($contribution->isReviewed() ? $translate('Is reviewed') : $translate('Is not reviewed')) ?></li>
 </ul>
 
 <div class="messages">

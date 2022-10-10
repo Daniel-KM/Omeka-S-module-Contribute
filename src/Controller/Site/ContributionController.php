@@ -91,7 +91,7 @@ class ContributionController extends AbstractActionController
 
         return new ViewModel([
             'site' => $site,
-            'resource' => $contribution,
+            'resource' => $contribution->resource(),
             'contribution' => $contribution,
         ]);
     }
@@ -171,7 +171,7 @@ class ContributionController extends AbstractActionController
             $resourceTypeMap['contribution'] = 'contributions';
             $resourceName = $resourceTypeMap[$this->params('resource')];
             // Rights are automatically checked.
-            /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
+            /** @var \Contribute\Api\Representation\ContributionRepresentation|\Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
             $resource = $this->api()->read($resourceName, ['id' => $resourceId])->getContent();
             $resourceTemplate = $resource->resourceTemplate();
             if ($resourceTemplate) {
@@ -195,8 +195,8 @@ class ContributionController extends AbstractActionController
                 'site' => $site,
                 'user' => $user,
                 'form' => null,
-                'resource' => null,
                 'contribution' => null,
+                'resource' => null,
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
@@ -244,8 +244,8 @@ class ContributionController extends AbstractActionController
                 'site' => $site,
                 'user' => $user,
                 'form' => $form,
-                'resource' => $resourceId ? $resource : null,
-                'contribution' => $resourceId ? $resource : null,
+                'contribution' => $resourceId && $resource && $resource instanceof ContributionRepresentation ? $resource : null,
+                'resource' => $resourceId && $resource && $resource instanceof AbstractResourceEntityRepresentation ? $resource : null,
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
@@ -351,8 +351,8 @@ class ContributionController extends AbstractActionController
             'site' => $site,
             'user' => $user,
             'form' => $form,
-            'resource' => null,
             'contribution' => null,
+            'resource' => null,
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
@@ -422,18 +422,26 @@ class ContributionController extends AbstractActionController
             || ($user && $contributeMode === 'user')
             || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
 
-        if ($resourceName === 'contributions') {
+        // This is a contribution or a correction.
+        $isContribution = $resourceName === 'contributions';
+        if ($isContribution) {
+            /**
+             * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+             * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+             */
             $contribution = $resource;
             $resource = $contribution->resource();
             $resourceTemplate = $contribution->resourceTemplate();
             $currentUrl = $this->url()->fromRoute(null, [], true);
         } else {
+            $contribution = null;
             $token = $this->checkToken($resource);
             if (!$token && !$canEditWithoutToken) {
                 return $this->viewError403();
             }
 
             // There may be no contribution when it is a correction.
+            // But if a user edit a resource, he should see his contribution.
             if ($token) {
                 $contribution = $api
                     ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
@@ -460,8 +468,8 @@ class ContributionController extends AbstractActionController
                 'site' => $site,
                 'user' => $user,
                 'form' => null,
-                'resource' => $contribution,
                 'contribution' => $contribution,
+                'resource' => $resource,
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
@@ -485,7 +493,9 @@ class ContributionController extends AbstractActionController
             $form->get('mode')->setValue('read');
         }
 
-        if ($contribution && $contribution->isSubmitted() && $mode === 'write') {
+        $isCorrection = !$contribution || $contribution->isPatch();
+
+        if (!$isCorrection && $contribution && $contribution->isSubmitted() && $mode === 'write') {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
             return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
         }
@@ -607,8 +617,8 @@ class ContributionController extends AbstractActionController
             'site' => $site,
             'user' => $user,
             'form' => $form,
-            'resource' => $contribution,
             'contribution' => $contribution,
+            'resource' => $resource,
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,

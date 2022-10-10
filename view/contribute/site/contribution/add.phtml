@@ -2,8 +2,8 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var \Contribute\Api\Representation\ContributionRepresentation|null $resource
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var \Omeka\Entity\User $user
  * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
@@ -40,8 +40,8 @@ $mapLabels = [
         $this->trigger('view.add.before');
         echo $partial('contribute/site/contribution/form', [
             'site' => $site,
-            'resource' => null,
             'contribution' => null,
+            'resource' => null,
             'form' => $form,
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
