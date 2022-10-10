@@ -245,6 +245,7 @@ return [
         'settings' => [
             'contribute_mode' => 'user',
             'contribute_roles' => [],
+            'contribute_allow_update' => 'submission',
             'contribute_notify_recipients' => [],
             'contribute_author_emails' => [],
             'contribute_message_add' => '',

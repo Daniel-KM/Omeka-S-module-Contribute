@@ -383,8 +383,10 @@ class ContributionController extends AbstractActionController
     {
         $params = $this->params();
         $mode = ($params->fromPost('mode') ?? $params->fromQuery('mode', 'write')) === 'read' ? 'read' : 'write';
+        $isModeRead = $mode === 'read';
+        $isModeWrite = !$isModeRead;
         $next = $params->fromQuery('next') ?? $params->fromPost('next') ?? '';
-        if ($mode === 'read' && strpos($next, 'template') !== false) {
+        if ($isModeRead && strpos($next, 'template') !== false) {
             $params = $params->fromRoute();
             $params['action'] = 'add';
             return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
@@ -441,10 +443,12 @@ class ContributionController extends AbstractActionController
             }
 
             // There may be no contribution when it is a correction.
-            // But if a user edit a resource, he should see his contribution.
+            // But if a user edit a resource, the last contribution is used.
+            // Nevertheless, the user should be able to see previous corrections
+            // and to do a new correction.
             if ($token) {
                 $contribution = $api
-                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id()])
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id(), 'sort_by' => 'id', 'sort_order' => 'desc'])
                     ->getContent();
                 $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
             } elseif ($user) {
@@ -453,6 +457,7 @@ class ContributionController extends AbstractActionController
                     ->getContent();
                 $currentUrl = $this->url()->fromRoute(null, [], true);
             } else {
+                // An anonymous user cannot see existing contributions.
                 $contribution = null;
                 $currentUrl = $this->url()->fromRoute(null, [], true);
             }
@@ -486,18 +491,41 @@ class ContributionController extends AbstractActionController
             ->setAttribute('enctype', 'multipart/form-data')
             ->setAttribute('id', 'edit-resource');
 
-        if ($mode === 'read') {
+        if ($isModeRead) {
             $form->setAttribute('class', 'readonly');
             $form->get('template')->setAttribute('readonly', 'readonly');
             $form->get('submit')->setAttribute('disabled', 'disabled');
             $form->get('mode')->setValue('read');
         }
 
+        $allowUpdateUntilValidation = $this->settings()->get('contribute_allow_update') === 'validation';
         $isCorrection = !$contribution || $contribution->isPatch();
 
-        if (!$isCorrection && $contribution && $contribution->isSubmitted() && $mode === 'write') {
+        if (!$isCorrection
+            && $isModeWrite
+            && !$allowUpdateUntilValidation
+            && $contribution
+            && $contribution->isSubmitted()
+        ) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
             return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        }
+
+        // When a user wants to edit a resource, create a new correction.
+        if ($isCorrection
+            && $isModeWrite
+            && !$allowUpdateUntilValidation
+            && $contribution
+            && $contribution->isSubmitted()
+        ) {
+            $contribution = null;
+        } elseif ($isCorrection
+            && $isModeWrite
+            && $allowUpdateUntilValidation
+            && $contribution
+            && $contribution->isReviewed()
+        ) {
+            $contribution = null;
         }
 
         // No need to set the template, but simplify view for form.
@@ -512,7 +540,7 @@ class ContributionController extends AbstractActionController
             $post['template'] = $resourceTemplate->id();
             $form->setData($post);
             // TODO There is no check currently (html form), except the csrf.
-            if ($mode === 'write' && $form->isValid()) {
+            if ($isModeWrite && $form->isValid()) {
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $data = $this->checkAndIncludeFileData($data);
@@ -528,6 +556,7 @@ class ContributionController extends AbstractActionController
                                 'o:owner' => $user ? ['o:id' => $user->getId()] : null,
                                 'o-module-contribute:token' => $token ? ['o:id' => $token->id()] : null,
                                 'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
+                                // Here, it's always a patch, else use "add".
                                 'o-module-contribute:patch' => true,
                                 // A patch is always a submission.
                                 'o-module-contribute:submitted' => true,
@@ -539,7 +568,7 @@ class ContributionController extends AbstractActionController
                                 $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
                                 // $this->prepareContributionEmail($response->getContent(), 'submit');
                             }
-                        } elseif ($contribution->isSubmitted()) {
+                        } elseif ($contribution->isSubmitted() && !$allowUpdateUntilValidation) {
                             $this->messenger()->addWarning('This contribution is already submitted and cannot be updated.'); // @translate
                             $response = $this->api()->read('contributions', $contribution->id());
                         } elseif ($proposal === $contribution->proposal()) {
@@ -576,7 +605,7 @@ class ContributionController extends AbstractActionController
                     }
                 }
             }
-            $hasError = $mode === 'write';
+            $hasError = $isModeWrite;
         }
 
         if (strpos($next, 'template') !== false) {

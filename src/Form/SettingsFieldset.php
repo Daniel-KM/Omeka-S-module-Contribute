@@ -19,7 +19,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_mode',
                 'type' => Element\Radio::class,
                 'options' => [
-                    'label' => 'Contribution mode',
+                    'label' => 'Contribution mode', // @translate
                     'value_options' => [
                         'user_token' => 'Authenticated users with token', // @translate
                         'user' => 'Authenticated users', // @translate
@@ -50,6 +50,22 @@ class SettingsFieldset extends Fieldset
                     'required' => false,
                     'class' => 'chosen-select',
                     'data-placeholder' => 'Select roles…', // @translate
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_allow_update',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Allow to edit a contribution', // @transale
+                    'value_options' => [
+                        'submission' => 'Until submission', // @translate
+                        'validation' => 'Until validation', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'contribute_allow_update',
+                    'value' => 'submit',
                 ],
             ])
 
