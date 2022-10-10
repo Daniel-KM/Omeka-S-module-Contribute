@@ -288,19 +288,20 @@ class Module extends AbstractModule
             [$this, 'handleGuestWidgets']
         );
 
+        // Admin management.
         $controllers = [
             'Omeka\Controller\Admin\Item',
             'Omeka\Controller\Admin\ItemSet',
             'Omeka\Controller\Admin\Media',
         ];
         foreach ($controllers as $controller) {
-            // Append a bulk process to create tokens in bulk.
+            // Append a bulk process to batch create tokens when enabled.
             $sharedEventManager->attach(
                 $controller,
                 'view.browse.before',
-                [$this, 'addHeadersAdmin']
+                [$this, 'addHeadersAdminBrowse']
             );
-            // Display a link to create a token in the sidebar.
+            // Display a link to create a token in the sidebar when enabled.
             $sharedEventManager->attach(
                 $controller,
                 'view.show.sidebar',
@@ -443,6 +444,16 @@ class Module extends AbstractModule
             ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
         $view->headScript()
             ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
+    }
+
+    public function addHeadersAdminBrowse(Event $event): void
+    {
+        // Don't display the token form if it is not used.
+        $contributeMode = $this->getServiceLocator()->get('Omeka\Settings')->get('contribute_mode');
+        if ($contributeMode !== 'user_token' && $contributeMode !== 'token') {
+            return;
+        }
+        $this->addHeadersAdmin($event);
     }
 
     public function adminViewShowSidebar(Event $event): void
