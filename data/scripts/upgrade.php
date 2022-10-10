@@ -251,3 +251,25 @@ if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.3.0.18', '<')) {
+    $settings->set('contribute_allow_update', 'submission');
+
+    $messenger = new Messenger();
+    $message = new Message(
+        'It’s now possible to correct and fill existing resources.' // @translate
+    );
+    $messenger->addSuccess($message);
+    $message = new Message(
+        'A new option was added to allow to update a contribution until validation.' // @translate
+    );
+    $messenger->addSuccess($message);
+    $message = new Message(
+        'The events "view.add.before/after" are used in place of "view.edit.before/after" in template contribution/add.' // @translate
+    );
+    $messenger->addWarning($message);
+    $message = new Message(
+        'Warning: the variable "$resource" is now the edited resource in the theme and no more the contribution. Check your theme if you edited templates, mainly "show" and "edit".' // @translate
+    );
+    $messenger->addWarning($message);
+}
