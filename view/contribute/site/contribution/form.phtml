@@ -248,11 +248,11 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
         <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
         <div id="page-actions">
-            <?php if ($contributionResource = $contribution && $contribution->id() && $contribution->resource() ? $contribution->resource() : null): ?>
-            <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $contributionResource->getControllerName(), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+            <?php if ($resource): ?>
+            <?= $hyperlink($translate('Cancel'), $resource->url(), ['class' => 'button button-cancel', 'role' => 'button']) ?>
             <?php else: ?>
             <?php //= TODO $this->cancelButton() ?>
-            <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($contributionResource ? $contributionResource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
+            <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true),
                 ['class' => 'button button-cancel', 'role' => 'button']) ?>
             <?php endif; ?>
             <?= $formElement($form->get('submit')->setAttribute('class', 'button')->setValue($submitLabel)) ?>
