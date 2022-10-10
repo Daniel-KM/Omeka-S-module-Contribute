@@ -63,200 +63,200 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
 <?php if ($isMainForm): ?>
 <div class="contribute main-form">
     <?= $this->form()->openTag($form) ?>
-    <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
-    <fieldset class="contribute-resource main-form"<?= $disabled ?>>
-<?php endif; ?>
-
-    <?php // Display the special field for media file (required, not a property, and cannot be set in resource template). ?>
-    <?php if (!$isMainForm):
-        // Only one file is allowed by media and it cannot be updated, like in Omeka.
-        $file = $fieldsMedia['file']['contributions'][0]['proposed']['store'] ?? null;
-        ?>
-    <div class="property" data-term="file">
-        <h4><?= $escape($translate('Upload')) ?></h4>
-        <?php if ($file): ?>
-        <div class="values">
-            <div class="value">
-                <a href="<?= $escapeAttr($baseUrlFiles . '/contribution/' . $file) ?>" download="download"><?= $escape($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?></a>
-                <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][store]" value="<?= $escapeAttr($file) ?>"/>
-                <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][@value]" value="<?= $escapeAttr($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?>"/>
-            </div>
-        </div>
-        <?php else: ?>
-        <div class="values">
-            <div class="value">
-                <input type="file" class="form-control input-value" data-value-key="@value" name="media[<?= $indexMedia ?>][file][0][@value]" required="required"/>
-            </div>
-        </div>
-        <?php endif; ?>
-    </div>
+        <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
+        <fieldset class="contribute-resource main-form"<?= $disabled ?>>
     <?php endif; ?>
 
-    <?php // Display the edited resource, with edited or non-edited fields, plus the non-editable original fields. ?>
-
-    <?php foreach ($isMainForm ? $fields : $fieldsMedia as $term => $field):
-        if ($term === 'file') continue;
-        // Don't display empty values that are not fillable.
-        if (empty($field['contributions']) && !$field['fillable']) continue;
-        $indexFieldInput = 0;
-        $templateProperty = $field['template_property'];
-        $property = $field['property'];
-        $vars->offsetSet('field', $field);
-        $vars->offsetSet('term', $term);
-        $vars->offsetSet('property', $property);
-        $vars->offsetSet('indexFieldInput', $indexFieldInput);
-        $vars->offsetSet('templateProperty', $templateProperty);
-        ?>
-
-    <div class="property" data-term="<?= $term ?>">
-        <?php // Display property label. ?>
-        <h4>
-            <?= isset($field['alternate_label']) ? $escape($field['alternate_label']) : $escape($translate($property->label())) ?>
-            <?php if (!isset($field['property'])):?>
-            <?php // Nothing to do (file). ?>
-            <?php elseif ($labelInfo === 'term'): ?>
-            <span class="field-term">(<?= $escape($field['property']->term()) ?>)</span>
-            <?php elseif ($labelInfo === 'vocab'): ?>
-            <span class="field-term">(<?= $escape($field['property']->vocabulary()->label()) ?>)</span>
+            <?php // Display the special field for media file (required, not a property, and cannot be set in resource template). ?>
+            <?php if (!$isMainForm):
+                // Only one file is allowed by media and it cannot be updated, like in Omeka.
+                $file = $fieldsMedia['file']['contributions'][0]['proposed']['store'] ?? null;
+            ?>
+            <div class="property" data-term="file">
+                <h4><?= $escape($translate('Upload')) ?></h4>
+                <?php if ($file): ?>
+                <div class="values">
+                    <div class="value">
+                        <a href="<?= $escapeAttr($baseUrlFiles . '/contribution/' . $file) ?>" download="download"><?= $escape($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?></a>
+                        <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][store]" value="<?= $escapeAttr($file) ?>"/>
+                        <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][@value]" value="<?= $escapeAttr($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?>"/>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="values">
+                    <div class="value">
+                        <input type="file" class="form-control input-value" data-value-key="@value" name="media[<?= $indexMedia ?>][file][0][@value]" required="required"/>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
             <?php endif; ?>
-        </h4>
 
-        <?php // Simple display of the value for properties that are not editable or without datatypes. ?>
+            <?php // Display the edited resource, with edited or non-edited fields, plus the non-editable original fields. ?>
 
-        <?php if (!$field['editable'] && !$field['fillable'] || !count($field['datatypes'])): ?>
-        <div class="values">
-            <?php
-            foreach ($field['values'] as $value):
-                $vars->offsetSet('value', $value);
-                echo $partial('contribute/site/contribution/form-value');
-            endforeach; ?>
-        </div>
-        <?php // Early end this property and continue to next fields. ?>
-    <?= '</div>' ?>
-            <?php continue;
-            endif; ?>
-
-        <?php // Editable fields, that may have been edited or not. ?>
-        <?php // Some contributions may be empty (minimum number of values, or a required one). ?>
-
-        <div class="values">
-            <?php
-            foreach ($field['contributions'] as $indexContribution => $fieldContribution):
-                /** @var \Omeka\Api\Representation\ValueRepresentation $value */
-                $value = $fieldContribution['original']['value'];
-                if (!$value && !$field['fillable']) continue;
-                $typeColon = strtok((string) $fieldContribution['type'], ':');
-                $vars->offsetSet('indexContribution', $indexContribution);
-                $vars->offsetSet('fieldContribution', $fieldContribution);
-                $vars->offsetSet('value', $value);
-                // Check if the value exists or is editable (the value may be empty).
-                if ($value && !$field['editable']):
-                    echo $partial('contribute/site/contribution/form-value');
-                else:
-                    switch ($fieldContribution['type']):
-                        case 'literal':
-                            echo $partial('contribute/site/contribution/form-input-literal');
-                            break;
-                        case 'resource':
-                        case 'resource:item':
-                        case 'resource:media':
-                        case 'resource:itemset':
-                            echo $partial('contribute/site/contribution/form-input-resource');
-                            break;
-                        case 'uri':
-                            echo $partial('contribute/site/contribution/form-input-uri');
-                            break;
-                        case 'numeric:integer':
-                            echo $partial('contribute/site/contribution/form-input-numeric-integer');
-                            break;
-                        case 'numeric:timestamp':
-                            echo $partial('contribute/site/contribution/form-input-numeric-timestamp');
-                            break;
-                        case $typeColon === 'customvocab':
-                            echo $partial('contribute/site/contribution/form-input-custom-vocab');
-                            break;
-                        case $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall':
-                            echo $partial('contribute/site/contribution/form-input-value-suggest');
-                            break;
-                        default:
-                            // Other datatypes are not yet editable.
-                            if ($value):
-                                echo $partial('contribute/site/contribution/form-value');
-                            endif;
-                            break;
-                    endswitch;
-                endif;
-                ++$indexFieldInput;
+            <?php foreach ($isMainForm ? $fields : $fieldsMedia as $term => $field):
+                if ($term === 'file') continue;
+                // Don't display empty values that are not fillable.
+                if (empty($field['contributions']) && !$field['fillable']) continue;
+                $indexFieldInput = 0;
+                $templateProperty = $field['template_property'];
+                $property = $field['property'];
+                $vars->offsetSet('field', $field);
+                $vars->offsetSet('term', $term);
+                $vars->offsetSet('property', $property);
                 $vars->offsetSet('indexFieldInput', $indexFieldInput);
-            endforeach;
-            ?>
-        </div>
+                $vars->offsetSet('templateProperty', $templateProperty);
+                ?>
 
-        <?php // Add a button to add a new value for fillable properties. ?>
-        <?php // The button is always added to manage value removing: if not fillable, it is hidden here and via js. ?>
-        <?= $partial('contribute/site/contribution/form-value-more') ?>
+            <div class="property" data-term="<?= $term ?>">
+                <?php // Display property label. ?>
+                <h4>
+                    <?= isset($field['alternate_label']) ? $escape($field['alternate_label']) : $escape($translate($property->label())) ?>
+                    <?php if (!isset($field['property'])):?>
+                    <?php // Nothing to do (file). ?>
+                    <?php elseif ($labelInfo === 'term'): ?>
+                    <span class="field-term">(<?= $escape($field['property']->term()) ?>)</span>
+                    <?php elseif ($labelInfo === 'vocab'): ?>
+                    <span class="field-term">(<?= $escape($field['property']->vocabulary()->label()) ?>)</span>
+                    <?php endif; ?>
+                </h4>
 
-    </div>
-    <?php endforeach; // Next field/property. ?>
+                <?php // Simple display of the value for properties that are not editable or without datatypes. ?>
 
-<?php if ($isMainForm): ?>
-    </fieldset>
+                <?php if (!$field['editable'] && !$field['fillable'] || !count($field['datatypes'])): ?>
+                <div class="values">
+                    <?php
+                    foreach ($field['values'] as $value):
+                        $vars->offsetSet('value', $value);
+                        echo $partial('contribute/site/contribution/form-value');
+                    endforeach; ?>
+                </div>
+                <?php // Early end this property and continue to next fields. ?>
+            <?= '</div>' ?>
+                    <?php continue;
+                    endif; ?>
 
-    <?php if (count($fieldsMediaBase)): ?>
-    <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>"<?= $disabled ?>>
-        <?php // For end user, "media" means "files". ?>
-        <legend><?= $escape($translate('Files')) ?></legend>
-        <?php
-        $vars->offsetSet('isMainForm', false);
-        $indexMedia = 0;
-        foreach ($fieldsByMedia as $fieldsMedia): ?>
-        <fieldset class="contribute-media sub-form" name="media[<?= $indexMedia ?>]" data-index-media="<?= $indexMedia ?>">
-            <legend><?= $escape(sprintf($translate('File %s'), $indexMedia + 1)) ?></legend>
-            <?php
-            $vars->offsetSet('indexMedia', $indexMedia);
-            $vars->offsetSet('fieldsMedia', $fieldsMedia);
-            ?>
-            <?= $partial('contribute/site/contribution/form') ?>
-            <ul class="actions">
-                <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
-            </ul>
+                <?php // Editable fields, that may have been edited or not. ?>
+                <?php // Some contributions may be empty (minimum number of values, or a required one). ?>
+
+                <div class="values">
+                    <?php
+                    foreach ($field['contributions'] as $indexContribution => $fieldContribution):
+                        /** @var \Omeka\Api\Representation\ValueRepresentation $value */
+                        $value = $fieldContribution['original']['value'];
+                        if (!$value && !$field['fillable']) continue;
+                        $typeColon = strtok((string) $fieldContribution['type'], ':');
+                        $vars->offsetSet('indexContribution', $indexContribution);
+                        $vars->offsetSet('fieldContribution', $fieldContribution);
+                        $vars->offsetSet('value', $value);
+                        // Check if the value exists or is editable (the value may be empty).
+                        if ($value && !$field['editable']):
+                            echo $partial('contribute/site/contribution/form-value');
+                        else:
+                            switch ($fieldContribution['type']):
+                                case 'literal':
+                                    echo $partial('contribute/site/contribution/form-input-literal');
+                                    break;
+                                case 'resource':
+                                case 'resource:item':
+                                case 'resource:media':
+                                case 'resource:itemset':
+                                    echo $partial('contribute/site/contribution/form-input-resource');
+                                    break;
+                                case 'uri':
+                                    echo $partial('contribute/site/contribution/form-input-uri');
+                                    break;
+                                case 'numeric:integer':
+                                    echo $partial('contribute/site/contribution/form-input-numeric-integer');
+                                    break;
+                                case 'numeric:timestamp':
+                                    echo $partial('contribute/site/contribution/form-input-numeric-timestamp');
+                                    break;
+                                case $typeColon === 'customvocab':
+                                    echo $partial('contribute/site/contribution/form-input-custom-vocab');
+                                    break;
+                                case $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall':
+                                    echo $partial('contribute/site/contribution/form-input-value-suggest');
+                                    break;
+                                default:
+                                    // Other datatypes are not yet editable.
+                                    if ($value):
+                                        echo $partial('contribute/site/contribution/form-value');
+                                    endif;
+                                    break;
+                            endswitch;
+                        endif;
+                        ++$indexFieldInput;
+                        $vars->offsetSet('indexFieldInput', $indexFieldInput);
+                    endforeach;
+                    ?>
+                </div>
+
+                <?php // Add a button to add a new value for fillable properties. ?>
+                <?php // The button is always added to manage value removing: if not fillable, it is hidden here and via js. ?>
+                <?= $partial('contribute/site/contribution/form-value-more') ?>
+
+            </div>
+            <?php endforeach; // Next field/property. ?>
+
+    <?php if ($isMainForm): ?>
         </fieldset>
-        <?php ++$indexMedia; ?>
-        <?php endforeach; ?>
-        <div class="inputs inputs-media">
-            <button type="button" class="add-media-new button o-icon-add"><?= $escape($translate('Add file')) ?></button>
-        </div>
-    </fieldset>
-    <?php
-    $indexMedia = null;
-    $fieldsMedia = [];
-    $vars->offsetSet('isMainForm', true);
-    $vars->offsetSet('indexMedia', $indexMedia);
-    $vars->offsetSet('fieldsMedia', $fieldsMedia);
-    ?>
-    <?php endif; ?>
 
-    <?= $formElement($form->get('template')) ?>
-    <?php // These values are designed to be customized for complex workflow, or used with submit or any button. ?>
-    <?php // Don't forget to set attribute "form" when used outside of the form. ?>
-    <?php // TODO Step is probably to be remove ; used only to check the template for now. ?>
-    <?= $formElement($form->get('step')) ?>
-    <?php //= $formElement($form->get('next')) ?>
-    <?php //= $formElement($form->get('mode')) ?>
-    <?= $mode === 'read' ? '' : $formElement($form->get('csrf')) ?>
-
-    <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
-
-    <div id="page-actions">
-        <?php if ($contributionResource = $contribution && $contribution->id() && $contribution->resource() ? $contribution->resource() : null): ?>
-        <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $contributionResource->getControllerName(), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
-        <?php else: ?>
-        <?php //= TODO $this->cancelButton() ?>
-        <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($contributionResource ? $contributionResource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
-            ['class' => 'button button-cancel', 'role' => 'button']) ?>
+        <?php if (count($fieldsMediaBase)): ?>
+        <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>"<?= $disabled ?>>
+            <?php // For end user, "media" means "files". ?>
+            <legend><?= $escape($translate('Files')) ?></legend>
+            <?php
+            $vars->offsetSet('isMainForm', false);
+            $indexMedia = 0;
+            foreach ($fieldsByMedia as $fieldsMedia): ?>
+            <fieldset class="contribute-media sub-form" name="media[<?= $indexMedia ?>]" data-index-media="<?= $indexMedia ?>">
+                <legend><?= $escape(sprintf($translate('File %s'), $indexMedia + 1)) ?></legend>
+                <?php
+                $vars->offsetSet('indexMedia', $indexMedia);
+                $vars->offsetSet('fieldsMedia', $fieldsMedia);
+                ?>
+                <?= $partial('contribute/site/contribution/form') ?>
+                <ul class="actions">
+                    <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
+                </ul>
+            </fieldset>
+            <?php ++$indexMedia; ?>
+            <?php endforeach; ?>
+            <div class="inputs inputs-media">
+                <button type="button" class="add-media-new button o-icon-add"><?= $escape($translate('Add file')) ?></button>
+            </div>
+        </fieldset>
+        <?php
+        $indexMedia = null;
+        $fieldsMedia = [];
+        $vars->offsetSet('isMainForm', true);
+        $vars->offsetSet('indexMedia', $indexMedia);
+        $vars->offsetSet('fieldsMedia', $fieldsMedia);
+        ?>
         <?php endif; ?>
-        <?= $formElement($form->get('submit')->setAttribute('class', 'button')->setValue($submitLabel)) ?>
-    </div>
+
+        <?= $formElement($form->get('template')) ?>
+        <?php // These values are designed to be customized for complex workflow, or used with submit or any button. ?>
+        <?php // Don't forget to set attribute "form" when used outside of the form. ?>
+        <?php // TODO Step is probably to be remove ; used only to check the template for now. ?>
+        <?= $formElement($form->get('step')) ?>
+        <?php //= $formElement($form->get('next')) ?>
+        <?php //= $formElement($form->get('mode')) ?>
+        <?= $mode === 'read' ? '' : $formElement($form->get('csrf')) ?>
+
+        <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
+
+        <div id="page-actions">
+            <?php if ($contributionResource = $contribution && $contribution->id() && $contribution->resource() ? $contribution->resource() : null): ?>
+            <?= $hyperlink($translate('Go back to resource'), $url('site/resource-id', ['controller' => $contributionResource->getControllerName(), 'action' => 'show'], true), ['class' => 'btn btn-danger text-light', 'role' => 'button']) ?>
+            <?php else: ?>
+            <?php //= TODO $this->cancelButton() ?>
+            <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : ($contributionResource ? $contributionResource->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
+                ['class' => 'button button-cancel', 'role' => 'button']) ?>
+            <?php endif; ?>
+            <?= $formElement($form->get('submit')->setAttribute('class', 'button')->setValue($submitLabel)) ?>
+        </div>
 
     <?= $this->form()->closeTag() ?>
 
