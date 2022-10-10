@@ -37,7 +37,7 @@ $mapLabels = [
     </div>
     <?php if (count($fields)):
         // The two lists of fields are merged in one form by default.
-        $this->trigger('view.edit.before');
+        $this->trigger('view.add.before');
         echo $partial('contribute/site/contribution/form', [
             'site' => $site,
             'resource' => null,
@@ -52,7 +52,7 @@ $mapLabels = [
             'isMainForm' => true,
             'skipContributeCss' => false,
         ]);
-        $this->trigger('view.edit.after');
+        $this->trigger('view.add.after');
     elseif ($form): // First step form to select a resource template.
         $form->prepare();
         if ($mode === 'read') {
