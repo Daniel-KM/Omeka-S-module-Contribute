@@ -56,6 +56,11 @@
     .contribution .no-action span::before,
     .contribution .single.actions a::before {
     }
+    .actions .fa-spin::before {
+        text-align: center;
+        display: inline-block;
+        /* position: fixed; */
+    }
     .contribution .o-icon-users,
     .contribution .no-action::before {
         width: 24px;
