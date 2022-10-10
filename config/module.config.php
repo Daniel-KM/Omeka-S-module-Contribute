@@ -38,6 +38,7 @@ return [
     ],
     'view_helpers' => [
         'invokables' => [
+            'contributionForm' => View\Helper\ContributionForm::class,
         ],
         'factories' => [
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,

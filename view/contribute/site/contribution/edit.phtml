@@ -13,9 +13,9 @@
  */
 
 $plugins = $this->getHelperPluginManager();
-$partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
+$contributionForm = $plugins->get('contributionForm');
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items ' . $this->params()->fromRoute('resource') . ' resource');
 
@@ -39,7 +39,7 @@ $mapLabels = [
     <?php if (count($fields) && $form):
         // The two lists of fields are merged in one form by default.
         $this->trigger('view.edit.before');
-        echo $partial('contribute/site/contribution/form', [
+        echo $contributionForm([
             'site' => $site,
             'contribution' => $contribution,
             'resource' => $resource,
@@ -54,10 +54,12 @@ $mapLabels = [
             'skipContributeCss' => false,
         ]);
         $this->trigger('view.edit.after');
+
     else: ?>
     <div class="messages">
         <p><?= $translate('A template with fields is required to edit this resource. Ask the administrator for more information.') ?></p>
     </div>
+
     <?php endif; ?>
 
 </div>

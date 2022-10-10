@@ -15,9 +15,9 @@
 // Resource/contribution is passed only when reading for template.
 
 $plugins = $this->getHelperPluginManager();
-$partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
+$contributionForm = $plugins->get('contributionForm');
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items ' . $this->params()->fromRoute('resource') . ' resource');
 
@@ -41,7 +41,7 @@ $mapLabels = [
     <?php if (count($fields)):
         // The two lists of fields are merged in one form by default.
         $this->trigger('view.add.before');
-        echo $partial('contribute/site/contribution/form', [
+        echo $contributionForm([
             'site' => $site,
             'contribution' => null,
             'resource' => null,
@@ -56,6 +56,7 @@ $mapLabels = [
             'skipContributeCss' => false,
         ]);
         $this->trigger('view.add.after');
+
     elseif ($form): // First step form to select a resource template.
         $form->prepare();
         if ($mode === 'read') {
@@ -65,10 +66,12 @@ $mapLabels = [
             $form->get('submit')->setValue('Select'); // @translate
             echo $this->form($form);
         }
+
     else: ?>
     <div class="messages">
         <p><?= $escape($translate('A template with fields is required to add a resource. Ask the administrator for more information.')) ?></p>
     </div>
+
     <?php endif; ?>
 
 </div>

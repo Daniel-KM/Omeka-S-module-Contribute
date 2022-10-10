@@ -376,6 +376,7 @@ class ContributionController extends AbstractActionController
      * (template choice, metadata, files and medatada of files).
      *
      * @todo Separate all possible workflows.
+     * @todo Move all the process to prepare data to view helper conributionForm().
      *
      * @return mixed|\Laminas\View\Model\ViewModel|\Laminas\Http\Response
      */
