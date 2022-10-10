@@ -77,6 +77,17 @@
         float: right;
     }
 
+    .actions .no-action,
+    .actions .no-action::before {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      vertical-align: top;
+      border: 0;
+      box-shadow: none;
+      text-align: right;
+    }
+
     .contribution.meta-group span,
     .contribution .meta-group span {
         display: inline;
@@ -187,6 +198,8 @@
         margin: 0 0 0 auto;
         padding: 0;
     }
+    .single-action span,
+    .single-action span::before,
     .single-action a,
     .single-action a::before,
     .single-action button,
