@@ -29,14 +29,15 @@ class LinkContribute extends AbstractHelper
      * @param AbstractResourceEntityRepresentation $resource If empty, the view
      * is checked.
      * @param array $options Options for the template
+     *   - urlOnly (bool)
      * @return string
      */
-    public function __invoke(AbstractResourceEntityRepresentation $resource = null, array $options = [])
+    public function __invoke(AbstractResourceEntityRepresentation $resource = null, array $options = []): string
     {
         $view = $this->getView();
 
         if (empty($resource)) {
-            $resource = $view->resource;
+            $resource = $view->resource ?? null;
         }
 
         $defaultOptions = [
@@ -44,8 +45,9 @@ class LinkContribute extends AbstractHelper
         ];
         $options += $defaultOptions;
 
-        $user = $view->identity();
-        $setting = $view->plugin('setting');
+        $plugins = $view->getHelperPluginManager();
+        $user = $plugins->get('identity')();
+        $setting = $plugins->get('setting');
         $contributeMode = $setting('contribute_mode');
         $contributeRoles = $setting('contribute_roles', []) ?: [];
 
@@ -63,6 +65,29 @@ class LinkContribute extends AbstractHelper
             'resource' => $resource,
             'canEdit' => $canEdit,
         ] + $options;
+
+        if (!empty($options['urlOnly'])) {
+            $url = $plugins->get('url');
+            // Existing resource.
+            if ($resource) {
+                if ($canEdit) {
+                    return $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true);
+                } elseif ($user) {
+                    return '';
+                } else {
+                    return $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login');
+                }
+            } else {
+                // New resource.
+                if ($canEdit) {
+                    return $url('site/contribution', [], true);
+                } elseif ($user) {
+                    return '';
+                } else {
+                    return $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login');
+                }
+            }
+        }
 
         return $view->partial($template, $vars);
     }
