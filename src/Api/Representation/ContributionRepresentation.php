@@ -684,13 +684,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      *
-     * @param string|null $term Validate only a specific term.
-     * @param int|null $proposedKey Validate only a specific key.
+     * @param string|null $proposedTerm Validate only a specific term.
+     * @param int|null $proposedKey Validate only a specific key for the term.
      * @return array Data to be used for api. Files for media are in key "file".
      */
     public function proposalToResourceData(
-        ?string $term = null,
-        $proposedKey = null,
+        ?string $proposedTerm = null,
+        ?int $proposedKey = null,
         ?bool $isSubTemplate = false,
         ?int $indexProposalMedia = null
     ): ?array {
@@ -714,7 +714,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
         $resourceTemplate = $contributive->template();
         $proposal = $this->proposalNormalizeForValidation($indexProposalMedia);
-        $hasProposedKey = !is_null($proposedKey);
+        $hasProposedTermAndKey = $proposedTerm && !is_null($proposedKey);
 
         $services = $this->getServiceLocator();
         $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
@@ -746,11 +746,15 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
         unset($proposal['template'], $proposal['media']);
 
+        // First loop to keep, update or remove existing values.
         foreach ($existingValues as $term => $propertyData) {
             // Keep all existing values.
             $data[$term] = array_map(function ($v) {
                 return $v->jsonSerialize();
             }, $propertyData['values']);
+            if ($hasProposedTermAndKey && $proposedTerm !== $term) {
+                continue;
+            }
             if (!$contributive->isTermContributive($term)) {
                 continue;
             }
@@ -769,7 +773,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 $existingUri = $existingValue->uri();
                 $existingResourceId = $existingValue->valueResource() ? $existingValue->valueResource()->id() : null;
                 foreach ($proposal[$term] as $key => $proposition) {
-                    if ($hasProposedKey && $proposedKey != $key) {
+                    if ($hasProposedTermAndKey && $proposedKey != $key) {
                         continue;
                     }
                     if ($proposition['validated']) {
@@ -825,9 +829,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             }
         }
 
-        // Convert last remaining propositions into array.
+        // Second loop to convert last remaining propositions into array.
         // Only process "append" should remain.
         foreach ($proposal as $term => $propositions) {
+            if ($hasProposedTermAndKey && $proposedTerm !== $term) {
+                continue;
+            }
             if (!$contributive->isTermContributive($term)) {
                 continue;
             }
@@ -853,7 +860,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             }
 
             foreach ($propositions as $key => $proposition) {
-                if ($hasProposedKey && $proposedKey != $key) {
+                if ($hasProposedTermAndKey && $proposedKey != $key) {
                     continue;
                 }
                 if ($proposition['validated']) {
@@ -925,6 +932,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             }
         }
 
+        // Recursive call to this method for each media.
         if (!$isSubTemplate) {
             foreach ($proposalMedias ? array_keys($proposalMedias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;

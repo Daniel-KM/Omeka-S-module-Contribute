@@ -677,6 +677,8 @@ class ContributionController extends AbstractActionController
             return $this->returnError('Missing term or key.'); // @translate
         }
 
+        $key = (int) $key;
+
         $resourceData = $contribution->proposalToResourceData($term, $key);
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
