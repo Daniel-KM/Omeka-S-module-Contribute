@@ -13,8 +13,8 @@ Access to the contribute and to the edit page may be controlled by a token, that
 you can send to your users, or to users only (in particular guest users), or to
 anybody.
 
-**WARNING**: The feature "Correction" is not available in version 3.3.0.17, so
-use a version before or after to use it.
+The main difference with module [Collecting] is the fact that this module uses
+standard resource template, so you don't need to create specific forms.
 
 
 Installation
@@ -22,8 +22,9 @@ Installation
 
 The module uses the module [Advanced Resource Template] in order to manage the
 forms and the properties that the users can edit or fill, so it should be
-installed first. Install the optional module [Generic] (version >= 3.3.28) too
-if wanted.
+installed first.
+
+Install the optional module [Generic] (version >= 3.3.35) too if wanted.
 
 If you want to open contribution only to authenticated users, it is recommended
 to install the module [Guest] and [Blocks Disposition] (unless you edit theme).
@@ -44,11 +45,14 @@ the module to `Contribute`.
 Usage
 -----
 
+To be corrected or conributed, a resource must have a template and be allowed in
+the main settings.
+
 - Configure the main settings, in particular the contribution mode.
 - Configure the resource templates to select the properties to be edited or
-  filled.
-- For the resources without template, configure the properties to edit by
-  default in the main parameters.
+  filled. Note: If a property has no value, it can't be edited, even if the
+  property is marked editable. To allow to add a value, choose "fillable". To
+  allow only one value, set the maximum number of values to 1.
 - If the contribute mode requires token:
   - Create one or more tokens for the resources you want to edit via the link in
     the sidebar of a resource or the bulk process dropdown at the top of the
@@ -57,14 +61,15 @@ Usage
     metadata of the resources.
 - Else a link is displayed on the item page if enabled in the theme or via the
   module Blocks Disposition.
-- Go to the resource page of the edited items and apply changes, or decline
-  them. Contributes can be marked as reviewed and token can be made expired.
+- After submission, the admin can go to the resource page of the edited items
+  and apply changes, or decline them. A page lists all contributions too.
+  Contribution can be marked as reviewed and token can be made expired.
 
 
 TODO
 ----
 
-- [ ] Reintegrate features for corrections in version 3.3.0.18+.
+- [x] Reintegrate features for corrections in version 3.3.0.18+.
 - [ ] Store the site in the contribution.
 - [ ] Store the ip and some data to check anonymous contribution (see module Contact Us).
 - [x] Make the token optional (allow anybody to edit; review all rights).
@@ -84,6 +89,7 @@ TODO
 - [ ] Require only on submit for new contribution?
 - [ ] Improve lang management.
 - [ ] Allow to create subresource in the main form (author). Require check.
+- [ ] Manage value annotations.
 
 
 Warning
@@ -141,9 +147,9 @@ Improvements were done for [Enssib] and for the site used to do the deposit and
 the digital archiving of student works ([Dante]) of the [Université de Toulouse Jean-Jaurès].
 
 
-[Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
 [Omeka S]: https://omeka.org/s
 [Contribute]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute
+[Collecting]: https://omeka.org/s/modules/Collecting
 [Advanced Resource Template]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
 [Blocks Disposition]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlocksDisposition
 [Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
