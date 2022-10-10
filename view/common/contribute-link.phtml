@@ -17,21 +17,21 @@ $translate = $plugins->get('translate');
     <h3><?= $translate('Contribute') ?></h3>
     <?php if ($resource): ?>
         <?php if ($canEdit): ?>
-        <?= $this->hyperlink($translate('Edit this record'), $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true)) ?>
+        <?= $this->hyperlink($translate('Edit this record'), $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true), ['class' => 'contribute-edit']) ?>
         <?php elseif ($user): ?>
-        <?= $translate('Click your token link to edit this record.') ?>
+        <span class="contribute-edit contribute-token"><?= $translate('Click your token link to edit this record.') ?></span>
         <?php else: ?>
         <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
-        <?= sprintf($translate('%1$sLogin%2$s or click your token link to edit this record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
+        <?= sprintf($translate('%1$sLogin%2$s or click your token link to edit this record.'), '<a href="' . $urlLogin . '" class="contribute-edit contribute-login">', '</a>') ?>
         <?php endif; ?>
     <?php else: ?>
         <?php if ($canEdit): ?>
-        <?= $this->hyperlink($translate('Add a new record'), $url('site/contribution', [], true)) ?>
+        <?= $this->hyperlink($translate('Add a new record'), $url('site/contribution', [], true), ['class' => 'contribute-edit contribute-add']) ?>
         <?php elseif ($user): ?>
-        <?= $translate('Click your token link to add a new record.') ?>
+        <span class="contribute-edit contribute-token"><?= $translate('Click your token link to add a new record.') ?></span>
         <?php else: ?>
         <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
-        <?= sprintf($translate('%1$sLogin%2$s or click your token link to add a new record.'), '<a href="' . $urlLogin . '">', '</a>') ?>
+        <?= sprintf($translate('%1$sLogin%2$s or click your token link to add a new record.'), '<a href="' . $urlLogin . '" class="contribute-edit contribute-login">', '</a>') ?>
         <?php endif; ?>
     <?php endif; ?>
 </div>
