@@ -93,13 +93,22 @@ $(document).ready(function() {
     }
 
     // On load, hide all buttons "more" where the number of values is greater
-    // than the allowed max.
+    // than the allowed max. But display it when there is no values and not fillable,
+    // so the user can add it (and the value empty should be displayed when it is required).
+    // TODO Move this check in template form-value-more.
     [typeof fields === 'undefined' ? [] : fields, typeof mediaFields === 'undefined' ? [] : mediaFields].forEach(function(currentFields) {
         if (!currentFields) return;
-        Object.keys(currentFields).forEach(function(key) {
-            if (currentFields[key]['max_values']) {
-                $('#edit-resource .property[data-term="' + key + '"]').each(function () {
-                    if ($(this).find('.values > .value').length >= currentFields[key]['max_values']) {
+        Object.keys(currentFields).forEach(function(term) {
+            if (currentFields[term]['fillable'] === false) {
+                $('#edit-resource .property[data-term="' + term + '"]').each(function () {
+                    if ($(this).find('.values > .value').length) {
+                        $(this).find('.add-values').hide();
+                    }
+                });
+            }
+            if (currentFields[term]['max_values']) {
+                $('#edit-resource .property[data-term="' + term + '"]').each(function () {
+                    if ($(this).find('.values > .value').length >= currentFields[term]['max_values']) {
                         $(this).find('.add-values').hide();
                     }
                 });
@@ -150,15 +159,16 @@ $(document).ready(function() {
             newInput;
 
         const currentFields = isMedia ? mediaFields : fields;
-        var maxValues = currentFields[term] && currentFields[term]['max_values']
+        const fillable = currentFields[term] && currentFields[term]['fillable'];
+        const required = currentFields[term] && currentFields[term]['required'];
+        const countValues = target.closest('.property').find('.values > .value').length;
+        const maxValues = currentFields[term] && currentFields[term]['max_values']
             ? parseInt(currentFields[term]['max_values'])
             : 0;
-        if (maxValues && target.closest('.property').find('.values > .value').length >= maxValues) {
+        if (maxValues && countValues >= maxValues) {
             selector.hide();
             return;
         }
-
-        var required = currentFields[term] && currentFields[term]['required'];
 
         if (target.hasClass('add-value-new')) {
             var template = target.data('template');
@@ -273,7 +283,12 @@ $(document).ready(function() {
         }
 
         ++index;
-        if (maxValues && index >= maxValues) {
+
+        // Check the button "more" for max values and when the value was removed.
+        if (maxValues && (index >= maxValues || countValues + 1 >= maxValues)) {
+            selector.hide();
+        } else if (!fillable) {
+            // Hide the selector since there is at least one value for a non fillable property.
             selector.hide();
         }
 
@@ -299,7 +314,7 @@ $(document).ready(function() {
             });
             val.find('.chosen-option').chosen(chosenOptions);
           } else {
-            // Display the button more values in all cases.
+            // Display the button more values in all other cases.
             val.closest('.property').find('.add-values').show();
             val.remove();
         }

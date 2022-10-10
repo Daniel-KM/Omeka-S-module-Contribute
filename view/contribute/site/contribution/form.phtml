@@ -193,7 +193,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
         </div>
 
         <?php // Add a button to add a new value for fillable properties. ?>
-        <?php // The button is always added to manage value removing. ?>
+        <?php // The button is always added to manage value removing: if not fillable, it is hidden here and via js. ?>
         <?= $partial('contribute/site/contribution/form-value-more') ?>
 
     </div>
