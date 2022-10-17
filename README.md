@@ -14,7 +14,7 @@ you can send to your users, or to users only (in particular guest users), or to
 anybody.
 
 The main difference with module [Collecting] is the fact that this module uses
-standard resource template, so you don't need to create specific forms.
+standard resource templates, so you don't need to create specific forms.
 
 
 Installation
