@@ -24,8 +24,10 @@ if ($isSiteRequest) {
     $setting = $plugins->get('setting');
     $labelInfo = $setting('property_label_information');
     $showLocale = true;
+    $site = $this->api()->searchOne('sites')->getContent();
 }
 
+// TODO Remove use of services in view.
 $baseUrlFiles = $site->getServiceLocator()->get('Config')['file_store']['local']['base_uri'] ?: rtrim($url('top'), '/') . '/files';
 
 $varsBase = [
