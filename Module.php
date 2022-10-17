@@ -787,10 +787,10 @@ SQL;
     {
         if (file_exists($dirPath)) {
             if (!is_dir($dirPath) || !is_readable($dirPath) || !is_writable($dirPath)) {
-                $this->getServiceLocator()->get('Omeka\Logger')->err(
+                $this->getServiceLocator()->get('Omeka\Logger')->err(new \Omeka\Stdlib\Message(
                     'The directory "%s" is not writeable.', // @translate
                     $dirPath
-                );
+                ));
                 return null;
             }
             return $dirPath;
@@ -798,10 +798,10 @@ SQL;
 
         $result = @mkdir($dirPath, 0775, true);
         if (!$result) {
-            $this->getServiceLocator()->get('Omeka\Logger')->err(
+            $this->getServiceLocator()->get('Omeka\Logger')->err(new \Omeka\Stdlib\Message(
                 'The directory "%s" is not writeable: %s.', // @translate
                 $dirPath, error_get_last()['message']
-            );
+            ));
             return null;
         }
         return $dirPath;
