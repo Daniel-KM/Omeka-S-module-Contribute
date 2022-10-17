@@ -26,6 +26,8 @@ class LinkContribute extends AbstractHelper
     /**
      * Get the link to the contribute page (add if no resource, else edit).
      *
+     * @todo Don't check the view.
+     *
      * @param AbstractResourceEntityRepresentation $resource If empty, the view
      * is checked.
      * @param array $options Options for the template
@@ -56,6 +58,16 @@ class LinkContribute extends AbstractHelper
             || ($user && $contributeMode === 'user')
             || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
 
+        $isEditable = false;
+        if ($resource) {
+            $resourceTemplate = $resource->resourceTemplate();
+            if ($resourceTemplate) {
+                $isEditable = in_array($resourceTemplate->id(), $setting('contribute_templates', []));
+            }
+        } else {
+            $isEditable = !empty($setting('contribute_templates', []));
+        }
+
         $template = $options['template'];
         unset($options['template']);
 
@@ -64,9 +76,13 @@ class LinkContribute extends AbstractHelper
             'user' => $user,
             'resource' => $resource,
             'canEdit' => $canEdit,
+            'isEditable' => $isEditable,
         ] + $options;
 
         if (!empty($options['urlOnly'])) {
+            if (!$isEditable) {
+                return '';
+            }
             $url = $plugins->get('url');
             // Existing resource.
             if ($resource) {

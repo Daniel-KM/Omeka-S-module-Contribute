@@ -5,6 +5,7 @@
  * @var \Omeka\Entity\User $user
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var bool $canEdit
+ * @var bool $isEditable
  * and passed options.
  */
 
@@ -15,23 +16,30 @@ $translate = $plugins->get('translate');
 
 <div id="contribute" class="contribute">
     <h3><?= $translate('Contribute') ?></h3>
-    <?php if ($resource): ?>
-        <?php if ($canEdit): ?>
-        <?= $this->hyperlink($translate('Edit this record'), $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true), ['class' => 'contribute-edit']) ?>
-        <?php elseif ($user): ?>
-        <span class="contribute-edit contribute-token"><?= $translate('Click your token link to edit this record.') ?></span>
+    <?php if ($isEditable): ?>
+        <?php if ($resource): ?>
+            <?php if ($canEdit): ?>
+            <?= $this->hyperlink($translate('Edit this record'), $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true), ['class' => 'contribute-edit']) ?>
+            <?php elseif ($user): ?>
+            <span class="contribute-edit contribute-token"><?= $translate('Click your token link to edit this record.') ?></span>
+            <?php else: ?>
+            <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
+            <?= sprintf($translate('%1$sLogin%2$s or click your token link to edit this record.'), '<a href="' . $urlLogin . '" class="contribute-edit contribute-login">', '</a>') ?>
+            <?php endif; ?>
         <?php else: ?>
-        <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
-        <?= sprintf($translate('%1$sLogin%2$s or click your token link to edit this record.'), '<a href="' . $urlLogin . '" class="contribute-edit contribute-login">', '</a>') ?>
+            <?php if ($canEdit): ?>
+            <?= $this->hyperlink($translate('Add a new record'), $url('site/contribution', [], true), ['class' => 'contribute-edit contribute-add']) ?>
+            <?php elseif ($user): ?>
+            <span class="contribute-edit contribute-token"><?= $translate('Click your token link to add a new record.') ?></span>
+            <?php else: ?>
+            <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
+            <?= sprintf($translate('%1$sLogin%2$s or click your token link to add a new record.'), '<a href="' . $urlLogin . '" class="contribute-edit contribute-login">', '</a>') ?>
+            <?php endif; ?>
         <?php endif; ?>
     <?php else: ?>
-        <?php if ($canEdit): ?>
-        <?= $this->hyperlink($translate('Add a new record'), $url('site/contribution', [], true), ['class' => 'contribute-edit contribute-add']) ?>
-        <?php elseif ($user): ?>
-        <span class="contribute-edit contribute-token"><?= $translate('Click your token link to add a new record.') ?></span>
-        <?php else: ?>
-        <?php $urlLogin = $plugins->has('guestWidget') ? $url('site/guest/anonymous', ['action' => 'login'], true) : $url('login'); ?>
-        <?= sprintf($translate('%1$sLogin%2$s or click your token link to add a new record.'), '<a href="' . $urlLogin . '" class="contribute-edit contribute-login">', '</a>') ?>
-        <?php endif; ?>
+    <div class="messages">
+        <p><?= $translate('A template with fields is required to edit this resource. Ask the administrator for more information.') ?></p>
+    </div>
     <?php endif; ?>
+    <?php ?>
 </div>
