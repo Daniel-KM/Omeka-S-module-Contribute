@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-10 00:00+0000\n"
+"POT-Creation-Date: 2022-11-07 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,29 +22,29 @@ msgstr ""
 msgid "This module requires the module \"%s\", version %s or above."
 msgstr ""
 
-#: Module.php:431 Module.php:573
+#: Module.php:432 Module.php:578
 #: view/contribute/admin/contribution/browse.phtml:48
 #: view/guest/site/guest/contribution.phtml:22
 msgid "Contributions"
 msgstr ""
 
-#: Module.php:474
+#: Module.php:479
 msgid "Create contribution token"
 msgstr ""
 
-#: Module.php:478 view/common/contribute-link.phtml:17
+#: Module.php:483 view/common/contribute-link.phtml:18
 msgid "Contribute"
 msgstr ""
 
-#: Module.php:479
+#: Module.php:484
 msgid "Please input optional email…"
 msgstr ""
 
-#: Module.php:480
+#: Module.php:485
 msgid "Create token"
 msgstr ""
 
-#: Module.php:575
+#: Module.php:580
 #, php-format
 msgid "%d contributions (%d not reviewed)"
 msgstr ""
@@ -55,7 +55,7 @@ msgid "Unreviewed"
 msgstr ""
 
 #: src/Controller/Admin/ContributionController.php:472
-#: src/Controller/Admin/ContributionController.php:643
+#: src/Controller/Admin/ContributionController.php:645
 msgid "Reviewed"
 msgstr ""
 
@@ -67,14 +67,35 @@ msgstr ""
 msgid "Expired"
 msgstr ""
 
-#: src/Controller/Admin/ContributionController.php:640
+#: src/Controller/Admin/ContributionController.php:570
+msgid "Contribution is not valid: check template."
+msgstr ""
+
+#: src/Controller/Admin/ContributionController.php:579
+msgid "Contribution cannot be created: some values are not valid."
+msgstr ""
+
+#: src/Controller/Admin/ContributionController.php:620
+#: src/Controller/Admin/ContributionController.php:687
+msgid "Contribution is not valid."
+msgstr ""
+
+#: src/Controller/Admin/ContributionController.php:629
+msgid "Contribution is not valid: check its values."
+msgstr ""
+
+#: src/Controller/Admin/ContributionController.php:642
 #: view/common/admin/contribute-list-part.phtml:132
 #: view/common/admin/contribute-list-part.phtml:187
 #: view/common/admin/contribute-list-part.phtml:235
 msgid "Validated"
 msgstr ""
 
-#: src/Controller/Admin/ContributionController.php:706
+#: src/Controller/Admin/ContributionController.php:696
+msgid "Contribution is not valid: check values."
+msgstr ""
+
+#: src/Controller/Admin/ContributionController.php:709
 msgid "Validated value"
 msgstr ""
 
@@ -90,64 +111,64 @@ msgstr ""
 msgid "An internal error occurred."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:827
+#: src/Controller/Site/ContributionController.php:828
 msgid "prepare"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:828
+#: src/Controller/Site/ContributionController.php:829
 msgid "update"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:829
+#: src/Controller/Site/ContributionController.php:830
 msgid "submit"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:838
+#: src/Controller/Site/ContributionController.php:839
 #, php-format
 msgid "[Omeka] Contribution %s"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:908
+#: src/Controller/Site/ContributionController.php:909
 msgid "[Omeka] Contribution"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:952
+#: src/Controller/Site/ContributionController.php:953
 msgid "[Unknown resource]"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:962
+#: src/Controller/Site/ContributionController.php:963
 msgid "[Anonymous]"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1471
+#: src/Controller/Site/ContributionController.php:1472
 msgid "File successfuly uploaded."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1472
+#: src/Controller/Site/ContributionController.php:1473
 msgid "The total of file sizes exceeds the the server limit directive."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1473
+#: src/Controller/Site/ContributionController.php:1474
 msgid "The file size exceeds the specified limit."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1474
+#: src/Controller/Site/ContributionController.php:1475
 msgid "The file was only partially uploaded."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1475
+#: src/Controller/Site/ContributionController.php:1476
 msgid "No file was uploaded."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1476
+#: src/Controller/Site/ContributionController.php:1477
 msgid "The temporary folder to store the file is missing."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1477
+#: src/Controller/Site/ContributionController.php:1478
 msgid "Failed to write file to disk."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1478
+#: src/Controller/Site/ContributionController.php:1479
 msgid "A PHP extension stopped the file upload."
 msgstr ""
 
@@ -208,14 +229,14 @@ msgstr ""
 #: view/contribute/admin/contribution/browse.phtml:118
 #: view/contribute/admin/contribution/browse.phtml:119
 #: view/contribute/admin/contribution/show-details.phtml:36
-#: view/contribute/site/contribution/show.phtml:35
+#: view/contribute/site/contribution/show.phtml:37
 #: view/guest/site/guest/contribution.phtml:35
 msgid "Is submitted"
 msgstr ""
 
 #: src/View/Helper/ContributionSearchFilters.php:84
 #: view/contribute/admin/contribution/show-details.phtml:37
-#: view/contribute/site/contribution/show.phtml:36
+#: view/contribute/site/contribution/show.phtml:38
 #: view/guest/site/guest/contribution.phtml:36
 msgid "Is reviewed"
 msgstr ""
@@ -269,7 +290,7 @@ msgid "There are no contributions for this resource."
 msgstr ""
 
 #: view/common/admin/contribute-list.phtml:66
-#: view/contribute/site/contribution/show.phtml:31
+#: view/contribute/site/contribution/show.phtml:33
 msgid "Contribution"
 msgstr ""
 
@@ -304,7 +325,7 @@ msgid "Expire token"
 msgstr ""
 
 #: view/common/admin/contribute-list.phtml:149
-#: view/common/contribution-values.phtml:52
+#: view/common/contribution-values.phtml:54
 msgid "Medias"
 msgstr ""
 
@@ -328,51 +349,58 @@ msgstr ""
 msgid "Unused token"
 msgstr ""
 
-#: view/common/contribute-link.phtml:20
+#: view/common/contribute-link.phtml:22
 msgid "Edit this record"
 msgstr ""
 
-#: view/common/contribute-link.phtml:22
+#: view/common/contribute-link.phtml:24
 msgid "Click your token link to edit this record."
 msgstr ""
 
-#: view/common/contribute-link.phtml:25
+#: view/common/contribute-link.phtml:27
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to edit this record."
 msgstr ""
 
-#: view/common/contribute-link.phtml:29
+#: view/common/contribute-link.phtml:31
 #: view/guest/site/guest/widget/contribution.phtml:29
 msgid "Add a new record"
 msgstr ""
 
-#: view/common/contribute-link.phtml:31
+#: view/common/contribute-link.phtml:33
 msgid "Click your token link to add a new record."
 msgstr ""
 
-#: view/common/contribute-link.phtml:34
+#: view/common/contribute-link.phtml:36
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to add a new record."
 msgstr ""
 
-#: view/common/contribution-values-part.phtml:28
+#: view/common/contribute-link.phtml:41
+#: view/contribute/site/contribution/edit.phtml:60
+msgid ""
+"A template with fields is required to edit this resource. Ask the "
+"administrator for more information."
+msgstr ""
+
+#: view/common/contribution-values-part.phtml:27
 #, php-format
 msgid "File #%s"
 msgstr ""
 
-#: view/common/contribution-values-part.phtml:28
+#: view/common/contribution-values-part.phtml:27
 #, php-format
 msgid "Media #%s"
 msgstr ""
 
-#: view/common/contribution-values-part.phtml:74
-#: view/common/contribution-values-part.phtml:94
-#: view/common/contribution-values-part.phtml:108
+#: view/common/contribution-values-part.phtml:73
+#: view/common/contribution-values-part.phtml:93
+#: view/common/contribution-values-part.phtml:107
 #, php-format
 msgid "%s [unavailable]"
 msgstr ""
 
-#: view/common/contribution-values.phtml:52
+#: view/common/contribution-values.phtml:54
 #: view/contribute/site/contribution/form.phtml:208
 msgid "Files"
 msgstr ""
@@ -412,7 +440,7 @@ msgstr ""
 #: view/contribute/admin/contribution/browse.phtml:118
 #: view/contribute/admin/contribution/browse.phtml:119
 #: view/contribute/admin/contribution/show-details.phtml:36
-#: view/contribute/site/contribution/show.phtml:35
+#: view/contribute/site/contribution/show.phtml:37
 #: view/guest/site/guest/contribution.phtml:35
 msgid "Is not submitted"
 msgstr ""
@@ -453,13 +481,13 @@ msgid "Search contribution"
 msgstr ""
 
 #: view/contribute/admin/contribution/show-details.phtml:35
-#: view/contribute/site/contribution/show.phtml:34
+#: view/contribute/site/contribution/show.phtml:36
 #: view/guest/site/guest/contribution.phtml:34
 msgid "No resource"
 msgstr ""
 
 #: view/contribute/admin/contribution/show-details.phtml:37
-#: view/contribute/site/contribution/show.phtml:36
+#: view/contribute/site/contribution/show.phtml:38
 #: view/guest/site/guest/contribution.phtml:36
 msgid "Is not reviewed"
 msgstr ""
@@ -468,34 +496,32 @@ msgstr ""
 msgid "Proposal"
 msgstr ""
 
-#: view/contribute/site/contribution/add.phtml:33
-msgid "New resource"
-msgstr ""
-
 #: view/contribute/site/contribution/add.phtml:34
 #, php-format
 msgid "Add %s"
 msgstr ""
 
-#: view/contribute/site/contribution/add.phtml:67
+#: view/contribute/site/contribution/add.phtml:35
+msgid "New resource"
+msgstr ""
+
+#: view/contribute/site/contribution/add.phtml:72
 msgid ""
 "A template with fields is required to add a resource. Ask the administrator "
 "for more information."
 msgstr ""
 
 #: view/contribute/site/contribution/edit.phtml:32
+msgid "New contribution"
+msgstr ""
+
+#: view/contribute/site/contribution/edit.phtml:33
 #, php-format
 msgid "Edit %s"
 msgstr ""
 
-#: view/contribute/site/contribution/edit.phtml:32
+#: view/contribute/site/contribution/edit.phtml:33
 msgid "Edit contribution"
-msgstr ""
-
-#: view/contribute/site/contribution/edit.phtml:56
-msgid ""
-"A template with fields is required to edit this resource. Ask the "
-"administrator for more information."
 msgstr ""
 
 #: view/contribute/site/contribution/form-input-custom-vocab.phtml:96
@@ -558,11 +584,7 @@ msgstr ""
 msgid "Add file"
 msgstr ""
 
-#: view/contribute/site/contribution/form.phtml:252
-msgid "Go back to resource"
-msgstr ""
-
-#: view/contribute/site/contribution/show.phtml:48
+#: view/contribute/site/contribution/show.phtml:50
 #: view/guest/site/guest/contribution.phtml:39
 msgid "Are you sure to remove this contribution?"
 msgstr ""
@@ -598,112 +620,112 @@ msgid ""
 "module Advanced Resource Template, are: %s."
 msgstr ""
 
-#: data/scripts/upgrade.php:187 Module.php:46 Module.php:786
+#: data/scripts/upgrade.php:187 Module.php:46 Module.php:791
 #, php-format
 msgid "The directory \"%s\" is not writeable."
 msgstr ""
 
-#: data/scripts/upgrade.php:226
+#: data/scripts/upgrade.php:225
 msgid "It’s now possible for the user to select a resource template."
 msgstr ""
 
-#: data/scripts/upgrade.php:230
+#: data/scripts/upgrade.php:229
 msgid ""
 "It’s now possible to create a template with a sub-template for one or more "
 "media."
 msgstr ""
 
-#: data/scripts/upgrade.php:234
+#: data/scripts/upgrade.php:233
 msgid ""
 "It’s now possible to create a template with file, custom vocab, value "
 "suggest or numeric fields."
 msgstr ""
 
-#: data/scripts/upgrade.php:238
+#: data/scripts/upgrade.php:237
 msgid "It’s now possible to edit a contribution until it is submitted."
 msgstr ""
 
-#: data/scripts/upgrade.php:242
+#: data/scripts/upgrade.php:241
 msgid ""
 "This version does not allow to correct resources. The feature will be "
 "reincluded in version 3.3.0.18."
 msgstr ""
 
-#: data/scripts/upgrade.php:250
+#: data/scripts/upgrade.php:248
 msgid "It’s now possible for admin to search contributions."
 msgstr ""
 
-#: data/scripts/upgrade.php:260
+#: data/scripts/upgrade.php:257
 msgid "It’s now possible to correct and fill existing resources."
 msgstr ""
 
-#: data/scripts/upgrade.php:264
+#: data/scripts/upgrade.php:261
 msgid ""
 "A new option was added to allow to update a contribution until validation."
 msgstr ""
 
-#: data/scripts/upgrade.php:268
+#: data/scripts/upgrade.php:265
 msgid ""
 "The events \"view.add.before/after\" are used in place of \"view.edit.before/"
 "after\" in template contribution/add."
 msgstr ""
 
-#: data/scripts/upgrade.php:272
+#: data/scripts/upgrade.php:269
 msgid ""
 "Warning: the variable \"$resource\" is now the edited resource in the theme "
 "and no more the contribution. Check your theme if you edited templates, "
 "mainly \"show\" and \"edit\"."
 msgstr ""
 
-#: Module.php:576
+#: Module.php:581
 msgid "No contribution"
 msgstr ""
 
-#: Module.php:611
+#: Module.php:616
 msgid "Media template for contribution"
 msgstr ""
 
-#: Module.php:612
+#: Module.php:617
 msgid ""
 "If any, the template should be in the list of allowed templates for "
 "contribution of a media"
 msgstr ""
 
-#: Module.php:620
+#: Module.php:625
 msgid "Select resource template for media…"
 msgstr ""
 
-#: Module.php:628
+#: Module.php:633
 msgid "Specific confirmation subject to the contributor"
 msgstr ""
 
-#: Module.php:639
+#: Module.php:644
 msgid "Specific confirmation message to the contributor"
 msgstr ""
 
-#: Module.php:640 Module.php:665 src/Form/SettingsFieldset.php:163
+#: Module.php:645 Module.php:670 src/Form/SettingsFieldset.php:163
 #: src/Form/SettingsFieldset.php:187
 msgid ""
 "Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
 msgstr ""
 
-#: Module.php:653
+#: Module.php:658
 msgid "Specific confirmation subject to the reviewer"
 msgstr ""
 
-#: Module.php:664
+#: Module.php:669
 msgid "Specific confirmation message to the reviewer"
 msgstr ""
 
-#: Module.php:684
+#: Module.php:689
 msgid "Editable by contributor"
 msgstr ""
 
-#: Module.php:696
+#: Module.php:701
 msgid "Fillable by contributor"
 msgstr ""
 
-#: Module.php:797
+#: Module.php:802
 #, php-format
 msgid "The directory \"%s\" is not writeable: %s."
 msgstr ""
@@ -884,106 +906,101 @@ msgid "Review it before its submission."
 msgstr ""
 
 #: src/Controller/Site/ContributionController.php:322
-#: src/Controller/Site/ContributionController.php:619
+#: src/Controller/Site/ContributionController.php:620
 msgid "An error occurred: check your input."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:471
+#: src/Controller/Site/ContributionController.php:472
 msgid ""
 "This resource cannot be edited: no resource template, no fields, or not "
 "allowed."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:510
+#: src/Controller/Site/ContributionController.php:511
 msgid "This contribution has been submitted and cannot be edited."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:568
-#: src/Controller/Site/ContributionController.php:753
+#: src/Controller/Site/ContributionController.php:569
+#: src/Controller/Site/ContributionController.php:754
 msgid "Contribution successfully submitted!"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:572
+#: src/Controller/Site/ContributionController.php:573
 msgid "This contribution is already submitted and cannot be updated."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:575
+#: src/Controller/Site/ContributionController.php:576
 msgid "No change."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:588
+#: src/Controller/Site/ContributionController.php:589
 msgid "Contribution successfully updated!"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:672
+#: src/Controller/Site/ContributionController.php:673
 msgid "This contribution has been submitted and cannot be deleted."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:677
+#: src/Controller/Site/ContributionController.php:678
 #: src/Controller/Admin/ContributionController.php:175
 msgid "Contribution successfully deleted"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:707
+#: src/Controller/Site/ContributionController.php:708
 msgid "Only a whole contribution can be submitted."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:718
+#: src/Controller/Site/ContributionController.php:719
 msgid "This contribution has already been submitted."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:723
+#: src/Controller/Site/ContributionController.php:724
 msgid "Only the contributor can submit the contribution."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:731
-#: src/Controller/Admin/ContributionController.php:570
-msgid "Contribution is not valid: check template."
-msgstr ""
-
-#: src/Controller/Site/ContributionController.php:749
+#: src/Controller/Site/ContributionController.php:750
 msgid "An error occurred: check your submission or ask an administrator."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:845
+#: src/Controller/Site/ContributionController.php:846
 msgid "contribute_reviewer_confirmation_body"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:858
+#: src/Controller/Site/ContributionController.php:859
 #, php-format
 msgid ""
 "User %1$s has made a contribution for resource #%2$s (%3$s) (action: %4$s)."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:867
+#: src/Controller/Site/ContributionController.php:868
 #, php-format
 msgid ""
 "An anonymous user has made a contribution for resource #%1$s (%2$s) (action: "
 "%3$s)."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:875
+#: src/Controller/Site/ContributionController.php:876
 #, php-format
 msgid "User %1$s has made a contribution (action: %2$s)."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:882
+#: src/Controller/Site/ContributionController.php:883
 #, php-format
 msgid "An anonymous user has made a contribution (action: %1$s)."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:884
-#: src/Controller/Site/ContributionController.php:922
+#: src/Controller/Site/ContributionController.php:885
+#: src/Controller/Site/ContributionController.php:923
 msgid "</p>"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:902
+#: src/Controller/Site/ContributionController.php:903
 msgid ""
 "The author of this contribution has no valid email. Check it or check the "
 "config."
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:910
+#: src/Controller/Site/ContributionController.php:911
 msgid ""
 "Hi,\n"
 "Thanks for your contribution.\n"
@@ -993,23 +1010,23 @@ msgid ""
 "Sincerely,"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1496
+#: src/Controller/Site/ContributionController.php:1497
 #, php-format
 msgid "File %s: %s"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1503
+#: src/Controller/Site/ContributionController.php:1504
 #, php-format
 msgid "Empty file for key %s"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1516
+#: src/Controller/Site/ContributionController.php:1517
 #: src/Api/Adapter/ContributionAdapter.php:340
 #, php-format
 msgid "Invalid file type for key %s"
 msgstr ""
 
-#: src/Controller/Site/ContributionController.php:1552
+#: src/Controller/Site/ContributionController.php:1553
 msgid "Forbidden access."
 msgstr ""
 
@@ -1080,18 +1097,7 @@ msgstr ""
 msgid "All tokens of the resource were expired."
 msgstr ""
 
-#: src/Controller/Admin/ContributionController.php:578
-#: src/Controller/Admin/ContributionController.php:627
-#: src/Controller/Admin/ContributionController.php:693
-msgid "Contribution is not valid: check values."
-msgstr ""
-
-#: src/Controller/Admin/ContributionController.php:619
-#: src/Controller/Admin/ContributionController.php:685
-msgid "Contribution is not valid."
-msgstr ""
-
-#: src/Controller/Admin/ContributionController.php:677
+#: src/Controller/Admin/ContributionController.php:679
 msgid "Missing term or key."
 msgstr ""
 
@@ -1155,95 +1161,95 @@ msgstr ""
 msgid "An email was sent to %1$s with subject: %2$s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:85
+#: src/Generic/InstallResources.php:84
 #, php-format
 msgid ""
 "An error occured when loading vocabulary \"%s\": file has no json content."
 msgstr ""
 
-#: src/Generic/InstallResources.php:92
+#: src/Generic/InstallResources.php:91
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists. "
 "Resolve the conflict before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:104
+#: src/Generic/InstallResources.php:103
 #, php-format
 msgid ""
 "A custom vocab exists for \"%s\". Remove it or rename it before installing "
 "this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:115
+#: src/Generic/InstallResources.php:114
 #, php-format
 msgid ""
 "A resource template exists for %s. Rename it or remove it before installing "
 "this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:304
+#: src/Generic/InstallResources.php:303
 #, php-format
 msgid "The vocabulary \"%s\" was already installed and was kept."
 msgstr ""
 
-#: src/Generic/InstallResources.php:313
+#: src/Generic/InstallResources.php:312
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\": another vocabulary exists "
 "with the same prefix. Resolve the conflict before installing this module."
 msgstr ""
 
-#: src/Generic/InstallResources.php:325
+#: src/Generic/InstallResources.php:324
 #, php-format
 msgid ""
 "An error occured when adding the prefix \"%s\" and the associated "
 "properties: %s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:405 src/Generic/InstallResources.php:415
+#: src/Generic/InstallResources.php:404 src/Generic/InstallResources.php:414
 #, php-format
 msgid ""
 "An error occured when updating vocabulary \"%s\" and the associated "
 "properties: %s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:509
+#: src/Generic/InstallResources.php:508
 #, php-format
 msgid "The following \"%1$s\" of the vocabulary \"%2$s\" were replaced: %3$s"
 msgstr ""
 
-#: src/Generic/InstallResources.php:518
+#: src/Generic/InstallResources.php:517
 msgid ""
 "Resources, values and templates were updated, but you may check settings "
 "where the old ones were used."
 msgstr ""
 
-#: src/Generic/InstallResources.php:544
+#: src/Generic/InstallResources.php:543
 #, php-format
 msgid "The resource template named \"%s\" is already available and is skipped."
 msgstr ""
 
-#: src/Generic/InstallResources.php:808
+#: src/Generic/InstallResources.php:807
 #, php-format
 msgid "The custom vocab named \"%s\" is not available."
 msgstr ""
 
-#: src/Generic/InstallResources.php:914
+#: src/Generic/InstallResources.php:913
 msgid "No file or url set for the vocabulary."
 msgstr ""
 
-#: src/Generic/InstallResources.php:924
+#: src/Generic/InstallResources.php:923
 #, php-format
 msgid "The file \"%s\" cannot be read. Check the url."
 msgstr ""
 
-#: src/Generic/InstallResources.php:934
+#: src/Generic/InstallResources.php:933
 #, php-format
 msgid "The file \"%s\" cannot be read. Check the file."
 msgstr ""
 
-#: src/Generic/InstallResources.php:955
+#: src/Generic/InstallResources.php:954
 msgid "A vocabulary must have a namespace uri and a prefix."
 msgstr ""
 
@@ -1271,10 +1277,10 @@ msgstr ""
 msgid "The file is not readable."
 msgstr ""
 
-#: config/module.config.php:221
+#: config/module.config.php:222
 msgid "Prepare tokens to edit selected"
 msgstr ""
 
-#: config/module.config.php:222
+#: config/module.config.php:223
 msgid "Prepare tokens to edit all"
 msgstr ""
