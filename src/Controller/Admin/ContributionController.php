@@ -567,15 +567,16 @@ class ContributionController extends AbstractActionController
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
-                'Contribution is not valid: check template.' // @translate
+                $this->translate('Contribution is not valid: check template.') // @translate
             ));
         }
 
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
+            // Keep similar messages different to simplify debug.
             return $this->jsonErrorUpdate(new Message(
-                'Contribution is not valid: check values.' // @translate
+                $this->translate('Contribution cannot be created: some values are not valid.') // @translate
             ), $errorStore);
         }
         if (!$resource) {
@@ -616,15 +617,16 @@ class ContributionController extends AbstractActionController
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
-                'Contribution is not valid.' // @translate
+                $this->translate('Contribution is not valid.') // @translate
             ));
         }
 
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
+            // Keep similar messages different to simplify debug.
             return $this->jsonErrorUpdate(new Message(
-                'Contribution is not valid: check values.' // @translate
+                $this->translate('Contribution is not valid: check its values.') // @translate
             ), $errorStore);
         }
         if (!$resource) {
@@ -682,15 +684,16 @@ class ContributionController extends AbstractActionController
         $resourceData = $contribution->proposalToResourceData($term, $key);
         if (!$resourceData) {
             return $this->jsonErrorUpdate(new Message(
-                'Contribution is not valid.' // @translate
+                $this->translate('Contribution is not valid.') // @translate
             ));
         }
 
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true);
         if ($errorStore->hasErrors()) {
+            // Keep similar messages different to simplify debug.
             return $this->jsonErrorUpdate(new Message(
-                'Contribution is not valid: check values.' // @translate
+                $this->translate('Contribution is not valid: check values.') // @translate
             ), $errorStore);
         }
         if (!$resource) {
