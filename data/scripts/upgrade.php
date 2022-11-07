@@ -3,7 +3,6 @@
 namespace Contribute;
 
 use Omeka\Module\Exception\ModuleCannotInstallException;
-use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
 
 /**
@@ -15,14 +14,15 @@ use Omeka\Stdlib\Message;
  * @var \Doctrine\DBAL\Connection $connection
  * @var \Doctrine\ORM\EntityManager $entityManager
  * @var \Omeka\Api\Manager $api
+ * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
-$settings = $services->get('Omeka\Settings');
-// $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
-$connection = $services->get('Omeka\Connection');
-// $entityManager = $services->get('Omeka\EntityManager');
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
-// $space = strtolower(__NAMESPACE__);
+// $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
+$settings = $services->get('Omeka\Settings');
+$connection = $services->get('Omeka\Connection');
+$messenger = $plugins->get('messenger');
+// $entityManager = $services->get('Omeka\EntityManager');
 
 if (version_compare($oldVersion, '3.0.13', '<')) {
     $sqls = '';
@@ -152,7 +152,7 @@ if (version_compare($oldVersion, '3.3.0.16', '<')) {
         'Property queries' => $settings->get('contribute_property_queries'),
     ];
 
-    $messenger = new Messenger();
+    $messenger = $services->get('ControllerPluginManager')->get('messenger');
     $message = new Message(
         'At least one configured template is required to contribute. Default options were removed. Edit the resource template directly.' // @translate
     );
@@ -221,7 +221,6 @@ SQL;
     $settings->set('contribute_notify_recipients', $settings->get('contribute_notify'));
     $settings->delete('contribute_notify');
 
-    $messenger = new Messenger();
     $message = new Message(
         'It’s now possible for the user to select a resource template.' // @translate
     );
@@ -245,7 +244,6 @@ SQL;
 }
 
 if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
-    $messenger = new Messenger();
     $message = new Message(
         'It’s now possible for admin to search contributions.' // @translate
     );
@@ -255,7 +253,6 @@ if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
 if (version_compare($oldVersion, '3.3.0.18', '<')) {
     $settings->set('contribute_allow_update', 'submission');
 
-    $messenger = new Messenger();
     $message = new Message(
         'It’s now possible to correct and fill existing resources.' // @translate
     );
