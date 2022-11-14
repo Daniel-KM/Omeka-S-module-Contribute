@@ -1188,7 +1188,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function displayValues(array $options = []): string
     {
-        $options['site'] = $this->getServiceLocator()->get('ControllerPluginManager')->get('currentSite');
+        $options['site'] = $this->getServiceLocator()->get('ControllerPluginManager')->get('currentSite')();
         $options['contribution'] = $this;
 
         if (!isset($options['viewName'])) {
