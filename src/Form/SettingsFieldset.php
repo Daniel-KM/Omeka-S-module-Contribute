@@ -54,6 +54,53 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'contribute_templates',
+                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Resource templates allowed for contribution', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_templates',
+                    'multiple' => true,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select resources templates…', // @translate
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_templates_media',
+                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Resource templates allowed for media (linked contribution)', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_templates_media',
+                    'multiple' => true,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select resources templates…', // @translate
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_token_duration',
+                'type' => Element\Number::class,
+                'options' => [
+                    'label' => 'Days for token to expire', // @translate
+                    'info' => 'Allow to set the default expiration date of a token. Let empty to remove expiration.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_token_duration',
+                    'min' => '0',
+                    'step' => '1',
+                    'data-placeholder' => '90', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_allow_update',
                 'type' => Element\Radio::class,
                 'options' => [
@@ -189,53 +236,6 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'attributes' => [
                     'id' => 'contribute_author_confirmation_body',
                     'rows' => 5,
-                ],
-            ])
-
-            ->add([
-                'name' => 'contribute_templates',
-                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
-                'options' => [
-                    'label' => 'Resource templates allowed for contribution', // @translate
-                    'empty_option' => '',
-                ],
-                'attributes' => [
-                    'id' => 'contribute_templates',
-                    'multiple' => true,
-                    'required' => false,
-                    'class' => 'chosen-select',
-                    'data-placeholder' => 'Select resources templates…', // @translate
-                ],
-            ])
-
-            ->add([
-                'name' => 'contribute_templates_media',
-                'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
-                'options' => [
-                    'label' => 'Resource templates allowed for media (linked contribution)', // @translate
-                    'empty_option' => '',
-                ],
-                'attributes' => [
-                    'id' => 'contribute_templates_media',
-                    'multiple' => true,
-                    'required' => false,
-                    'class' => 'chosen-select',
-                    'data-placeholder' => 'Select resources templates…', // @translate
-                ],
-            ])
-
-            ->add([
-                'name' => 'contribute_token_duration',
-                'type' => Element\Number::class,
-                'options' => [
-                    'label' => 'Days for token to expire', // @translate
-                    'info' => 'Allow to set the default expiration date of a token. Let empty to remove expiration.', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'contribute_token_duration',
-                    'min' => '0',
-                    'step' => '1',
-                    'data-placeholder' => '90', // @translate
                 ],
             ])
         ;

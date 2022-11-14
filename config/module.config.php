@@ -265,6 +265,14 @@ return [
         'settings' => [
             'contribute_mode' => 'user',
             'contribute_roles' => [],
+            'contribute_templates' => [
+                // The id is set during install.
+                'Contribution',
+            ],
+            'contribute_templates_media' => [
+            ],
+            // Days.
+            'contribute_token_duration' => 60,
             'contribute_allow_update' => 'submission',
             'contribute_notify_recipients' => [],
             'contribute_author_emails' => [],
@@ -275,14 +283,6 @@ return [
             'contribute_author_confirmation_body' => '',
             'contribute_reviewer_confirmation_subject' => '',
             'contribute_reviewer_confirmation_body' => '',
-            'contribute_templates' => [
-                // The id is set during install.
-                'Contribution',
-            ],
-            'contribute_templates_media' => [
-            ],
-            // Days.
-            'contribute_token_duration' => 60,
         ],
     ],
 ];
