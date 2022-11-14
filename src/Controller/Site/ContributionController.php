@@ -484,11 +484,13 @@ class ContributionController extends AbstractActionController
             $resourceTemplate = $resource->resourceTemplate();
         }
 
+        $space = $this->params('space', 'default');
+
         /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
         $contributive = clone $this->contributiveData($resourceTemplate);
         if (!$resourceTemplate || !$contributive->isContributive()) {
             $this->logger()->warn('This resource cannot be edited: no resource template, no fields, or not allowed.'); // @translate
-            return new ViewModel([
+            $view = new ViewModel([
                 'site' => $site,
                 'user' => $user,
                 'form' => null,
@@ -498,7 +500,12 @@ class ContributionController extends AbstractActionController
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
                 'mode' => 'read',
+                'space' => $space,
             ]);
+            if ($space === 'guest') {
+                $view->setTemplate('guest/site/guest/contribution-edit');
+            }
+            return $view;
         }
 
         // $formOptions = [
@@ -527,7 +534,10 @@ class ContributionController extends AbstractActionController
             && $contribution->isSubmitted()
         ) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $space === 'guest'
+                // TODO Redirect to guest/contribution/id.
+                ? $this->redirect()->toRoute('site/guest/contribution', ['action' => 'browse'], true)
+                : $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
         }
 
         // When a user wants to edit a resource, create a new correction.
@@ -616,10 +626,11 @@ class ContributionController extends AbstractActionController
                                 'resource' => $resource,
                                 'data' => $data,
                             ]);
-                            $content = $response->getContent();
-                            return $content->resource()
-                                ? $this->redirect()->toUrl($content->resource()->url())
-                                : $this->redirectContribution($content);
+                            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution $content */
+                            $contribution = $response->getContent();
+                            return $contribution->resource()
+                                ? $this->redirect()->toUrl($contribution->resource()->siteUrl())
+                                : $this->redirectContribution($contribution);
                         }
                     }
                 }
@@ -661,7 +672,7 @@ class ContributionController extends AbstractActionController
             $fieldsMediaBase = [];
         }
 
-        return new ViewModel([
+        $view = new ViewModel([
             'site' => $site,
             'user' => $user,
             'form' => $form,
@@ -671,7 +682,13 @@ class ContributionController extends AbstractActionController
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
             'mode' => $mode,
+            'space' => $space,
         ]);
+        return $view
+            ->setTemplate($space === 'guest'
+                ? 'guest/site/guest/contribution-edit'
+                : 'contribute/site/contribution/edit'
+            );
     }
 
     public function deleteConfirmAction(): void
@@ -793,13 +810,12 @@ class ContributionController extends AbstractActionController
     {
         $params = $this->params();
         $next = $params->fromQuery('next') ?? $params->fromPost('next') ?? '';
-        // TODO Guest does not manage edit for now.
         $space = $this->params('space', 'default');
-        if ($space === 'guest') {
-            return $this->redirect()->toRoute('site/guest/contribution', [], [], true);
-        }
         if (!$next) {
-            return $this->redirect()->toUrl($contribution->url());
+            return $space === 'guest'
+                // TODO Redirect to guest/contribution/id.
+                ? $this->redirect()->toRoute('site/guest/contribution', [], [], true)
+                : $this->redirect()->toUrl($contribution->url());
         }
         [$nextAction, $nextQuery] = strpos($next, '-') === false ? [$next, null] : explode('-', $next, 2);
         if (!$nextAction || $nextAction === 'show' || $nextAction === 'view') {
@@ -808,7 +824,9 @@ class ContributionController extends AbstractActionController
         if ($nextQuery) {
             $nextQuery = '?next=' . rawurlencode($next);
         }
-        return $this->redirect()->toUrl($contribution->url($nextAction) . $nextQuery);
+        return $space === 'guest' && false
+            ? $this->redirect()->toRoute('site/guest/contribution/id', ['id' => $contribution->id(), $nextAction], $nextQuery ? ['query' => ['next' => $next]] : [], true)
+            : $this->redirect()->toUrl($contribution->url($nextAction) . $nextQuery);
     }
 
     /**

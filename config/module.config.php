@@ -170,7 +170,7 @@ return [
                                 'options' => [
                                     'route' => '/contribution/:id[/:action]',
                                     'constraints' => [
-                                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                        'action' => 'edit',
                                         'id' => '\d+',
                                     ],
                                     'defaults' => [

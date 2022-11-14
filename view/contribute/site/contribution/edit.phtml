@@ -10,6 +10,7 @@
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
  * @var string $mode "read" (for show readonly form before submit) or "write"
+ * @var string $space "default" or "guest"
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -27,7 +28,7 @@ $mapLabels = [
 ];
 ?>
 
-<div class="contribute-resource conbribute-edit container">
+<div class="contribute-resource conbribute-add container <?= $space && $space !== 'default' ? $space : '' ?>">">
 
     <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : $translate('New contribution'), 2) ?>
     <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : $translate('Edit contribution') ?></h3>
@@ -49,10 +50,10 @@ $mapLabels = [
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'edit',
             'mode' => $mode,
+            'space' => $space,
             'submitLabel' => $translate('Submit'),
             'isMainForm' => true,
             'skipContributeCss' => false,
-            'space' => 'default',
         ]);
         $this->trigger('view.edit.after');
 
