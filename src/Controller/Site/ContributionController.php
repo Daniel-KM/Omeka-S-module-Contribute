@@ -202,13 +202,15 @@ class ContributionController extends AbstractActionController
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
+                'action' => 'add',
                 'mode' => 'read',
                 'space' => $space,
             ]);
-            if ($space === 'guest') {
-                $view->setTemplate('guest/site/guest/contribution-add');
-            }
-            return $view;
+            return $view
+                ->setTemplate($space === 'guest'
+                    ? 'guest/site/guest/contribution-edit'
+                    : 'contribute/site/contribution/edit'
+                );
         }
 
         if (!$template) {
@@ -256,13 +258,15 @@ class ContributionController extends AbstractActionController
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
+                'action' => 'add',
                 'mode' => $resourceId ? 'read' : $mode,
                 'space' => $space,
             ]);
-            if ($space === 'guest') {
-                $view->setTemplate('guest/site/guest/contribution-add');
-            }
-            return $view;
+            return $view
+                ->setTemplate($space === 'guest'
+                    ? 'guest/site/guest/contribution-edit'
+                    : 'contribute/site/contribution/edit'
+                );
         }
 
         // In all other cases (second step), the mode is write, else it is edit.
@@ -369,13 +373,15 @@ class ContributionController extends AbstractActionController
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
+            'action' => 'add',
             'mode' => 'write',
             'space' => $space,
         ]);
-        if ($space === 'guest') {
-            $view->setTemplate('guest/site/guest/contribution-add');
-        }
-        return $view;
+        return $view
+            ->setTemplate($space === 'guest'
+                ? 'guest/site/guest/contribution-edit'
+                : 'contribute/site/contribution/edit'
+            );
     }
 
     /**
@@ -499,13 +505,15 @@ class ContributionController extends AbstractActionController
                 'fields' => [],
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
+                'action' => 'edit',
                 'mode' => 'read',
                 'space' => $space,
             ]);
-            if ($space === 'guest') {
-                $view->setTemplate('guest/site/guest/contribution-edit');
-            }
-            return $view;
+            return $view
+                ->setTemplate($space === 'guest'
+                    ? 'guest/site/guest/contribution-edit'
+                    : 'contribute/site/contribution/edit'
+                );
         }
 
         // $formOptions = [
@@ -681,6 +689,7 @@ class ContributionController extends AbstractActionController
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
+            'action' => 'edit',
             'mode' => $mode,
             'space' => $space,
         ]);

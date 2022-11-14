@@ -9,7 +9,8 @@
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
- * @var string $mode "read" (for show readonly form before submit) or "write"
+ * @var string $action "add" or "edit"
+ * @var string $mode "read" (for template select or for show readonly form before submit) or "write"
  * @var string $space "default" or "guest"
  */
 
@@ -19,6 +20,8 @@ $translate = $plugins->get('translate');
 $contributionForm = $plugins->get('contributionForm');
 
 $this->htmlElement('body')->appendAttribute('class', 'edit items ' . $this->params()->fromRoute('resource') . ' resource');
+
+if ($form) $form->prepare();
 
 $mapLabels = [
     'contributions' => 'item',
@@ -30,8 +33,8 @@ $mapLabels = [
 
 <div class="contribute-resource conbribute-add container <?= $space && $space !== 'default' ? $space : '' ?>">">
 
-    <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : $translate('New contribution'), 2) ?>
-    <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : $translate('Edit contribution') ?></h3>
+    <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : sprintf($translate('Add %s'), $translate($mapLabels['items'])), 2) ?>
+    <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : sprintf($translate(' New %s'), $translate($mapLabels['items'])) ?></h3>
 
     <div class="messages">
         <?= $this->messages() ?>
@@ -39,7 +42,7 @@ $mapLabels = [
 
     <?php if (count($fields) && $form):
         // The two lists of fields are merged in one form by default.
-        $this->trigger('view.edit.before');
+        $this->trigger("view.$action.before");
         echo $contributionForm([
             'site' => $site,
             'contribution' => $contribution,
@@ -48,19 +51,28 @@ $mapLabels = [
             'fields' => $fields,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
-            'action' => 'edit',
+            'action' => $action,
             'mode' => $mode,
             'space' => $space,
-            'submitLabel' => $translate('Submit'),
+            'submitLabel' => $action === 'add' ? $translate('Add') : $translate('Submit'),
             'cancelLabel' => $translate('Cancel'),
             'isMainForm' => true,
             'skipContributeCss' => false,
         ]);
-        $this->trigger('view.edit.after');
+        $this->trigger("view.$action.after");
+
+    elseif ($action === 'add' && $form): // First step form to select a resource template.
+        if ($mode === 'read') {
+            $form->remove('submit');
+            echo $this->form($form);
+        } else {
+            $form->get('submit')->setValue('Select'); // @translate
+            echo $this->form($form);
+        }
 
     else: ?>
     <div class="messages">
-        <p><?= $translate('A template with fields is required to edit this resource. Ask the administrator for more information.') ?></p>
+        <p><?= $translate('A template with fields is required to submit a document. Ask the administrator for more information.') ?></p>
     </div>
 
     <?php endif; ?>
