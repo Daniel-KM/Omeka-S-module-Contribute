@@ -1114,7 +1114,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $titles = $this->proposedValues($titleTerm);
 
         return ($titles ? reset($titles)['proposed']['@value'] ?? null : null)
-            ?? $this->title()
+            ?? (($title = $this->title()) && strlen($title) ? $title : null)
             ?? $default
             ?? $this->getServiceLocator()->get('MvcTranslator')->translate('[Untitled]');
     }
