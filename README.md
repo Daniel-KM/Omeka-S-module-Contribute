@@ -13,8 +13,9 @@ Access to the contribute and to the edit page may be controlled by a token, that
 you can send to your users, or to users only (in particular guest users), or to
 anybody.
 
-The main difference with module [Collecting] is the fact that this module uses
-standard resource templates, so you don't need to create specific forms.
+The two main differences with module [Collecting] is the fact that this module
+uses standard resource templates, so you don't need to create specific forms,
+and the possibility to complete or to revise an existing document.
 
 
 Installation
@@ -45,8 +46,8 @@ the module to `Contribute`.
 Usage
 -----
 
-To be corrected or conributed, a resource must have a template and be allowed in
-the main settings.
+To be contributed or completed, a resource must have a template and be allowed
+in the main settings.
 
 - Configure the main settings, in particular the contribution mode.
 - Configure the resource templates to select the properties to be edited or
@@ -90,6 +91,7 @@ TODO
 - [ ] Improve lang management.
 - [ ] Allow to create subresource in the main form (author). Require check.
 - [ ] Manage value annotations.
+- [ ] Include all fields as form elements (included laminas collections of elements).
 
 
 Warning
