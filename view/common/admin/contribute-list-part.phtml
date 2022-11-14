@@ -137,7 +137,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escapeAttr($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -192,7 +192,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escapeAttr($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>
@@ -240,7 +240,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php else: ?>
                         <a href="#"
                             class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escapeAttr($contribution->url('validate-value') . "?term=$term&key=$key") ?>"
+                            data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"></a>

@@ -121,7 +121,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
                         <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
                         <li><span class="single actions"><a href="#"
                             class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
-                            data-status-toggle-url="<?= $escape($contribution->url('toggle-status')) ?>"
+                            data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-status')) ?>"
                             data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
                             aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
                             title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
@@ -144,14 +144,14 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
                         <?php if ($contribution->userIsAllowed('delete')): ?>
                         <li><?= $hyperlink('', '#', [
                             'data-sidebar-selector' => '#sidebar',
-                            'data-sidebar-content-url' => $contribution->url('delete-confirm'),
+                            'data-sidebar-content-url' => $contribution->adminUrl('delete-confirm'),
                             'class' => 'o-icon-delete sidebar-content',
                             'title' => $translate('Delete'),
                         ]) ?></li>
                         <?php endif; ?>
                         <li><?= $hyperlink('', '#', [
                             'data-sidebar-selector' => '#sidebar',
-                            'data-sidebar-content-url' => $contribution->url('show-details'),
+                            'data-sidebar-content-url' => $contribution->adminUrl('show-details'),
                             'class' => 'o-icon-more sidebar-content',
                             'title' => $translate('Details'),
                         ]) ?></li>

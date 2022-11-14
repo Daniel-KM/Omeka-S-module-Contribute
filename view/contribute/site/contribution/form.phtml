@@ -251,13 +251,13 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
 
         <div id="page-actions">
             <?php if ($resource): ?>
-            <?= $hyperlink($translate('Cancel'), $resource->url(), ['class' => 'button button-cancel', 'role' => 'button']) ?>
+            <?= $hyperlink($translate('Cancel'), $resource->siteUrl(), ['class' => 'button button-cancel', 'role' => 'button']) ?>
             <?php elseif (isset($cancelLabel)): ?>
             <?php //= TODO $this->cancelButton() ?>
             <?= $hyperlink(
                 $cancelLabel,
                 $contribution
-                    ? $contribution->url()
+                    ? $contribution->siteUrl(null, false, 'view', $space === 'guest')
                     : ($space === 'guest'
                             ? $url('site/guest/contribution', [], true)
                             : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
