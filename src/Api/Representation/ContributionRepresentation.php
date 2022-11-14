@@ -1350,18 +1350,20 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         static $uriLabels = [];
         if (!isset($uriLabels[$customVocabId])) {
             $api = $this->getServiceLocator()->get('ControllerPluginManager')->get('api');
-            $uris = $api->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
-            $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
-            $matches = [];
-            $values = [];
-            foreach ($uris as $uri) {
-                if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                    $values[$matches[1]] = $matches[2];
-                } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                    $values[$matches[1]] = '';
+            $uriLabels[$customVocabId] = $api->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
+            if (!is_array($uriLabels[$customVocabId])) {
+                $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uriLabels[$customVocabId]));
+                $matches = [];
+                $values = [];
+                foreach ($uris as $uri) {
+                    if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                        $values[$matches[1]] = $matches[2];
+                    } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                        $values[$matches[1]] = '';
+                    }
                 }
+                $uriLabels[$customVocabId] = $values;
             }
-            $uriLabels[$customVocabId] = $values;
         }
         return $uriLabels[$customVocabId];
     }

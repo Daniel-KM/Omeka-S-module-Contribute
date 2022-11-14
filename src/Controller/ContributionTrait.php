@@ -195,14 +195,16 @@ trait ContributionTrait
         static $uriLabels = [];
         if (!isset($uriLabels[$customVocabId])) {
             $uris = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
-            $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
-            $matches = [];
-            $values = [];
-            foreach ($uris as $uri) {
-                if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                    $values[$matches[1]] = $matches[2];
-                } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                    $values[$matches[1]] = '';
+            if (!is_array($uris)) {
+                $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
+                $matches = [];
+                $values = [];
+                foreach ($uris as $uri) {
+                    if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                        $values[$matches[1]] = $matches[2];
+                    } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                        $values[$matches[1]] = '';
+                    }
                 }
             }
             $uriLabels[$customVocabId] = $values;

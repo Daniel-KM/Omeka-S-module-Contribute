@@ -93,6 +93,7 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                 <?php break;
 
             case substr($datatype, 0, 12) === 'customvocab:':
+                // TODO Simplify with Omeka S v4 (CustomVocab 1.7.0).
                 // @see \CustomVocab\DataType\CustomVocab
                 $baseType = $customVocabBaseTypes[substr($datatype, 12)] ?? 'literal';
                 $customVocab = $apiManager->read('custom_vocabs', ['id' => substr($datatype, 12)])->getContent();
@@ -115,16 +116,24 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                     }
                 } elseif ($baseType === 'uri') {
                     $matches = [];
-                    $uris = array_map('trim', preg_split("/\r\n|\n|\r/", $customVocab->uris()));
-                    foreach ($uris as $uri) {
-                        if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                            $valueOptions[] = ['v' => $matches[1], 't' => sprintf('%s <%s>', $matches[2], $matches[1])];
-                        } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                            $valueOptions[] = ['v' => $matches[1], 't' => $matches[1]];
+                    $uris = $customVocab->uris();
+                    if (is_array($uris)) {
+                        foreach ($uris as $uri => $label) {
+                            $valueOptions[] = ['v' => $uri, 't' => strlen($label) && $uri !== $label ? sprintf('%1$s <%2$s>', $label, $uri) : $uri];
+                        }
+                    } else {
+                        $uris = array_map('trim', preg_split("/\r\n|\n|\r/", $customVocab->uris()));
+                        foreach ($uris as $uri) {
+                            if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
+                                $valueOptions[] = ['v' => $matches[1], 't' => sprintf('%s <%s>', $matches[2], $matches[1])];
+                            } elseif (preg_match('/^(.+)/', $uri, $matches)) {
+                                $valueOptions[] = ['v' => $matches[1], 't' => $matches[1]];
+                            }
                         }
                     }
                 } else {
-                    $terms = array_map('trim', preg_split("/\r\n|\n|\r/", $customVocab->terms()));
+                    $terms = $customVocab->terms();
+                    $terms = is_array($terms) ? $terms : array_map('trim', preg_split("/\r\n|\n|\r/", $terms));
                     foreach ($terms as $term) {
                         $valueOptions[] = ['v' => $term, 't' => $term];
                     }

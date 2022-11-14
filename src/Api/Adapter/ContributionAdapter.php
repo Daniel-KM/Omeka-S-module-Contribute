@@ -398,6 +398,8 @@ SQL;
      * @see \Annotate\Api\Adapter\QueryDateTimeTrait::searchDateTime()
      * @see \Contribute\Api\Adapter\ContributionAdapter::buildQueryDateComparison()
      * @see \Log\Api\Adapter\LogAdapter::buildQueryDateComparison()
+     *
+     * @todo Normalize with NumericDataTypes.
      */
     protected function buildQueryDateComparison(QueryBuilder $qb, array $query, $value, $column): void
     {
