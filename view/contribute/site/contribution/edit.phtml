@@ -34,7 +34,7 @@ $mapLabels = [
 <div class="contribute-resource conbribute-add container <?= $space && $space !== 'default' ? $space : '' ?>">">
 
     <?= $this->pageTitle($resource ? $escape($resource->displayTitle()) : sprintf($translate('Add %s'), $translate($mapLabels['items'])), 2) ?>
-    <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : sprintf($translate(' New %s'), $translate($mapLabels['items'])) ?></h3>
+    <h3><?= $resource ? sprintf($translate('Edit %s'), $translate($mapLabels[$resource->resourceName()])) : sprintf($translate('New %s'), $translate($mapLabels['items'])) ?></h3>
 
     <div class="messages">
         <?= $this->messages() ?>
