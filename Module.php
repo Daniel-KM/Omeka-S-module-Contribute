@@ -121,7 +121,7 @@ class Module extends AbstractModule
          */
         $acl = $services->get('Omeka\Acl');
 
-        // Since Omeka 1.4, modules are ordered, so Guest come after Contribute.
+        // Since Omeka 1.4, modules are ordered so Guest comes after Contribute.
         // See \Guest\Module::onBootstrap().
         if (!$acl->hasRole('guest')) {
             $acl->addRole('guest');
@@ -208,8 +208,9 @@ class Module extends AbstractModule
 
             // Administration in public side (module Guest).
             ->allow(
-                $contributors,
-                ['Contribute\Controller\Site\GuestBoard']
+                $roles,
+                ['Contribute\Controller\Site\GuestBoard'],
+                ['browse', 'show', 'view', 'add', 'edit', 'delete', 'delete-confirm', 'submit']
             )
 
             // Administration.

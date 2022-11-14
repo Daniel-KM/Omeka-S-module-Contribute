@@ -89,16 +89,25 @@ class ContributionController extends AbstractActionController
         /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $contribution = $this->api()->read('contributions', ['id' => $resourceId])->getContent();
 
-        return new ViewModel([
+        $space = $this->params('space', 'default');
+
+        $view = new ViewModel([
             'site' => $site,
             'resource' => $contribution->resource(),
             'contribution' => $contribution,
+            'space' => $space,
         ]);
+        return $view
+            ->setTemplate($space === 'guest'
+                ? 'guest/site/guest/contribution-show'
+                : 'contribute/site/contribution/show'
+            );
     }
 
     /**
      * The action "view" is a proxy to "show", that cannot be used because it is
      * used by the resources.
+     * @deprecated Use show.
      */
     public function viewAction()
     {
@@ -708,19 +717,24 @@ class ContributionController extends AbstractActionController
     public function deleteAction()
     {
         $id = $this->params('id');
+        $space = $this->params('space', 'default');
+
         if (!$this->getRequest()->isPost()) {
-            $this->messenger()->addError(new Message('Deletion can be processed only with a post.'));
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'show'], true);
+            $this->messenger()->addError(new Message('Deletion can be processed only with a post.')); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'show'], true);
         }
+
         $resource = $this->api()->read('contributions', $id)->getContent();
         if ($resource->isSubmitted()) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
             return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
         }
+
         $response = $this->api()->delete('contributions', $id);
         if ($response) {
             $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
         }
+
         // TODO Update route when a main public browse of contributions will be available.
         return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
     }
@@ -821,10 +835,7 @@ class ContributionController extends AbstractActionController
         $next = $params->fromQuery('next') ?? $params->fromPost('next') ?? '';
         $space = $this->params('space', 'default');
         if (!$next) {
-            return $space === 'guest'
-                // TODO Redirect to guest/contribution/id.
-                ? $this->redirect()->toRoute('site/guest/contribution', [], [], true)
-                : $this->redirect()->toUrl($contribution->url());
+            return $this->redirect()->toUrl($contribution->siteUrl(null, false, 'view', $space === 'guest'));
         }
         [$nextAction, $nextQuery] = strpos($next, '-') === false ? [$next, null] : explode('-', $next, 2);
         if (!$nextAction || $nextAction === 'show' || $nextAction === 'view') {
@@ -833,9 +844,7 @@ class ContributionController extends AbstractActionController
         if ($nextQuery) {
             $nextQuery = '?next=' . rawurlencode($next);
         }
-        return $space === 'guest' && false
-            ? $this->redirect()->toRoute('site/guest/contribution/id', ['id' => $contribution->id(), $nextAction], $nextQuery ? ['query' => ['next' => $next]] : [], true)
-            : $this->redirect()->toUrl($contribution->url($nextAction) . $nextQuery);
+        return $this->redirect()->toUrl($contribution->siteUrl(null, false, $nextAction, $space === 'guest') . $nextQuery);
     }
 
     /**

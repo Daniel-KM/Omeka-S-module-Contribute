@@ -1306,12 +1306,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Get the site url of the contribution.
      *
-     * An argument is added to set the action (add, edit, submit, etc.).
+     * An argument is added to set the action (add, edit, view, submit, etc.).
      *
      * {@inheritDoc}
      * @see \Omeka\Api\Representation\AbstractResourceRepresentation::siteUrl()
      */
-    public function siteUrl($siteSlug = null, $canonical = false, $action = null)
+    public function siteUrl($siteSlug = null, $canonical = false, $action = null, $asGuest = false)
     {
         if (!$siteSlug) {
             $siteSlug = $this->getServiceLocator()->get('Application')
@@ -1319,7 +1319,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
         $url = $this->getViewHelper('Url');
         return $url(
-            'site/contribution-id',
+            $asGuest ? 'site/guest/contribution-id' : 'site/contribution-id',
             [
                 'site-slug' => $siteSlug,
                 'resource' => 'contribution',

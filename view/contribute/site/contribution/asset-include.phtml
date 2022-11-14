@@ -3,13 +3,14 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var bool $skipContributeCss
+ * @var string $space "default" or "guest"
  */
 
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
 $assetUrl = $plugins->get('assetUrl');
 
-$js = 'const siteBaseUrl = ' . json_encode(substr($url('site/contribution-id', ['action' => 'delete', 'resource' => 'contribution', 'id' => 0], true), 0, -8), 320) . ';
+$js = 'const siteBaseUrl = ' . json_encode(substr($url($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'delete', 'resource' => 'contribution', 'id' => 0], true), 0, -8), 320) . ';
 const confirmFormCsrf = ' . json_encode($site->getServiceLocator()->get('FormElementManager')->get(\Omeka\Form\ConfirmForm::class)->prepare()->get('confirmform_csrf')->getValue()) . ';';
 
 if (empty($skipContributeCss)) {

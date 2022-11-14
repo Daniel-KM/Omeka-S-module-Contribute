@@ -170,7 +170,8 @@ return [
                                 'options' => [
                                     'route' => '/contribution/:id[/:action]',
                                     'constraints' => [
-                                        'action' => 'edit',
+                                        // TODO Remove "view".
+                                        'action' => 'show|view|edit',
                                         'id' => '\d+',
                                     ],
                                     'defaults' => [

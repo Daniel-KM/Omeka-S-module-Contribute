@@ -42,6 +42,30 @@ class GuestBoardController extends AbstractActionController
             ->setTemplate('guest/site/guest/contribution-browse');
     }
 
+    public function showAction()
+    {
+        $params = $this->params()->fromRoute();
+        $params['controller'] = 'Contribute\Controller\Site\Contribution';
+        $params['__CONTROLLER__'] = 'contribution';
+        $params['resource'] = 'contribution';
+        $params['space'] = 'guest';
+        return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+    }
+
+    /**
+     * @deprecated Use show.
+     */
+    public function viewAction()
+    {
+        $params = $this->params()->fromRoute();
+        $params['controller'] = 'Contribute\Controller\Site\Contribution';
+        $params['__CONTROLLER__'] = 'contribution';
+        $params['resource'] = 'contribution';
+        $params['action'] = 'show';
+        $params['space'] = 'guest';
+        return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+    }
+
     public function addAction()
     {
         $params = $this->params()->fromRoute();

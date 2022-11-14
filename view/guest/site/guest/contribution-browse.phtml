@@ -11,10 +11,12 @@ $i18n = $plugins->get('i18n');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
 $this->vars()->offsetSet('skipContributeCss', false);
 $partial('contribute/site/contribution/asset-include');
+$siteSlug = $this->params()->fromRoute('site-slug');
 
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource browse');
 ?>
@@ -29,7 +31,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource brow
     <?php foreach ($contributions as $contribution): ?>
     <li class="resource contribution">
         <?= sprintf('Contribution #%d (%s)', $contribution->id(), $i18n->dateFormat($contribution->created(), 'medium', 'medium')) ?>
-        <h4><?= $contribution->link($contribution->displayTitle()) ?></h4>
+        <h4><?= $hyperlink($contribution->displayTitle(), $contribution->siteUrl($siteSlug, false, 'show', true)) ?></h4>
         <ul class="contribution-status">
             <li class="contribution-resource"><?= $contribution->resource() ? $contribution->resource()->linkPretty() : $escape($translate('No resource')) ?></li>
             <li class="submitted"><?= $escape($contribution->isSubmitted() ? $translate('Is submitted') : $translate('Is not submitted')) ?></li>
@@ -38,10 +40,10 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource brow
         <?php if (!$contribution->isSubmitted()): ?>
         <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
             <?php if ($contribution->userIsAllowed('update')): ?>
-            <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->url('edit')) ?>"><?= $escape($translate('Edit')) ?></a></li>
+            <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, 'edit', false, true)) ?>"><?= $escape($translate('Edit')) ?></a></li>
             <?php endif; ?>
             <?php if ($contribution->userIsAllowed('delete')): ?>
-            <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->url('delete')) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
+            <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'delete', true)) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
             <?php endif; ?>
         </ul>
         <?php endif; ?>
