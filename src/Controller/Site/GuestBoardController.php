@@ -10,11 +10,11 @@ class GuestBoardController extends AbstractActionController
     public function indexAction()
     {
         $params = $this->params()->fromRoute();
-        $params['action'] = 'show';
+        $params['action'] = 'browse';
         return $this->forward()->dispatch('Contribute\Controller\Site\GuestBoard', $params);
     }
 
-    public function showAction()
+    public function browseAction()
     {
         // TODO Clarify how to show anonymous deposit via token.
 
@@ -39,6 +39,6 @@ class GuestBoardController extends AbstractActionController
             'contributions' => $contributions,
         ]);
         return $view
-            ->setTemplate('guest/site/guest/contribution');
+            ->setTemplate('guest/site/guest/contribution-browse');
     }
 }

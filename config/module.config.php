@@ -158,7 +158,7 @@ return [
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Contribute\Controller\Site',
                                         'controller' => 'GuestBoard',
-                                        'action' => 'show',
+                                        'action' => 'browse',
                                     ],
                                 ],
                             ],
