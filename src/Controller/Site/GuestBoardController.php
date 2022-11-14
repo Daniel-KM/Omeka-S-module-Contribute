@@ -37,6 +37,7 @@ class GuestBoardController extends AbstractActionController
             'site' => $this->currentSite(),
             'user' => $user,
             'contributions' => $contributions,
+            'space' => 'guest',
         ]);
         return $view
             ->setTemplate('guest/site/guest/contribution-browse');
@@ -77,6 +78,36 @@ class GuestBoardController extends AbstractActionController
    }
 
    public function editAction()
+   {
+       $params = $this->params()->fromRoute();
+       $params['controller'] = 'Contribute\Controller\Site\Contribution';
+       $params['__CONTROLLER__'] = 'contribution';
+       $params['resource'] = 'contribution';
+       $params['space'] = 'guest';
+       return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+   }
+
+   public function deleteConfirmAction()
+   {
+       $params = $this->params()->fromRoute();
+       $params['controller'] = 'Contribute\Controller\Site\Contribution';
+       $params['__CONTROLLER__'] = 'contribution';
+       $params['resource'] = 'contribution';
+       $params['space'] = 'guest';
+       return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+   }
+
+   public function deleteAction()
+   {
+       $params = $this->params()->fromRoute();
+       $params['controller'] = 'Contribute\Controller\Site\Contribution';
+       $params['__CONTROLLER__'] = 'contribution';
+       $params['resource'] = 'contribution';
+       $params['space'] = 'guest';
+       return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+   }
+
+   public function submitAction()
    {
        $params = $this->params()->fromRoute();
        $params['controller'] = 'Contribute\Controller\Site\Contribution';

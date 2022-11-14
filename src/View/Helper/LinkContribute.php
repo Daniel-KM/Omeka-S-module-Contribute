@@ -32,9 +32,11 @@ class LinkContribute extends AbstractHelper
      * is checked.
      * @param array $options Options for the template
      *   - urlOnly (bool)
+     *   - template (string)
+     *   - space (string) "default" or "guest"
      * @return string
      */
-    public function __invoke(AbstractResourceEntityRepresentation $resource = null, array $options = []): string
+    public function __invoke(?AbstractResourceEntityRepresentation $resource = null, array $options = []): string
     {
         $view = $this->getView();
 
@@ -44,6 +46,7 @@ class LinkContribute extends AbstractHelper
 
         $defaultOptions = [
             'template' => self::PARTIAL_NAME,
+            'space' => 'default',
         ];
         $options += $defaultOptions;
 
@@ -79,6 +82,8 @@ class LinkContribute extends AbstractHelper
             'isEditable' => $isEditable,
         ] + $options;
 
+        $asGuest = $vars['space'] === 'guest';
+
         if (!empty($options['urlOnly'])) {
             if (!$isEditable) {
                 return '';
@@ -87,7 +92,7 @@ class LinkContribute extends AbstractHelper
             // Existing resource.
             if ($resource) {
                 if ($canEdit) {
-                    return $url('site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true);
+                    return $url($asGuest ? 'site/guest/contribution-id' : 'site/contribution-id', ['resource' => $resource->getControllerName(), 'id' => $resource->id(), 'action' => 'edit'], true);
                 } elseif ($user) {
                     return '';
                 } else {
@@ -96,7 +101,7 @@ class LinkContribute extends AbstractHelper
             } else {
                 // New resource.
                 if ($canEdit) {
-                    return $url('site/contribution', [], true);
+                    return $url($asGuest ? 'site/guest/contribution' : 'site/contribution', [], true);
                 } elseif ($user) {
                     return '';
                 } else {

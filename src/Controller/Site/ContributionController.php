@@ -551,10 +551,7 @@ class ContributionController extends AbstractActionController
             && $contribution->isSubmitted()
         ) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
-            return $space === 'guest'
-                // TODO Redirect to guest/contribution/id.
-                ? $this->redirect()->toRoute('site/guest/contribution', ['action' => 'browse'], true)
-                : $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         // When a user wants to edit a resource, create a new correction.
@@ -711,7 +708,7 @@ class ContributionController extends AbstractActionController
 
     public function deleteConfirmAction(): void
     {
-        throw new \Omeka\Mvc\Exception\PermissionDeniedException('The delete confirm action is currently unavailable');
+        throw new \Omeka\Mvc\Exception\PermissionDeniedException('The delete confirm action is currently unavailable'); // @translate
     }
 
     public function deleteAction()
@@ -727,7 +724,7 @@ class ContributionController extends AbstractActionController
         $resource = $this->api()->read('contributions', $id)->getContent();
         if ($resource->isSubmitted()) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         $response = $this->api()->delete('contributions', $id);
@@ -736,13 +733,14 @@ class ContributionController extends AbstractActionController
         }
 
         // TODO Update route when a main public browse of contributions will be available.
-        return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'show'], true);
+        return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'browse'], true);
     }
 
     public function submitAction()
     {
         $resourceType = $this->params('resource');
         $resourceId = $this->params('id');
+        $space = $this->params('space', 'default');
 
         // Unlike addAction(), submission is always the right contribution or
         // resource.
@@ -775,12 +773,12 @@ class ContributionController extends AbstractActionController
 
         if ($contribution->isSubmitted()) {
             $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         if (!$contribution->userIsAllowed('update')) {
             $this->messenger()->addError('Only the contributor can submit the contribution.'); // @translate
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         // Validate the contribution with the contribution process.
@@ -790,14 +788,14 @@ class ContributionController extends AbstractActionController
                 'Contribution is not valid: check template.' // @translate
             );
             $this->messenger()->addError($message); // @translate
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         // Validate the contribution with the api process.
         $errorStore = new ErrorStore();
         $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, true, true);
         if ($errorStore->hasErrors()) {
-            return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         $data = [];
@@ -815,7 +813,7 @@ class ContributionController extends AbstractActionController
             ->notifyContribution($contribution, 'submit')
             ->confirmContribution($contribution, 'submit');
 
-        return $this->redirect()->toRoute('site/contribution-id', ['action' => 'view'], true);
+        return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
     }
 
     /**

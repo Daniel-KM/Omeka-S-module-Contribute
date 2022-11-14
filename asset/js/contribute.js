@@ -88,7 +88,7 @@ $(document).ready(function() {
             window.location.reload();
          })
         .fail(function() {
-            window.location.reload();
+            alert('An error occured.');
          });
     }
 

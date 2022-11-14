@@ -171,7 +171,7 @@ return [
                                     'route' => '/contribution/:id[/:action]',
                                     'constraints' => [
                                         // TODO Remove "view".
-                                        'action' => 'show|view|edit',
+                                        'action' => 'show|view|edit|delete-confirm|delete|submit',
                                         'id' => '\d+',
                                     ],
                                     'defaults' => [
