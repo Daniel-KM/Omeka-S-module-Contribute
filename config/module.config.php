@@ -152,13 +152,31 @@ return [
                         'may_terminate' => true,
                         'child_routes' => [
                             'contribution' => [
-                                'type' => \Laminas\Router\Http\Literal::class,
+                                'type' => \Laminas\Router\Http\Segment::class,
                                 'options' => [
-                                    'route' => '/contribution',
+                                    'route' => '/contribution[/:action]',
+                                    'constraints' => [
+                                        'action' => 'add|browse',
+                                    ],
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Contribute\Controller\Site',
-                                        'controller' => 'GuestBoard',
+                                        'controller' => 'guest-board',
                                         'action' => 'browse',
+                                    ],
+                                ],
+                            ],
+                            'contribution-id' => [
+                                'type' => \Laminas\Router\Http\Segment::class,
+                                'options' => [
+                                    'route' => '/contribution/:id[/:action]',
+                                    'constraints' => [
+                                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                        'id' => '\d+',
+                                    ],
+                                    'defaults' => [
+                                        '__NAMESPACE__' => 'Contribute\Controller\Site',
+                                        'controller' => 'guest-board',
+                                        'action' => 'show',
                                     ],
                                 ],
                             ],

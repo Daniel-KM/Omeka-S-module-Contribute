@@ -10,6 +10,7 @@
  * @var array $fieldsMediaBase
  * @var string $action "add" or "edit" or "show"
  * @var string $mode "read" or "write"
+ * @var string $space "default" or "guest"
  * @var string $submitLabel
  * @var bool $isMainForm
  * @var bool $skipContributeCss
@@ -252,8 +253,15 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
             <?= $hyperlink($translate('Cancel'), $resource->url(), ['class' => 'button button-cancel', 'role' => 'button']) ?>
             <?php else: ?>
             <?php //= TODO $this->cancelButton() ?>
-            <?= $hyperlink($translate('Cancel'), $contribution ? $contribution->url() : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true),
-                ['class' => 'button button-cancel', 'role' => 'button']) ?>
+            <?= $hyperlink(
+                $translate('Cancel'),
+                $contribution
+                    ? $contribution->url()
+                    : ($space === 'guest'
+                            ? $url('site/guest/contribution', [], true)
+                            : $url('site/resource', ['controller' => 'item', 'action' => 'browse'], true)),
+                ['class' => 'button button-cancel', 'role' => 'button'])
+            ?>
             <?php endif; ?>
             <?= $formElement($form->get('submit')->setAttribute('class', 'button')->setValue($submitLabel)) ?>
         </div>

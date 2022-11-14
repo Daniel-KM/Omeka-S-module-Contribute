@@ -189,9 +189,11 @@ class ContributionController extends AbstractActionController
             }
         }
 
+        $space = $this->params('space', 'default');
+
         if (!count($templates) || ($template && !$resourceTemplate)) {
             $this->logger()->err('A template is required to add a resource. Ask the administrator for more information.'); // @translate
-            return new ViewModel([
+            $view = new ViewModel([
                 'site' => $site,
                 'user' => $user,
                 'form' => null,
@@ -201,7 +203,12 @@ class ContributionController extends AbstractActionController
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
                 'mode' => 'read',
+                'space' => $space,
             ]);
+            if ($space === 'guest') {
+                $view->setTemplate('guest/site/guest/contribution-add');
+            }
+            return $view;
         }
 
         if (!$template) {
@@ -240,7 +247,7 @@ class ContributionController extends AbstractActionController
         // First step: select a template if not set. Else mode is read only.
         // The read-only allows to use multi-steps form.
         if (!$resourceTemplate || $mode === 'read') {
-            return new ViewModel([
+            $view = new ViewModel([
                 'site' => $site,
                 'user' => $user,
                 'form' => $form,
@@ -250,7 +257,12 @@ class ContributionController extends AbstractActionController
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
                 'mode' => $resourceId ? 'read' : $mode,
+                'space' => $space,
             ]);
+            if ($space === 'guest') {
+                $view->setTemplate('guest/site/guest/contribution-add');
+            }
+            return $view;
         }
 
         // In all other cases (second step), the mode is write, else it is edit.
@@ -306,10 +318,11 @@ class ContributionController extends AbstractActionController
                                 'resource' => null,
                                 'data' => $data,
                             ]);
-                            $content = $response->getContent();
-                            return $content->resource()
-                                ? $this->redirect()->toUrl($content->resource()->url())
-                                : $this->redirectContribution($content);
+                            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution $content */
+                            $contribution = $response->getContent();
+                            return $contribution->resource()
+                                ? $this->redirect()->toUrl($contribution->resource()->siteUrl())
+                                : $this->redirectContribution($contribution);
                         }
                     }
                 }
@@ -347,7 +360,7 @@ class ContributionController extends AbstractActionController
             $fieldsMediaBase = [];
         }
 
-        return new ViewModel([
+        $view = new ViewModel([
             'site' => $site,
             'user' => $user,
             'form' => $form,
@@ -357,7 +370,12 @@ class ContributionController extends AbstractActionController
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
             'mode' => 'write',
+            'space' => $space,
         ]);
+        if ($space === 'guest') {
+            $view->setTemplate('guest/site/guest/contribution-add');
+        }
+        return $view;
     }
 
     /**
@@ -775,6 +793,11 @@ class ContributionController extends AbstractActionController
     {
         $params = $this->params();
         $next = $params->fromQuery('next') ?? $params->fromPost('next') ?? '';
+        // TODO Guest does not manage edit for now.
+        $space = $this->params('space', 'default');
+        if ($space === 'guest') {
+            return $this->redirect()->toRoute('site/guest/contribution', [], [], true);
+        }
         if (!$next) {
             return $this->redirect()->toUrl($contribution->url());
         }

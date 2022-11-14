@@ -10,6 +10,7 @@
  * @var array $fieldsMediaBase
  * @var string $action "add" or "edit" or "show"
  * @var string $mode "read" or "write"
+ * @var string $space "default" or "guest"
  * @var string $submitLabel
  * @var bool $isMainForm
  * @var bool $skipContributeCss
@@ -28,7 +29,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 // TODO Replace apiManager by FormElementManager.
 $services = $site->getServiceLocator();
 $apiManager = $services->get('Omeka\ApiManager');
-$CustomVocabBaseTypes = $plugins->get('customVocabBaseType')();
+$customVocabBaseTypes = $plugins->get('customVocabBaseType')();
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
@@ -57,7 +58,7 @@ $vars['escape'] = $escape;
 $vars['translate'] = $translate;
 $vars['escapeAttr'] = $escapeAttr;
 $vars['apiManager'] = $apiManager;
-$vars['customVocabBaseTypes'] = $CustomVocabBaseTypes;
+$vars['customVocabBaseTypes'] = $customVocabBaseTypes;
 $vars['valueResourceTypes'] = $valueResourceTypes;
 $vars['valueResourceQueries'] = $valueResourceQueries;
 $vars['shortResourceTitle'] = $shortResourceTitle;

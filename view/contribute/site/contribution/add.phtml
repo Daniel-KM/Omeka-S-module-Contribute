@@ -10,6 +10,7 @@
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
  * @var string $mode "read" (for template) or "write"
+ * @var string $space "default" or "guest"
  */
 
 // Resource/contribution is passed only when reading for template.
@@ -29,7 +30,7 @@ $mapLabels = [
 ];
 ?>
 
-<div class="contribute-resource conbribute-add container">
+<div class="contribute-resource conbribute-add container <?= $space && $space !== 'default' ? $space : '' ?>">">
 
     <?= $this->pageTitle(sprintf($translate('Add %s'), $translate($mapLabels['items'])), 2) ?>
     <h3><?= $escape($translate('New resource')) ?></h3>
@@ -51,6 +52,7 @@ $mapLabels = [
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'add',
             'mode' => $mode,
+            'space' => $space,
             'submitLabel' => $translate('Add'),
             'isMainForm' => true,
             'skipContributeCss' => false,
