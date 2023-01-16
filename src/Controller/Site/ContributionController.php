@@ -359,6 +359,7 @@ class ContributionController extends AbstractActionController
         $fields = $contributionFields(null, $contribution, $resourceTemplate);
 
         // Only items can have a sub resource template for medias.
+        // A media template may have no fields but it should be prepared anyway.
         if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
             $resourceTemplateMedia = $contributive->contributiveMedia()->template();
             $fieldsByMedia = [];
@@ -370,6 +371,7 @@ class ContributionController extends AbstractActionController
             // Add a list of fields without values for new media.
             $fieldsMediaBase = $contributionFields(null, $contribution, $contributive->contributiveMedia()->template(), true);
         } else {
+            $resourceTemplateMedia = null;
             $fieldsByMedia = [];
             $fieldsMediaBase = [];
         }
@@ -381,6 +383,7 @@ class ContributionController extends AbstractActionController
             'contribution' => null,
             'resource' => null,
             'fields' => $fields,
+            'templateMedia' => $resourceTemplateMedia,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'add',
@@ -513,6 +516,7 @@ class ContributionController extends AbstractActionController
                 'contribution' => $contribution,
                 'resource' => $resource,
                 'fields' => [],
+                'templateMedia' => null,
                 'fieldsByMedia' => [],
                 'fieldsMediaBase' => [],
                 'action' => 'edit',
@@ -672,6 +676,7 @@ class ContributionController extends AbstractActionController
         $fields = $contributionFields($resource, $contribution);
 
         // Only items can have a sub resource template for medias.
+        // A media template may have no fields but it should be prepared anyway.
         if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
             $resourceTemplateMedia = $contributive->contributiveMedia()->template();
             $fieldsByMedia = [];
@@ -683,6 +688,7 @@ class ContributionController extends AbstractActionController
             // Add a list of fields without values for new media.
             $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), true);
         } else {
+            $resourceTemplateMedia = null;
             $fieldsByMedia = [];
             $fieldsMediaBase = [];
         }
@@ -694,6 +700,7 @@ class ContributionController extends AbstractActionController
             'contribution' => $contribution,
             'resource' => $resource,
             'fields' => $fields,
+            'templateMedia' => $resourceTemplateMedia,
             'fieldsByMedia' => $fieldsByMedia,
             'fieldsMediaBase' => $fieldsMediaBase,
             'action' => 'edit',

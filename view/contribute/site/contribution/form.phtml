@@ -7,6 +7,7 @@
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
  * @var array $fields
+ * @var \Omeka\Api\Representation\ResourceTemplateRepresentation $templateMedia A sub template for media may have no fields.
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
  * @var string $action "add" or "edit" or "show"
@@ -207,7 +208,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
     <?php if ($isMainForm): ?>
         </fieldset>
 
-        <?php if (count($fieldsMediaBase)): ?>
+        <?php if (!empty($templateMedia)): ?>
         <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>"<?= $disabled ?>>
             <?php // For end user, "media" means "files". // TODO Add other types of media. ?>
             <legend><?= $escape($translate('Files')) ?></legend>
@@ -274,7 +275,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
     <?php //= $partial('common/resource-form-templates') ?>
     <?= $partial('contribute/site/contribution/form-inputs-default') ?>
 
-    <?php if (count($fieldsMediaBase)): ?>
+    <?php if (!empty($templateMedia)): ?>
     <div id="edit_template_media" class="contribute_template media" style="display:none;">
         <fieldset class="contribute-media sub-form" name="media[]" data-index-media="">
             <legend><?= $escape($translate('File')) ?></legend>

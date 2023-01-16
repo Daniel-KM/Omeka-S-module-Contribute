@@ -34,6 +34,7 @@ class ContributionForm extends AbstractHelper
             'contribution' => null,
             'resource' => null,
             'fields' => [],
+            'templateMedia' => null,
             'fieldsByMedia' => [],
             'fieldsMediaBase' => [],
             'action' => null,
