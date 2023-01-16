@@ -11,14 +11,20 @@ class SettingsFieldset extends Fieldset
 {
     protected $label = 'Contribute'; // @translate
 
+    protected $elementGroups = [
+        'contribution' => 'contribution', // @translate
+    ];
+
     public function init(): void
     {
         $this
             ->setAttribute('id', 'contribute')
+            ->setOption('element_groups', $this->elementGroups)
             ->add([
                 'name' => 'contribute_mode',
                 'type' => Element\Radio::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Contribution mode', // @translate
                     'value_options' => [
                         'user_token' => 'Authenticated users with token', // @translate
@@ -41,6 +47,7 @@ class SettingsFieldset extends Fieldset
                 'type' => AdvancedResourceTemplateElement\OptionalRoleSelect::class,
                 'name' => 'contribute_roles',
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Roles allowed to contribute (option "Roles" above)', // @translate
                     'empty_option' => '',
                 ],
@@ -57,6 +64,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_templates',
                 'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Resource templates allowed for contribution', // @translate
                     'empty_option' => '',
                 ],
@@ -73,6 +81,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_templates_media',
                 'type' => AdvancedResourceTemplateElement\OptionalResourceTemplateSelect::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Resource templates allowed for media (linked contribution)', // @translate
                     'empty_option' => '',
                 ],
@@ -89,6 +98,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_token_duration',
                 'type' => Element\Number::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Days for token to expire', // @translate
                     'info' => 'Allow to set the default expiration date of a token. Let empty to remove expiration.', // @translate
                 ],
@@ -104,6 +114,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_allow_update',
                 'type' => Element\Radio::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Allow to edit a contribution', // @transale
                     'value_options' => [
                         'no' => 'No (directly submitted)', // @translate
@@ -121,6 +132,7 @@ class SettingsFieldset extends Fieldset
                 'name' => 'contribute_notify_recipients',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Emails to notify contributions', // @translate
                     'info' => 'A query can be appended to limit notifications to specific contributions.', // @translate
                 ],
@@ -137,6 +149,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_author_emails',
                 'type' => AdvancedResourceTemplateElement\OptionalPropertySelect::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Emails of the author', // @translate
                     'empty_option' => '',
                     'prepend_value_options' => [
@@ -157,6 +170,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_author_confirmations',
                 'type' => AdvancedResourceTemplateElement\OptionalMultiCheckbox::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Confirmations to author', // @translate
                     'value_options' => [
                         // 'prepare' => 'On prepare', // @translate
@@ -174,6 +188,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_message_add',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Message displayed when a contribution is added', // @translate
                 ],
                 'attributes' => [
@@ -185,6 +200,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_message_edit',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Message displayed when a contribution is edited', // @translate
                 ],
                 'attributes' => [
@@ -196,6 +212,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_author_confirmation_subject',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Subject of the confirmation email to the author', // @translate
                     'info' => 'May be overridden by a specific subject set in the resource template', // @translate
                 ],
@@ -207,6 +224,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_author_confirmation_body',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Confirmation message to the author', // @translate
                     'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
                 ],
@@ -220,6 +238,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_reviewer_confirmation_subject',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Subject of the confirmation email to the reviewers', // @translate
                     'info' => 'May be overridden by a specific subject set in the resource template', // @translate
                 ],
@@ -231,6 +250,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'name' => 'contribute_reviewer_confirmation_body',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Confirmation message to the reviewers', // @translate
                     'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
                 ],
