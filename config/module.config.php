@@ -84,7 +84,7 @@ return [
         'AdminResource' => [
             'contribution' => [
                 'label' => 'Contributions', // @translate
-                'class' => 'contributions far fa-edit',
+                'class' => 'o-icon- contributions fa-edit',
                 'route' => 'admin/contribution',
                 // 'resource' => Controller\Admin\ContributionController::class,
                 // 'privilege' => 'browse',
