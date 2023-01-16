@@ -16,6 +16,7 @@
  */
 
 $plugins = $this->getHelperPluginManager();
+$setting = $plugins->get('setting');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $contributionForm = $plugins->get('contributionForm');
@@ -57,7 +58,7 @@ $mapLabels = [
             'action' => $action,
             'mode' => $mode,
             'space' => $space,
-            'submitLabel' => $action === 'add' ? $translate('Add') : $translate('Submit'),
+            'submitLabel' => $action === 'add' && $setting('contribute_allow_update') !== 'no' ? $translate('Add') : $translate('Submit'),
             'cancelLabel' => $translate('Cancel'),
             'isMainForm' => true,
             'skipContributeCss' => false,

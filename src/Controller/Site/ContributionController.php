@@ -301,6 +301,10 @@ class ContributionController extends AbstractActionController
                 // $data = $form->getData();
                 $data = array_diff_key($post, ['csrf' => null, 'edit-resource-submit' => null]);
                 $data = $this->checkAndIncludeFileData($data);
+                // To simplify process, a direct submission is made with a
+                // create then an update.
+                $allowUpdate = $this->settings()->get('contribute_allow_update');
+                $isDirectSubmission = $allowUpdate === 'no';
                 if (empty($data['has_error'])) {
                     $proposal = $this->prepareProposal($data);
                     if ($proposal) {
@@ -318,6 +322,29 @@ class ContributionController extends AbstractActionController
                         ];
                         $response = $this->api($form)->create('contributions', $data);
                         if ($response) {
+                            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution $content */
+                            $contribution = $response->getContent();
+                            // $this->prepareContributionEmail($response->getContent(), 'prepare');
+                            $eventManager = $this->getEventManager();
+                            $eventManager->trigger('contribute.submit', $this, [
+                                'contribution' => $contribution,
+                                'resource' => null,
+                                'data' => $data,
+                            ]);
+                            // For a direct submission, process via the normal
+                            // submission.
+                            // Note that the submission may be invalid for now.
+                            // TODO Process a direct submission without full validation.
+                            if ($isDirectSubmission) {
+                                $params = $this->params()->fromRoute();
+                                $params['controller'] = 'Contribute\Controller\Site\Contribution';
+                                $params['__CONTROLLER__'] = 'contribution';
+                                $params['action'] = 'submit';
+                                $params['resource'] = 'contribution';
+                                $params['id'] = $contribution->id();
+                                $params['space'] = $space;
+                                return $this->forward()->dispatch('Contribute\Controller\Site\Contribution', $params);
+                            }
                             $message = $this->settings()->get('contribute_message_add');
                             if ($message) {
                                 $this->messenger()->addSuccess($message);
@@ -325,15 +352,6 @@ class ContributionController extends AbstractActionController
                                 $this->messenger()->addSuccess('Contribution successfully saved!'); // @translate
                                 $this->messenger()->addWarning('Review it before its submission.'); // @translate
                             }
-                            // $this->prepareContributionEmail($response->getContent(), 'prepare');
-                            $eventManager = $this->getEventManager();
-                            $eventManager->trigger('contribute.submit', $this, [
-                                'contribution' => $response->getContent(),
-                                'resource' => null,
-                                'data' => $data,
-                            ]);
-                            /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution $content */
-                            $contribution = $response->getContent();
                             return $contribution->resource()
                                 ? $this->redirect()->toUrl($contribution->resource()->siteUrl())
                                 : $this->redirectContribution($contribution);
@@ -546,7 +564,8 @@ class ContributionController extends AbstractActionController
             $form->get('mode')->setValue('read');
         }
 
-        $allowUpdateUntilValidation = $this->settings()->get('contribute_allow_update') === 'validation';
+        $allowUpdate = $this->settings()->get('contribute_allow_update');
+        $allowUpdateUntilValidation = $allowUpdate === 'validation';
         $isCorrection = !$contribution || $contribution->isPatch();
 
         if (!$isCorrection

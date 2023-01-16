@@ -106,6 +106,7 @@ class SettingsFieldset extends Fieldset
                 'options' => [
                     'label' => 'Allow to edit a contribution', // @transale
                     'value_options' => [
+                        'no' => 'No (directly submitted)', // @translate
                         'submission' => 'Until submission', // @translate
                         'validation' => 'Until validation', // @translate
                     ],
