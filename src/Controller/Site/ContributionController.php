@@ -278,7 +278,8 @@ class ContributionController extends AbstractActionController
                 );
         }
 
-        // In all other cases (second step), the mode is write, else it is edit.
+        // In all other cases (second step), the mode is write, else the called
+        // method would be edit.
         if ($resourceId) {
             $params = $this->params()->fromRoute();
             $params['action'] = 'edit';
@@ -399,7 +400,7 @@ class ContributionController extends AbstractActionController
      * Indeed, there are two types of edition:
      * - edit a contribution not yet approved, so the user is editing his
      *   contribution, one or multiple times;
-     * - edit an existing item or resouce, so this is a correction and each
+     * - edit an existing item or resource, so this is a correction and each
      *   correction is a new correction (or a patch).
      *
      * It is always possible to correct an item, but a new contribution cannot

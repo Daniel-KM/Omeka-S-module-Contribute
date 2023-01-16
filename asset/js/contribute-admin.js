@@ -17,21 +17,25 @@ Omeka.contributionManageSelectedActions = function() {
     // Browse batch actions.
     $(function() {
 
-        var batchSelect = $('#batch-form .batch-actions-select');
+        const batchSelect = $('#batch-form .batch-actions-select');
+        batchSelect.attr('name', 'batch_action');
+
         batchSelect.append(
-            $('<option class="batch-selected" disabled></option>').val('contribution-selected').html(Omeka.jsTranslate('Prepare tokens to edit selected'))
+            $('<option class="batch-selected" disabled></option>').val('contribution_selected').html(Omeka.jsTranslate('Prepare tokens to edit selected'))
         );
         batchSelect.append(
-            $('<option></option>').val('contribution-all').html(Omeka.jsTranslate('Prepare tokens to edit all'))
+            $('<option></option>').val('contribution_all').html(Omeka.jsTranslate('Prepare tokens to edit all'))
         );
-        var batchActions = $('#batch-form .batch-actions');
+
+        const batchActions = $('#batch-form .batch-actions');
         batchActions.append(
             $('<input type="submit" class="contribution-selected" formaction="contribution/create-token">').val(Omeka.jsTranslate('Go'))
         );
         batchActions.append(
             $('<input type="submit" class="contribution-all" formaction="contribution/create-token">').val(Omeka.jsTranslate('Go'))
         );
-        var resourceType = window.location.pathname.split("/").pop();
+
+        const resourceType = window.location.pathname.split("/").pop();
         batchActions.append(
             $('<input type="hidden" name="resource_type">').val(resourceType)
         );

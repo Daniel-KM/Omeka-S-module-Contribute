@@ -2,19 +2,22 @@
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Entity\User|null $user
+ * @var \Contribute\Form\ContributeForm $form
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
- * @var \Contribute\Form\ContributeForm $form
  * @var array $fields
  * @var array $fieldsByMedia
  * @var array $fieldsMediaBase
  * @var string $action "add" or "edit" or "show"
- * @var string $mode "read" or "write"
+ * @var string $mode "read" (for template select or for show readonly form before submit) or "write"
  * @var string $space "default" or "guest"
+ *
  * @var string $submitLabel
  * @var string $cancelLabel
  * @var bool $isMainForm
  * @var bool $skipContributeCss
+ *
  * When called recursively for sub-fields (media):
  * @var ?int $indexMedia
  * @var array $fieldsMedia
@@ -206,7 +209,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
 
         <?php if (count($fieldsMediaBase)): ?>
         <fieldset class="contribute-medias sub-forms" data-next-index-media="<?= count($fieldsByMedia) ?>"<?= $disabled ?>>
-            <?php // For end user, "media" means "files". ?>
+            <?php // For end user, "media" means "files". // TODO Add other types of media. ?>
             <legend><?= $escape($translate('Files')) ?></legend>
             <?php
             $vars->offsetSet('isMainForm', false);
@@ -236,7 +239,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
         $vars->offsetSet('indexMedia', $indexMedia);
         $vars->offsetSet('fieldsMedia', $fieldsMedia);
         ?>
-        <?php endif; ?>
+        <?php endif; // End template media. ?>
 
         <?= $formElement($form->get('template')) ?>
         <?php // These values are designed to be customized for complex workflow, or used with submit or any button. ?>
@@ -248,7 +251,6 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
         <?= $mode === 'read' ? '' : $formElement($form->get('csrf')) ?>
 
         <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
-
         <div id="page-actions">
             <?php if ($resource): ?>
             <?= $hyperlink($translate('Cancel'), $resource->siteUrl(), ['class' => 'button button-cancel', 'role' => 'button']) ?>
@@ -292,8 +294,8 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
             </ul>
         </fieldset>
     </div>
-    <?php endif; ?>
+    <?php endif; // End template media. ?>
 
 </div>
 
-<?php endif; ?>
+<?php endif; // End isMainForm. ?>

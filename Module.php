@@ -30,11 +30,11 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
-        if ($module && version_compare($module->getIni('version') ?? '', '3.3.35', '<')) {
+        if ($module && version_compare($module->getIni('version') ?? '', '3.4.41', '<')) {
             $translator = $services->get('MvcTranslator');
             $message = new \Omeka\Stdlib\Message(
                 $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-                'Generic', '3.3.35'
+                'Generic', '3.4.41'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
@@ -787,7 +787,7 @@ SQL;
     protected function checkDestinationDir(string $dirPath): ?string
     {
         if (file_exists($dirPath)) {
-            if (!is_dir($dirPath) || !is_readable($dirPath) || !is_writable($dirPath)) {
+            if (!is_dir($dirPath) || !is_readable($dirPath) || !is_writeable($dirPath)) {
                 $this->getServiceLocator()->get('Omeka\Logger')->err(new \Omeka\Stdlib\Message(
                     'The directory "%s" is not writeable.', // @translate
                     $dirPath

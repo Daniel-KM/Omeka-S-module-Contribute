@@ -46,6 +46,7 @@ class ContributiveData extends AbstractPlugin
             'datatypes_default' => [],
             'template_media' => null,
             'is_sub_template' => $isSubTemplate,
+            // Keep false when not checked, then sub contributive data or null.
             'contributive_media' => false,
         ]);
 
