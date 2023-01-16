@@ -42,14 +42,18 @@ return [
         ],
         'factories' => [
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
+            'contributionLink' => Service\ViewHelper\ContributionLinkFactory::class,
             'contributionSearchFilters' => Service\ViewHelper\ContributionSearchFiltersFactory::class,
-            'linkContribute' => Service\ViewHelper\LinkContributeFactory::class,
+        ],
+        'aliases' => [
+            // @deprecated
+            'linkContribute' => 'contributionLink',
         ],
     ],
     'form_elements' => [
         'invokables' => [
-            Form\ContributeForm::class => Form\ContributeForm::class,
             Form\Element\ArrayQueryTextarea::class => Form\Element\ArrayQueryTextarea::class,
+            Form\ContributeForm::class => Form\ContributeForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
         'factories' => [

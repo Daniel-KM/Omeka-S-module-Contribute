@@ -14,6 +14,7 @@ $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
+$contributionLink = $plugins->get('contributionLink');
 
 $this->vars()->offsetSet('skipContributeCss', false);
 $partial('contribute/site/contribution/asset-include');
@@ -59,5 +60,5 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource brow
 </p>
 <?php endif; ?>
 <div>
-    <?= $this->linkContribute() ?>
+    <?= $contributionLink() ?>
 </div>

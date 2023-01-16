@@ -419,7 +419,7 @@ class Module extends AbstractModule
 
     public function handleViewShowAfter(Event $event): void
     {
-        echo $event->getTarget()->linkContribute();
+        echo $event->getTarget()->contributionLink();
     }
 
     public function handleGuestWidgets(Event $event): void

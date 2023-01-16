@@ -6,12 +6,12 @@ use Contribute\Mvc\Controller\Plugin\CheckToken;
 use Laminas\View\Helper\AbstractHelper;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 
-class LinkContribute extends AbstractHelper
+class ContributionLink extends AbstractHelper
 {
     /**
      * The default partial view script.
      */
-    const PARTIAL_NAME = 'common/contribute-link';
+    const PARTIAL_NAME = 'common/contribution-link';
 
     /**
      * @var CheckToken
