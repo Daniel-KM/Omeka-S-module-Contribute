@@ -18,7 +18,9 @@ class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    protected $dependency = 'AdvancedResourceTemplate';
+    protected $dependencies = [
+        'AdvancedResourceTemplate',
+    ];
 
     public function onBootstrap(MvcEvent $event): void
     {
@@ -593,8 +595,10 @@ HTML;
 
     public function handleMainSettingsFilters(Event $event): void
     {
-        $event->getParam('inputFilter')
-            ->get('contribute')
+        $inputFilter = version_compare(\Omeka\Module::VERSION, '4', '<')
+            ? $event->getParam('inputFilter')->get('contribute')
+            : $event->getParam('inputFilter');
+        $inputFilter
             ->add([
                 'name' => 'contribute_templates',
                 'required' => false,

@@ -66,7 +66,7 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
     }
 
-    $this->checkDependency();
+    $this->checkDependencies();
 
     // @link https://www.doctrine-project.org/projects/doctrine-dbal/en/2.6/reference/types.html#array-types
     $sql = <<<'SQL'

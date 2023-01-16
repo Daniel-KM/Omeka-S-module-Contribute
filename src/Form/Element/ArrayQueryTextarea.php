@@ -12,7 +12,7 @@ class ArrayQueryTextarea extends ArrayTextarea
         return $this;
     }
 
-    public function getInputSpecification()
+    public function getInputSpecification(): array
     {
         return [
             'name' => $this->getName(),
@@ -29,7 +29,7 @@ class ArrayQueryTextarea extends ArrayTextarea
         ];
     }
 
-    public function arrayQueryToString($array)
+    public function arrayQueryToString($array): string
     {
         if (is_string($array)) {
             return $array;
@@ -40,7 +40,7 @@ class ArrayQueryTextarea extends ArrayTextarea
         return parent::arrayToString(array_filter($array));
     }
 
-    public function stringToArrayQuery($string)
+    public function stringToArrayQuery($string): array
     {
         if (is_array($string)) {
             return $string;

@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Contribute;
 
 /**
@@ -14,6 +15,7 @@ $moduleManager = $services->get('Omeka\ModuleManager');
 $correctionModule = $moduleManager->getModule('Correction');
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
+$messenger = $plugins->get('messenger');
 
 if (!$correctionModule) {
     return;
@@ -55,7 +57,7 @@ SQL;
     // See core commit #2689ce92f.
     $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
     foreach ($sqls as $sql) {
-        $connection->exec($sql);
+        $connection->executeStatement($sql);
     }
 
     $this->installAllResources();
@@ -102,7 +104,7 @@ SQL;
 
 $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
 foreach ($sqls as $sql) {
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 }
 
 // Convert the settings.
@@ -113,5 +115,4 @@ require_once __DIR__ . '/upgrade.php';
 $message = new \Omeka\Stdlib\Message(
     'The module Correction was upgraded by module Contribute and uninstalled.' // @translate
 );
-$messenger = new \Omeka\Mvc\Controller\Plugin\Messenger;
 $messenger->addWarning($message);

@@ -30,7 +30,7 @@ class QuickSearchFormFactory implements FactoryInterface
 
         $urlHelper = $services->get('ViewHelperManager')->get('url');
 
-        $form = new QuickSearchForm(null, $options);
+        $form = new QuickSearchForm(null, $options ?? []);
         return $form
             ->setResourceTemplates($resourceTemplates)
             ->setUrlHelper($urlHelper);
