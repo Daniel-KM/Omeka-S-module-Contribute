@@ -270,3 +270,10 @@ if (version_compare($oldVersion, '3.3.0.18', '<')) {
     );
     $messenger->addWarning($message);
 }
+
+if (version_compare($oldVersion, '3.4.0.20', '<')) {
+    $message = new Message(
+        'It’s now possible to submit a contribution in one step.' // @translate );
+    );
+    $messenger->addSuccess($message);
+}
