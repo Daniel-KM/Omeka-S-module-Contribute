@@ -12,7 +12,7 @@ class SettingsFieldset extends Fieldset
     protected $label = 'Contribute'; // @translate
 
     protected $elementGroups = [
-        'contribution' => 'contribution', // @translate
+        'contribution' => 'Contribution', // @translate
     ];
 
     public function init(): void
