@@ -33,14 +33,7 @@
     .contributions .resource-details .contribution-internal-id {
         font-size: 0.7em;
     }
-    .section-nav {
-        height: initial;
-        min-height: 42px;
-    }
-    .section-nav ul {
-        display: flex;
-        flex-wrap: wrap;
-    }
+
     .contribution table .resource-name {
         display: inline-block;
         vertical-align: bottom;
