@@ -44,7 +44,7 @@ trait ContributionTrait
 
         // Validate only: the simplest way is to skip flushing.
         // Nevertheless, a simple contributor has no right to create a resource.
-        // So skip rights before and after.
+        // So skip rights before and remove skip after.
         // But some other modules can persist it inadvertently (?)
         // So use api, and add an event to add an error to the error store and
         // check if it is the only one.
