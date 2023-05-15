@@ -22,7 +22,7 @@ class ContributeForm extends Form
         // TODO (but working for now inside module) Omeka inverts the options and the name when using getForm().
         is_array($name)
             ? parent::__construct(null, $name)
-            : parent::__construct($name, $options);
+            : parent::__construct($name, $options ?? []);
     }
 
     public function init(): void
