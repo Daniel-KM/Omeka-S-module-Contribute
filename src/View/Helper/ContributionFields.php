@@ -192,8 +192,8 @@ class ContributionFields extends AbstractHelper
             $term = $property->term();
             if ($this->hasAdvancedTemplate) {
                 /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty */
-                $minValues = (int) $templateProperty->mainDataValue('min_values', 0);
-                $maxValues = (int) $templateProperty->mainDataValue('max_values', 0);
+                $minValues = (int) $templateProperty->mainDataValue('min_values');
+                $maxValues = (int) $templateProperty->mainDataValue('max_values');
             } else {
                 $minValues = 0;
                 $maxValues = 0;

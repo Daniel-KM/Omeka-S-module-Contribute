@@ -111,12 +111,12 @@ class ContributiveData extends AbstractPlugin
                 continue;
             }
             // TODO Manage repeatable property.
-            $this->data['min_values'] = (int) $rtpData->dataValue('min_values', 0);
-            $this->data['max_values'] = (int) $rtpData->dataValue('max_values', 0);
-            if ($rtpData->dataValue('editable', false)) {
+            $this->data['min_values'] = (int) $rtpData->dataValue('min_values');
+            $this->data['max_values'] = (int) $rtpData->dataValue('max_values');
+            if ($rtpData->dataValue('editable')) {
                 $this->data['editable'][$term] = $propertyId;
             }
-            if ($rtpData->dataValue('fillable', false)) {
+            if ($rtpData->dataValue('fillable')) {
                 $this->data['fillable'][$term] = $propertyId;
             }
         }
