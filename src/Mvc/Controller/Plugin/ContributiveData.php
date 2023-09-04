@@ -94,6 +94,11 @@ class ContributiveData extends AbstractPlugin
 
         $this->data['template'] = $resourceTemplate;
 
+        if (!method_exists($resourceTemplate, 'data')) {
+            $controller->logger()->err('The module Advanced Resource Template is not available.'); // @translate
+            return $this;
+        }
+
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
         foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
             $property = $resourceTemplateProperty->property();
@@ -102,9 +107,6 @@ class ContributiveData extends AbstractPlugin
             $datatype = $resourceTemplateProperty->dataType();
             $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
             $this->data['required'] = $resourceTemplateProperty->isRequired();
-            if (!method_exists($resourceTemplateProperty, 'data')) {
-                continue;
-            }
             $rtpData = $resourceTemplateProperty->mainData();
             if (!$rtpData) {
                 continue;
@@ -120,7 +122,7 @@ class ContributiveData extends AbstractPlugin
             }
         }
 
-        if (!$isSubTemplate && method_exists($resourceTemplate, 'dataValue')) {
+        if (!$isSubTemplate) {
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplateMedia */
             $resourceTemplateMedia = $this->resourceTemplate($resourceTemplate->dataValue('contribute_template_media'));
             $resourceTemplateMediaId = $resourceTemplateMedia ? $resourceTemplateMedia->id() : null;
