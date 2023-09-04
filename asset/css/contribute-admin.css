@@ -280,6 +280,12 @@
     .contributions.browse .sidebar label::after {
         top: initial;
     }
+    .contributions.browse .sidebar .meta-group.contribution {
+        justify-content: normal;
+    }
+    .contributions.browse .sidebar .meta-group.contribution .contribution{
+        padding-left: 12px;
+    }
 }
 
 @media screen and (max-width: 640px) {

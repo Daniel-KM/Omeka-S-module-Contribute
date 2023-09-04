@@ -29,7 +29,7 @@ $translate = $plugins->get('translate');
         ?>
         <div class="value"><?= $ownerText ?></div>
     </div>
-    <div class="meta-group">
+    <div class="meta-group contribution contribution-resource">
         <h4><?= $escape($translate('Resource')) ?></h4>
         <ul class="contribution-status">
             <li class="resource"><?= $resource->resource() ? $resource->resource()->linkPretty() : $escape($translate('No resource')) ?></li>
