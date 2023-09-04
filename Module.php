@@ -748,7 +748,7 @@ SQL;
         $connection = $services->get('Omeka\Connection');
         $storeds = $connection->executeQuery($sql)->fetchFirstColumn();
         $storeds = array_map('json_decode', $storeds);
-        $storeds = $storeds ? array_unique(array_merge(...$storeds)) : [];
+        $storeds = $storeds ? array_unique(array_merge(...array_values($storeds))) : [];
 
         $config = $services->get('Config');
         $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
