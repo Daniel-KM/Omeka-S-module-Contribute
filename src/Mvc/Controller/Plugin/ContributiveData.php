@@ -104,8 +104,7 @@ class ContributiveData extends AbstractPlugin
             $property = $resourceTemplateProperty->property();
             $propertyId = $property->id();
             $term = $property->term();
-            $datatype = $resourceTemplateProperty->dataType();
-            $this->data['datatype'][$term] = $datatype ? [$datatype] : $this->data['datatypes_default'];
+            $this->data['datatype'][$term] = $resourceTemplateProperty->dataTypes() ?: $this->data['datatypes_default'];
             $this->data['required'] = $resourceTemplateProperty->isRequired();
             $rtpData = $resourceTemplateProperty->mainData();
             if (!$rtpData) {
