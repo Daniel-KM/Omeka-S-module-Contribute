@@ -21,9 +21,9 @@ class ContributionController extends AbstractActionController
     use ContributionTrait;
 
     /**
-     * @var \Omeka\File\Uploader
+     * @var \Doctrine\ORM\EntityManager
      */
-    protected $uploader;
+    protected $entityManager;
 
     /**
      * @var \Omeka\File\TempFileFactory
@@ -31,19 +31,24 @@ class ContributionController extends AbstractActionController
     protected $tempFileFactory;
 
     /**
-     * @var \Doctrine\ORM\EntityManager
+     * @var \Omeka\File\Uploader
      */
-    protected $entityManager;
+    protected $uploader;
 
     /**
      * @var string
      */
-    protected $string;
+    protected $basePath;
 
     /**
      * @var array
      */
     protected $config;
+
+    /**
+     * @var string
+     */
+    protected $string;
 
     public function __construct(
         Uploader $uploader,
