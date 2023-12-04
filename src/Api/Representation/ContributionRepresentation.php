@@ -1153,7 +1153,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return $this->valuesMedias;
         }
 
-        $this->valuesMedia = [];
+        $this->valuesMedias = [];
 
         // No event triggered for now.
         $contributionResource = $this->resource();
