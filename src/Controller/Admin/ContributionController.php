@@ -78,6 +78,8 @@ class ContributionController extends AbstractActionController
             $params['sort_order'] = 'desc';
         }
 
+        $this->browse()->setDefaults('contributions');
+
         $response = $this->api()->search('contributions', $params);
         $this->paginator($response->getTotalResults());
 
