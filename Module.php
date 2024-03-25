@@ -2,23 +2,32 @@
 
 namespace Contribute;
 
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
-use Generic\AbstractModule;
+use Common\Stdlib\PsrMessage;
+use Common\TraitModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 use Laminas\View\Renderer\PhpRenderer;
+use Omeka\Module\AbstractModule;
 
+/**
+ * Contribute
+ *
+ * @copyright Daniel Berthereau, 2019-2024
+ * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
+ */
 class Module extends AbstractModule
 {
+    use TraitModule;
+
     const NAMESPACE = __NAMESPACE__;
 
     protected $dependencies = [
+        'Common',
         'AdvancedResourceTemplate',
     ];
 
@@ -31,24 +40,27 @@ class Module extends AbstractModule
     protected function preInstall(): void
     {
         $services = $this->getServiceLocator();
-        $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
-        if ($module && version_compare($module->getIni('version') ?? '', '3.4.41', '<')) {
-            $translator = $services->get('MvcTranslator');
+        $plugins = $services->get('ControllerPluginManager');
+        $translate = $plugins->get('translate');
+        $translator = $services->get('MvcTranslator');
+
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.54')) {
             $message = new \Omeka\Stdlib\Message(
-                $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-                'Generic', '3.4.43'
+                $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                'Common', '3.4.54'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
         $config = $services->get('Config');
         $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+
         if (!$this->checkDestinationDir($basePath . '/contribution')) {
-            $message = new \Omeka\Stdlib\Message(
-                'The directory "%s" is not writeable.', // @translate
-                $basePath . '/contribution'
+            $message = new PsrMessage(
+                'The directory "{directory}" is not writeable.', // @translate
+                ['directory' => $basePath . '/contribution']
             );
-            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message->setTranslator($translator));
         }
     }
 
@@ -339,11 +351,6 @@ class Module extends AbstractModule
             'form.add_elements',
             [$this, 'handleMainSettings']
         );
-        $sharedEventManager->attach(
-            \Omeka\Form\SettingForm::class,
-            'form.add_input_filters',
-            [$this, 'handleMainSettingsFilters']
-        );
 
         $sharedEventManager->attach(
             // \Omeka\Form\ResourceTemplateForm::class,
@@ -550,7 +557,10 @@ HTML;
     public function viewDetails(Event $event): void
     {
         $view = $event->getTarget();
+        $services = $this->getServiceLocator();
         $translate = $view->plugin('translate');
+        $translator = $services->get('MvcTranslator');
+
         $resource = $event->getParam('entity');
         $total = $view->api()
             ->search('contributions', [
@@ -565,8 +575,12 @@ HTML;
             ->getTotalResults();
         $contributions = $translate('Contributions'); // @translat
         $message = $total
-            ? sprintf($translate('%d contributions (%d not reviewed)'), $total, $totalNotReviewed) // @translate
-            : 'No contribution'; // @translate
+            ? new PsrMessage(
+                '{total} contributions ({count} not reviewed)', // @translate
+                ['total' => $total, 'count' => $totalNotReviewed]
+            )
+            : new PsrMessage('No contribution'); // @translate
+        $message->setTranslator($translator);
         echo <<<HTML
 <div class="meta-group">
     <h4>$contributions</h4>
@@ -576,19 +590,6 @@ HTML;
 </div>
 
 HTML;
-    }
-
-    public function handleMainSettingsFilters(Event $event): void
-    {
-        $inputFilter = version_compare(\Omeka\Module::VERSION, '4', '<')
-            ? $event->getParam('inputFilter')->get('contribute')
-            : $event->getParam('inputFilter');
-        $inputFilter
-            ->add([
-                'name' => 'contribute_templates',
-                'required' => false,
-            ])
-        ;
     }
 
     public function addResourceTemplateFormElements(Event $event): void
@@ -601,7 +602,7 @@ HTML;
             ->add([
                 'name' => 'contribute_template_media',
                 // Advanced Resource Template is a required dependency.
-                'type' => \AdvancedResourceTemplate\Form\Element\OptionalResourceTemplateSelect::class,
+                'type' => \Common\Form\Element\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'label' => 'Media template for contribution', // @translate
                     'info' => 'If any, the template should be in the list of allowed templates for contribution of a media', // @translate
@@ -766,59 +767,5 @@ SQL;
         return $query
             ? $url . '?' . $query
             : $url;
-    }
-
-    /**
-     * Check or create the destination folder.
-     *
-     * @param string $dirPath Absolute path.
-     */
-    protected function checkDestinationDir(string $dirPath): ?string
-    {
-        if (file_exists($dirPath)) {
-            if (!is_dir($dirPath) || !is_readable($dirPath) || !is_writeable($dirPath)) {
-                $this->getServiceLocator()->get('Omeka\Logger')->err(new \Omeka\Stdlib\Message(
-                    'The directory "%s" is not writeable.', // @translate
-                    $dirPath
-                ));
-                return null;
-            }
-            return $dirPath;
-        }
-
-        $result = @mkdir($dirPath, 0775, true);
-        if (!$result) {
-            $this->getServiceLocator()->get('Omeka\Logger')->err(new \Omeka\Stdlib\Message(
-                'The directory "%s" is not writeable: %s.', // @translate
-                $dirPath, error_get_last()['message']
-            ));
-            return null;
-        }
-        return $dirPath;
-    }
-
-    /**
-     * Remove a dir from filesystem.
-     *
-     * @param string $dirpath Absolute path.
-     */
-    private function rmDir(string $dirPath): bool
-    {
-        if (!file_exists($dirPath)) {
-            return true;
-        }
-        if (strpos($dirPath, '/..') !== false || substr($dirPath, 0, 1) !== '/') {
-            return false;
-        }
-        $files = array_diff(scandir($dirPath), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dirPath . '/' . $file;
-            if (is_dir($path)) {
-                $this->rmDir($path);
-            } else {
-                unlink($path);
-            }
-        }
-        return rmdir($dirPath);
     }
 }

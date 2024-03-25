@@ -2,6 +2,7 @@
 
 namespace Contribute\Controller\Admin;
 
+use Common\Stdlib\PsrMessage;
 use Contribute\Controller\ContributionTrait;
 use Contribute\Form\QuickSearchForm;
 use DateInterval;
@@ -12,7 +13,6 @@ use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use Omeka\Form\ConfirmForm;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
 {
@@ -117,7 +117,7 @@ class ContributionController extends AbstractActionController
         $contribution = $response->getContent();
         $res = $contribution->resource();
         if (!$res) {
-            $message = new Message('This contribution is a new resource or has no more resource.'); // @translate
+            $message = new PsrMessage('This contribution is a new resource or has no more resource.'); // @translate
             $this->messenger()->addError($message);
             $params['action'] = 'browse';
             return $this->forward()->dispatch('Contribute\Controller\Admin\Contribution', $params);
@@ -314,9 +314,9 @@ class ContributionController extends AbstractActionController
 
         $email = trim($params['email'] ?? '');
         if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->messenger()->addError(new Message(
-                'You set the optional email "%s" to create a contribution token, but it is not well-formed.', // @translate
-                $email
+            $this->messenger()->addError(new PsrMessage(
+                'You set the optional email "{email}" to create a contribution token, but it is not well-formed.', // @translate
+                ['email' => $email]
             ));
             return $params['redirect']
                 ? $this->redirect()->toUrl($params['redirect'])
@@ -356,14 +356,16 @@ class ContributionController extends AbstractActionController
             unset($token);
         }
 
-        $message = new Message(
-            'Created %1$s contribution tokens (email: %2$s, duration: %3$s): %4$s', // @translate
-            $count,
-            $email ?: new Message('none'), // @translate
-            $tokenDuration
-                ? new Message('%d days', $tokenDuration) // @translate
-                : 'unlimited', // @translate
-            '<ul><li>' . implode('</li><li>', $urls) . '</li></ul>'
+        $message = new PsrMessage(
+            'Created {total} contribution tokens (email: {email}, duration: {duration}): {urls}', // @translate
+            [
+                'total' => $count,
+                'email' => $email ?: new PsrMessage('none'), // @translate
+                'duration' => $tokenDuration
+                    ? new PsrMessage('{days} days', $tokenDuration) // @translate
+                    : new PsrMessage('unlimited'), // @translate
+                'urls' => '<ul><li>' . implode('</li><li>', $urls) . '</li></ul>',
+            ]
         );
 
         $message->setEscapeHtml(false);
@@ -398,13 +400,15 @@ class ContributionController extends AbstractActionController
             );
         $total = $response->getTotalResults();
         if (empty($total)) {
-            $message = new Message(
-                'Resource #%s has no tokens to expire.', // @translate
-                sprintf(
-                    '<a href="%s">%d</a>',
-                    htmlspecialchars($this->url()->fromRoute('admin/id', ['controller' => $resourceType, 'id' => $id])),
-                    $id
-                )
+            $message = new PsrMessage(
+                'Resource #{resource_id} has no tokens to expire.', // @translate
+                [
+                    'resource_id' => sprintf(
+                        '<a href="%s">%d</a>',
+                        htmlspecialchars($this->url()->fromRoute('admin/id', ['controller' => $resourceType, 'id' => $id])),
+                        $id
+                    ),
+                ]
             );
             $message->setEscapeHtml(false);
             $this->messenger()->addNotice($message);
@@ -568,7 +572,7 @@ class ContributionController extends AbstractActionController
 
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
-            return $this->jsonErrorUpdate(new Message(
+            return $this->jsonErrorUpdate(new PsrMessage(
                 $this->translate('Contribution is not valid: check template.') // @translate
             ));
         }
@@ -577,8 +581,8 @@ class ContributionController extends AbstractActionController
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jsonErrorUpdate(new Message(
-                $this->translate('Contribution cannot be created: some values are not valid.') // @translate
+            return $this->jsonErrorUpdate(new PsrMessage(
+                'Contribution cannot be created: some values are not valid.' // @translate
             ), $errorStore);
         }
         if (!$resource) {
@@ -618,8 +622,8 @@ class ContributionController extends AbstractActionController
 
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
-            return $this->jsonErrorUpdate(new Message(
-                $this->translate('Contribution is not valid.') // @translate
+            return $this->jsonErrorUpdate(new PsrMessage(
+                'Contribution is not valid.' // @translate
             ));
         }
 
@@ -627,8 +631,8 @@ class ContributionController extends AbstractActionController
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jsonErrorUpdate(new Message(
-                $this->translate('Contribution is not valid: check its values.') // @translate
+            return $this->jsonErrorUpdate(new PsrMessage(
+                'Contribution is not valid: check its values.' // @translate
             ), $errorStore);
         }
         if (!$resource) {
@@ -685,18 +689,18 @@ class ContributionController extends AbstractActionController
 
         $resourceData = $contribution->proposalToResourceData($term, $key);
         if (!$resourceData) {
-            return $this->jsonErrorUpdate(new Message(
-                $this->translate('Contribution is not valid.') // @translate
-            ));
+            return $this->jsonErrorUpdate((new PsrMessage(
+                'Contribution is not valid.' // @translate
+            ))->setTranslator($this->translator()));
         }
 
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jsonErrorUpdate(new Message(
-                $this->translate('Contribution is not valid: check values.') // @translate
-            ), $errorStore);
+            return $this->jsonErrorUpdate((new PsrMessage(
+                'Contribution is not valid: check values.' // @translate
+            ))->setTranslator($this->translator()), $errorStore);
         }
         if (!$resource) {
             return $this->jsonErrorUpdate();

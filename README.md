@@ -21,26 +21,35 @@ and the possibility to complete or to revise an existing document.
 Installation
 ------------
 
+### Module
+
+
+See general end user documentation for [installing a module].
+
+The module [Common] must be installed first.
+
 The module uses the module [Advanced Resource Template] in order to manage the
 forms and the properties that the users can edit or fill, so it should be
 installed first.
 
-Install the optional module [Generic] (version >= 3.3.35) too if wanted.
-
 If you want to open contribution only to authenticated users, it is recommended
 to install the module [Guest] and [Blocks Disposition] (unless you edit theme).
 
-See general end user documentation for [installing a module].
-
 * From the zip
 
-Download the last release [Contribute.zip] from the list of releases, and
-uncompress it in the `modules` directory.
+Download the last release [Contribute.zip] from the list of releases (the
+master does not contain the dependency), and uncompress it in the `modules`
+directory.
 
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
 the module to `Contribute`.
+
+### Upgrade from module Correction
+
+The upgrade from the module Correction was removed in version 3.4.24. If needed,
+install version 3.4.23 then upgrade the module.
 
 
 Usage

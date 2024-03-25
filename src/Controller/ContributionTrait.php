@@ -2,11 +2,11 @@
 
 namespace Contribute\Controller;
 
+use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Laminas\View\Model\JsonModel;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Stdlib\Message;
 
 /**
  * @todo Move ContributionTrait to controller plugins.
@@ -147,9 +147,9 @@ trait ContributionTrait
             return null;
         } catch (\Exception $e) {
             $this->entityManager->clear();
-            $message = new Message(
-                'Unable to store the resource of the contribution: %s', // @translate
-                $e->getMessage()
+            $message = new PsrMessage(
+                'Unable to store the resource of the contribution: {message}', // @translate
+                ['message' => $e->getMessage()]
             );
             $this->logger()->err($message);
             if ($useMessenger) {
@@ -231,7 +231,7 @@ trait ContributionTrait
     {
         $result = [
             'status' => $statusCode,
-            'message' => $message,
+            'message' => is_object($message) ? $message->setTranslator($this->viewHelpers()->get('translate')->getTranslator()) : $message,
         ];
         if (is_array($errors) && count($errors)) {
             $result['data'] = $errors;
