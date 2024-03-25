@@ -66,24 +66,6 @@ class Module extends AbstractModule
                 ->searchOne('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName], ['returnScalar' => 'id'])->getContent();
         }
         $settings->set('contribute_templates', array_filter($templateIds));
-
-        // Upgrade from old module Correction if any.
-
-        /** @var \Omeka\Module\Manager $moduleManager */
-        $moduleManager = $services->get('Omeka\ModuleManager');
-        $module = $moduleManager->getModule('Correction');
-        if ($module) {
-            // Check if Correction was really installed.
-            $connection = $services->get('Omeka\Connection');
-            try {
-                $connection->fetchAll('SELECT id FROM correction LIMIT 1;');
-                // So upgrade Correction.
-                $filepath = $this->modulePath() . '/data/scripts/upgrade_from_correction.php';
-                require_once $filepath;
-                return;
-            } catch (\Exception $e) {
-            }
-        }
     }
 
     protected function postUninstall(): void
