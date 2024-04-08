@@ -8,6 +8,7 @@
  */
 
 $plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
@@ -51,7 +52,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
         <?php endif; ?>
         <li><a class="o-icon-submit button submit-button submit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'submit', $space === 'guest')) ?>"><?= $escape($translate('Submit')) ?></a></li>
         <?php if ($contribution->userIsAllowed('delete')): ?>
-        <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'delete', $space === 'guest')) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
+        <li><a class="o-icon-delete button delete-button remove-contribution" data-contribution-id="<?= $contribution->id() ?>" data-contribution-url="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'delete', $space === 'guest')) ?>" data-redirect-url="<?= $escapeAttr($url('site', [], true)) ?>" href="#"><?= $escape($translate('Delete')) ?></a></li>
         <?php endif; ?>
     </ul>
     <?php endif; ?>

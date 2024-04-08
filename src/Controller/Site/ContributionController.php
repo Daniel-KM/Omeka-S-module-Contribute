@@ -780,8 +780,11 @@ class ContributionController extends AbstractActionController
             $this->messenger()->addError('An issue occurred and the contribution was not deleted.'); // @translate
         }
 
-        // TODO Update route when a main public browse of contributions will be available.
-        return $this->redirect()->toRoute('site/guest/contribution', ['action' => 'browse'], true);
+        // Warning: the js reload the page, so this redirect is not used.
+        return $space === 'guest'
+            ? $this->redirect()->toRoute('site/guest/contribution', ['controller' => 'guest-board', 'action' => 'browse'], true)
+            // TODO Update route when a main public browse of contributions will be available.
+            : $this->redirect()->toRoute('site', [], true);
     }
 
     public function submitAction()

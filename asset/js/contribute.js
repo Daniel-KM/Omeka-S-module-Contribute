@@ -76,7 +76,7 @@ $(document).ready(function() {
         main.val(regex.test(iso) ? iso : '');
     }
 
-    function contributionDelete(id, url){
+    function contributionDelete(id, urlDelete, urlRedirect) {
         $.post({
             url: url,
             data: {
@@ -85,6 +85,7 @@ $(document).ready(function() {
             },
         })
         .done(function(data) {
+            window.location.href = urlRedirect;
             window.location.reload();
          })
         .fail(function() {
@@ -364,9 +365,10 @@ $(document).ready(function() {
         ev.preventDefault();
         const id = $(this).data('contribution-id');
         const urlDelete = $(this).data('contribution-url');
+        const urlRedirect = $(this).data('redirect-url') ? $(this).data('redirect-url') : urlDelete.slice(0, urlDelete.lastIndexOf('/')).slice(0, urlDelete.lastIndexOf('/'));
         const message = $(this).closest('.actions').data('message-remove-contribution');
         if (urlDelete && confirm(message)) {
-            contributionDelete(id, urlDelete);
+            contributionDelete(id, urlDelete, urlRedirect);
         }
         return false;
     });
