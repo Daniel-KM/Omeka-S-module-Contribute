@@ -111,6 +111,19 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return $this->resource->getReviewed();
     }
 
+    public function isUpdatable(): bool
+    {
+        $settings = $this->getServiceLocator()->get('Omeka\Settings');
+        $allowUpdate = $settings->get('contribute_allow_update') ?: 'submission';
+        if ($allowUpdate === 'no') {
+            return false;
+        } elseif ($allowUpdate === 'validation') {
+            return !$this->resource->getReviewed();
+        } else {
+            return !$this->resource->getSubmitted() && !$this->resource->getReviewed();
+        }
+    }
+
     public function proposal(): array
     {
         return $this->resource->getProposal();

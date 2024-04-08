@@ -575,6 +575,7 @@ class ContributionController extends AbstractActionController
         $allowUpdateUntilValidation = $allowUpdate === 'validation';
         $isCorrection = !$contribution || $contribution->isPatch();
 
+        // TODO Use method isUpdatable().
         if (!$isCorrection
             && $isModeWrite
             && !$allowUpdateUntilValidation
@@ -755,15 +756,28 @@ class ContributionController extends AbstractActionController
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'show'], true);
         }
 
+        $allowUpdate = $this->settings()->get('contribute_allow_update') ?: 'submission';
+        if ($allowUpdate === 'no') {
+            $this->messenger()->addWarning('A contribution cannot be updated or deleted.'); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+
         $resource = $this->api()->read('contributions', $id)->getContent();
-        if ($resource->isSubmitted()) {
+
+        if ($allowUpdate !== 'validation' && $resource->isSubmitted()) {
             $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+        if ($allowUpdate === 'validation' && $resource->isReviewed()) {
+            $this->messenger()->addWarning('This contribution has been reviewed and cannot be deleted.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         $response = $this->api()->delete('contributions', $id);
         if ($response) {
-            $this->messenger()->addSuccess('Contribution successfully deleted'); // @translate
+            $this->messenger()->addSuccess('Contribution successfully deleted.'); // @translate
+        } else {
+            $this->messenger()->addError('An issue occurred and the contribution was not deleted.'); // @translate
         }
 
         // TODO Update route when a main public browse of contributions will be available.
@@ -805,13 +819,19 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $api->read('contributions', ['id' => $resourceId])->getContent();
 
-        if ($contribution->isSubmitted()) {
-            $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
+        $allowUpdate = $this->settings()->get('contribute_allow_update') ?: 'submission';
+
+        if (!$contribution->userIsAllowed('update')) {
+            $this->messenger()->addError('Only the contributor can update a contribution.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
-        if (!$contribution->userIsAllowed('update')) {
-            $this->messenger()->addError('Only the contributor can submit the contribution.'); // @translate
+        if ($allowUpdate !== 'validation' && $contribution->isSubmitted()) {
+            $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+        if ($allowUpdate === 'validation' && $contribution->isReviewed()) {
+            $this->messenger()->addWarning('This contribution has already been reviewed.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 

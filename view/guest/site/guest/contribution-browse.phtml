@@ -39,7 +39,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource brow
             <li class="submitted"><?= $escape($contribution->isSubmitted() ? $translate('Is submitted') : $translate('Is not submitted')) ?></li>
             <li class="reviewed"><?= $escape($contribution->isReviewed() ? $translate('Is reviewed') : $translate('Is not reviewed')) ?></li>
         </ul>
-        <?php if (!$contribution->isSubmitted()): ?>
+        <?php if ($contribution->isUpdatable()): ?>
         <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
             <?php if ($contribution->userIsAllowed('update')): ?>
             <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, 'edit', false, true)) ?>"><?= $escape($translate('Edit')) ?></a></li>

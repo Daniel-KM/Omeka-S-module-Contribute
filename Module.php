@@ -119,9 +119,16 @@ class Module extends AbstractModule
     protected function addAclRules(): void
     {
         $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
 
-        $contributeMode = $services->get('Omeka\Settings')->get('contribute_mode', 'user');
+        $contributeMode = $settings->get('contribute_mode', 'user');
         $isOpenContribution = $contributeMode === 'open' || $contributeMode === 'token';
+
+        $contributeRoles = $contributeMode === 'role'
+            ? $settings->get('contribute_roles', [])
+            : null;
+
+        $allowUpdateMode = $settings->get('contribute_allow_update', 'submission');
 
         /**
          * For default rights:
@@ -142,7 +149,9 @@ class Module extends AbstractModule
 
         $roles = $acl->getRoles();
 
-        $contributors = $isOpenContribution ? null : $roles;
+        $contributors = $isOpenContribution
+            ? null
+            : ($contributeRoles ?? $roles);
 
         // Users who can edit resources can update contributions.
         // A check is done on the specific resource for some roles.
@@ -165,11 +174,12 @@ class Module extends AbstractModule
 
         // Nobody can view contributions except owner and admins.
         // So anonymous contributor cannot view or edit a contribution.
-        // Once submitted, the contribution cannot be updated by the owner.
+        // Once submitted, the contribution cannot be updated by the owner,
+        // except with option "contribute_allow_update".
         // Once reviewed, the contribution can be viewed like the resource.
 
+        // Contribution.
         $acl
-            // Contribution.
             ->allow(
                 $contributors,
                 ['Contribute\Controller\Site\Contribution'],
@@ -199,15 +209,24 @@ class Module extends AbstractModule
                     ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
                     ->addAssertion(new \Contribute\Permissions\Assertion\IsSubmittedAndReviewedAndHasPublicResource)
             )
-            ->allow(
-                $contributors,
-                [\Contribute\Entity\Contribution::class],
-                ['update', 'delete'],
-                (new \Laminas\Permissions\Acl\Assertion\AssertionAggregate)
-                    ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
-                    ->addAssertion(new \Contribute\Permissions\Assertion\IsNotSubmitted)
-            )
+        ;
+        if ($allowUpdateMode === 'submission' || $allowUpdateMode === 'validation') {
+            $acl
+                ->allow(
+                    $contributors,
+                    [\Contribute\Entity\Contribution::class],
+                    ['update', 'delete'],
+                    (new \Laminas\Permissions\Acl\Assertion\AssertionAggregate)
+                        ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
+                        ->addAssertion($allowUpdateMode === 'submission'
+                            ? new \Contribute\Permissions\Assertion\IsNotSubmitted()
+                            : new \Contribute\Permissions\Assertion\IsNotReviewed()
+                        )
+                );
+        }
 
+        // Token.
+        $acl
             ->allow(
                 $contributors,
                 [\Contribute\Api\Adapter\TokenAdapter::class],
@@ -246,6 +265,7 @@ class Module extends AbstractModule
                 [\Contribute\Entity\Contribution::class],
                 ['read', 'update', 'delete']
             )
+
             //  TODO Remove this hack to allow validators to change owner.
             ->allow(
                 $validators,
@@ -721,6 +741,20 @@ HTML;
     public function deleteContributionFiles(Event $event): void
     {
         $services = $this->getServiceLocator();
+
+        // Fix issue when there is no path.
+        $config = $services->get('Config');
+        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+        $dirPath = rtrim($basePath, '/') . '/contribution';
+        if (!$this->checkDestinationDir($dirPath)) {
+            $translator = $services->get('MvcTranslator');
+            $message = new PsrMessage(
+                'The directory "{directory}" is not writeable.', // @translate
+                ['directory' => $basePath . '/contribution']
+            );
+            throw new \Omeka\File\Exception\RuntimeException((string) $message->setTranslator($translator));
+        }
+
         $store = $services->get('Omeka\File\Store');
         $entity = $event->getTarget();
         $proposal = $entity->getProposal();
@@ -749,10 +783,6 @@ SQL;
         $storeds = $connection->executeQuery($sql)->fetchFirstColumn();
         $storeds = array_map('json_decode', $storeds);
         $storeds = $storeds ? array_unique(array_merge(...array_values($storeds))) : [];
-
-        $config = $services->get('Config');
-        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
-        $dirPath = rtrim($basePath, '/') . '/contribution';
 
         // TODO Scan dir is local store only for now.
         $files = array_diff(scandir($dirPath), ['.', '..']);

@@ -44,7 +44,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 
     <?= $contribution->displayValues() ?>
 
-    <?php if (!$contribution->isSubmitted()): ?>
+    <?php if ($contribution->isUpdatable()): ?>
     <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
         <?php if ($contribution->userIsAllowed('update')): ?>
         <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'edit', $space === 'guest')) ?>"><?= $escape($translate('Edit')) ?></a></li>
