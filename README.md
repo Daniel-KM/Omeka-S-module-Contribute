@@ -63,6 +63,8 @@ in the main settings.
   filled. Note: If a property has no value, it can't be edited, even if the
   property is marked editable. To allow to add a value, choose "fillable". To
   allow only one value, set the maximum number of values to 1.
+- To allow to contribute a file, you should define a template for files and set
+  it in the parameters of the main template.
 - If the contribute mode requires token:
   - Create one or more tokens for the resources you want to edit via the link in
     the sidebar of a resource or the bulk process dropdown at the top of the
@@ -101,6 +103,7 @@ TODO
 - [ ] Allow to create subresource in the main form (author). Require check.
 - [ ] Manage value annotations.
 - [ ] Include all fields as form elements (included laminas collections of elements).
+- [ ] Allow to edit item and media together.
 
 
 Warning
@@ -151,7 +154,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2023 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2019-2024 (see [Daniel-KM] on GitLab)
 
 First version of this module was done for [Université de Paris-Saclay].
 Improvements were done for [Enssib] and for the site used to do the deposit and
@@ -163,7 +166,7 @@ the digital archiving of student works ([Dante]) of the [Université de Toulouse
 [Collecting]: https://omeka.org/s/modules/Collecting
 [Advanced Resource Template]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
 [Blocks Disposition]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlocksDisposition
-[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
 [Contribute.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/releases
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
