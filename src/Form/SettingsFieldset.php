@@ -31,6 +31,7 @@ class SettingsFieldset extends Fieldset
                         'auth_cas' => 'Authenticated users from cas', // @translate
                         'auth_ldap' => 'Authenticated users from ldap', // @translate
                         'auth_sso' => 'Authenticated users from sso', // @translate
+                        'email_regex' => 'Authenticated users with an email matching regex below', // @translate
                         'user' => 'Authenticated users', // @translate
                         'role' => 'Roles', // @translate
                         'token' => 'With token', // @translate
@@ -60,6 +61,18 @@ class SettingsFieldset extends Fieldset
                     'required' => false,
                     'class' => 'chosen-select',
                     'data-placeholder' => 'Select roles…', // @translate
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_email_regex',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Regex on email of users allowed to contribute (option above)', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_email_regex',
                 ],
             ])
 

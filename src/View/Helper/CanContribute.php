@@ -39,6 +39,9 @@ class CanContribute extends AbstractHelper
      */
     public function __invoke(bool $skipRequireToken = false): bool
     {
+        /**
+         * @var \Omeka\Entity\User $user
+         */
         $view = $this->getView();
         $setting = $view->plugin('setting');
         $contributeMode = $setting('contribute_mode') ?: 'user';
@@ -57,6 +60,9 @@ class CanContribute extends AbstractHelper
                 return $user && $this->isLdapUser && $this->isLdapUser($user);
             case 'auth_sso':
                 return $user && $this->isSsoUser && $this->isSsoUser($user);
+            case 'email_regex':
+                $pattern = (string) $setting('contribute_email_regex');
+                return $user && $pattern && preg_match($pattern, $user->getEmail());
             case 'token':
                 return $skipRequireToken;
             case 'open':
