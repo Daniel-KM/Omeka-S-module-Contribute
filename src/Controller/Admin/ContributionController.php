@@ -508,13 +508,8 @@ class ContributionController extends AbstractActionController
 
         // Check rights to edit without token.
         if (!$token) {
-            $user = $this->identity();
-            $settings = $this->settings();
-            $contributeMode = $settings->get('contribute_mode');
-            $contributeRoles = $settings->get('contribute_roles', []) ?: [];
-            $canEditWithoutToken = $contributeMode === 'open'
-                || ($user && $contributeMode === 'user')
-                || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+            $canContributeNewResource = $this->viewHelpers()->get('canContributeNewResource');
+            $canEditWithoutToken = $canContributeNewResource();
             if (!$canEditWithoutToken) {
                 return $this->jsonErrorUnauthorized();
             }

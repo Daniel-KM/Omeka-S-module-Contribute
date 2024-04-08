@@ -146,12 +146,9 @@ class ContributionController extends AbstractActionController
         $resourceName = $resourceTypeMap[$resourceType];
 
         $user = $this->identity();
-        $settings = $this->settings();
-        $contributeMode = $settings->get('contribute_mode');
-        $contributeRoles = $settings->get('contribute_roles', []) ?: [];
-        $canEditWithoutToken = $contributeMode === 'open'
-            || ($user && $contributeMode === 'user')
-            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+
+        $canContributeNewResource = $this->viewHelpers()->get('canContributeNewResource');
+        $canEditWithoutToken = $canContributeNewResource();
 
         // TODO Allow to use a token to add a resource.
         // $token = $this->checkToken($resource);
@@ -482,12 +479,9 @@ class ContributionController extends AbstractActionController
         $resource = $api->read($resourceName, ['id' => $resourceId])->getContent();
 
         $user = $this->identity();
-        $settings = $this->settings();
-        $contributeMode = $settings->get('contribute_mode');
-        $contributeRoles = $settings->get('contribute_roles', []) ?: [];
-        $canEditWithoutToken = $contributeMode === 'open'
-            || ($user && $contributeMode === 'user')
-            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+
+        $canContributeNewResource = $this->viewHelpers()->get('canContributeNewResource');
+        $canEditWithoutToken = $canContributeNewResource();
 
         // This is a contribution or a correction.
         $isContribution = $resourceName === 'contributions';

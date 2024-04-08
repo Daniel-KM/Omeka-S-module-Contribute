@@ -53,13 +53,12 @@ class ContributionLink extends AbstractHelper
         $plugins = $view->getHelperPluginManager();
         $user = $plugins->get('identity')();
         $setting = $plugins->get('setting');
-        $contributeMode = $setting('contribute_mode');
-        $contributeRoles = $setting('contribute_roles', []) ?: [];
+        $canContributeNewResource = $plugins->get('canContributeNewResource');
 
-        $canEdit = ($resource && $this->checkToken->__invoke($resource))
-            || $contributeMode === 'open'
-            || ($user && $contributeMode === 'user')
-            || ($user && $contributeMode === 'role' && in_array($user->getRole(), $contributeRoles));
+        $canEditWithoutToken = $canContributeNewResource();
+
+        $canEdit = $canEditWithoutToken
+            || ($resource && $this->checkToken->__invoke($resource));
 
         $isEditable = false;
         if ($resource) {
