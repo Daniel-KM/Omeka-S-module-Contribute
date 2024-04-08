@@ -18,6 +18,7 @@ $translate = $plugins->get('translate');
 
 <div id="contribute" class="contribution contribute">
     <h3><?= $translate('Contribute') ?></h3>
+    <?= $this->messages() // Messages are displayed here only for theme that don't include it before. ?>
     <?php if ($isEditable): ?>
         <?php if ($resource): ?>
             <?php if ($canEdit): ?>
