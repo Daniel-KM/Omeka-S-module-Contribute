@@ -39,9 +39,9 @@ return [
     'view_helpers' => [
         'invokables' => [
             'contributionForm' => View\Helper\ContributionForm::class,
-            'canContributeNewResource' => View\Helper\CanContributeNewResource::class,
         ],
         'factories' => [
+            'canContribute' => Service\ViewHelper\CanContributeFactory::class,
             'contributionFields' => Service\ViewHelper\ContributionFieldsFactory::class,
             'contributionLink' => Service\ViewHelper\ContributionLinkFactory::class,
             'contributionSearchFilters' => Service\ViewHelper\ContributionSearchFiltersFactory::class,

@@ -27,7 +27,10 @@ class SettingsFieldset extends Fieldset
                     'element_group' => 'contribution',
                     'label' => 'Contribution mode', // @translate
                     'value_options' => [
-                        'user_token' => 'Authenticated users with token', // @translate
+                        'user_token' => 'Authenticated users with a token', // @translate
+                        'auth_cas' => 'Authenticated users from cas', // @translate
+                        'auth_ldap' => 'Authenticated users from ldap', // @translate
+                        'auth_sso' => 'Authenticated users from sso', // @translate
                         'user' => 'Authenticated users', // @translate
                         'role' => 'Roles', // @translate
                         'token' => 'With token', // @translate

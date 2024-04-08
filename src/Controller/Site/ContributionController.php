@@ -147,8 +147,8 @@ class ContributionController extends AbstractActionController
 
         $user = $this->identity();
 
-        $canContributeNewResource = $this->viewHelpers()->get('canContributeNewResource');
-        $canEditWithoutToken = $canContributeNewResource();
+        $canContribute = $this->viewHelpers()->get('canContribute');
+        $canEditWithoutToken = $canContribute();
 
         // TODO Allow to use a token to add a resource.
         // $token = $this->checkToken($resource);
@@ -480,8 +480,8 @@ class ContributionController extends AbstractActionController
 
         $user = $this->identity();
 
-        $canContributeNewResource = $this->viewHelpers()->get('canContributeNewResource');
-        $canEditWithoutToken = $canContributeNewResource();
+        $canContribute = $this->viewHelpers()->get('canContribute');
+        $canEditWithoutToken = $canContribute();
 
         // This is a contribution or a correction.
         $isContribution = $resourceName === 'contributions';
