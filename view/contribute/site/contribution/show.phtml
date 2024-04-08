@@ -25,9 +25,9 @@ $partial('contribute/site/contribution/asset-include');
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource show');
 ?>
 
-<div class="contribute-resource conbribute-show container <?= $space && $space !== 'default' ? $space : '' ?>">">
+<div class="contribute-resource conbribute-show container <?= $space && $space !== 'default' ? $space : '' ?>">
 
-    <?= $this->pageTitle($contribution->displayTitle(), 2); ?>
+    <?= $this->pageTitle($contribution->displayTitle(), 2) ?>
     <h3><?= $translate('Contribution') ?></h3>
 
     <ul class="contribution-status">
