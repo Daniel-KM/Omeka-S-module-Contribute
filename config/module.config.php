@@ -45,10 +45,6 @@ return [
             'contributionLink' => Service\ViewHelper\ContributionLinkFactory::class,
             'contributionSearchFilters' => Service\ViewHelper\ContributionSearchFiltersFactory::class,
         ],
-        'aliases' => [
-            // @deprecated
-            'linkContribute' => 'contributionLink',
-        ],
     ],
     'form_elements' => [
         'invokables' => [
