@@ -66,7 +66,6 @@ class ContributionController extends AbstractActionController
 
     public function showAction()
     {
-        $site = $this->currentSite();
         $resourceType = $this->params('resource');
         $resourceId = $this->params('id');
 
@@ -80,9 +79,12 @@ class ContributionController extends AbstractActionController
         if (!isset($resourceTypeMap[$resourceType])) {
             return $this->notFoundAction();
         }
+        $site = $this->currentSite();
 
         if ($resourceType !== 'contribution') {
-            $this->forward()->dispatch($resourceTypeMap[$resourceType], [
+            // TODO Use forward dispatch to avoid the redirect, but clear event context and params, else items events are not triggered.
+            // return $this->forward()->dispatch($resourceTypeMap[$resourceType], [
+            return $this->redirect()->toRoute('site/resource-id', [
                 'site-slug' => $this->currentSite()->slug(),
                 'controller' => $resourceType,
                 'action' => 'show',
