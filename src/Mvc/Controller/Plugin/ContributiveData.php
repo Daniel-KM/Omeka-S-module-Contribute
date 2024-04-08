@@ -25,7 +25,7 @@ class ContributiveData extends AbstractPlugin
      *
      * The input for a file is specific and not managed here.
      *
-     * @todo Remove code that set fields or use default datatypes without resource template.
+     * @todo Remove code that set fields or use default data types without resource template.
      *
      * @param \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|\Omeka\Api\Representation\ResourceTemplateRepresentation|string|int|null $template
      */
@@ -54,7 +54,7 @@ class ContributiveData extends AbstractPlugin
         $settings = $controller->settings();
         $this->data['datatypes_default'] = ['literal', 'resource', 'uri'];
 
-        // TODO Manage valuesuggest and custom vocab differently, because it is not a single datatype.
+        // TODO Manage valuesuggest and custom vocab differently, because it is not a single data type.
         // TODO Remove default data types (or limit it to literal) (currently hard coded like omeka, so useless).
         // TODO Check if these check are useless, since a resource template is required.
         if (($has = array_search('valuesuggest', $this->data['datatypes_default'])) !== false) {
@@ -206,17 +206,17 @@ class ContributiveData extends AbstractPlugin
         return $this->data['fillable'];
     }
 
-    public function datatypeProperties(): array
+    public function dataTypeProperties(): array
     {
         return $this->data['datatype'];
     }
 
-    public function defaultDatatypes(): array
+    public function defaultDataTypes(): array
     {
         return $this->data['datatypes_default'];
     }
 
-    public function datatypeTerm(?string $term): array
+    public function dataTypeTerm(?string $term): array
     {
         return empty($this->data['datatype'][$term])
             ? $this->data['datatypes_default']
@@ -258,20 +258,20 @@ class ContributiveData extends AbstractPlugin
     }
 
     /**
-     * Check if the datatype is managed for the specified term.
+     * Check if the data type is managed for the specified term.
      */
-    public function isTermDatatype(?string $term, ?string $datatype): bool
+    public function isTermDataType(?string $term, ?string $dataType): bool
     {
         if ($this->hasTemplate()) {
             return !empty($this->data['datatype'][$term])
-                && in_array($datatype, $this->data['datatype'][$term]);
+                && in_array($dataType, $this->data['datatype'][$term]);
         }
-        return $this->isDefaultDatatype($datatype);
+        return $this->isDefaultDataType($dataType);
     }
 
-    public function isDefaultDatatype(?string $datatype): bool
+    public function isDefaultDataType(?string $dataType): bool
     {
-        return in_array($datatype, $this->data['datatypes_default']);
+        return in_array($dataType, $this->data['datatypes_default']);
     }
 
     public function isSubTemplate(): bool

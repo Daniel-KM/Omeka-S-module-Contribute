@@ -566,7 +566,7 @@ class ContributionController extends AbstractActionController
 
         // Only people who can create resource can validate.
         $acl = $contribution->getServiceLocator()->get('Omeka\Acl');
-        if (!$acl->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create')) {
+        if (!$acl->userIsAllowed(\Omeka\Api\Adapter\ItemAdapter::class, 'create')) {
             return $this->jsonErrorUnauthorized();
         }
 
@@ -577,6 +577,7 @@ class ContributionController extends AbstractActionController
             ));
         }
 
+        // Validate and create the resource.
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {
@@ -627,6 +628,7 @@ class ContributionController extends AbstractActionController
             ));
         }
 
+        // Validate and update the resource.
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false);
         if ($errorStore->hasErrors()) {

@@ -127,7 +127,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                     <?php endif; ?>
                 </h4>
 
-                <?php // Simple display of the value for properties that are not editable or without datatypes. ?>
+                <?php // Simple display of the value for properties that are not editable or without data types. ?>
 
                 <?php if (!$field['editable'] && !$field['fillable'] || !count($field['datatypes'])): ?>
                 <div class="values">
@@ -185,7 +185,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                                     echo $partial('contribute/site/contribution/form-input-value-suggest');
                                     break;
                                 default:
-                                    // Other datatypes are not yet editable.
+                                    // Other data types are not yet editable.
                                     if ($value):
                                         echo $partial('contribute/site/contribution/form-value');
                                     endif;

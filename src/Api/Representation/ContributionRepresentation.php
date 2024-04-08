@@ -424,7 +424,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                     $type = 'unknown';
                 }
 
-                $isTermDatatype = $contributive->isTermDatatype($term, $type);
+                $isTermDataType = $contributive->isTermDataType($term, $type);
 
                 $typeColon = strtok($type, ':');
                 switch ($type) {
@@ -459,7 +459,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValue($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isEditable && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDataType
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -473,7 +473,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isFillable && $isTermDatatype
+                            $prop['process'] = $isFillable && $isTermDataType
                                 ? 'append'
                                 // A value to append is not an editable value.
                                 : 'keep';
@@ -486,7 +486,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValue($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isEditable && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDataType
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -526,7 +526,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValueResource($term, $original);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isEditable && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDataType
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -540,7 +540,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isFillable && $isTermDatatype
+                            $prop['process'] = $isFillable && $isTermDataType
                                 ? 'append'
                                 // A value to append is not an editable value.
                                 : 'keep';
@@ -553,7 +553,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValueResource($term, $proposed);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isEditable && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDataType
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -602,7 +602,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $this->resourceValueUri($term, $originalUri);
                             $prop['value_updated'] = null;
                             $prop['validated'] = !$prop['value'];
-                            $prop['process'] = $isEditable && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDataType
                                 ? 'remove'
                                 // A value to remove is not a fillable value.
                                 : 'keep';
@@ -616,7 +616,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = null;
                             $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isFillable && $isTermDatatype
+                            $prop['process'] = $isFillable && $isTermDataType
                                 ? 'append'
                                 // A value to append is not an editable value.
                                 : 'keep';
@@ -629,7 +629,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $prop['value'] = $originalValue;
                             $prop['value_updated'] = $this->resourceValueUri($term, $proposedUri);
                             $prop['validated'] = (bool) $prop['value_updated'];
-                            $prop['process'] = $isEditable && $isTermDatatype
+                            $prop['process'] = $isEditable && $isTermDataType
                                 ? 'update'
                                 // A value to update is not a fillable value.
                                 : 'keep';
@@ -763,7 +763,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 if (!isset($proposal[$term])) {
                     continue;
                 }
-                if (!$contributive->isTermDatatype($term, $existingValue->type())) {
+                if (!$contributive->isTermDataType($term, $existingValue->type())) {
                     continue;
                 }
 

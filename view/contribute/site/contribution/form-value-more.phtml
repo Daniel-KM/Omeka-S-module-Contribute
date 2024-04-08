@@ -29,7 +29,8 @@
  * @var \Laminas\I18n\View\Helper\Translate $translate
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
- * @var ?array $customVocabBaseTypes
+ * @var \Common\Stdlib\EasyMeta $easyMeta
+ * @var ?array $customVocabBaseTypes Deprecated. Use $easyMeta directly.
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
  * @var callable $shortResourceTitle
@@ -51,7 +52,7 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
 
 <div class="inputs">
     <div class="add-values default-selector" data-next-index="<?= $indexFieldInput ?>" data-next-term="<?= $term ?>"<?php /* if (empty($field['fillable'])): ?> style="display: none;"<?php endif; */?>>
-        <?php foreach ($field['datatypes'] as $datatype) switch($datatype):
+        <?php foreach ($field['datatypes'] as $dataType) switch($dataType):
 
             case 'literal':
             ?>
@@ -77,7 +78,7 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
             case 'resource:media':
                 if (isset($valueResourceQueries[$term])):
                     // Get the list of options from the core select element.
-                    $resourceName = $valueResourceTypes[$datatype];
+                    $resourceName = $valueResourceTypes[$dataType];
                     $element = new \Omeka\Form\Element\ResourceSelect();
                     $element
                         ->setApiManager($apiManager);
@@ -89,7 +90,7 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                         $valueOptions[] = ['v' => $k, 't' => $v];
                     }
                 ?>
-        <button type="button" class="add-value add-value-resource<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $datatype ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $escape($translate('Add linked resource')) ?></button>
+        <button type="button" class="add-value add-value-resource<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $dataType ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $escape($translate('Add linked resource')) ?></button>
                 <?php endif;
                 break;
 
@@ -98,11 +99,11 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
         <button type="button" class="add-value add-value-uri<?= $addForMedia ?> button o-icon-uri" data-data-type="uri"><?= $escape($translate('Add URI')) ?></button>
                 <?php break;
 
-            case substr($datatype, 0, 12) === 'customvocab:':
+            case substr($dataType, 0, 12) === 'customvocab:':
                 // TODO Simplify with Omeka S v4 (CustomVocab 1.7.0).
                 // @see \CustomVocab\DataType\CustomVocab
-                $baseType = $customVocabBaseTypes[substr($datatype, 12)] ?? 'literal';
-                $customVocab = $apiManager->read('custom_vocabs', ['id' => substr($datatype, 12)])->getContent();
+                $baseType = $customVocabBaseTypes[substr($dataType, 12)] ?? 'literal';
+                $customVocab = $apiManager->read('custom_vocabs', ['id' => substr($dataType, 12)])->getContent();
                 $valueOptions = [
                     // Managed via js.
                     // ['v' => '', 't' => $translate('Select a value')],
@@ -145,12 +146,12 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                     }
                 }
                 ?>
-        <button type="button" class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $datatype ?>" data-basetype="<?= $baseType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>" data-placeholder="<?= $escapeAttr($translate('Select a value…')) ?>"><?= $escape($translate('Add value')) ?></button>
+        <button type="button" class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $dataType ?>" data-basetype="<?= $baseType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>" data-placeholder="<?= $escapeAttr($translate('Select a value…')) ?>"><?= $escape($translate('Add value')) ?></button>
                 <?php break;
 
-            case substr($datatype, 0, 12) === 'valuesuggest': // Or valuesuggestall.
+            case substr($dataType, 0, 12) === 'valuesuggest': // Or valuesuggestall.
                 ?>
-        <button type="button" class="add-value add-value-value-suggest<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $datatype ?>"><?= $escape($translate('Add linked data')) ?></button>
+        <button type="button" class="add-value add-value-value-suggest<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $dataType ?>"><?= $escape($translate('Add linked data')) ?></button>
                 <?php break;
 
             default:

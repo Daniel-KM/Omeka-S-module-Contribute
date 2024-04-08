@@ -65,7 +65,7 @@ class ContributionFields extends AbstractHelper
      * config changed, so the values are no more editable, so they are skipped.
      *
      * The output is similar than $resource->values(), but may contain empty
-     * properties, and four more keys, editable, fillable, datatypes and
+     * properties, and four more keys, editable, fillable, data types and
      * contributions.
      *
      * Note that sub-contribution fields for media are not included here.
@@ -210,7 +210,7 @@ class ContributionFields extends AbstractHelper
                 'more_values' => $maxValues && count($valuesValues) < $maxValues,
                 'editable' => $contributive->isTermEditable($term),
                 'fillable' => $contributive->isTermFillable($term),
-                'datatypes' => $contributive->datatypeTerm($term),
+                'datatypes' => $contributive->dataTypeTerm($term),
                 'values' => $valuesValues,
                 'contributions' => [],
             ];
@@ -252,7 +252,7 @@ class ContributionFields extends AbstractHelper
                 $baseType = $typeColon === 'customvocab'
                     ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
                     : null;
-                // TODO No need to check if the datatype is managed?
+                // TODO No need to check if the data type is managed?
                 if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
                     || ($typeColon === 'customvocab' && $baseType === 'uri')
                 ) {
@@ -399,7 +399,7 @@ class ContributionFields extends AbstractHelper
             foreach ($field['contributions'] as &$fieldContribution) {
                 $proposed = null;
                 $type = $fieldContribution['type'];
-                if (!$contributive->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDataType($term, $type)) {
                     continue;
                 }
                 $typeColon = strtok($type, ':');

@@ -12,9 +12,9 @@ class SiteContributionControllerFactory implements FactoryInterface
     {
         $config = $services->get('Config');
         return new ContributionController(
-            $services->get(\Omeka\File\Uploader::class),
-            $services->get(\Omeka\File\TempFileFactory::class),
             $services->get('Omeka\EntityManager'),
+            $services->get(\Omeka\File\TempFileFactory::class),
+            $services->get(\Omeka\File\Uploader::class),
             $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files'),
             $config
         );

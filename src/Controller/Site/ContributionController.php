@@ -8,7 +8,7 @@ use Contribute\Form\ContributeForm;
 use Doctrine\ORM\EntityManager;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-// TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the case), themes and security issues, so not sure it is simpler.
+// TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the cases), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\File\TempFileFactory;
@@ -51,15 +51,15 @@ class ContributionController extends AbstractActionController
     protected $string;
 
     public function __construct(
-        Uploader $uploader,
-        TempFileFactory $tempFileFactory,
         EntityManager $entityManager,
-        $basePath,
+        TempFileFactory $tempFileFactory,
+        Uploader $uploader,
+        ?string $basePath,
         array $config
     ) {
-        $this->uploader = $uploader;
-        $this->tempFileFactory = $tempFileFactory;
         $this->entityManager = $entityManager;
+        $this->tempFileFactory = $tempFileFactory;
+        $this->uploader = $uploader;
         $this->basePath = $basePath;
         $this->config = $config;
     }
@@ -112,7 +112,7 @@ class ContributionController extends AbstractActionController
     /**
      * The action "view" is a proxy to "show", that cannot be used because it is
      * used by the resources.
-     * @deprecated Use show.
+     * @deprecated Use show. Will be remove in a future release.
      */
     public function viewAction()
     {
@@ -167,11 +167,13 @@ class ContributionController extends AbstractActionController
         $templates = [];
         $templateLabels = [];
         // Remove non-contributive templates.
-        foreach ($this->api()->search('resource_templates', ['id' => $allowedResourceTemplates])->getContent() as $template) {
-            $contributive = $contributiveData($template);
-            if ($contributive->isContributive()) {
-                $templates[$template->id()] = $template;
-                $templateLabels[$template->id()] = $template->label();
+        if ($allowedResourceTemplates) {
+            foreach ($this->api()->search('resource_templates', ['id' => $allowedResourceTemplates])->getContent() as $template) {
+                $contributive = $contributiveData($template);
+                if ($contributive->isContributive()) {
+                    $templates[$template->id()] = $template;
+                    $templateLabels[$template->id()] = $template->label();
+                }
             }
         }
 
@@ -1255,7 +1257,7 @@ class ContributionController extends AbstractActionController
                     continue;
                 }
                 $type = $value->type();
-                if (!$contributive->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDataType($term, $type)) {
                     continue;
                 }
 
@@ -1429,7 +1431,7 @@ class ContributionController extends AbstractActionController
                     $type = 'unknown';
                 }
 
-                if (!$contributive->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDataType($term, $type)) {
                     continue;
                 }
 

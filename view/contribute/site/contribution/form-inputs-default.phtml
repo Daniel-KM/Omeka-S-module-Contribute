@@ -29,7 +29,8 @@
  * @var \Laminas\I18n\View\Helper\Translate $translate
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
- * @var ?array $customVocabBaseTypes
+ * @var \Common\Stdlib\EasyMeta $easyMeta
+ * @var ?array $customVocabBaseTypes Deprecated. Use $easyMeta directly.
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
  * @var callable $shortResourceTitle
@@ -37,7 +38,7 @@
  * @var string $mode
  */
 
-// Templates for the fields according to the datatype.
+// Templates for the fields according to the data type.
 // They are outside the template form and marked readonly to not be included in the form.
 // The names are updated through js, so don't need to check for main form or sub form.
 
