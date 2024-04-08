@@ -1160,9 +1160,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
             // So, there is no resource, but a proposal for a new media.
             $indexProposalMedia = (int) $indexProposalMedia;
-            $this->valuesMedia[$indexProposalMedia] = $contributionFields(null, $this, $resourceTemplateMedia, true, $indexProposalMedia);
+            $this->valuesMedias[$indexProposalMedia] = $contributionFields(null, $this, $resourceTemplateMedia, true, $indexProposalMedia);
         }
-        return $this->valuesMedia;
+        return $this->valuesMedias;
     }
 
     /**
