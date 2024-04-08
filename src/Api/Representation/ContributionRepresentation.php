@@ -678,8 +678,12 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      *
+     * @todo Keep existing media during update and check for item sets, sites, class, etc.
+     *
      * @param string|null $proposedTerm Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key for the term.
+     * @param bool $isSubTemplate Internal param for recursive call.
+     * @param int $indexProposalMedia Internal param for recursive call.
      * @return array Data to be used for api. Files for media are in key "file".
      */
     public function proposalToResourceData(

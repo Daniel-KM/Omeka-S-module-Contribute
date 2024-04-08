@@ -86,6 +86,17 @@ trait ContributionTrait
 
         try {
             if ($contributionResource) {
+                // During an update of items, keep existing media in any cases.
+                // TODO Move this check in proposalToResourceData(). Do it for item sets and sites too.
+                // @link https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/issues/3
+                if ($resourceName === 'items') {
+                    unset(
+                        $resourceData['o:media'],
+                        $resourceData['o:primary_media'],
+                        $resourceData['o:item_set'],
+                        $resourceData['o:site']
+                    );
+                }
                 $apiOptions['isPartial'] = true;
                 $response = $api
                     ->update($resourceName, $contributionResource->id(), $resourceData, [], $apiOptions);
