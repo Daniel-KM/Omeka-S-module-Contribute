@@ -276,7 +276,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
     <?php //= $partial('common/resource-form-templates') ?>
     <?= $partial('contribute/site/contribution/form-inputs-default') ?>
 
-    <?php if (!empty($templateMedia)): ?>
+    <?php if (!empty($templateMedia) && !$resource): // TODO Make possible to edit media with item. ?>
     <div id="edit_template_media" class="contribute_template media" style="display:none;">
         <fieldset class="contribute-media sub-form" name="media[]" data-index-media="">
             <legend><?= $escape($translate('File')) ?></legend>
