@@ -69,7 +69,7 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
     if ($module && version_compare($module->getIni('version') ?? '', '3.3.28', '<')) {
         $translator = $services->get('MvcTranslator');
         $message = new PsrMessage(
-            'This module requires the module "{module}", version {version} or above.'), // @translate
+            'This module requires the module "{module}", version {version} or above.', // @translate
             ['module' => 'Generic', 'version' => '3.3.28']
         );
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message->setTranslator($translator));
@@ -282,7 +282,14 @@ if (version_compare($oldVersion, '3.3.0.18', '<')) {
 
 if (version_compare($oldVersion, '3.4.0.20', '<')) {
     $message = new PsrMessage(
-        'It’s now possible to submit a contribution in one step.' // @translate );
+        'It’s now possible to submit a contribution in one step.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.25', '<')) {
+    $message = new PsrMessage(
+        'It’s now possible to allow contribution only for selected authenticated users or via a regex on email.' // @translate );
     );
     $messenger->addSuccess($message);
 }
