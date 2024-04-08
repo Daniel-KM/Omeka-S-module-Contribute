@@ -23,6 +23,7 @@
  * @var ?int $indexMedia
  * @var array $fieldsMedia
  *
+ * @var \Laminas\View\HelperPluginManager $plugins
  * @var \Laminas\View\Helper\Url $url
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -30,7 +31,6 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var \Common\Stdlib\EasyMeta $easyMeta
- * @var ?array $customVocabBaseTypes Deprecated. Use $easyMeta directly.
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
  * @var callable $shortResourceTitle
@@ -100,53 +100,25 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                 <?php break;
 
             case substr($dataType, 0, 12) === 'customvocab:':
-                // TODO Simplify with Omeka S v4 (CustomVocab 1.7.0).
-                // @see \CustomVocab\DataType\CustomVocab
-                $baseType = $customVocabBaseTypes[substr($dataType, 12)] ?? 'literal';
+                /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
                 $customVocab = $apiManager->read('custom_vocabs', ['id' => substr($dataType, 12)])->getContent();
+                $mainType = $easyMeta->dataTypeMainCustomVocab($dataType) ?: 'literal';
                 $valueOptions = [
                     // Managed via js.
                     // ['v' => '', 't' => $translate('Select a value')],
                 ];
-                if ($baseType === 'resource') {
-                    // Manage hierarchical list (via module Thesaurus).
-                    $itemSet = $customVocab->itemSet();
-                    $itemSetClass = $itemSet ? $itemSet->resourceClass() : null;
-                    $plugins = $this->getHelperPluginManager();
-                    if ($itemSetClass && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']) && $plugins->has('thesaurus')) {
-                        $result = $plugins->get('thesaurus')($itemSet)->listTree(['indent' => '– ']);
-                    } else {
-                        $result = $apiManager->search('items', ['item_set_id' => $itemSet->id(), 'sort_by' => 'title'], ['initialize' => false, 'returnScalar' => 'title'])->getContent();
-                    }
-                    foreach ($result as $id => $title) {
-                        $valueOptions[] = ['v' => $id, 't' => $title];
-                    }
-                } elseif ($baseType === 'uri') {
-                    $matches = [];
-                    $uris = $customVocab->uris();
-                    if (is_array($uris)) {
-                        foreach ($uris as $uri => $label) {
-                            $valueOptions[] = ['v' => $uri, 't' => strlen($label) && $uri !== $label ? sprintf('%1$s <%2$s>', $label, $uri) : $uri];
-                        }
-                    } else {
-                        $uris = array_map('trim', preg_split("/\r\n|\n|\r/", $customVocab->uris()));
-                        foreach ($uris as $uri) {
-                            if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                                $valueOptions[] = ['v' => $matches[1], 't' => sprintf('%s <%s>', $matches[2], $matches[1])];
-                            } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                                $valueOptions[] = ['v' => $matches[1], 't' => $matches[1]];
-                            }
-                        }
-                    }
+                // Manage hierarchical list (via module Thesaurus).
+                $isCustomVocabThesaurus = $customVocab && $mainType === 'resource' && $plugins->has('thesaurus') && ($itemSet = $customVocab->itemSet()) && ($itemSetClass = $itemSet->resourceClass()) && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']);
+                if ($isCustomVocabThesaurus) {
+                    $result = $plugins->get('thesaurus')($itemSet)->listTree(['indent' => '– ']);
                 } else {
-                    $terms = $customVocab->terms();
-                    $terms = is_array($terms) ? $terms : array_map('trim', preg_split("/\r\n|\n|\r/", $terms));
-                    foreach ($terms as $term) {
-                        $valueOptions[] = ['v' => $term, 't' => $term];
-                    }
+                    $result = $customVocab->listValues();
+                }
+                foreach ($result as $term => $value) {
+                    $valueOptions[] = ['v' => $value, 't' => $term];
                 }
                 ?>
-        <button type="button" class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $dataType ?>" data-basetype="<?= $baseType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>" data-placeholder="<?= $escapeAttr($translate('Select a value…')) ?>"><?= $escape($translate('Add value')) ?></button>
+        <button type="button" class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $dataType ?>" data-basetype="<?= $mainType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>" data-placeholder="<?= $escapeAttr($translate('Select a value…')) ?>"><?= $escape($translate('Add value')) ?></button>
                 <?php break;
 
             case substr($dataType, 0, 12) === 'valuesuggest': // Or valuesuggestall.

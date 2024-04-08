@@ -281,12 +281,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $values = $contributionResource->value($term, ['all' => true]);
         $valueResource = null;
         foreach ($values as $value) {
-            $type = $value->type();
-            $typeColon = strtok($type, ':');
-            if (in_array($typeColon, ['resource', 'customvocab'])
-                && ($valueResource = $value->valueResource())
-                && $valueResource->id() === $int
-            ) {
+            $valueResource = $value->valueResource();
+            if ($valueResource && $valueResource->id() === $int) {
                 return $value;
             }
         }
@@ -308,11 +304,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         // To get only uris and value suggest/custom vocab values require to get all values.
         $values = $contributionResource->value($term, ['all' => true]);
         foreach ($values as $value) {
-            $type = $value->type();
-            $typeColon = strtok($type, ':');
-            if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall', 'customvocab'])
-                && $value->uri() === $string
-            ) {
+            if ($value->uri() === $string) {
                 return $value;
             }
         }
@@ -349,7 +341,6 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $services = $this->getServiceLocator();
         $easyMeta = $services->get('EasyMeta');
         $propertyIds = $easyMeta->propertyIds();
-        $customVocabBaseTypes = $this->getViewHelper('customVocabBaseType')();
 
         // Use the resource template of the resource or the default one.
         $resourceTemplate = $contributive->template();
@@ -403,19 +394,15 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
 
-            $baseType = null;
-            $uriLabels = [];
-            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $customVocabId = (int) substr($typeTemplate, 12);
-                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                $uriLabels = $this->customVocabUriLabels($customVocabId);
-            }
+            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
+            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
 
             foreach ($propositions as $key => $proposition) {
-                // TODO Manage all the cases (custom vocab is literal, item, uri, value suggest is uri).
                 // TODO Remove management of proposition without resource template (but the template may have been modified).
                 if ($typeTemplate) {
-                    $type = $typeTemplate;
+                    $type = $mainType;
                 } elseif (array_key_exists('@uri', $proposition['original'])) {
                     $type = 'uri';
                 } elseif (array_key_exists('@resource', $proposition['original'])) {
@@ -426,16 +413,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                     $type = 'unknown';
                 }
 
-                $isTermDataType = $contributive->isTermDataType($term, $type);
+                $isTermDataType = $contributive->isTermDataType($term, $typeTemplate ?? $type);
 
-                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case 'boolean':
-                    case 'html':
-                    case 'xml':
-                    case $typeColon === 'numeric':
-                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         $original = $proposition['original']['@value'] ?? '';
                         $proposed = $proposition['proposed']['@value'] ?? '';
 
@@ -501,8 +482,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         unset($prop);
                         break;
 
-                    case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                    case 'resource':
                         $original = isset($proposition['original']['@resource']) ? (int) $proposition['original']['@resource'] : 0;
                         $proposed = isset($proposition['proposed']['@resource']) ? (int) $proposition['proposed']['@resource'] : 0;
 
@@ -568,12 +548,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         unset($prop);
                         break;
 
-                    case $typeColon === 'customvocab' && $baseType === 'uri':
-                        $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
-                        // no break.
                     case 'uri':
-                    case $typeColon === 'valuesuggest':
-                    case $typeColon === 'valuesuggestall':
+                        if ($isCustomVocabUri) {
+                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
+                        }
+
                         $originalUri = $proposition['original']['@uri'] ?? '';
                         $originalLabel = $proposition['original']['@label'] ?? '';
                         $original = $originalUri . $originalLabel;
@@ -722,7 +701,6 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $services = $this->getServiceLocator();
         $easyMeta = $services->get('EasyMeta');
         $propertyIds = $easyMeta->propertyIds();
-        $customVocabBaseTypes = $services->get('ViewHelperManager')->get('customVocabBaseType')();
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
 
@@ -775,7 +753,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 // check should be redone.
                 $existingVal = $existingValue->value();
                 $existingUri = $existingValue->uri();
-                $existingResourceId = $existingValue->valueResource() ? $existingValue->valueResource()->id() : null;
+                $existingResource = $existingValue->valueResource();
+                $existingResourceId = $existingResource ? $existingResource->id() : null;
                 foreach ($proposal[$term] as $key => $proposition) {
                     if ($hasProposedTermAndKey && $proposedKey != $key) {
                         continue;
@@ -855,13 +834,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
 
-            $baseType = null;
-            $uriLabels = [];
-            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $customVocabId = (int) substr($typeTemplate, 12);
-                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                $uriLabels = $this->customVocabUriLabels($customVocabId);
-            }
+            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
+            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
 
             foreach ($propositions as $key => $proposition) {
                 if ($hasProposedTermAndKey && $proposedKey != $key) {
@@ -875,7 +851,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
 
                 if ($typeTemplate) {
-                    $type = $typeTemplate;
+                    $type = $mainType;
                 } elseif (array_key_exists('@uri', $proposition['original'])) {
                     $type = 'uri';
                 } elseif (array_key_exists('@resource', $proposition['original'])) {
@@ -886,14 +862,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                     $type = 'unknown';
                 }
 
-                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case 'boolean':
-                    case 'html':
-                    case 'xml':
-                    case $typeColon === 'numeric':
-                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -902,8 +872,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             '@language' => $proposition['proposed']['@language'] ?? null,
                         ];
                         break;
-                    case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                    case 'resource':
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -914,12 +883,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             '@language' => null,
                         ];
                         break;
-                    case $typeColon === 'customvocab' && $baseType === 'uri':
-                        $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? '';
-                        // no break.
                     case 'uri':
-                    case $typeColon === 'valuesuggest':
-                    case $typeColon === 'valuesuggestall':
+                        if ($isCustomVocabUri) {
+                            $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? '';
+                        }
                         $data[$term][] = [
                             'type' => $type,
                             'property_id' => $propertyId,
@@ -1297,7 +1264,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * {@inheritDoc}
      * @see \Omeka\Api\Representation\AbstractResourceRepresentation::url()
      */
-    public function url($action = null, $canonical = false)
+    public function url($action = null, $canonical = false): ?string
     {
         $status = $this->getServiceLocator()->get('Omeka\Status');
         if ($status->isAdminRequest()) {
@@ -1317,7 +1284,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * {@inheritDoc}
      * @see \Omeka\Api\Representation\AbstractResourceRepresentation::siteUrl()
      */
-    public function siteUrl($siteSlug = null, $canonical = false, $action = null, $asGuest = false)
+    public function siteUrl($siteSlug = null, $canonical = false, $action = null, $asGuest = false): string
     {
         if (!$siteSlug) {
             $siteSlug = $this->getServiceLocator()->get('Application')
@@ -1338,7 +1305,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         );
     }
 
-    public function siteUrlResource($siteSlug = null, $canonical = false, $action = null)
+    /**
+     * Get the site url of the current resource.
+     */
+    public function siteUrlResource($siteSlug = null, $canonical = false, $action = null): ?string
     {
         $contributionResource = $this->resource();
         return $contributionResource
@@ -1349,26 +1319,21 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Get the list of uris and labels of a specific custom vocab.
      *
-     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
+     * @see \Contribute\Controller\ContributionTrait::customVocabUriLabels()
      */
-    protected function customVocabUriLabels(int $customVocabId): array
+    protected function customVocabUriLabels(string $dataType): array
     {
         static $uriLabels = [];
-        if (!isset($uriLabels[$customVocabId])) {
-            $api = $this->getServiceLocator()->get('ControllerPluginManager')->get('api');
-            $uriLabels[$customVocabId] = $api->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
-            if (!is_array($uriLabels[$customVocabId])) {
-                $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uriLabels[$customVocabId]));
-                $matches = [];
-                $values = [];
-                foreach ($uris as $uri) {
-                    if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                        $values[$matches[1]] = $matches[2];
-                    } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                        $values[$matches[1]] = '';
-                    }
+        if (!isset($uriLabels[$dataType])) {
+            $uriLabels[$dataType] = [];
+            $customVocabId = (int) substr($dataType, 12);
+            if ($customVocabId) {
+                $api = $this->getServiceLocator()->get('ControllerPluginManager')->get('api');
+                /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
+                $customVocab = $api->searchOne('custom_vocabs', ['id' => $customVocabId])->getContent();
+                if ($customVocab) {
+                    $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
                 }
-                $uriLabels[$customVocabId] = $values;
             }
         }
         return $uriLabels[$customVocabId];

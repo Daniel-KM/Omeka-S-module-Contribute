@@ -34,7 +34,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 $services = $site->getServiceLocator();
 $apiManager = $services->get('Omeka\ApiManager');
 $easyMeta = $services->get('EasyMeta');
-/** @deprecated Use easyMeta directly. */
+/** @deprecated Use easyMeta directly. Will be removed in a future version. */
 $customVocabBaseTypes = [];
 foreach ($easyMeta->dataTypeMainCustomVocabs() as $dataType => $mainType) {
     $customVocabBaseTypes[substr($dataType, 12)] = $mainType;
@@ -61,6 +61,7 @@ $vars = $this->vars()->getArrayCopy();
 $vars['mode'] = isset($form) ? $mode : 'read';
 $vars['indexMedia'] = $indexMedia;
 $vars['fieldsMedia'] = $fieldsMedia;
+$vars['plugins'] = $plugins;
 $vars['url'] = $url;
 $vars['partial'] = $partial;
 $vars['escape'] = $escape;

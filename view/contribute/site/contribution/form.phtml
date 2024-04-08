@@ -40,6 +40,7 @@ if ($isMainForm) {
     // No echo: only includes variables, css, and js.
     $partial('contribute/site/contribution/form-include');
     /**
+     * @var \Laminas\View\HelperPluginManager $plugins
      * @var \Laminas\View\Helper\Url $url
      * @var \Laminas\View\Helper\Partial $partial
      * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -47,7 +48,6 @@ if ($isMainForm) {
      * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
      * @var \Omeka\Api\Manager $apiManager
      * @var \Common\Stdlib\EasyMeta $easyMeta
-     * @var ?array $customVocabBaseTypes Deprecated. Use $easyMeta directly.
      * @var array $valueResourceTypes
      * @var array $valueResourceQueries
      * @var callable $shortResourceTitle

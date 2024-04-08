@@ -23,6 +23,7 @@
  * @var ?int $indexMedia
  * @var array $fieldsMedia
  *
+ * @var \Laminas\View\HelperPluginManager $plugins
  * @var \Laminas\View\Helper\Url $url
  * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
@@ -30,7 +31,6 @@
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
  * @var \Omeka\Api\Manager $apiManager
  * @var \Common\Stdlib\EasyMeta $easyMeta
- * @var ?array $customVocabBaseTypes Deprecated. Use $easyMeta directly.
  * @var array $valueResourceTypes
  * @var array $valueResourceQueries
  * @var callable $shortResourceTitle
@@ -57,41 +57,35 @@ $isPrivate = $value ? !$value->isPublic() : (isset($templateProperty) ? $templat
 $isRequired = !empty($field['required']) && (($indexContribution ?? null) === 0);
 
 $class = ['value', 'custom_vocab'];
-if ($isPrivate):
+if ($isPrivate) {
     $class[] = 'private';
-endif;
+}
 $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
 
-// Prepare select, that can be a list of keywords, a list of items from an item set or a list or uri/labels.
-// Because the form element cannot be get directly, a quick replacement is done.
+// Use the standard select, except for thesaurus.
+// Manage hierarchical list (via module Thesaurus).
+$mainType = $easyMeta->dataTypeMainCustomVocab($fieldContribution['type']);
 $customVocabId = (int) substr($fieldContribution['type'], 12);
-$customVocabType = $baseType ?? $customVocabBaseTypes[$customVocabId] ?? 'literal';
+$customVocab = $customVocabId ? $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent() : null;
+$customVocabType = $baseType ?? $mainType ?? 'literal';
 $typeName = $customVocabType === 'literal' ? 'value' : $customVocabType;
-if ($customVocabId) {
-    $customVocab = $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent();
-    if ($customVocabType === 'resource') {
-        $itemSet = $customVocab->itemSet();
-        $itemSetClass = $itemSet ? $itemSet->resourceClass() : null;
-        $plugins = $this->getHelperPluginManager();
-        if ($itemSetClass && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']) && $plugins->has('thesaurus')) {
-            $thesaurus = $plugins->get('thesaurus')($itemSet);
-            $select = $thesaurus->asSelect(['output_type' => 'listTree', 'indent' => '– ', 'empty_option' => ''])
-                ->setName('customvocab')
-                ->setAttributes([
-                    'data-value-key' => 'value_resource_id',
-                    'class' => 'terms to-require',
-                ]);
-            $selectHtml = $this->formSelect($select);
-        } else {
-            $selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this);
-        }
-    } else {
-        $selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this);
-    }
+$isCustomVocabThesaurus = $customVocab && $mainType === 'resource' && $plugins->has('thesaurus') && ($itemSet = $customVocab->itemSet()) && ($itemSetClass = $itemSet->resourceClass()) && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']);
+if ($isCustomVocabThesaurus) {
+    $thesaurus = $plugins->get('thesaurus')($itemSet);
+    $select = $thesaurus->asSelect(['output_type' => 'listTree', 'indent' => '– ', 'empty_option' => ''])
+        ->setName('customvocab')
+        ->setAttributes([
+            'data-value-key' => 'value_resource_id',
+            'class' => 'terms to-require',
+        ]);
+    $selectHtml = $this->formSelect($select);
+} elseif ($mainType) {
+    $selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this);
 } else {
     $customVocab = null;
     $selectHtml = '<select name="' . $fieldContribution['type'] . '"></select>';
 }
+
 $name = $isMainForm
     ? sprintf('%s[%s][@%s]', $term, $indexFieldInput, $typeName)
     : sprintf('media[%s][%s][%s][@%s]', $indexMedia, $term, $indexFieldInput, $typeName);

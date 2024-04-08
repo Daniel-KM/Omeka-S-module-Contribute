@@ -185,33 +185,6 @@ trait ContributionTrait
         return $contributionResource;
     }
 
-    /**
-     * Get the list of uris and labels of a specific custom vocab.
-     *
-     * @see \CustomVocab\DataType\CustomVocab::getUriForm()
-     */
-    protected function customVocabUriLabels(int $customVocabId): array
-    {
-        static $uriLabels = [];
-        if (!isset($uriLabels[$customVocabId])) {
-            $uris = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId], ['returnScalar' => 'uris'])->getContent();
-            if (!is_array($uris)) {
-                $uris = array_map('trim', preg_split("/\r\n|\n|\r/", (string) $uris));
-                $matches = [];
-                $values = [];
-                foreach ($uris as $uri) {
-                    if (preg_match('/^(\S+) (.+)$/', $uri, $matches)) {
-                        $values[$matches[1]] = $matches[2];
-                    } elseif (preg_match('/^(.+)/', $uri, $matches)) {
-                        $values[$matches[1]] = '';
-                    }
-                }
-            }
-            $uriLabels[$customVocabId] = $values;
-        }
-        return $uriLabels[$customVocabId];
-    }
-
     protected function jsonErrorUnauthorized($message = null, $errors = null): JsonModel
     {
         return $this->returnError($message ?? $this->translate('Unauthorized access.'), 'error', $errors); // @translate
@@ -231,7 +204,7 @@ trait ContributionTrait
     {
         $result = [
             'status' => $statusCode,
-            'message' => is_object($message) ? $message->setTranslator($this->viewHelpers()->get('translate')->getTranslator()) : $message,
+            'message' => is_object($message) ? $message->setTranslator($this->translator()) : $message,
         ];
         if (is_array($errors) && count($errors)) {
             $result['data'] = $errors;

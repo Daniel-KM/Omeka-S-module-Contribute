@@ -1229,8 +1229,9 @@ class ContributionController extends AbstractActionController
         }
         unset($values, $value);
 
-        $propertyIds = $this->easyMeta()->propertyIds();
-        $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
+        $easyMeta = $this->easyMeta()();
+        $propertyIds = $easyMeta->propertyIds();
 
         // Process only editable keys.
 
@@ -1262,19 +1263,16 @@ class ContributionController extends AbstractActionController
                 if (!isset($proposal[$term][$index])) {
                     continue;
                 }
-                $type = $value->type();
-                if (!$contributive->isTermDataType($term, $type)) {
+                $dataType = $value->type();
+                if (!$contributive->isTermDataType($term, $dataType)) {
                     continue;
                 }
 
-                $typeColon = strtok($type, ':');
-                $baseType = null;
-                $uriLabels = [];
-                if ($typeColon === 'customvocab') {
-                    $customVocabId = (int) substr($type, 12);
-                    $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                    $uriLabels = $this->customVocabUriLabels($customVocabId);
-                }
+                $mainType = $easyMeta->dataTypeMain($dataType);
+                $isCustomVocab = substr((string) $dataType, 0, 12) === 'customvocab:';
+                $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+                $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($dataType) : [];
+                $isValueSuggest = $dataType && (substr($dataType, 0, 13) === 'valuesuggest:' || substr($dataType, 0, 16) === 'valuesuggestall:');
 
                 // If a lang was set in the original value, it is kept, else use
                 // the posted one, else use the default one of the template.
@@ -1291,13 +1289,8 @@ class ContributionController extends AbstractActionController
                     }
                 }
 
-                switch ($type) {
+                switch ($mainType) {
                     case 'literal':
-                    case 'boolean':
-                    case 'html':
-                    case 'xml':
-                    case $typeColon === 'numeric':
-                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
                         }
@@ -1310,8 +1303,7 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                    case 'resource':
                         if (!isset($proposal[$term][$index]['@resource'])) {
                             continue 2;
                         }
@@ -1325,14 +1317,22 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'customvocab' && $baseType === 'uri':
-                        $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri'] ?? ''] ?? '';
-                        // no break.
-                    case 'uri':
+                    // TODO Remove the exception of value suggest: why is it specific? In fact, this is the way from the js in form to get uri and label from the user.
+                    case $isValueSuggest:
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
-                        $proposal[$term][$index] += ['@label' => ''];
+                        if (preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                            if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
+                                continue 2;
+                            }
+                            $proposal[$term][$index]['@uri'] = $matches[1];
+                            $proposal[$term][$index]['@label'] = $matches[2];
+                        } elseif (filter_var($proposal[$term][$index]['@uri'], FILTER_VALIDATE_URL)) {
+                            $proposal[$term][$index]['@label'] ??= '';
+                        } else {
+                            continue 2;
+                        }
                         $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
@@ -1340,23 +1340,18 @@ class ContributionController extends AbstractActionController
                             ],
                             'proposed' => [
                                 '@uri' => $proposal[$term][$index]['@uri'],
-                                '@label' => $proposal[$term][$index]['@label'],
+                                '@label' => $proposal[$term][$index]['@label'] ?? '',
                             ],
                         ];
                         break;
-                    case $typeColon === 'valuesuggest':
-                    case $typeColon === 'valuesuggestall':
+                    case 'uri':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
-                        if (!preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
-                            continue 2;
+                        if ($isCustomVocabUri) {
+                            $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri']] ?? '';
                         }
-                        if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
-                            continue 2;
-                        }
-                        $proposal[$term][$index]['@uri'] = $matches[1];
-                        $proposal[$term][$index]['@label'] = $matches[2];
+                        $proposal[$term][$index] += ['@label' => ''];
                         $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
@@ -1410,13 +1405,11 @@ class ContributionController extends AbstractActionController
                 }
             }
 
-            $baseType = null;
-            $uriLabels = [];
-            if (substr((string) $typeTemplate, 0, 12) === 'customvocab:') {
-                $customVocabId = (int) substr($typeTemplate, 12);
-                $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                $uriLabels = $this->customVocabUriLabels($customVocabId);
-            }
+            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
+            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
+            $isValueSuggest = $typeTemplate && (substr($typeTemplate, 0, 13) === 'valuesuggest:' || substr($typeTemplate, 0, 16) === 'valuesuggestall:');
 
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
@@ -1426,7 +1419,7 @@ class ContributionController extends AbstractActionController
                 }
 
                 if ($typeTemplate) {
-                    $type = $typeTemplate;
+                    $type = $mainType;
                 } elseif (array_key_exists('@uri', $proposedValue)) {
                     $type = 'uri';
                 } elseif (array_key_exists('@resource', $proposedValue)) {
@@ -1437,7 +1430,7 @@ class ContributionController extends AbstractActionController
                     $type = 'unknown';
                 }
 
-                if (!$contributive->isTermDataType($term, $type)) {
+                if (!$contributive->isTermDataType($term, $typeTemplate ?? $type)) {
                     continue;
                 }
 
@@ -1450,14 +1443,8 @@ class ContributionController extends AbstractActionController
                     $lang = null;
                 }
 
-                $typeColon = strtok($type, ':');
                 switch ($type) {
                     case 'literal':
-                    case 'boolean':
-                    case 'html':
-                    case 'xml':
-                    case $typeColon === 'numeric':
-                    case $typeColon === 'customvocab' && $baseType === 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;
                         }
@@ -1470,8 +1457,7 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'resource':
-                    case $typeColon === 'customvocab' && $baseType === 'resource':
+                    case 'resource':
                         if (!isset($proposedValue['@resource']) || !(int) $proposedValue['@resource']) {
                             continue 2;
                         }
@@ -1484,13 +1470,14 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'customvocab' && $baseType === 'uri':
-                        $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
-                        // no break.
                     case 'uri':
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }
+                        if ($isCustomVocabUri) {
+                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri']] ?? '';
+                        }
+                        // no break.
                         $proposedValue += ['@label' => ''];
                         $prop = [
                             'original' => [
@@ -1503,19 +1490,21 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    case $typeColon === 'valuesuggest':
-                    case $typeColon === 'valuesuggestall':
+                    case $isValueSuggest:
                         if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
                             continue 2;
                         }
-                        if (!preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                        if (preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                            if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
+                                continue 2;
+                            }
+                            $proposedValue['@uri'] = $matches[1];
+                            $proposedValue['@label'] = $matches[2];
+                        } elseif (filter_var($proposal[$term][$index]['@uri'], FILTER_VALIDATE_URL)) {
+                            $proposal[$term][$index]['@label'] ??= '';
+                        } else {
                             continue 2;
                         }
-                        if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
-                            continue 2;
-                        }
-                        $proposedValue['@uri'] = $matches[1];
-                        $proposedValue['@label'] = $matches[2];
                         $prop = [
                             'original' => [
                                 '@uri' => null,
@@ -1630,6 +1619,28 @@ class ContributionController extends AbstractActionController
             $data['error'] = true;
         }
         return $data;
+    }
+
+    /**
+     * Get the list of uris and labels of a specific custom vocab.
+     *
+     * @see \Contribute\Api\Representation\ContributionRepresentation::customVocabUriLabels()
+     */
+    protected function customVocabUriLabels(string $dataType): array
+    {
+        static $uriLabels = [];
+        if (!isset($uriLabels[$dataType])) {
+            $uriLabels[$dataType] = [];
+            $customVocabId = (int) substr($dataType, 12);
+            if ($customVocabId) {
+                /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
+                $customVocab = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId])->getContent();
+                if ($customVocab) {
+                    $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
+                }
+            }
+        }
+        return $uriLabels[$customVocabId];
     }
 
     /**
