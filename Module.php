@@ -68,33 +68,47 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
 
-        // Set the id of the resource templates.
         $api = $services->get('ControllerPluginManager')->get('api');
         $settings = $services->get('Omeka\Settings');
+
+        // Store the ids of the resource templates for medias.
+        $templateNames = $settings->get('contribute_templates_media', []);
+        $templateIds = [];
+        foreach ($templateNames as $templateName) {
+            $templateIds[$templateName] = $api
+                ->searchOne('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName], ['returnScalar' => 'id'])->getContent();
+        }
+        $templateFileIds = array_filter($templateIds);
+        $settings->set('contribute_templates_media', array_values($templateFileIds));
+
+        // Store the ids of the resource templates for items.
         $templateNames = $settings->get('contribute_templates', []);
         $templateIds = [];
         foreach ($templateNames as $templateName) {
-            $templateIds[] = $api
+            $templateIds[$templateName] = $api
                 ->searchOne('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName], ['returnScalar' => 'id'])->getContent();
         }
-        $settings->set('contribute_templates', array_filter($templateIds));
+        $templateItemIds = array_filter($templateIds);
+        $settings->set('contribute_templates', array_values($templateItemIds));
+
+        // Set the tempalte Contribution File the template for media in main
+        // template Contribution.
+        $templateFile = $templateFileIds['Contribution File'] ?? null;
+        $templateItem = $templateItemIds['Contribution'] ?? null;
+        if ($templateItem && $templateFile) {
+            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
+            $template = $api->read('resource_templates', ['id' => $templateItem])->getContent();
+            $templateData = $template->data();
+            $templateData['contribute_template_media'] = $templateFile;
+            $api->update('resource_templates', $templateItem, ['o:data' => $templateData], [], ['isPartial' => true]);
+        }
     }
 
     protected function postUninstall(): void
     {
-        if (!class_exists(\Generic\InstallResources::class)) {
-            require_once file_exists(dirname(__DIR__) . '/Generic/InstallResources.php')
-                ? dirname(__DIR__) . '/Generic/InstallResources.php'
-                : __DIR__ . '/src/Generic/InstallResources.php';
-        }
+        // Don't remove templates.
 
-        $services = $this->getServiceLocator();
-        $installResources = new \Generic\InstallResources($services);
-        $installResources = $installResources();
-
-        $installResources->removeResourceTemplate('Contribution');
-
-        $config = $services->get('Config');
+        $config = $this->getServiceLocator()->get('Config');
         $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
         $this->rmDir($basePath . '/contribution');
     }
