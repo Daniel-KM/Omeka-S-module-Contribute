@@ -345,8 +345,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             $proposal = $proposal['media'][$indexProposalMedia] ?? [];
         }
 
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
-        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
+        $easyMeta = $services->get('EasyMeta');
+        $propertyIds = $easyMeta->propertyIds();
         $customVocabBaseTypes = $this->getViewHelper('customVocabBaseType')();
 
         // Use the resource template of the resource or the default one.
@@ -716,8 +718,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $proposal = $this->proposalNormalizeForValidation($indexProposalMedia);
         $hasProposedTermAndKey = $proposedTerm && !is_null($proposedKey);
 
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
-        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
+        $easyMeta = $services->get('EasyMeta');
+        $propertyIds = $easyMeta->propertyIds();
         $customVocabBaseTypes = $services->get('ViewHelperManager')->get('customVocabBaseType')();
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
@@ -992,8 +996,10 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return true;
         }
 
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
-        $propertyIds = $services->get('ControllerPluginManager')->get('propertyIdsByTerms')();
+        $easyMeta = $services->get('EasyMeta');
+        $propertyIds = $easyMeta->propertyIds();
 
         $resourceData = $this->proposalToResourceData();
 

@@ -2,6 +2,7 @@
 
 namespace Contribute;
 
+use Common\Stdlib\PsrMessage;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 use Omeka\Stdlib\Message;
 
@@ -23,6 +24,14 @@ $settings = $services->get('Omeka\Settings');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 // $entityManager = $services->get('Omeka\EntityManager');
+
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.54')) {
+    $message = new Message(
+        'The module %1$s should be upgraded to version %2$s or later.', // @translate
+        'Common', '3.4.54'
+    );
+    throw new ModuleCannotInstallException((string) $message);
+}
 
 if (version_compare($oldVersion, '3.0.13', '<')) {
     $sqls = '';
@@ -59,11 +68,11 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
     $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
     if ($module && version_compare($module->getIni('version') ?? '', '3.3.28', '<')) {
         $translator = $services->get('MvcTranslator');
-        $message = new \Omeka\Stdlib\Message(
-            $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-            'Generic', '3.3.28'
+        $message = new PsrMessage(
+            'This module requires the module "{module}", version {version} or above.'), // @translate
+            ['module' => 'Generic', 'version' => '3.3.28']
         );
-        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message->setTranslator($translator));
     }
 
     $this->checkDependencies();
@@ -153,13 +162,13 @@ if (version_compare($oldVersion, '3.3.0.16', '<')) {
     ];
 
     $messenger = $services->get('ControllerPluginManager')->get('messenger');
-    $message = new Message(
+    $message = new PsrMessage(
         'At least one configured template is required to contribute. Default options were removed. Edit the resource template directly.' // @translate
     );
     $messenger->addWarning($message);
-    $message = new Message(
-        'For information, the removed options to reuse in a template, eventually with module Advanced Resource Template, are: %s.', // @translate
-        json_encode($removed, 448)
+    $message = new PsrMessage(
+        'For information, the removed options to reuse in a template, eventually with module Advanced Resource Template, are: {json}.', // @translate
+        ['json' => json_encode($removed, 448)]
     );
     $messenger->addWarning($message);
     $services->get('Omeka\Logger')->warn($message);
@@ -183,9 +192,9 @@ if (version_compare($oldVersion, '3.3.0.17', '<')) {
     $config = $services->get('Config');
     $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
     if (!$this->checkDestinationDir($basePath . '/contribution')) {
-        $message = new Message(
-            'The directory "%s" is not writeable.', // @translate
-            $basePath . '/contribution'
+        $message = new PsrMessage(
+            'The directory "{directory}" is not writeable.', // @translate
+            ['directory' => $basePath . '/contribution']
         );
         throw new ModuleCannotInstallException((string) $message);
     }
@@ -221,30 +230,30 @@ SQL;
     $settings->set('contribute_notify_recipients', $settings->get('contribute_notify'));
     $settings->delete('contribute_notify');
 
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible for the user to select a resource template.' // @translate
     );
     $messenger->addSuccess($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible to create a template with a sub-template for one or more media.' // @translate
     );
     $messenger->addSuccess($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible to create a template with file, custom vocab, value suggest or numeric fields.' // @translate
     );
     $messenger->addSuccess($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible to edit a contribution until it is submitted.' // @translate
     );
     $messenger->addSuccess($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'This version does not allow to correct resources. The feature will be reincluded in version 3.3.0.18.' // @translate
     );
     $messenger->addWarning($message);
 }
 
 if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible for admin to search contributions.' // @translate
     );
     $messenger->addSuccess($message);
@@ -253,26 +262,26 @@ if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
 if (version_compare($oldVersion, '3.3.0.18', '<')) {
     $settings->set('contribute_allow_update', 'submission');
 
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible to correct and fill existing resources.' // @translate
     );
     $messenger->addSuccess($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'A new option was added to allow to update a contribution until validation.' // @translate
     );
     $messenger->addSuccess($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'The events "view.add.before/after" are used in place of "view.edit.before/after" in template contribution/add.' // @translate
     );
     $messenger->addWarning($message);
-    $message = new Message(
+    $message = new PsrMessage(
         'Warning: the variable "$resource" is now the edited resource in the theme and no more the contribution. Check your theme if you edited templates, mainly "show" and "edit".' // @translate
     );
     $messenger->addWarning($message);
 }
 
 if (version_compare($oldVersion, '3.4.0.20', '<')) {
-    $message = new Message(
+    $message = new PsrMessage(
         'It’s now possible to submit a contribution in one step.' // @translate );
     );
     $messenger->addSuccess($message);

@@ -2,13 +2,13 @@
 
 namespace Contribute\Api\Adapter;
 
+use Common\Stdlib\PsrMessage;
 use Doctrine\ORM\Query\Expr\Comparison;
 use Doctrine\ORM\QueryBuilder;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Stdlib\Message;
 
 class ContributionAdapter extends AbstractEntityAdapter
 {
@@ -311,7 +311,7 @@ SQL;
      *
      *@todo Use the error store when the form will be ready.
      */
-    protected function checkProposedFiles(array $proposal): ?Message
+    protected function checkProposedFiles(array $proposal): ?PsrMessage
     {
         foreach ($proposal['media'] ?? [] as $key => $mediaFiles) {
             foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
@@ -324,9 +324,9 @@ SQL;
                     continue;
                 }
                 if ($uploaded['error'] || !$uploaded['size']) {
-                    return new Message(
-                        'Invalid or empty file for key %s', // @translate
-                        $key
+                    return new PsrMessage(
+                        'Invalid or empty file for key {key}.', // @translate
+                        ['key' => $key]
                     );
                 } else {
                     // Don't use uploader here, but only in adapter, else
@@ -336,9 +336,9 @@ SQL;
                     $tempFile->setSourceName($uploaded['name']);
                     $tempFile->setTempPath($uploaded['tmp_name']);
                     if (!(new \Omeka\File\Validator())->validate($tempFile)) {
-                        return new Message(
-                            'Invalid file type for key %s', // @translate
-                            $key
+                        return new PsrMessage(
+                            'Invalid file type for key {key}.', // @translate
+                            ['key' => $key]
                         );
                     }
                 }

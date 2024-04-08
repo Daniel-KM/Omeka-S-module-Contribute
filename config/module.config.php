@@ -75,8 +75,6 @@ return [
             'contributiveData' => Mvc\Controller\Plugin\ContributiveData::class,
         ],
         'factories' => [
-            'defaultSiteSlug' => Service\ControllerPlugin\DefaultSiteSlugFactory::class,
-            'propertyIdsByTerms' => Service\ControllerPlugin\PropertyIdsByTermsFactory::class,
             'sendContributionEmail' => Service\ControllerPlugin\SendContributionEmailFactory::class,
         ],
     ],

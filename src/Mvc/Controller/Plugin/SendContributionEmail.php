@@ -45,20 +45,25 @@ class SendContributionEmail extends AbstractPlugin
 
         $subject = trim($subject);
         if (empty($subject)) {
-            $message = new Message('Email not sent: the subject is missing.'); // @translate
-            $this->logger->err($message);
+            $this->logger->err(
+                'Email not sent: the subject is missing.' // @translate
+            );
             return false;
         }
         $body = trim($body);
         if (empty($body)) {
-            $message = new Message('Email not sent: content is missing (subject: %1$s).', $subject); // @translate
-            $this->logger->err($message);
+            $this->logger->err(
+                'Email not sent: content is missing (subject: {subject}).', // @translate
+                ['subject' => $subject]
+            );
             return false;
         }
         $recipients = array_filter(array_unique(array_map('trim', $recipients)));
         if (empty($recipients)) {
-            $message = new Message('Email not sent: no recipient (subject: %1$s).', $subject); // @translate
-            $this->logger->err($message);
+            $this->logger->err(
+                'Email not sent: no recipient (subject: {subject}).', // @translate
+                ['subject' => $subject]
+            );
             return false;
         }
 
@@ -113,11 +118,10 @@ BODY;
         }
 
         // Log email sent for security purpose.
-        $msg = new Message(
-            'An email was sent to %1$s with subject: %2$s', // @translate
-            implode(', ', $recipients), $subject
+        $this->logger->info(
+            'An email was sent to {emails} with subject: {subject}', // @translate
+            ['emails' => implode(', ', $recipients), 'subject' => $subject]
         );
-        $this->logger->info($msg);
         return true;
     }
 }

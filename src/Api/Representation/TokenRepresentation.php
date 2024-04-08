@@ -121,9 +121,9 @@ class TokenRepresentation extends AbstractEntityRepresentation
                 ->getMvcEvent()->getRouteMatch()->getParam('site-slug');
         }
         if (empty($siteSlug)) {
-            $plugins = $services->get('ControllerPluginManager');
-            $siteSlug = $plugins->get('defaultSiteSlug');
-            $siteSlug = $siteSlug();
+            $plugins = $services->get('ViewHelperManager');
+            $defaultSite = $plugins->get('defaultSite');
+            $siteSlug = $defaultSite('slug');
             if (is_null($siteSlug)) {
                 $messenger = $plugins->get('messenger');
                 $messenger()->addError('A site is required to create a public token.'); // @translate

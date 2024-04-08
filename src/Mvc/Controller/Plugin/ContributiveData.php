@@ -73,12 +73,12 @@ class ContributiveData extends AbstractPlugin
         if ($resourceTemplate) {
             $resourceTemplateId = $resourceTemplate->id();
             if (!in_array($resourceTemplateId, $allowedResourceTemplates)) {
-                $controller->logger()->err(new Message(
+                $controller->logger()->err(
                     $isSubTemplate
-                        ? 'The resource template "%s" is not in the list of allowed contribution templates for media.' // @translate
-                        : 'The resource template "%s" is not in the list of allowed contribution templates.', // @translate
-                    $resourceTemplateId
-                ));
+                        ? 'The resource template #{template_id} is not in the list of allowed contribution templates for media.' // @translate
+                        : 'The resource template #{template_id} is not in the list of allowed contribution templates.', // @translate
+                    ['template_id' => $resourceTemplateId]
+                );
                 return $this;
             }
         } else {
@@ -129,10 +129,10 @@ class ContributiveData extends AbstractPlugin
             if (in_array($resourceTemplateMediaId, $allowedResourceTemplatesMedia)) {
                 $this->data['template_media'] = $resourceTemplateMedia;
             } elseif ($resourceTemplateMediaId) {
-                $controller->logger()->err(new Message(
-                    'The resource template "%s" is not in the list of allowed contribution templates for media.', // @translate
-                    $resourceTemplateMediaId
-                ));
+                $controller->logger()->err(
+                    'The resource template #{template_id} is not in the list of allowed contribution templates for media.', // @translate
+                    ['template_id' => $resourceTemplateMediaId]
+                );
                 // No break: allow to submit partially.
             }
         }
@@ -321,7 +321,17 @@ class ContributiveData extends AbstractPlugin
         try {
             return $this->getController()->api()->read('resource_templates', is_numeric($template) ? ['id' => $template] : ['label' => $template])->getContent();
         } catch (\Omeka\Api\Exception\NotFoundException $e) {
-            $this->getController()->logger()->warn(new Message('The template "%s" does not exist and cannot be used for contribution.', $template)); // @translate
+            if (is_numeric($template)) {
+                $this->getController()->logger()->warn(
+                    'The template #{template_id} does not exist and cannot be used for contribution.', // @translate
+                    ['template_id' => $template]
+                );
+            } else {
+                $this->getController()->logger()->warn(
+                    'The template "{template}" does not exist and cannot be used for contribution.', // @translate
+                    ['template' => $template]
+                );
+            }
             return null;
         }
     }

@@ -278,7 +278,8 @@ class ContributionController extends AbstractActionController
                 : $this->redirect()->toRoute('admin');
         }
 
-        $siteSlug = $this->defaultSiteSlug();
+        $defaultSite = $this->viewHelpers()->get('defaultSite');
+        $siteSlug = $defaultSite('slug');
         if (is_null($siteSlug)) {
             $this->messenger()->addError('A site is required to create a public token.'); // @translate
             return $params['redirect']
@@ -691,18 +692,18 @@ class ContributionController extends AbstractActionController
 
         $resourceData = $contribution->proposalToResourceData($term, $key);
         if (!$resourceData) {
-            return $this->jsonErrorUpdate((new PsrMessage(
+            return $this->jsonErrorUpdate(new PsrMessage(
                 'Contribution is not valid.' // @translate
-            ))->setTranslator($this->translator()));
+            ));
         }
 
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jsonErrorUpdate((new PsrMessage(
+            return $this->jsonErrorUpdate(new PsrMessage(
                 'Contribution is not valid: check values.' // @translate
-            ))->setTranslator($this->translator()), $errorStore);
+            ), $errorStore);
         }
         if (!$resource) {
             return $this->jsonErrorUpdate();

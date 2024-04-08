@@ -2,6 +2,7 @@
 
 namespace Contribute\Controller\Site;
 
+use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Controller\ContributionTrait;
 use Contribute\Form\ContributeForm;
@@ -14,7 +15,6 @@ use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\File\TempFileFactory;
 use Omeka\File\Uploader;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Stdlib\Message;
 
 class ContributionController extends AbstractActionController
 {
@@ -751,7 +751,7 @@ class ContributionController extends AbstractActionController
         $space = $this->params('space', 'default');
 
         if (!$this->getRequest()->isPost()) {
-            $this->messenger()->addError(new Message('Deletion can be processed only with a post.')); // @translate
+            $this->messenger()->addError(new PsrMessage('Deletion can be processed only with a post.')); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'show'], true);
         }
 
@@ -818,7 +818,7 @@ class ContributionController extends AbstractActionController
         // Validate the contribution with the contribution process.
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
-            $message = new Message(
+            $message = new PsrMessage(
                 'Contribution is not valid: check template.' // @translate
             );
             $this->messenger()->addError($message); // @translate
@@ -946,33 +946,39 @@ class ContributionController extends AbstractActionController
         // Default message.
         switch (true) {
             case $contributionResource && $user:
-                $message = '<p>' . new Message(
-                    'User %1$s has made a contribution for resource #%2$s (%3$s) (action: %4$s).', // @translate
-                    '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                    '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
-                    $contributionResource->displayTitle(),
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'User {user} has made a contribution for resource #{resource} ({title}) (action: {action}).', // @translate
+                    [
+                        'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                        'resource' => '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
+                        'title' => $contributionResource->displayTitle(),
+                        'action' => $actionMsg,
+                    ]
                 ) . '</p>';
                 break;
             case $contributionResource:
-                $message = '<p>' . new Message(
-                    'An anonymous user has made a contribution for resource #%1$s (%2$s) (action: %3$s).', // @translate
-                    '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
-                    $contributionResource->displayTitle(),
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'An anonymous user has made a contribution for resource {resource} ({title}) (action: {action}).', // @translate
+                    [
+                        'resource' => '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
+                        'title' => $contributionResource->displayTitle(),
+                        'action' => $actionMsg,
+                    ]
                 ) . '</p>';
                 break;
             case $user:
-                $message = '<p>' . new Message(
-                    'User %1$s has made a contribution (action: %2$s).', // @translate
-                    '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'User {user} has made a contribution (action: {action}).', // @translate
+                    [
+                        'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
+                        'action' => $actionMsg
+                    ]
                 ) . '</p>';
                 break;
             default:
-                $message = '<p>' . new Message(
-                    'An anonymous user has made a contribution (action: %1$s).', // @translate
-                    $actionMsg
+                $message = '<p>' . new PsrMessage(
+                    'An anonymous user has made a contribution (action: {action}).', // @translate
+                    ['action' => $actionMsg]
                 ) . '</p>';
                 break;
         }
@@ -998,7 +1004,7 @@ class ContributionController extends AbstractActionController
         $translate = $this->getPluginManager()->get('translate');
 
         $subject = $settings->get('contribute_author_confirmation_subject') ?: $translate('[Omeka] Contribution');
-        $message = $settings->get('contribute_author_confirmation_body') ?: new Message(
+        $message = $settings->get('contribute_author_confirmation_body') ?: new PsrMessage(
             "Hi,\nThanks for your contribution.\n\nThe administrators will validate it as soon as possible.\n\nSincerely," // @translate
         );
 
@@ -1223,7 +1229,7 @@ class ContributionController extends AbstractActionController
         }
         unset($values, $value);
 
-        $propertyIds = $this->propertyIdsByTerms();
+        $propertyIds = $this->easyMeta()->propertyIds();
         $customVocabBaseTypes = $this->viewHelpers()->get('customVocabBaseType')();
 
         // Process only editable keys.
@@ -1584,16 +1590,16 @@ class ContributionController extends AbstractActionController
                 } elseif ($uploaded['error']) {
                     $hasError = true;
                     unset($data['media'][$key]['file']);
-                    $this->messenger()->addError(new Message(
-                        'File %s: %s', // @translate
-                        $key, $uploadErrorCodes[$uploaded['error']]
+                    $this->messenger()->addError(new PsrMessage(
+                        'File {key}: {error}', // @translate
+                        ['key' => $key, 'error' => $uploadErrorCodes[$uploaded['error']]]
                     ));
                 } elseif (!$uploaded['size']) {
                     $hasError = true;
                     unset($data['media'][$key]['file']);
-                    $this->messenger()->addError(new Message(
-                        'Empty file for key %s', // @translate
-                        $key
+                    $this->messenger()->addError(new PsrMessage(
+                        'Empty file for key {key}', // @translate
+                        ['key' => $key]
                     ));
                 } else {
                     // Don't use uploader here, but only in adapter, else
@@ -1604,9 +1610,9 @@ class ContributionController extends AbstractActionController
                     if (!(new \Omeka\File\Validator())->validate($tempFile)) {
                         $hasError = true;
                         unset($data['media'][$key]['file']);
-                        $this->messenger()->addError(new Message(
-                            'Invalid file type for key %s', // @translate
-                            $key
+                        $this->messenger()->addError(new PsrMessage(
+                            'Invalid file type for key {key}', // @translate
+                            ['key' => $key]
                         ));
                     } else {
                         // Take care of automatic rename of uploader (not used).

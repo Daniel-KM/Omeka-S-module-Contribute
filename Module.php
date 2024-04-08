@@ -535,9 +535,9 @@ HTML;
             ])
             ->getContent();
 
-        $plugins = $services->get('ControllerPluginManager');
-        $siteSlug = $plugins->get('defaultSiteSlug');
-        $siteSlug = $siteSlug();
+        $plugins = $services->get('ViewHelperManager');
+        $defaultSite = $plugins->get('defaultSite');
+        $siteSlug = $defaultSite('slug');
 
         echo '<div id="contribution" class="section">';
         echo $view->partial('common/admin/contribute-list', [
