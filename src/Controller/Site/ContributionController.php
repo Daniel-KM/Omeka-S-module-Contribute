@@ -513,12 +513,12 @@ class ContributionController extends AbstractActionController
             // and to do a new correction.
             if ($token) {
                 $contribution = $api
-                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'token_id' => $token->id(), 'patch' => true, 'sort_by' => 'id', 'sort_order' => 'desc'])
                     ->getContent();
                 $currentUrl = $this->url()->fromRoute(null, [], ['query' => ['token' => $token->token()]], true);
             } elseif ($user) {
                 $contribution = $api
-                    ->searchOne('contributions', ['resource_id' => $resourceId, 'email' => $user->getEmail(), 'sort_by' => 'id', 'sort_order' => 'desc'])
+                    ->searchOne('contributions', ['resource_id' => $resourceId, 'owner_id' => $user->getId(), 'patch' => true, 'sort_by' => 'id', 'sort_order' => 'desc'])
                     ->getContent();
                 $currentUrl = $this->url()->fromRoute(null, [], true);
             } else {
