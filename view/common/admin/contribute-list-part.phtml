@@ -33,27 +33,27 @@ unset($proposal['template'], $proposal['media']);
     <h4><?= sprintf($translate('Media %s'), $this->partialLoop()->getPartialCounter()) ?></h4>
 <?php endif; ?>
 
-<div class="property">
-    <h4><?= $escape($translate('Resource template')) ?></h4>
-    <div class="values">
-        <div>
-            <div>
-                <span class="resource-template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
-            </div>
-        </div>
+<dl>
+    <div class="property">
+        <dt><?= $escape($translate('Resource template')) ?></dt>
+        <dd class="values">
+            <span class="resource-template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
+        </dd>
     </div>
-</div>
+</dl>
+
+<dl>
 <?php foreach ($proposal as $term => $propositions):
-    if (isset($values[$term])):
+    if (isset($values[$term])) {
         $propertyData = $values[$term];
-    elseif ($term === 'file'):
+    } elseif ($term === 'file') {
         $propertyData = [
             'property' => null,
             'alternate_label' => $translate('File'),
             'alternate_comment' => null,
             'values' => [],
         ];
-    else:
+    } else {
         $property = $api->searchOne('properties', ['term' => $term])->getContent();
         // In the case the property was removed after the contribute.
         if (empty($property)) continue;
@@ -63,10 +63,10 @@ unset($proposal['template'], $proposal['media']);
             'alternate_comment' => null,
             'values' => [],
         ];
-    endif;
+    }
 ?>
     <div class="property">
-        <h4>
+        <dt>
             <?= $propertyData['alternate_label'] ? $escape($propertyData['alternate_label']) : $escape($translate($propertyData['property']->label())) ?>
             <?php if (!isset($propertyData['property'])):?>
             <?php // Nothing to do (file). ?>
@@ -75,7 +75,7 @@ unset($proposal['template'], $proposal['media']);
             <?php elseif ('vocab' === $labelInfo): ?>
             <span class="field-term">(<?= $escape($propertyData['property']->vocabulary()->label()) ?>)</span>
             <?php endif; ?>
-        </h4>
+        </dt>
         <div class="values">
 
         <?php foreach ($propositions as $key => $proposition):
@@ -112,18 +112,18 @@ unset($proposal['template'], $proposal['media']);
                 ?>
                 <div>
                     <?php if ($process === 'remove'): ?>
-                    <div class="<?= implode(' ', $class) ?> <?= $originalResource ? $originalResource->resourceName() : '' ?>">
+                    <dd class="<?= implode(' ', $class) ?> <?= $originalResource ? $originalResource->resourceName() : '' ?>">
                         <span data-name="<?= $term . '[' . $key . '][@resource]' ?>" class="remove-value"><?= $originalResource->linkPretty() ?></span>
-                    </div>
+                    </dd>
                     <?php else: ?>
                         <?php if ($original): ?>
-                    <div class="<?= implode(' ', $class) ?> <?= $originalResource ? $originalResource->resourceName() : '' ?>">
+                    <dd class="<?= implode(' ', $class) ?> <?= $originalResource ? $originalResource->resourceName() : '' ?>">
                         <span data-name="<?= $term . '[' . $key . '][@resource]' ?>" class="original-value"><?= $originalResource->linkPretty() ?></span>
-                    </div>
+                    </dd>
                         <?php endif; ?>
-                    <div class="<?= implode(' ', $class) ?> <?= $proposedResource ? $proposedResource->resourceName() : '' ?>">
+                    <dd class="<?= implode(' ', $class) ?> <?= $proposedResource ? $proposedResource->resourceName() : '' ?>">
                         <span data-name="<?= $term . '[' . $key . '][@resource]' ?>" class="<?= $process ?>-value"><?= $proposedResource->linkPretty() ?></span>
-                    </div>
+                    </dd>
                     <?php endif; ?>
 
                     <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
@@ -161,7 +161,7 @@ unset($proposal['template'], $proposal['media']);
                 if ($isValidated) $class[] = 'validated-value';
                 $language = $proposition['value'] ? $proposition['value']->lang() : null;
                 ?>
-                <div class="<?= implode(' ', $class) ?>" lang="<?= $escapeAttr($language) ?>">
+                <dd class="<?= implode(' ', $class) ?>" lang="<?= $escapeAttr($language) ?>">
                     <?php if ($language): ?>
                     <span class="language"><?= $escape($language) ?></span>
                     <?php endif; ?>
@@ -199,7 +199,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php endif; ?>
                     </span>
                     <?php endif; ?>
-                </div>
+                </dd>
                 <?php
                 break;
 
@@ -214,7 +214,7 @@ unset($proposal['template'], $proposal['media']);
                 if ($isValidated) $class[] = 'validated-value';
                 $language = $proposition['value'] ? $proposition['value']->lang() : null;
                 ?>
-                <div class="<?= implode(' ', $class) ?>" lang="<?= $escapeAttr($language) ?>">
+                <dd class="<?= implode(' ', $class) ?>" lang="<?= $escapeAttr($language) ?>">
                     <?php if ($language): ?>
                     <span class="language"><?= $escape($language) ?></span>
                     <?php endif; ?>
@@ -247,7 +247,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php endif; ?>
                     </span>
                     <?php endif; ?>
-                </div>
+                </dd>
                  <?php
                 break;
             endswitch;
@@ -256,6 +256,7 @@ unset($proposal['template'], $proposal['media']);
         </div>
     </div>
 <?php endforeach; ?>
+</dl>
 
 <?php if ($isSubProposal): ?>
 </div>
