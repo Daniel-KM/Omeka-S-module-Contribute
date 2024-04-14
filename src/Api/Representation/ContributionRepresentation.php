@@ -327,6 +327,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     /**
      * Check proposed contribution against current resource and normalize it.
      *
+     * The proposal does not manage the type of the values.
      * The sub-contributed medias are checked too via a recursive call.
      *
      * @todo Factorize with \Contribute\Site\ContributionController::prepareProposal()
@@ -398,6 +399,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 continue;
             }
 
+            $mainType = null;
             $propertyId = $propertyIds[$term];
             $typeTemplate = null;
             if ($resourceTemplate) {
@@ -407,28 +409,28 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
 
-            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $mainTypeTemplate = $easyMeta->dataTypeMain($typeTemplate);
             $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
-            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $isCustomVocabUri = $isCustomVocab && $mainTypeTemplate === 'uri';
             $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
 
             foreach ($propositions as $key => $proposition) {
                 // TODO Remove management of proposition without resource template (but the template may have been modified).
                 if ($typeTemplate) {
-                    $type = $mainType;
+                    $mainType = $mainTypeTemplate;
                 } elseif (array_key_exists('@uri', $proposition['original'])) {
-                    $type = 'uri';
+                    $mainType = 'uri';
                 } elseif (array_key_exists('@resource', $proposition['original'])) {
-                    $type = 'resource';
+                    $mainType = 'resource';
                 } elseif (array_key_exists('@value', $proposition['original'])) {
-                    $type = 'literal';
+                    $mainType = 'literal';
                 } else {
-                    $type = 'unknown';
+                    $mainType = 'unknown';
                 }
 
-                $isTermDataType = $contributive->isTermDataType($term, $typeTemplate ?? $type);
+                $isTermDataType = $contributive->isTermDataType($term, $typeTemplate ?? $mainType);
 
-                switch ($type) {
+                switch ($mainType) {
                     case 'literal':
                         $original = $proposition['original']['@value'] ?? '';
                         $proposed = $proposition['proposed']['@value'] ?? '';
@@ -843,6 +845,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 continue;
             }
 
+            $mainType = null;
             $typeTemplate = null;
             if ($resourceTemplate) {
                 $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
@@ -851,9 +854,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
 
-            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $mainTypeTemplate = $easyMeta->dataTypeMain($typeTemplate);
             $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
-            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $isCustomVocabUri = $isCustomVocab && $mainTypeTemplate === 'uri';
             $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
 
             foreach ($propositions as $key => $proposition) {
@@ -868,21 +871,21 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
 
                 if ($typeTemplate) {
-                    $type = $mainType;
+                    $mainType = $mainTypeTemplate;
                 } elseif (array_key_exists('@uri', $proposition['original'])) {
-                    $type = 'uri';
+                    $mainType = 'uri';
                 } elseif (array_key_exists('@resource', $proposition['original'])) {
-                    $type = 'resource';
+                    $mainType = 'resource';
                 } elseif (array_key_exists('@value', $proposition['original'])) {
-                    $type = 'literal';
+                    $mainType = 'literal';
                 } else {
-                    $type = 'unknown';
+                    $mainType = 'unknown';
                 }
 
-                switch ($type) {
+                switch ($mainType) {
                     case 'literal':
                         $data[$term][] = [
-                            'type' => $type,
+                            'type' => $typeTemplate ?? $mainType,
                             'property_id' => $propertyId,
                             '@value' => $proposition['proposed']['@value'],
                             'is_public' => true,
@@ -891,7 +894,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
                     case 'resource':
                         $data[$term][] = [
-                            'type' => $type,
+                            'type' => $typeTemplate ?? $mainType,
                             'property_id' => $propertyId,
                             'o:label' => null,
                             'value_resource_id' => $proposition['proposed']['@resource'],
@@ -905,7 +908,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? $proposition['proposed']['@label'] ?? '';
                         }
                         $data[$term][] = [
-                            'type' => $type,
+                            'type' => $typeTemplate ?? $mainType,
                             'property_id' => $propertyId,
                             'o:label' => $proposition['proposed']['@label'],
                             '@id' => $proposition['proposed']['@uri'],

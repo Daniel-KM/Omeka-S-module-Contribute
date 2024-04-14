@@ -1287,9 +1287,9 @@ class ContributionController extends AbstractActionController
                     continue;
                 }
 
-                $mainType = $easyMeta->dataTypeMain($dataType);
+                $mainTypeTemplate = $easyMeta->dataTypeMain($dataType);
                 $isCustomVocab = substr((string) $dataType, 0, 12) === 'customvocab:';
-                $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+                $isCustomVocabUri = $isCustomVocab && $mainTypeTemplate === 'uri';
                 $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($dataType) : [];
 
                 // If a lang was set in the original value, it is kept, else use
@@ -1307,7 +1307,7 @@ class ContributionController extends AbstractActionController
                     }
                 }
 
-                switch ($mainType) {
+                switch ($mainTypeTemplate) {
                     case 'literal':
                         if (!isset($proposal[$term][$index]['@value'])) {
                             continue 2;
@@ -1399,7 +1399,7 @@ class ContributionController extends AbstractActionController
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty */
             $templateProperty = null;
             $propertyId = $propertyIds[$term];
-            $type = null;
+            $mainType = null;
             $typeTemplate = null;
             if ($resourceTemplate) {
                 $templateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
@@ -1408,9 +1408,9 @@ class ContributionController extends AbstractActionController
                 }
             }
 
-            $mainType = $easyMeta->dataTypeMain($typeTemplate);
+            $mainTypeTemplate = $easyMeta->dataTypeMain($typeTemplate);
             $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
-            $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
+            $isCustomVocabUri = $isCustomVocab && $mainTypeTemplate === 'uri';
             $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
 
             foreach ($proposal[$term] as $index => $proposedValue) {
@@ -1421,18 +1421,18 @@ class ContributionController extends AbstractActionController
                 }
 
                 if ($typeTemplate) {
-                    $type = $mainType;
+                    $mainType = $mainTypeTemplate;
                 } elseif (array_key_exists('@uri', $proposedValue)) {
-                    $type = 'uri';
+                    $mainType = 'uri';
                 } elseif (array_key_exists('@resource', $proposedValue)) {
-                    $type = 'resource';
+                    $mainType = 'resource';
                 } elseif (array_key_exists('@value', $proposedValue)) {
-                    $type = 'literal';
+                    $mainType = 'literal';
                 } else {
-                    $type = 'unknown';
+                    $mainType = 'unknown';
                 }
 
-                if (!$contributive->isTermDataType($term, $typeTemplate ?? $type)) {
+                if (!$contributive->isTermDataType($term, $typeTemplate ?? $mainType)) {
                     continue;
                 }
 
@@ -1445,7 +1445,7 @@ class ContributionController extends AbstractActionController
                     $lang = null;
                 }
 
-                switch ($type) {
+                switch ($mainType) {
                     case 'literal':
                         if (!isset($proposedValue['@value']) || $proposedValue['@value'] === '') {
                             continue 2;
