@@ -117,7 +117,7 @@ foreach ($simpleMediaFields as &$simpleMediaField) {
     unset($simpleMediaField['template_property'], $simpleMediaField['property'], $simpleMediaField['alternate_comment'], $simpleMediaField['alternate_label'], $simpleMediaField['values'], $simpleMediaField['contributions']);
 }
 unset($simpleMediaField);
-$js .= PHP_EOL . sprintf('const templateMedia = %s;', $templateMedia ? $templateMedia->id() : 'null');
+$js .= PHP_EOL . sprintf('const templateMedia = %s;', isset($templateMedia) ? $templateMedia->id() : 'null');
 $js .= PHP_EOL . sprintf('const mediaFields = %s;', json_encode($simpleMediaFields, 320));
 $this->headScript()
     ->appendScript($js);
