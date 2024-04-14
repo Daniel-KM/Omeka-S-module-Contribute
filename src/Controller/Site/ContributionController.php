@@ -1291,7 +1291,6 @@ class ContributionController extends AbstractActionController
                 $isCustomVocab = substr((string) $dataType, 0, 12) === 'customvocab:';
                 $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
                 $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($dataType) : [];
-                $isValueSuggest = $dataType && (substr($dataType, 0, 13) === 'valuesuggest:' || substr($dataType, 0, 16) === 'valuesuggestall:');
 
                 // If a lang was set in the original value, it is kept, else use
                 // the posted one, else use the default one of the template.
@@ -1336,12 +1335,16 @@ class ContributionController extends AbstractActionController
                             ],
                         ];
                         break;
-                    // TODO Remove the exception of value suggest: why is it specific? In fact, this is the way from the js in form to get uri and label from the user.
-                    case $isValueSuggest:
+                    case 'uri':
                         if (!isset($proposal[$term][$index]['@uri'])) {
                             continue 2;
                         }
-                        if (preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                        if ($isCustomVocabUri) {
+                            $proposal[$term][$index]['@label'] = $uriLabels[$proposal[$term][$index]['@uri']] ?? $proposal[$term][$index]['@label'] ?? '';
+                        }
+                        // Value suggest is stored as a link by js in form to
+                        // get uri and label from the user.
+                        elseif (preg_match('~^<a href="([^"]+)"[^>]*>\s*(.*)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
                             if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
                                 continue 2;
                             }
@@ -1352,25 +1355,6 @@ class ContributionController extends AbstractActionController
                         } else {
                             continue 2;
                         }
-                        $prop = [
-                            'original' => [
-                                '@uri' => $value->uri(),
-                                '@label' => $value->value(),
-                            ],
-                            'proposed' => [
-                                '@uri' => $proposal[$term][$index]['@uri'],
-                                '@label' => $proposal[$term][$index]['@label'] ?? '',
-                            ],
-                        ];
-                        break;
-                    case 'uri':
-                        if (!isset($proposal[$term][$index]['@uri'])) {
-                            continue 2;
-                        }
-                        if ($isCustomVocabUri) {
-                            $proposedValue['@label'] = $uriLabels[$proposal[$term][$index]['@uri']] ?? '';
-                        }
-                        $proposal[$term][$index] += ['@label' => ''];
                         $prop = [
                             'original' => [
                                 '@uri' => $value->uri(),
@@ -1428,7 +1412,6 @@ class ContributionController extends AbstractActionController
             $isCustomVocab = substr((string) $typeTemplate, 0, 12) === 'customvocab:';
             $isCustomVocabUri = $isCustomVocab && $mainType === 'uri';
             $uriLabels = $isCustomVocabUri ? $this->customVocabUriLabels($typeTemplate) : [];
-            $isValueSuggest = $typeTemplate && (substr($typeTemplate, 0, 13) === 'valuesuggest:' || substr($typeTemplate, 0, 16) === 'valuesuggestall:');
 
             foreach ($proposal[$term] as $index => $proposedValue) {
                 /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
@@ -1494,33 +1477,18 @@ class ContributionController extends AbstractActionController
                             continue 2;
                         }
                         if ($isCustomVocabUri) {
-                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri']] ?? '';
+                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri']] ?? $proposedValue['@label']  ?? '';
                         }
-                        // no break.
-                        $proposedValue += ['@label' => ''];
-                        $prop = [
-                            'original' => [
-                                '@uri' => null,
-                                '@label' => null,
-                            ],
-                            'proposed' => [
-                                '@uri' => $proposedValue['@uri'],
-                                '@label' => $proposedValue['@label'],
-                            ],
-                        ];
-                        break;
-                    case $isValueSuggest:
-                        if (!isset($proposedValue['@uri']) || $proposedValue['@uri'] === '') {
-                            continue 2;
-                        }
-                        if (preg_match('~^<a href="(.+)" target="_blank">\s*(.+)\s*</a>$~', $proposal[$term][$index]['@uri'], $matches)) {
+                        // Value suggest is stored as a link by js in form to
+                        // get uri and label from the user.
+                        elseif (preg_match('~^<a href="([^"]+)"[^>]*>\s*(.*)\s*</a>$~', $proposedValue['@uri'], $matches)) {
                             if (!filter_var($matches[1], FILTER_VALIDATE_URL)) {
                                 continue 2;
                             }
                             $proposedValue['@uri'] = $matches[1];
                             $proposedValue['@label'] = $matches[2];
-                        } elseif (filter_var($proposal[$term][$index]['@uri'], FILTER_VALIDATE_URL)) {
-                            $proposal[$term][$index]['@label'] ??= '';
+                        } elseif (filter_var($proposedValue['@uri'], FILTER_VALIDATE_URL)) {
+                            $proposedValue['@label'] ??= '';
                         } else {
                             continue 2;
                         }
@@ -1643,6 +1611,7 @@ class ContributionController extends AbstractActionController
     /**
      * Get the list of uris and labels of a specific custom vocab.
      *
+     * @see \Contribute\Controller\ContributionTrait::customVocabUriLabels()
      * @see \Contribute\Api\Representation\ContributionRepresentation::customVocabUriLabels()
      */
     protected function customVocabUriLabels(string $dataType): array

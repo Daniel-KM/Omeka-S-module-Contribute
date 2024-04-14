@@ -563,7 +563,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
                     case 'uri':
                         if ($isCustomVocabUri) {
-                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? '';
+                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri'] ?? ''] ?? $proposedValue['@label'] ?? '';
                         }
 
                         $originalUri = $proposition['original']['@uri'] ?? '';
@@ -902,7 +902,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                         break;
                     case 'uri':
                         if ($isCustomVocabUri) {
-                            $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? '';
+                            $proposition['proposed']['@label'] = $uriLabels[$proposition['proposed']['@uri'] ?? ''] ?? $proposition['proposed']['@label'] ?? '';
                         }
                         $data[$term][] = [
                             'type' => $type,
@@ -1337,6 +1337,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      * Get the list of uris and labels of a specific custom vocab.
      *
      * @see \Contribute\Controller\ContributionTrait::customVocabUriLabels()
+     * @see \Contribute\Api\Representation\ContributionRepresentation::customVocabUriLabels()
      */
     protected function customVocabUriLabels(string $dataType): array
     {
