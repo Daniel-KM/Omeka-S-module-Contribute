@@ -1,4 +1,9 @@
-/* Adapted from module Value Suggest, required to use Value Suggest in public side (the function should be available to all js). */
+/*
+ * Adapted from module Value Suggest, required to use Value Suggest in public
+ * side (the function should be available to all js).
+ *
+ * @todo Currently, language is not managed. See module valuesuggest.js.
+ */
 
 $(document).ready(function() {
 
@@ -9,7 +14,6 @@ $(document).ready(function() {
 
 });
 
-// @todo Currently, language is not managed. See module valuesuggest.js.
 function valueSuggestAutocomplete(suggestInput) {
     var type = suggestInput.data('data-type');
     if (type.indexOf('valuesuggest:') !== 0 && type.indexOf('valuesuggestall:') !== 0) {
@@ -39,13 +43,19 @@ function valueSuggestAutocomplete(suggestInput) {
         // triggered whether the user wants it or not. The user must
         // explicitly select the suggestion.
         triggerSelectOnValidInput: false,
-        // Set the lang paramater in onSearchStart so the "valuesuggest"
-        // type always uses the current language when making a query. Set
-        // the type parameter here as well for consistency.
+        // Set contextual parameters for suggesters that may need them. For
+        // example, we set "lang" so the suggester always uses the current
+        // language when making a query.
         onSearchStart: function(params) {
             type = $(this).data('data-type');
             $(this).css('cursor', 'progress');
             params.type = type;
+            // params.lang = languageInput.val();
+            params.lang = '';
+            params.property_id = $(this).closest('.property').data('property-id');
+            params.property_term = $(this).closest('.property').data('term');
+            params.resource_template_id = $(this).closest('[data-resource-template-id]').data('resource-template-id');
+            params.resource_class_id = $(this).closest('[data-resource-template-id]').data('resource-class-id');
         },
         onSearchComplete: function(query, suggestions) {
             $(this).css('cursor', 'default');

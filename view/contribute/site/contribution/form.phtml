@@ -72,7 +72,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
 <div class="contribute main-form">
     <?= $this->form()->openTag($form) ?>
         <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
-        <fieldset class="contribute-resource main-form"<?= $disabled ?>>
+        <fieldset class="contribute-resource main-form"<?= $disabled ?> data-resource-template-id="<?= $templateMedia->id() ?>" data-resource-class-id="<?= $templateMedia->resourceClass() ? $templateMedia->resourceClass()->id() : '' ?>">
     <?php endif; ?>
 
             <?php // Display the special field for media file (required, not a property, and cannot be set in resource template). ?>
@@ -116,7 +116,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                 $vars->offsetSet('templateProperty', $templateProperty);
                 ?>
 
-            <div class="property" data-term="<?= $term ?>">
+            <div class="property" data-term="<?= $term ?>" data-property-id="<?= $easyMeta->propertyId($term) ?>">
                 <?php // Display property label. ?>
                 <h4>
                     <?= isset($field['alternate_label']) ? $escape($field['alternate_label']) : $escape($translate($property->label())) ?>
@@ -149,7 +149,8 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
 
                 <div class="values">
                     <?php
-                    foreach ($field['contributions'] as $indexContribution => $fieldContribution):
+                    foreach ($field['contributions'] as $indexContribution => $fieldContribution) {
+                        // TODO Utiliser main type plutôt que type colon.
                         /** @var \Omeka\Api\Representation\ValueRepresentation $value */
                         $value = $fieldContribution['original']['value'];
                         if (!$value && !$field['fillable']) continue;
@@ -158,10 +159,24 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                         $vars->offsetSet('fieldContribution', $fieldContribution);
                         $vars->offsetSet('value', $value);
                         // Check if the value exists or is editable (the value may be empty).
-                        if ($value && !$field['editable']):
+                        if ($value && !$field['editable']) {
                             echo $partial('contribute/site/contribution/form-value');
-                        else:
-                            switch ($fieldContribution['type']):
+                        } else {
+                            switch ($fieldContribution['type']) {
+                                // Check special cases first in a switch.
+                                case $typeColon === 'customvocab':
+                                    echo $partial('contribute/site/contribution/form-input-custom-vocab');
+                                    break;
+                                case $typeColon === 'valuesuggest':
+                                case $typeColon === 'valuesuggestall':
+                                    echo $partial('contribute/site/contribution/form-input-value-suggest');
+                                    break;
+                                case 'numeric:integer':
+                                    echo $partial('contribute/site/contribution/form-input-numeric-integer');
+                                    break;
+                                case 'numeric:timestamp':
+                                    echo $partial('contribute/site/contribution/form-input-numeric-timestamp');
+                                    break;
                                 case 'literal':
                                     echo $partial('contribute/site/contribution/form-input-literal');
                                     break;
@@ -174,29 +189,17 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                                 case 'uri':
                                     echo $partial('contribute/site/contribution/form-input-uri');
                                     break;
-                                case 'numeric:integer':
-                                    echo $partial('contribute/site/contribution/form-input-numeric-integer');
-                                    break;
-                                case 'numeric:timestamp':
-                                    echo $partial('contribute/site/contribution/form-input-numeric-timestamp');
-                                    break;
-                                case $typeColon === 'customvocab':
-                                    echo $partial('contribute/site/contribution/form-input-custom-vocab');
-                                    break;
-                                case $typeColon === 'valuesuggest' || $typeColon === 'valuesuggestall':
-                                    echo $partial('contribute/site/contribution/form-input-value-suggest');
-                                    break;
                                 default:
                                     // Other data types are not yet editable.
                                     if ($value):
                                         echo $partial('contribute/site/contribution/form-value');
                                     endif;
                                     break;
-                            endswitch;
-                        endif;
+                            }
+                        }
                         ++$indexFieldInput;
                         $vars->offsetSet('indexFieldInput', $indexFieldInput);
-                    endforeach;
+                    }
                     ?>
                 </div>
 
@@ -278,7 +281,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
     <?= $partial('contribute/site/contribution/form-inputs-default') ?>
 
     <?php if (!empty($templateMedia) && !$resource): // TODO Make possible to edit media with item. ?>
-    <div id="edit_template_media" class="contribute_template media" style="display:none;">
+    <div id="edit_template_media" class="contribute_template media" style="display:none;" data-resource-template-id="<?= $templateMedia->id() ?>" data-resource-class-id="<?= $templateMedia->resourceClass() ? $templateMedia->resourceClass()->id() : '' ?>">
         <fieldset class="contribute-media sub-form" name="media[]" data-index-media="">
             <legend><?= $escape($translate('File')) ?></legend>
             <?php
