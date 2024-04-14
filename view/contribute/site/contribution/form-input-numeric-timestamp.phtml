@@ -61,9 +61,9 @@ $baseName = $isMainForm
 $val = $proposed['@value'] ?? $original['@value'] ?? '';
 
 $class = ['value', 'group-input-part'];
-if ($isPrivate):
+if ($isPrivate) {
     $class[] = 'private';
-endif;
+}
 
 [$year, $month, $day] = explode('-', $val . '--', 3);
 $year = trim((string) $year, '- ');

@@ -61,9 +61,9 @@ $val = $proposed['@uri'] ?? $original['@uri'] ?? '';
 $label = isset($proposed['@uri']) ? ($proposed['@label'] ?? '') : ($original['@label'] ?? '');
 
 $class = ['value', 'value-suggest'];
-if ($isPrivate):
+if ($isPrivate) {
     $class[] = 'private';
-endif;
+}
 $language = isset($proposed['@uri']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
 ?>
 

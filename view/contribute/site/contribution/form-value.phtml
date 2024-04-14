@@ -60,9 +60,9 @@ if ($isValueResource):
 elseif ('uri' === $valueType):
     $class[] = 'uri';
 endif;
-if ($isPrivate):
+if ($isPrivate) {
     $class[] = 'private';
-endif;
+}
 $language = $value->lang();
 ?>
 

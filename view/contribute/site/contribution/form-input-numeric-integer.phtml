@@ -60,9 +60,9 @@ $name = $isMainForm
 $val = $proposed['@value'] ?? $original['@value'] ?? '';
 
 $class = ['value'];
-if ($isPrivate):
+if ($isPrivate) {
     $class[] = 'private';
-endif;
+}
 ?>
 
 <div class="<?= implode(' ', $class) ?>">

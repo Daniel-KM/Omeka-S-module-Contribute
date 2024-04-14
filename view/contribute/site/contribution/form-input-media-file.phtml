@@ -61,9 +61,9 @@ $val = $proposed['@media'] ?? $original['@media'] ?? '';
 
 $class = ['value'];
 $class[] = 'uri';
-if ($isPrivate):
+if ($isPrivate) {
     $class[] = 'private';
-endif;
+}
 ?>
 
 <div class="<?= implode(' ', $class) ?>">
