@@ -53,7 +53,7 @@ if ($isMainForm) {
      * @var array $valueResourceQueries
      * @var callable $shortResourceTitle
      * @var string $baseUrlFiles
-     * @var string $mode
+     * @var string $mode "read" (for template) or "write"
      */
     $contributeVars = $plugins
         ->get(\Laminas\View\Helper\ViewModel::class)
@@ -103,6 +103,10 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
             <?php // Display the edited resource, with edited or non-edited fields, plus the non-editable original fields. ?>
 
             <?php foreach ($isMainForm ? $fields : $fieldsMedia as $term => $field):
+                /**
+                 * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation $templateProperty
+                 * @var \Omeka\Api\Representation\PropertyRepresentation $property
+                 */
                 if ($term === 'file') continue;
                 // Don't display empty values that are not fillable.
                 if (empty($field['contributions']) && !$field['fillable']) continue;
@@ -228,13 +232,13 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                 $vars->offsetSet('fieldsMedia', $fieldsMedia);
                 ?>
                 <?= $partial('contribute/site/contribution/form') ?>
-                <ul class="actions">
+                <ul class="actions resource-edit-remove-value">
                     <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
                 </ul>
             </fieldset>
             <?php ++$indexMedia; ?>
             <?php endforeach; ?>
-            <div class="inputs inputs-media">
+            <div class="inputs inputs-media resource-edit-add-value">
                 <button type="button" class="add-media-new button o-icon-add"><?= $escape($translate('Add file')) ?></button>
             </div>
         </fieldset>
@@ -257,7 +261,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
         <?= $mode === 'read' ? '' : $formElement($form->get('csrf')) ?>
 
         <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
-        <div id="page-actions">
+        <div id="page-actions" class="edit-mode-form-buttons">
             <?php if ($resource): ?>
             <?= $hyperlink($translate('Cancel'), $resource->siteUrl(), ['class' => 'button button-cancel', 'role' => 'button']) ?>
             <?php elseif (isset($cancelLabel)): ?>
@@ -272,7 +276,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                 ['class' => 'button button-cancel', 'role' => 'button'])
             ?>
             <?php endif; ?>
-            <?= $formElement($form->get('submit')->setAttribute('class', 'button')->setValue($submitLabel)) ?>
+            <?= $formElement($form->get('submit')->setAttribute('class', 'button button-validate')->setValue($submitLabel)) ?>
         </div>
 
     <?= $this->form()->closeTag() ?>
@@ -295,7 +299,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
             $vars->offsetSet('indexMedia', null);
             $vars->offsetSet('fieldsMedia', null);
             ?>
-            <ul class="actions">
+            <ul class="actions resource-edit-remove-value">
                 <li><button type="button" class="remove-media button o-icon-delete"><?= $escape($translate('Remove file')) ?></button></li>
             </ul>
         </fieldset>

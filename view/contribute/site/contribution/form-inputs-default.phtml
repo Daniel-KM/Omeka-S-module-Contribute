@@ -66,7 +66,7 @@ $args['readonly'] = true;
     <div class="value resource">
         <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
     </div>
-    <ul class="actions">
+    <ul class="actions resource-edit-remove-value">
         <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
     </ul>
 </div>
@@ -92,19 +92,19 @@ $args['readonly'] = true;
 <div id="edit_template_customvocab" class="contribute_template custom_vocab" style="display:none;">
     <div class="value custom_vocab" data-basetype="literal">
         <select class="form-control input-value" data-value-key="@value" name="dcterms:title[__INDEX__][@value]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
-        <ul class="actions">
+        <ul class="actions resource-edit-remove-value">
             <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
         </ul>
     </div>
     <div class="value custom_vocab" data-basetype="resource">
         <select class="form-control input-value" data-value-key="@resource" name="dcterms:title[__INDEX__][@resource]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
-        <ul class="actions">
+        <ul class="actions resource-edit-remove-value">
             <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
         </ul>
     </div>
     <div class="value custom_vocab" data-basetype="uri">
         <select class="form-control input-value" data-value-key="@uri" name="dcterms:title[__INDEX__][@uri]" aria-labelledby="property-__PROPERTYID__-label" readonly="readonly"><option value=""></option></select>
-        <ul class="actions">
+        <ul class="actions resource-edit-remove-value">
             <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
         </ul>
     </div>

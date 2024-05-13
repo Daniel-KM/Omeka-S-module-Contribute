@@ -70,7 +70,12 @@ $customVocabId = (int) substr($fieldContribution['type'], 12);
 $customVocab = $customVocabId ? $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent() : null;
 $customVocabType = $baseType ?? $mainType ?? 'literal';
 $typeName = $customVocabType === 'literal' ? 'value' : $customVocabType;
-$isCustomVocabThesaurus = $customVocab && $mainType === 'resource' && $plugins->has('thesaurus') && ($itemSet = $customVocab->itemSet()) && ($itemSetClass = $itemSet->resourceClass()) && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']);
+$isCustomVocabThesaurus = $customVocab
+    && $mainType === 'resource'
+    && $plugins->has('thesaurus')
+    && ($itemSet = $customVocab->itemSet())
+    && ($itemSetClass = $itemSet->resourceClass())
+    && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']);
 if ($isCustomVocabThesaurus) {
     $thesaurus = $plugins->get('thesaurus')($itemSet);
     $select = $thesaurus->asSelect(['output_type' => 'listTree', 'indent' => '– ', 'empty_option' => ''])
@@ -115,7 +120,7 @@ if (strlen((string) $val)) {
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
     <?= str_replace(array_keys($replace), array_values($replace), $selectHtml) ?>
-    <ul class="actions">
+    <ul class="actions resource-edit-remove-value">
         <li><button type="button" class="o-icon-delete remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
     </ul>
 </div>

@@ -55,12 +55,12 @@ $isValueResource = strtok($valueType, ':') === 'resource';
 $isPrivate = !$value->isPublic();
 
 $class = ['value'];
-if ($isValueResource):
+if ($isValueResource) {
     $class[] = 'resource';
     $class[] = $escape($value->valueResource()->resourceName());
-elseif ('uri' === $valueType):
+} elseif ('uri' === $valueType) {
     $class[] = 'uri';
-endif;
+}
 if ($isPrivate) {
     $class[] = 'private';
 }

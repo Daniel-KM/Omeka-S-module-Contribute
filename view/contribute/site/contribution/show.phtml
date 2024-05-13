@@ -12,6 +12,7 @@ $url = $plugins->get('url');
 $partial = $plugins->get('partial');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
+$siteSetting = $plugins->get('siteSetting');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
 // Medias are displayed through displayValues() for now.
@@ -19,6 +20,10 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 // $embedMedia = $siteSetting('item_media_embed', false);
 
 $siteSlug = $this->params()->fromRoute('site-slug');
+
+$filterLocale = (bool) $siteSetting('filter_locale_values');
+$siteLang = $plugins->get('lang')();
+$lang = $filterLocale ? $siteLang : null;
 
 $this->vars()->offsetSet('skipContributeCss', false);
 $partial('contribute/site/contribution/asset-include');
@@ -28,7 +33,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
 
 <div class="contribute-resource conbribute-show container <?= $space && $space !== 'default' ? $space : '' ?>">
 
-    <?= $this->pageTitle($contribution->displayTitle(), 2) ?>
+    <?= $this->pageTitle($contribution->displayTitle(null, $lang), 2) ?>
     <h3><?= $translate('Contribution') ?></h3>
 
     <ul class="contribution-status">
@@ -37,9 +42,11 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
         <li class="reviewed"><?= $escape($contribution->isReviewed() ? $translate('Is reviewed') : $translate('Is not reviewed')) ?></li>
     </ul>
 
+    <?php if ($msgs = $this->messages()): ?>
     <div class="messages">
-        <?= $this->messages() ?>
+        <?= $msgs ?>
     </div>
+    <?php endif; ?>
 
     <?php $this->trigger('view.show.before'); ?>
 

@@ -60,7 +60,7 @@
             <?php if ($showLocale && $valueLang): ?>
             <span class="language"><?= $valueLang ?></span>
             <?php endif; ?>
-                <?php if (!empty($contributionData['new'])): ?>
+            <?php if (!empty($contributionData['new'])): ?>
             <span class="value-content"><?php
                     if ($valueBaseType === 'uri'):
                         echo $escape($contributionData['proposed']['@uri'] . ' / ' . $contributionData['proposed']['@label']);

@@ -52,7 +52,7 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
 ?>
 
 <div class="inputs">
-    <div class="add-values default-selector" data-next-index="<?= $indexFieldInput ?>" data-next-term="<?= $term ?>"<?php /* if (empty($field['fillable'])): ?> style="display: none;"<?php endif; */?>>
+    <div class="add-values default-selector resource-edit-add-value" data-next-index="<?= $indexFieldInput ?>" data-next-term="<?= $term ?>"<?php /* if (empty($field['fillable'])): ?> style="display: none;"<?php endif; */?>>
         <?php foreach ($field['datatypes'] as $dataType) switch($dataType):
 
             case 'literal':
