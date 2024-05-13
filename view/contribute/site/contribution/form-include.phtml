@@ -35,11 +35,6 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 $services = $site->getServiceLocator();
 $apiManager = $services->get('Omeka\ApiManager');
 $easyMeta = $services->get('EasyMeta');
-/** @deprecated Use easyMeta directly. Will be removed in a future version. */
-$customVocabBaseTypes = [];
-foreach ($easyMeta->dataTypeMainCustomVocabs() as $dataType => $mainType) {
-    $customVocabBaseTypes[substr($dataType, 12)] = $mainType;
-}
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
@@ -70,7 +65,6 @@ $vars['translate'] = $translate;
 $vars['easyMeta'] = $easyMeta;
 $vars['escapeAttr'] = $escapeAttr;
 $vars['apiManager'] = $apiManager;
-$vars['customVocabBaseTypes'] = $customVocabBaseTypes;
 $vars['valueResourceTypes'] = $valueResourceTypes;
 $vars['valueResourceQueries'] = $valueResourceQueries;
 $vars['shortResourceTitle'] = $shortResourceTitle;

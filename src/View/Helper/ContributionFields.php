@@ -2,6 +2,7 @@
 
 namespace Contribute\View\Helper;
 
+use Common\Stdlib\EasyMeta;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Mvc\Controller\Plugin\ContributiveData;
 use Laminas\View\Helper\AbstractHelper;
@@ -11,19 +12,24 @@ use Omeka\Api\Representation\ResourceTemplateRepresentation;
 class ContributionFields extends AbstractHelper
 {
     /**
-     * @var array
-     */
-    protected $propertiesByTerm;
-
-    /**
      * @var ContributiveData
      */
     protected $contributiveData;
 
     /**
+     * @var \Common\Stdlib\EasyMeta
+     */
+    protected $easyMeta;
+
+    /**
      * @var bool
      */
     protected $hasAdvancedTemplate;
+
+    /**
+     * @var bool
+     */
+    protected $hasCustomVocab;
 
     /**
      * @var bool
@@ -35,25 +41,20 @@ class ContributionFields extends AbstractHelper
      */
     protected $hasValueSuggest;
 
-    /**
-     * @var ?array
-     */
-    protected $customVocabBaseTypes;
-
     public function __construct(
-        array $propertiesByTerm,
         ContributiveData $contributiveData,
+        EasyMeta $easyMeta,
         bool $hasAdvancedTemplate,
+        bool $hasCustomVocab,
         bool $hasNumericDataTypes,
-        bool $hasValueSuggest,
-        ?array $customVocabBaseTypes
+        bool $hasValueSuggest
     ) {
-        $this->propertiesByTerm = $propertiesByTerm;
         $this->contributiveData = $contributiveData;
+        $this->easyMeta = $easyMeta;
         $this->hasAdvancedTemplate = $hasAdvancedTemplate;
+        $this->hasCustomVocab = $hasCustomVocab;
         $this->hasNumericDataTypes = $hasNumericDataTypes;
         $this->hasValueSuggest = $hasValueSuggest;
-        $this->customVocabBaseTypes = $customVocabBaseTypes;
     }
 
     /**
@@ -184,8 +185,6 @@ class ContributionFields extends AbstractHelper
             $values = [];
         }
 
-        $customVocabBaseTypes = $this->getView()->plugin('customVocabBaseType')();
-
         // List the fields for the resource.
         foreach ($resourceTemplate ? $resourceTemplate->resourceTemplateProperties() : [] as $templateProperty) {
             $property = $templateProperty->property();
@@ -247,23 +246,16 @@ class ContributionFields extends AbstractHelper
             /** @var \Omeka\Api\Representation\ValueRepresentation $value */
             foreach ($field['values'] as $value) {
                 // Method value() is label or value depending on type.
-                $type = $value->type();
-                $typeColon = strtok($type, ':');
-                $baseType = $typeColon === 'customvocab'
-                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
-                    : null;
+                $dataType = $value->type();
+                $baseType = $this->easyMeta->dataTypeMain($dataType);
                 // TODO No need to check if the data type is managed?
-                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $baseType === 'uri')
-                ) {
+                if ($baseType === 'uri') {
                     $baseType = 'uri';
                     $val = null;
                     $res = null;
                     $uri = $value->uri();
                     $label = $value->value();
-                } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $baseType === 'resource')
-                ) {
+                } elseif ($baseType === 'resource') {
                     $baseType = 'resource';
                     $vr = $value->valueResource();
                     $val = null;
@@ -279,7 +271,7 @@ class ContributionFields extends AbstractHelper
                 }
                 $fields[$term]['contributions'][] = [
                     // The type cannot be changed.
-                    'type' => $type,
+                    'type' => $dataType,
                     'basetype' => $baseType,
                     'new' => false,
                     'empty' => true,
@@ -398,17 +390,12 @@ class ContributionFields extends AbstractHelper
             }
             foreach ($field['contributions'] as &$fieldContribution) {
                 $proposed = null;
-                $type = $fieldContribution['type'];
-                if (!$contributive->isTermDataType($term, $type)) {
+                $dataType = $fieldContribution['type'];
+                if (!$contributive->isTermDataType($term, $dataType)) {
                     continue;
                 }
-                $typeColon = strtok($type, ':');
-                $baseType = $typeColon === 'customvocab'
-                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
-                    : null;
-                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $baseType === 'uri')
-                ) {
+                $baseType = $this->easyMeta->dataTypeMain($dataType);
+                if ($baseType === 'uri') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         // For the customvocab, the label is static, so use the
                         // original one, but here the label is already checked.
@@ -430,9 +417,7 @@ class ContributionFields extends AbstractHelper
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $baseType === 'resource')
-                ) {
+                } elseif ($baseType === 'resource') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['original']['@resource'])
                             && (int) $proposal['original']['@resource']
@@ -489,17 +474,12 @@ class ContributionFields extends AbstractHelper
             }
             foreach ($field['contributions'] as &$fieldContribution) {
                 $proposed = null;
-                $type = $fieldContribution['type'];
-                if (!$contributive->isTermDatatype($term, $type)) {
+                $dataType = $fieldContribution['type'];
+                if (!$contributive->isTermDatatype($term, $dataType)) {
                     continue;
                 }
-                $typeColon = strtok($type, ':');
-                $baseType = $typeColon === 'customvocab'
-                    ? $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal'
-                    : null;
-                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $baseType === 'uri')
-                ) {
+                $baseType = $this->easyMeta->dataTypeMain($dataType);
+                if ($baseType === 'uri') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@uri'])
                             && $proposal['proposed']['@uri'] === $fieldContribution['original']['@uri']
@@ -519,9 +499,7 @@ class ContributionFields extends AbstractHelper
                         '@uri' => $proposed['@uri'],
                         '@label' => $proposed['@label'],
                     ];
-                } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $baseType === 'resource')
-                ) {
+                } elseif ($baseType === 'resource') {
                     foreach ($proposals[$term] as $keyProposal => $proposal) {
                         if (isset($proposal['proposed']['@resource'])
                             && (int) $proposal['proposed']['@resource']
@@ -570,10 +548,10 @@ class ContributionFields extends AbstractHelper
         // Other ones are related to an older config.
         $proposals = array_intersect_key(array_filter($proposals), $contributive->fillableProperties());
         foreach ($proposals as $term => $termProposal) {
-            if (!isset($this->propertiesByTerm[$term])) {
+            $propertyId = $this->easyMeta->propertyId($term);
+            if (!$propertyId) {
                 continue;
             }
-            $propertyId = $this->propertiesByTerm[$term];
             $typeTemplate = null;
             $resourceTemplateProperty = $resourceTemplate
                 ? $resourceTemplate->resourceTemplateProperty($propertyId)
@@ -587,28 +565,21 @@ class ContributionFields extends AbstractHelper
                     continue;
                 }
                 if ($typeTemplate) {
-                    $type = $typeTemplate;
+                    $dataType = $typeTemplate;
                 } elseif (isset($proposal['proposed']['@uri'])) {
-                    $type = 'uri';
+                    $dataType = 'uri';
                 } elseif (isset($proposal['proposed']['@resource'])) {
-                    $type = 'resource';
+                    $dataType = 'resource';
                 } else {
-                    $type = 'literal';
+                    $dataType = 'literal';
                 }
-                if (!$contributive->isTermDatatype($term, $type)) {
+                if (!$contributive->isTermDatatype($term, $dataType)) {
                     continue;
                 }
-                $typeColon = strtok($type, ':');
-                $baseType = null;
-                if ($typeColon === 'customvocab') {
-                    $customVocabId = (int) substr($type, 12);
-                    $baseType = $customVocabBaseTypes[$customVocabId] ?? 'literal';
-                }
-                if (in_array($typeColon, ['uri', 'valuesuggest', 'valuesuggestall'])
-                    || ($typeColon === 'customvocab' && $baseType === 'uri')
-                ) {
+                $baseType = $this->easyMeta->dataTypeMain($dataType) ?? 'literal';
+                if ($baseType === 'uri') {
                     $fields[$term]['contributions'][] = [
-                        'type' => $type,
+                        'type' => $dataType,
                         'basetype' => 'uri',
                         'new' => true,
                         'empty' => false,
@@ -626,11 +597,9 @@ class ContributionFields extends AbstractHelper
                             '@label' => $proposal['proposed']['@label'] ?? '',
                         ],
                     ];
-                } elseif ($typeColon === 'resource'
-                    || ($typeColon === 'customvocab' && $baseType === 'resource')
-                ) {
+                } elseif ($baseType === 'resource') {
                     $fields[$term]['contributions'][] = [
-                        'type' => $type,
+                        'type' => $dataType,
                         'basetype' => 'resource',
                         'new' => true,
                         'empty' => false,
@@ -650,7 +619,7 @@ class ContributionFields extends AbstractHelper
                     ];
                 } else {
                     $fields[$term]['contributions'][] = [
-                        'type' => $type,
+                        'type' => $dataType,
                         'basetype' => 'literal',
                         'new' => true,
                         'empty' => false,
@@ -687,15 +656,15 @@ class ContributionFields extends AbstractHelper
             // Remove contributions with an invalid or an unavailable type.
             // This is a security fix, but it can remove data.
             foreach ($field['contributions'] as $key => &$fieldContribution) {
-                $type = $fieldContribution['type'] ?? '';
-                $typeColon = strtok($type, ':');
-                $baseType = $this->baseType($type);
+                $dataType = $fieldContribution['type'] ?? '';
+                $typeColon = strtok($dataType, ':');
+                $baseType = $this->easyMeta->datatypeMain($dataType) ?? 'literal';
                 // FIXME Warning, numeric:interval and numeric:duration are not managed.
                 if (!$this->hasNumericDataTypes && $typeColon === 'numeric') {
                     unset($field['contributions'][$key]);
                     continue;
                 }
-                if (!$this->customVocabBaseTypes && $typeColon === 'customvocab') {
+                if (!$this->hasCustomVocab && $typeColon === 'customvocab') {
                     unset($field['contributions'][$key]);
                     continue;
                 }
@@ -736,12 +705,12 @@ class ContributionFields extends AbstractHelper
             $field['more_values'] = !$maxValues
                 || $maxValues < $missingValues;
 
-            $type = reset($field['datatypes']);
-            $baseType = $this->baseType($type);
+            $dataType = reset($field['datatypes']);
+            $baseType = $this->easyMeta->dataTypeMain($dataType) ?? 'literal';
             // Prepare empty contributions to simplify theme.
             while ($missingValues) {
                 $field['contributions'][] = [
-                    'type' => $type,
+                    'type' => $dataType,
                     'basetype' => $baseType,
                     'new' => true,
                     'empty' => true,
@@ -757,35 +726,6 @@ class ContributionFields extends AbstractHelper
             }
         }
         return $fields;
-    }
-
-    protected function baseType(string $type): ?string
-    {
-        static $customVocabBaseTypes;
-        static $baseTypes = [
-            'literal' => 'literal',
-            'numeric' => 'literal',
-            'resource' => 'resource',
-            'resource:item' => 'resource',
-            'resource:itemset' => 'resource',
-            'resoufce:media' => 'resource',
-            'uri' => 'uri',
-            'valuesuggest' => 'uri',
-            'valuesuggestall' => 'uri',
-        ];
-
-        if (!isset($baseTypes[$type])) {
-            $customVocabBaseTypes = $this->getView()->plugin('customVocabBaseType')();
-            $typeColon = strtok($type, ':');
-            if (isset($baseTypes[$typeColon])) {
-                return $baseTypes[$typeColon];
-            }
-            // The only other case is customvocab.
-            if ($typeColon === 'customvocab') {
-                $baseTypes[$typeColon] = $customVocabBaseTypes[(int) substr($type, 12)] ?? 'literal';
-            }
-        }
-        return $baseTypes[$type] ?? 'literal';
     }
 
     /**

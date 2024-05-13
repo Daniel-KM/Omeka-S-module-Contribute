@@ -13,14 +13,14 @@ class ContributionFieldsFactory implements FactoryInterface
         $plugins = $services->get('ControllerPluginManager');
         $moduleManager = $services->get('Omeka\ModuleManager');
         return new ContributionFields(
-            $services->get('EasyMeta')->propertyIds(),
             $plugins->get('contributiveData'),
-            // Check if module AdvancedResourceTemplate is available.
-            // Anyway, it is a required dependency.
+            $services->get('EasyMeta'),
+            // Check if modules are available.
+            // Anyway, AdvancedResourceTemplate is a required dependency.
             ($module = $moduleManager->getModule('AdvancedResourceTemplate')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE,
+            ($module = $moduleManager->getModule('CustomVocab')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE,
             ($module = $moduleManager->getModule('NumericDataTypes')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE,
-            ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE,
-            $services->get('ViewHelperManager')->get('customVocabBaseType')()
+            ($module = $moduleManager->getModule('ValueSuggest')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE
         );
     }
 }
