@@ -711,7 +711,7 @@ HTML;
                 'name' => 'editable',
                 'type' => \Laminas\Form\Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Editable by contributor', // @translate
+                    'label' => 'Contribute: Editable by contributor', // @translate
                 ],
                 'attributes' => [
                     // 'id' => 'editable',
@@ -723,7 +723,7 @@ HTML;
                 'name' => 'fillable',
                 'type' => \Laminas\Form\Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Fillable by contributor', // @translate
+                    'label' => 'Contribute: Fillable by contributor', // @translate
                 ],
                 'attributes' => [
                     // 'id' => 'fillable',
