@@ -85,7 +85,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                 <?php if ($file): ?>
                 <div class="values">
                     <div class="value">
-                        <a href="<?= $escapeAttr($baseUrlFiles . '/contribution/' . $file) ?>" download="download"><?= $escape($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?></a>
+                        <a href="<?= $escapeAttr($baseUrlFiles . '/contribution/' . $file) ?>" download="download" target="_self"><?= $escape($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?></a>
                         <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][store]" value="<?= $escapeAttr($file) ?>"/>
                         <input type="hidden"  name="media[<?= $indexMedia ?>][file][0][@value]" value="<?= $escapeAttr($fieldsMedia['file']['contributions'][0]['proposed']['@value']) ?>"/>
                     </div>

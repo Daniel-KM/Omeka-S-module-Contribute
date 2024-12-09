@@ -48,6 +48,7 @@
             $valueBaseType = $contributionData['basetype'];
             $valueLang = $contributionData['lang'] ?? '';
             $class = ['value'];
+            // TODO Improve.
             if ($valueBaseType === 'resource') {
                 $class[] = 'resource';
                 // Only item is supported for now.
@@ -73,7 +74,7 @@
                         }
                     elseif ($term === 'file'): // File is always a new value.
                         echo isset($contributionData['proposed']['store'])
-                            ? '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contributionData['proposed']['store']) . '" download="download">' . $escape($contributionData['proposed']['@value']) . '</a>'
+                            ? '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contributionData['proposed']['store']) . '" download="download" target="_self">' . $escape($contributionData['proposed']['@value']) . '</a>'
                             : sprintf('%s [missing file]', $escape($contributionData['proposed']['@value']));
                     else:
                         echo $escape($contributionData['proposed']['@value']);
