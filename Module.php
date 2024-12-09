@@ -460,7 +460,7 @@ class Module extends AbstractModule
         $widget = [];
         $widget['label'] = $translate('Contributions'); // @translate
         $widget['content'] = $partial('guest/site/guest/widget/contribution');
-        $widgets['selection'] = $widget;
+        $widgets['contribute'] = $widget;
 
         $event->setParam('widgets', $widgets);
     }
