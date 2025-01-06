@@ -57,6 +57,11 @@ return [
             Form\QuickSearchForm::class => Service\Form\QuickSearchFormFactory::class,
         ],
     ],
+    'resource_page_block_layouts' => [
+        'invokables' => [
+            'contributeLink' => Site\ResourcePageBlockLayout\ContributionLink::class,
+        ],
+    ],
     'controllers' => [
         'invokables' => [
             'Contribute\Controller\Site\GuestBoard' => Controller\Site\GuestBoardController::class,
