@@ -516,19 +516,18 @@ class Module extends AbstractModule
             'token' => $escapeAttr($translate('Create token')), // @translate
         ];
         echo <<<HTML
-<div class="meta-group create_contribution_token">
-    <h4>{$htmlText['contritube']}</h4>
-    <div class="value" id="create_contribution_token">$link</div>
-    <div id="create_contribution_token_dialog" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close" id="create_contribution_token_dialog_close">&times;</span>
-            <input type="text" value="" placeholder="{$htmlText['email']}" id="create_contribution_token_dialog_email"/>
-            <input type="button" value="{$htmlText['token']}" id="create_contribution_token_dialog_go"/>
-        </div>
-    </div>
-</div>
-
-HTML;
+            <div class="meta-group create_contribution_token">
+                <h4>{$htmlText['contritube']}</h4>
+                <div class="value" id="create_contribution_token">$link</div>
+                <div id="create_contribution_token_dialog" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <span class="close" id="create_contribution_token_dialog_close">&times;</span>
+                        <input type="text" value="" placeholder="{$htmlText['email']}" id="create_contribution_token_dialog_email"/>
+                        <input type="button" value="{$htmlText['token']}" id="create_contribution_token_dialog_go"/>
+                    </div>
+                </div>
+            </div>
+            HTML;
     }
 
     /**
@@ -618,14 +617,14 @@ HTML;
             : new PsrMessage('No contribution'); // @translate
         $message->setTranslator($translator);
         echo <<<HTML
-<div class="meta-group">
-    <h4>$contributions</h4>
-    <div class="value">
-        $message
-    </div>
-</div>
-
-HTML;
+            <div class="meta-group">
+                <h4>$contributions</h4>
+                <div class="value">
+                    $message
+                </div>
+            </div>
+            
+            HTML;
     }
 
     public function addResourceTemplateFormElements(Event $event): void
@@ -775,11 +774,11 @@ HTML;
         // storage reference is removed currently.
         // TODO Add a column for files.
         $sql = <<<SQL
-SELECT
-    JSON_EXTRACT( proposal, "$.media[*].file[*].proposed.store" ) AS proposal_json
-FROM contribution
-HAVING proposal_json IS NOT NULL;
-SQL;
+            SELECT
+                JSON_EXTRACT( proposal, "$.media[*].file[*].proposed.store" ) AS proposal_json
+            FROM contribution
+            HAVING proposal_json IS NOT NULL;
+            SQL;
         /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
         $storeds = $connection->executeQuery($sql)->fetchFirstColumn();
@@ -787,7 +786,7 @@ SQL;
         $storeds = $storeds ? array_unique(array_merge(...array_values($storeds))) : [];
 
         // TODO Scan dir is local store only for now.
-        $files = array_diff(scandir($dirPath), ['.', '..']);
+        $files = array_diff(scandir($dirPath) ?: [], ['.', '..']);
         foreach ($files as $file) {
             $path = $dirPath . '/' . $file;
             if (!is_dir($path)
