@@ -19,6 +19,8 @@ $contributionLink = $plugins->get('contributionLink');
 $breadcrumbs = $plugins->has('breadcrumbs') ? $plugins->get('breadcrumbs') : null;
 $guestNavigation = $user && $plugins->has('guestNavigation') ? $plugins->get('guestNavigation')() : null;
 
+$hasGuestNav = $guestNavigation && $guestNavigation->getContainer()->count();
+
 $this->vars()->offsetSet('skipContributeCss', false);
 $partial('contribute/site/contribution/asset-include');
 $siteSlug = $this->params()->fromRoute('site-slug');
@@ -26,11 +28,15 @@ $siteSlug = $this->params()->fromRoute('site-slug');
 $this->htmlElement('body')->appendAttribute('class', 'contribution resource browse');
 ?>
 
-<?php if ($breadcrumbs && !$guestNavigation): ?>
+<?php if ($breadcrumbs && !$hasGuestNav): ?>
 <?= $breadcrumbs() ?>
 <?php endif; ?>
 
-<?= $guestNavigation ? $guestNavigation->menu()->renderMenu() : '' ?>
+<?php if ($hasGuestNav): ?>
+<nav class="navigation-guest">
+    <?= $guestNavigation->menu()->renderMenu() ?>
+</nav>
+<?php endif; ?>
 
 <?= $this->pageTitle($translate('Contributions'), 2) // @translate ?>
 
