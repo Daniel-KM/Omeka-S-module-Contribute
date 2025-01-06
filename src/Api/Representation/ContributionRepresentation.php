@@ -353,7 +353,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
-        $easyMeta = $services->get('EasyMeta');
+        $easyMeta = $services->get('Common\EasyMeta');
         $propertyIds = $easyMeta->propertyIds();
 
         // Use the resource template of the resource or the default one.
@@ -718,7 +718,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
-        $easyMeta = $services->get('EasyMeta');
+        $easyMeta = $services->get('Common\EasyMeta');
         $propertyIds = $easyMeta->propertyIds();
 
         // TODO How to update only one property to avoid to update unmodified terms? Not possible with core resource hydration. Simple optimization anyway.
@@ -985,7 +985,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
-        $easyMeta = $services->get('EasyMeta');
+        $easyMeta = $services->get('Common\EasyMeta');
         $propertyIds = $easyMeta->propertyIds();
 
         $resourceData = $this->proposalToResourceData();

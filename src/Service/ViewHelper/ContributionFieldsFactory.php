@@ -14,7 +14,7 @@ class ContributionFieldsFactory implements FactoryInterface
         $moduleManager = $services->get('Omeka\ModuleManager');
         return new ContributionFields(
             $plugins->get('contributiveData'),
-            $services->get('EasyMeta'),
+            $services->get('Common\EasyMeta'),
             // Check if modules are available.
             // Anyway, AdvancedResourceTemplate is a required dependency.
             ($module = $moduleManager->getModule('AdvancedResourceTemplate')) && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE,

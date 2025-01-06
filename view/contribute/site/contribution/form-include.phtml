@@ -34,7 +34,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 // TODO Replace apiManager by FormElementManager.
 $services = $site->getServiceLocator();
 $apiManager = $services->get('Omeka\ApiManager');
-$easyMeta = $services->get('EasyMeta');
+$easyMeta = $services->get('Common\EasyMeta');
 
 // Prepare resource selects.
 $valueResourceTypes = ['resource' => 'items', 'resource:item' => 'items', 'resource:itemset' => 'item_sets', 'resource:media' => 'media'];
