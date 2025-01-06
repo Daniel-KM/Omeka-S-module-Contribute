@@ -154,7 +154,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2024 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2019-2025 (see [Daniel-KM] on GitLab)
 
 First version of this module was done for [Université de Paris-Saclay].
 Improvements were done for [Enssib] and for the site used to do the deposit and
