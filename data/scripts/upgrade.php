@@ -35,6 +35,14 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
     throw new ModuleCannotInstallException((string) $message);
 }
 
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.36')) {
+    $message = new Message(
+        'The module {module} should be upgraded to version {version} or later.', // @translate
+        ['module' => 'AdvancedResourceTemplate', 'version' => '3.4.36']
+    );
+    throw new ModuleCannotInstallException((string) $message);
+}
+
 if (version_compare($oldVersion, '3.0.13', '<')) {
     $sqls = '';
     $keys = [
@@ -276,7 +284,40 @@ if (version_compare($oldVersion, '3.4.0.20', '<')) {
 
 if (version_compare($oldVersion, '3.4.25', '<')) {
     $message = new PsrMessage(
-        'It’s now possible to allow contribution only for selected authenticated users or via a regex on email.' // @translate );
+        'It’s now possible to allow contribution only for selected authenticated users or via a regex on email.' // @translate
     );
     $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.29', '<')) {
+    $qb = $connection->createQueryBuilder()
+        ->select('id', 'data')
+        ->from('resource_template_data', 'resource_template_data')
+        ->orderBy('id', 'asc');
+    $templateDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    foreach ($templateDatas as $id => $templateData) {
+        $templateData = json_decode($templateData, true) ?: [];
+        if (array_key_exists('contribute_template_media', $templateData)
+            && !array_key_exists('contribute_templates_media', $templateData)
+        ) {
+            $templateData['contribute_templates_media'] = $templateData['contribute_template_media']
+                ? [$templateData['contribute_template_media']]
+                : [];
+            unset($templateData['contribute_template_media']);
+        }
+        $sql = 'UPDATE `resource_template_data` SET `data` = ? WHERE `id` = ?;';
+        $connection->executeStatement($sql, [json_encode($templateData, 320), $id]);
+    }
+
+    $message = new PsrMessage(
+        'It’s now possible to set a minimum number of files.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    /*
+    $message = new PsrMessage(
+        'It’s now possible to allow a contribution with multiple media templates.' // @translate
+    );
+    $messenger->addSuccess($message);
+    */
 }
