@@ -634,6 +634,7 @@ class Module extends AbstractModule
         $form = $event->getTarget();
         $fieldset = $form->get('o:data');
         $fieldset
+            // TODO Move contributive_templates_media to Advanced Resource Template.
             ->add([
                 'name' => 'contribute_templates_media',
                 // Advanced Resource Template is a required dependency.

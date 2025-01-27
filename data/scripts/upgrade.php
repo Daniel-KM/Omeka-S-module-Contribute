@@ -15,12 +15,14 @@ use Omeka\Stdlib\Message;
  * @var \Doctrine\DBAL\Connection $connection
  * @var \Doctrine\ORM\EntityManager $entityManager
  * @var \Omeka\Api\Manager $api
+ * @var \Common\Stdlib\EasyMeta $easyMeta
  * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 // $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
 $settings = $services->get('Omeka\Settings');
+$easyMeta = $services->get('Common\EasyMeta');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 // $entityManager = $services->get('Omeka\EntityManager');
@@ -47,16 +49,17 @@ if (version_compare($oldVersion, '3.0.13', '<')) {
     }
 
     $sqls .= <<<'SQL'
-ALTER TABLE `contribution`
-CHANGE `resource_id` `resource_id` int(11) NULL AFTER `id`,
-ADD `owner_id` int(11) NULL AFTER `resource_id`;
-
-ALTER TABLE `contribution`
-ADD FOREIGN KEY (`FK_EA351E1589329D25`) REFERENCES `resource` (`id`) ON DELETE SET NULL;
-
-ALTER TABLE `contribution`
-ADD CONSTRAINT `FK_EA351E157E3C61F9` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
-SQL;
+        ALTER TABLE `contribution`
+        CHANGE `resource_id` `resource_id` int(11) NULL AFTER `id`,
+        ADD `owner_id` int(11) NULL AFTER `resource_id`
+        ;
+        ALTER TABLE `contribution`
+        ADD FOREIGN KEY (`FK_EA351E1589329D25`) REFERENCES `resource` (`id`) ON DELETE SET NULL
+        ;
+        ALTER TABLE `contribution`
+        ADD CONSTRAINT `FK_EA351E157E3C61F9` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE SET NULL
+        ;
+        SQL;
     // Use single statements for execution.
     // See core commit #2689ce92f.
     foreach (array_filter(array_map('trim', explode(";\n", $sqls))) as $sql) {
@@ -79,9 +82,9 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
 
     // @link https://www.doctrine-project.org/projects/doctrine-dbal/en/2.6/reference/types.html#array-types
     $sql = <<<'SQL'
-ALTER TABLE `contribution`
-CHANGE `proposal` `proposal` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
-SQL;
+        ALTER TABLE `contribution`
+        CHANGE `proposal` `proposal` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
+        SQL;
     $connection->executeStatement($sql);
 
     $contributeTemplateData = $settings->get('contribute_resource_template_data', []);
@@ -99,23 +102,7 @@ SQL;
         }
     }
 
-    $qb = $connection->createQueryBuilder();
-    $qb
-        ->select(
-            'DISTINCT property.id AS id',
-            'CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
-            // Only the two first selects are needed, but some databases
-            // require "order by" or "group by" value to be in the select.
-            'vocabulary.id'
-        )
-        ->from('property', 'property')
-        ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
-        ->orderBy('vocabulary.id', 'asc')
-        ->addOrderBy('property.id', 'asc')
-        ->addGroupBy('property.id')
-    ;
-    $properties = $connection->executeQuery($qb)->fetchAllKeyValue();
-
+    $propertyTerms = $easyMeta->propertyTerms();
     foreach ($byTemplate as $templateId => $data) {
         $template = $api->searchOne('resource_templates', ['id' => $templateId])->getContent();
         if (!$template) {
@@ -125,7 +112,7 @@ SQL;
         $json = json_decode(json_encode($template), true);
         $isUpdated = false;
         foreach ($json['o:resource_template_property'] ?? [] as $key => $rtp) {
-            $term = $properties[$rtp['o:property']['o:id']];
+            $term = $propertyTerms[$rtp['o:property']['o:id']] ?? null;
             if (isset($data[$term])) {
                 if (empty($rtp['o:data'][0])) {
                     $json['o:resource_template_property'][$key]['o:data'][0] = $data[$term];
@@ -200,27 +187,27 @@ if (version_compare($oldVersion, '3.3.0.17', '<')) {
     }
 
     $sqls = <<<'SQL'
-ALTER TABLE `contribution`
-ADD `patch` TINYINT(1) NOT NULL AFTER `email`,
-ADD `submitted` TINYINT(1) NOT NULL AFTER `patch`,
-CHANGE `resource_id` `resource_id` INT DEFAULT NULL,
-CHANGE `owner_id` `owner_id` INT DEFAULT NULL,
-CHANGE `token_id` `token_id` INT DEFAULT NULL,
-CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
-CHANGE `modified` `modified` DATETIME DEFAULT NULL;
-
-ALTER TABLE `contribution_token`
-CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
-CHANGE `expire` `expire` DATETIME DEFAULT NULL,
-CHANGE `accessed` `accessed` DATETIME DEFAULT NULL;
-
-UPDATE `contribution`
-SET `patch` = 1
-WHERE `resource_id` IS NOT NULL;
-
-UPDATE `contribution`
-SET `submitted` = 1;
-SQL;
+        ALTER TABLE `contribution`
+        ADD `patch` TINYINT(1) NOT NULL AFTER `email`,
+        ADD `submitted` TINYINT(1) NOT NULL AFTER `patch`,
+        CHANGE `resource_id` `resource_id` INT DEFAULT NULL,
+        CHANGE `owner_id` `owner_id` INT DEFAULT NULL,
+        CHANGE `token_id` `token_id` INT DEFAULT NULL,
+        CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
+        CHANGE `modified` `modified` DATETIME DEFAULT NULL
+        ;
+        ALTER TABLE `contribution_token`
+        CHANGE `email` `email` VARCHAR(190) DEFAULT NULL,
+        CHANGE `expire` `expire` DATETIME DEFAULT NULL,
+        CHANGE `accessed` `accessed` DATETIME DEFAULT NULL
+        ;
+        UPDATE `contribution`
+        SET `patch` = 1
+        WHERE `resource_id` IS NOT NULL
+        ;
+        UPDATE `contribution`
+        SET `submitted` = 1;
+        SQL;
     // Use single statements for execution.
     // See core commit #2689ce92f.
     foreach (array_filter(array_map('trim', explode(";\n", $sqls))) as $sql) {
