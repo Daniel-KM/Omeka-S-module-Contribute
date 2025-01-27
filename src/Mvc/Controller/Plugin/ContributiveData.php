@@ -5,7 +5,6 @@ namespace Contribute\Mvc\Controller\Plugin;
 use ArrayObject;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Omeka\Api\Representation\ResourceTemplateRepresentation;
-use Omeka\Stdlib\Message;
 
 class ContributiveData extends AbstractPlugin
 {
@@ -44,9 +43,12 @@ class ContributiveData extends AbstractPlugin
             'fillable' => [],
             'datatype' => [],
             'datatypes_default' => [],
-            'template_media' => null,
+            'templates_media' => [],
+            // Keep null when not checked, then array.
+            'contributive_medias' => null,
+            // Following keys are kept for compatibility with old themes.
             'is_sub_template' => $isSubTemplate,
-            // Keep false when not checked, then sub contributive data or null.
+            'template_media' => null,
             'contributive_media' => false,
         ]);
 
@@ -64,6 +66,7 @@ class ContributiveData extends AbstractPlugin
             unset($this->data['datatypes_default'][$has]);
         }
 
+        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
         $resourceTemplate = $this->resourceTemplate($resourceTemplate);
         $allowedResourceTemplates = $settings->get($isSubTemplate ? 'contribute_templates_media' : 'contribute_templates', []) ?: [];
 
@@ -121,19 +124,31 @@ class ContributiveData extends AbstractPlugin
             }
         }
 
+        // When a sub-template is not available, there is no break to allow to
+        // submit partially.
         if (!$isSubTemplate) {
-            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplateMedia */
-            $resourceTemplateMedia = $this->resourceTemplate($resourceTemplate->dataValue('contribute_template_media'));
-            $resourceTemplateMediaId = $resourceTemplateMedia ? $resourceTemplateMedia->id() : null;
+            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation[] $resourceTemplateMedias */
+            $resourceTemplateMediaIds = $resourceTemplate->dataValue('contribute_templates_media') ?: [];
             $allowedResourceTemplatesMedia = $settings->get('contribute_templates_media') ?: [];
-            if (in_array($resourceTemplateMediaId, $allowedResourceTemplatesMedia)) {
-                $this->data['template_media'] = $resourceTemplateMedia;
-            } elseif ($resourceTemplateMediaId) {
-                $controller->logger()->err(
-                    'The resource template #{template_id} is not in the list of allowed contribution templates for media.', // @translate
-                    ['template_id' => $resourceTemplateMediaId]
-                );
-                // No break: allow to submit partially.
+            foreach ($resourceTemplateMediaIds as $resourceTemplateMediaId) {
+                $resourceTemplateMedia = $this->resourceTemplate($resourceTemplateMediaId);
+                if (!$resourceTemplateMedia) {
+                    $controller->logger()->err(
+                        'The resource template #{template_id} used for media in template {template} is not available.', // @translate
+                        ['template_id' => $resourceTemplateMediaId, 'template' => $resourceTemplate->label()]
+                    );
+                } elseif (!in_array($resourceTemplateMedia->id(), $allowedResourceTemplatesMedia)) {
+                    $controller->logger()->err(
+                        'The resource template #{template_id} is not in the list of allowed contribution templates for media.', // @translate
+                        ['template_id' => $resourceTemplateMediaId]
+                    );
+                } else {
+                    $this->data['templates_media'][$resourceTemplateMedia->id()] = $resourceTemplateMedia;
+                }
+            }
+            // Temporary keep one template for compatibility with old themes.
+            if (count($this->data['templates_media'])) {
+                $this->data['template_media'] = reset($this->data['templates_media']);
             }
         }
 
@@ -280,29 +295,57 @@ class ContributiveData extends AbstractPlugin
     }
 
     /**
-     * Get the contributive data for the media sub-template.
+     * Get the contributive data for the media sub-templates.
+     *
+     * Like main template, the media templates should have at least one property.
+     *
+     * @return \Contribute\Mvc\Controller\Plugin\ContributiveData[]
+     */
+    public function contributiveMedias(): array
+    {
+        if ($this->data['contributive_medias'] === []
+            || !$this->isContributive()
+            || empty($this->data['templates_media'])
+            || $this->isSubTemplate()
+        ) {
+            return [];
+        }
+
+        if ($this->data['contributive_medias']) {
+            return $this->data['contributive_medias'];
+        }
+
+        $this->data['contributive_medias'] = [];
+        foreach ($this->data['templates_media'] as $templateMediaId => $templateMedia) {
+            // Clone() allows to get to contributive data with a different config.
+            /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveMedia */
+            $contributiveMedia = clone $this->getController()->plugin('contributiveData');
+            $contributiveMedia = $contributiveMedia($templateMedia, true);
+            if ($contributiveMedia->isContributive()) {
+                $this->data['contributive_medias'][$templateMediaId] = $contributiveMedia;
+            }
+        }
+
+        // Temporary keep one template for compatibility with old themes.
+        $this->data['contributive_media'] = count($this->data['contributive_medias'])
+            ? reset($this->data['contributive_medias'])
+            : null;
+
+        return $this->data['contributive_medias'];
+    }
+
+    /**
+     * Get the contributive data for the media sub-templates.
      *
      * Like main template, the media template should have at least one property.
      */
-    public function contributiveMedia(): ?\Contribute\Mvc\Controller\Plugin\ContributiveData
+    public function contributiveMedia(?int $mediaTemplateId = null): ?\Contribute\Mvc\Controller\Plugin\ContributiveData
     {
-        if ($this->data['contributive_media'] === null
-            || !$this->isContributive()
-            || empty($this->data['template_media'])
-            || $this->isSubTemplate()
-        ) {
-            return null;
+        $contributiveMedias = $this->contributiveMedias();
+        if ($mediaTemplateId) {
+            return $contributiveMedias[$mediaTemplateId] ?? null;
         }
-
-        // Clone() allows to get to contributive data with a different config.
-        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveMedia */
-        $contributiveMedia = clone $this->getController()->plugin('contributiveData');
-        $contributiveMedia = $contributiveMedia($this->data['template_media'], true);
-        if (!$contributiveMedia->isContributive()) {
-            $contributiveMedia = null;
-        }
-        $this->data['contributive_media'] = $contributiveMedia;
-        return $this->data['contributive_media'];
+        return count($contributiveMedias) ? reset($contributiveMedias) : null;
     }
 
     /**

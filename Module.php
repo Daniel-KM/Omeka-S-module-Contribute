@@ -99,7 +99,7 @@ class Module extends AbstractModule
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
             $template = $api->read('resource_templates', ['id' => $templateItem])->getContent();
             $templateData = $template->data();
-            $templateData['contribute_template_media'] = $templateFile;
+            $templateData['contribute_templates_media'] = [$templateFile];
             $api->update('resource_templates', $templateItem, ['o:data' => $templateData], [], ['isPartial' => true]);
         }
     }
@@ -635,20 +635,20 @@ class Module extends AbstractModule
         $fieldset = $form->get('o:data');
         $fieldset
             ->add([
-                'name' => 'contribute_template_media',
+                'name' => 'contribute_templates_media',
                 // Advanced Resource Template is a required dependency.
                 'type' => \Common\Form\Element\OptionalResourceTemplateSelect::class,
                 'options' => [
-                    'label' => 'Media template for contribution', // @translate
-                    'info' => 'If any, the template should be in the list of allowed templates for contribution of a media', // @translate
+                    'label' => 'Media templates for contribution', // @translate
+                    'info' => 'If any, the templates should be in the list of allowed templates for contribution of a media. Warning: to use multiple media is supported only with specific themes for now.', // @translate
                     'empty_option' => '',
                 ],
                 'attributes' => [
-                    // 'id' => 'contribute_template_media',
+                    // 'id' => 'contribute_templates_media',
                     'class' => 'setting chosen-select',
-                    'multiple' => false,
-                    'data-setting-key' => 'contribute_template_media',
-                    'data-placeholder' => 'Select resource template for media…', // @translate
+                    'multiple' => true,
+                    'data-setting-key' => 'contribute_templates_media',
+                    'data-placeholder' => 'Select resource templates for media…', // @translate
                 ],
             ])
             // Specific messages for the contributor.
