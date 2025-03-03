@@ -434,7 +434,7 @@ class ContributionController extends AbstractActionController
      *   correction is a new correction (or a patch).
      *
      * It is always possible to correct an item, but a new contribution cannot
-     * cannot be modified after validation.
+     * be modified after validation.
      *
      * Furthermore, the edition of a new contribution can be done in multi-steps
      * (template choice, metadata, files and medatada of files).
@@ -785,6 +785,7 @@ class ContributionController extends AbstractActionController
         return $space === 'guest'
             ? $this->redirect()->toRoute('site/guest/contribution', ['controller' => 'guest-board', 'action' => 'browse'], true)
             // TODO Update route when a main public browse of contributions will be available.
+            // TODO Check this redirect. Is it delete?
             : $this->redirect()->toRoute('site', [], true);
     }
 

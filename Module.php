@@ -150,7 +150,7 @@ class Module extends AbstractModule
         $roles = $acl->getRoles();
 
         $contributors = $isOpenContribution
-            ? array()
+            ? []
             : ($contributeRoles ?? $roles);
 
         $contributors = array_intersect($contributors, $acl->getRoles());
