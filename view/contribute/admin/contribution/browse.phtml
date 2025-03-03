@@ -75,7 +75,7 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
             <option value="delete-all"><?= $translate('Delete all') ?></option>
         </select>
         <div class="batch-actions">
-            <button type="button" class="default active" disabled="true"><?= $translate('Go') ?></button>
+            <button type="button" class="button default active" disabled="true"><?= $translate('Go') ?></button>
             <input type="submit" class="validate-selected" name="validate_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit'], true)) ?>">
             <input type="submit" class="validate-all" name="validate_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit-all'], true)) ?>">
             <input type="hidden" name="query" class="batch-query" value="<?= $escape(json_encode($this->params()->fromQuery())) ?>">

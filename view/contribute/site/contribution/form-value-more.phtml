@@ -57,19 +57,19 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
 
             case 'literal':
             ?>
-        <button type="button" class="add-value add-value-literal<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add value')) ?></button>
+        <button type="button" class="button add-value add-value-literal<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add value')) ?></button>
                 <?php
                 break;
 
             case 'numeric:integer':
                 ?>
-        <button type="button" class="add-value add-value-numeric-integer<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add number')) ?></button>
+        <button type="button" class="button add-value add-value-numeric-integer<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add number')) ?></button>
                 <?php
                 break;
 
             case 'numeric:timestamp':
                 ?>
-        <button type="button" class="add-value add-value-numeric-timestamp<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add date')) ?></button>
+        <button type="button" class="button add-value add-value-numeric-timestamp<?= $addForMedia ?> button o-icon-add"><?= $escape($translate('Add date')) ?></button>
                 <?php
                 break;
 
@@ -91,13 +91,13 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                         $valueOptions[] = ['v' => $k, 't' => $v];
                     }
                 ?>
-        <button type="button" class="add-value add-value-resource<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $dataType ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $escape($translate('Add linked resource')) ?></button>
+        <button type="button" class="button add-value add-value-resource<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $dataType ?>" data-placeholder="<?= $translate('Select a resource…')?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>"><?= $escape($translate('Add linked resource')) ?></button>
                 <?php endif;
                 break;
 
             case 'uri':
                 ?>
-        <button type="button" class="add-value add-value-uri<?= $addForMedia ?> button o-icon-uri" data-data-type="uri"><?= $escape($translate('Add URI')) ?></button>
+        <button type="button" class="button add-value add-value-uri<?= $addForMedia ?> button o-icon-uri" data-data-type="uri"><?= $escape($translate('Add URI')) ?></button>
                 <?php break;
 
             case substr($dataType, 0, 12) === 'customvocab:':
@@ -119,12 +119,12 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                     $valueOptions[] = ['v' => $value, 't' => $term];
                 }
                 ?>
-        <button type="button" class="add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $dataType ?>" data-basetype="<?= $mainType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>" data-placeholder="<?= $escapeAttr($translate('Select a value…')) ?>"><?= $escape($translate('Add value')) ?></button>
+        <button type="button" class="button add-value add-value-custom-vocab<?= $addForMedia ?> button o-icon-add" data-data-type="<?= $dataType ?>" data-basetype="<?= $mainType ?>" data-value-options="<?= $escapeAttr(json_encode($valueOptions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?>" data-placeholder="<?= $escapeAttr($translate('Select a value…')) ?>"><?= $escape($translate('Add value')) ?></button>
                 <?php break;
 
             case substr($dataType, 0, 12) === 'valuesuggest': // Or valuesuggestall.
                 ?>
-        <button type="button" class="add-value add-value-value-suggest<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $dataType ?>"><?= $escape($translate('Add linked data')) ?></button>
+        <button type="button" class="button add-value add-value-value-suggest<?= $addForMedia ?> button o-icon-uri" data-data-type="<?= $dataType ?>"><?= $escape($translate('Add linked data')) ?></button>
                 <?php break;
 
             default:
