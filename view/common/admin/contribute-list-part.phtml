@@ -122,7 +122,7 @@ unset($proposal['template'], $proposal['media']);
                     </dd>
                         <?php endif; ?>
                     <dd class="<?= implode(' ', $class) ?> <?= $proposedResource ? $proposedResource->resourceName() : '' ?>">
-                        <span data-name="<?= $term . '[' . $key . '][@resource]' ?>" class="<?= $process ?>-value"><?= $proposedResource->linkPretty() ?></span>
+                        <span data-name="<?= $term . '[' . $key . '][@resource]' ?>" class="<?= $process ?>-value"><?= $proposedResource ? $proposedResource->linkPretty() : '' ?></span>
                     </dd>
                     <?php endif; ?>
 
