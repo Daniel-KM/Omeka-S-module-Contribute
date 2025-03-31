@@ -195,7 +195,7 @@ FROM `contribution`
 WHERE JSON_EXTRACT(`proposal`, "$.{$property}[*].proposed.{$keyType}") IN (:values);
 SQL;
                     /** @var \Doctrine\DBAL\Connection $connection */
-                    $text = is_array($text) ? $text : [$text];
+                    $text = is_array($text) ? array_values($text) : [$text];
                     foreach ($text as &$t) {
                         if ($keyType === '@resource') {
                             $t = '[' . (int) $t . ']';
