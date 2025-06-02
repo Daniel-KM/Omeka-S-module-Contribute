@@ -102,20 +102,20 @@ class CanContribute extends AbstractHelper
                     if ($pattern === '') {
                         continue 3;
                     }
-                    $userSettingValue = $userSetting($userSettingKey);
-                    if (!is_scalar($userSettingValue)) {
+                    $userSettingValues = $userSetting($userSettingKey);
+                    if ($userSettingValues === null || $userSettingValues === '' || $userSettingValues = []) {
                         continue 3;
                     }
-                    $userSettingValue = trim((string) $userSettingValue);
-                    if ($userSettingValue === '') {
-                        continue 3;
+                    if (is_scalar($userSettingValues)) {
+                        $userSettingValues = [$userSettingValues];
                     }
-                    if (mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~') {
-                        if (!preg_match($pattern, $userSettingValue)) {
+                    $isRegex = mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~';
+                    if ($isRegex) {
+                        if (!array_filter($userSettingValues, fn ($v) => preg_match($pattern, $v))) {
                             continue 3;
                         }
                     } else {
-                        if ($userSettingValue !== $pattern) {
+                        if (!in_array($pattern, $userSettingValues)) {
                             continue 3;
                         }
                     }
