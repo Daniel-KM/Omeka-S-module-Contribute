@@ -170,7 +170,7 @@ class SettingsFieldset extends Fieldset
                 'options' => [
                     'element_group' => 'contact',
                     'label' => 'Email of the sender (else no-reply user or administrator)', // @translate
-                    'info' => 'The no-reply email can be set via module EasyAdmin. The administrator email can set above.', // @translate
+                    'info' => 'The no-reply email can be set via module EasyAdmin. The administrator email can be set above.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'contribute_sender_email',
