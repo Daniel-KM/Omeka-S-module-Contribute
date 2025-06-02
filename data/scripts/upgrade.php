@@ -42,10 +42,10 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
     throw new ModuleCannotInstallException((string) $message);
 }
 
-if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.36')) {
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.42')) {
     $message = new PsrMessage(
         'The module {module} should be upgraded to version {version} or later.', // @translate
-        ['module' => 'AdvancedResourceTemplate', 'version' => '3.4.36']
+        ['module' => 'AdvancedResourceTemplate', 'version' => '3.4.42']
     );
     throw new ModuleCannotInstallException((string) $message);
 }
@@ -336,4 +336,38 @@ if (version_compare($oldVersion, '3.4.29', '<')) {
     );
     $messenger->addSuccess($message);
     */
+}
+
+if (version_compare($oldVersion, '3.4.31', '<')) {
+    $emails = $settings->get('contribute_notify_recipients', []);
+    if ($emails) {
+        $result = [];
+        foreach ($emails as $emailQuery) {
+            [$email, $query] = explode(' ', $emailQuery . ' ', 2);
+            $result[$email] = trim($query);
+        }
+        $settings->set('contribute_notify_recipients', $result);
+    }
+
+    $contributeModes = $settings->get('contribute_modes');
+    if (!$contributeModes) {
+        $contributeMode = $settings->get('contribute_mode') ?: 'user';
+        $settings->set('contribute_modes', [$contributeMode]);
+    }
+    $settings->delete('contribute_mode');
+
+    $message = new PsrMessage(
+        'It’s now possible to allow contribution based on a user setting, for example an attribute set by an IdP.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'It’s now possible to allow contribution based on different modes.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'New navigation links are available to add resources and to list them.' // @translate
+    );
+    $messenger->addSuccess($message);
 }

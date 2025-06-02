@@ -52,6 +52,14 @@ class Module extends AbstractModule
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
+        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.42')) {
+            $message = new \Omeka\Stdlib\Message(
+                $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                'Advanced Resource Template', '3.4.42'
+            );
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        }
+
         $config = $services->get('Config');
         $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
 
