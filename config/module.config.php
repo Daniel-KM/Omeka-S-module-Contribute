@@ -63,6 +63,11 @@ return [
             'contributeLink' => Site\ResourcePageBlockLayout\ContributionLink::class,
         ],
     ],
+    'navigation_links' => [
+        'invokables' => [
+            'contributions' => Site\Navigation\Link\Contributions::class,
+        ],
+    ],
     'controllers' => [
         'invokables' => [
             'Contribute\Controller\Site\GuestBoard' => Controller\Site\GuestBoardController::class,
