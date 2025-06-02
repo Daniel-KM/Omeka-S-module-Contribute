@@ -171,13 +171,15 @@ class SettingsFieldset extends Fieldset
                     'element_group' => 'contribution',
                     'label' => 'Emails to notify contributions', // @translate
                     'info' => 'A query can be appended to limit notifications to specific contributions.', // @translate
+                    'as_key_value' => true,
                 ],
                 'attributes' => [
                     'id' => 'contribute_notify_recipients',
                     'required' => false,
-                    'placeholder' => 'contact@example.org
-info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provenance&property[0][type]=eq&property[0][text]=ut2j
-',
+                    'placeholder' => <<<'TXT'
+                        contact@example.org
+                        info@example2.org = resource_template_id[]=2&property[0][property]=dcterms:provenance&property[0][type]=eq&property[0][text]=ut2j
+                        TXT,
                 ],
             ])
 

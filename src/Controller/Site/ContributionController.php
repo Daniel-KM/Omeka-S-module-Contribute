@@ -1159,6 +1159,11 @@ class ContributionController extends AbstractActionController
         return strtr($message, $replace);
     }
 
+    /**
+     * Get list of emails and optional queries.
+     *
+     * @return array Email as key and query as value.
+     */
     protected function filterEmails(?ContributionRepresentation $contribution = null): array
     {
         $emails = $this->settings()->get('contribute_notify_recipients', []);
@@ -1166,16 +1171,12 @@ class ContributionController extends AbstractActionController
             return [];
         }
 
-        if (!$contribution) {
-            return $emails;
-        }
-
+        // Validate emails in all cases.
         $result = [];
-        foreach ($emails as $email) {
-            [$email, $query] = explode(' ', $email . ' ', 2);
+        foreach ($emails as $email => $query) {
             if ($email
                 && filter_var($email, FILTER_VALIDATE_EMAIL)
-                && $contribution->match($query)
+                && ($contribution ? $contribution->match($query) : true)
             ) {
                 $result[] = $email;
             }
