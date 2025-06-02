@@ -616,12 +616,14 @@ class Module extends AbstractModule
         $total = $view->api()
             ->search('contributions', [
                 'resource_id' => $resource->id(),
+                'limit' => 0,
             ])
             ->getTotalResults();
         $totalNotReviewed = $view->api()
             ->search('contributions', [
                 'resource_id' => $resource->id(),
                 'reviewed' => '0',
+                'limit' => 0,
             ])
             ->getTotalResults();
         $contributions = $translate('Contributions'); // @translat

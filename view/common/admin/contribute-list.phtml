@@ -32,7 +32,7 @@ $useToken = in_array('user_token', $contributeModes) || in_array('token', $contr
     <?php $totalExpiredTokens = $api
         ->search(
             'contribution_tokens',
-            ['resource_id' => $resource->id(), 'datetime' => [['field' => 'expire', 'type' => 'lt', 'value' => date('Y-m-d H:i:s')]]]
+            ['resource_id' => $resource->id(), 'datetime' => [['field' => 'expire', 'type' => 'lt', 'value' => date('Y-m-d H:i:s')]], 'limit' => 0]
         )
         ->getTotalResults(); ?>
     <div class="contribution-token">
