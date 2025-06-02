@@ -847,10 +847,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
             $mainType = null;
             $typeTemplate = null;
+            $isPublic = true;
             if ($resourceTemplate) {
+                /** @var \Omeka\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
                 $resourceTemplateProperty = $resourceTemplate->resourceTemplateProperty($propertyId);
                 if ($resourceTemplateProperty) {
                     $typeTemplate = $resourceTemplateProperty->dataType();
+                    $isPublic = !$resourceTemplateProperty->isPrivate();
                 }
             }
 
@@ -888,7 +891,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             'type' => $typeTemplate ?? $mainType,
                             'property_id' => $propertyId,
                             '@value' => $proposition['proposed']['@value'],
-                            'is_public' => true,
+                            'is_public' => $isPublic,
                             '@language' => $proposition['proposed']['@language'] ?? null,
                         ];
                         break;
@@ -899,7 +902,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             'o:label' => null,
                             'value_resource_id' => $proposition['proposed']['@resource'],
                             '@id' => null,
-                            'is_public' => true,
+                            'is_public' => $isPublic,
                             '@language' => null,
                         ];
                         break;
@@ -912,7 +915,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                             'property_id' => $propertyId,
                             'o:label' => $proposition['proposed']['@label'],
                             '@id' => $proposition['proposed']['@uri'],
-                            'is_public' => true,
+                            'is_public' => $isPublic,
                             '@language' => $proposition['proposed']['@language'] ?? null,
                         ];
                         break;
