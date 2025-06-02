@@ -165,6 +165,32 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'contribute_sender_email',
+                'type' => CommonElement\OptionalEmail::class,
+                'options' => [
+                    'element_group' => 'contact',
+                    'label' => 'Email of the sender (else no-reply user or administrator)', // @translate
+                    'info' => 'The no-reply email can be set via module EasyAdmin. The administrator email can set above.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_sender_email',
+                    'required' => false,
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_sender_name',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'contact',
+                    'label' => 'Name of the sender when email above is set', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_sender_name',
+                    'required' => false,
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_notify_recipients',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [

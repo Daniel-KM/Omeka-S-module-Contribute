@@ -77,9 +77,6 @@ return [
             'checkToken' => Mvc\Controller\Plugin\CheckToken::class,
             'contributiveData' => Mvc\Controller\Plugin\ContributiveData::class,
         ],
-        'factories' => [
-            'sendContributionEmail' => Service\ControllerPlugin\SendContributionEmailFactory::class,
-        ],
     ],
     'navigation' => [
         'AdminResource' => [
@@ -284,6 +281,8 @@ return [
             // Days.
             'contribute_token_duration' => 60,
             'contribute_allow_update' => 'submission',
+            'contribute_sender_email' => '',
+            'contribute_sender_name' => '',
             'contribute_notify_recipients' => [],
             'contribute_author_emails' => [],
             'contribute_message_add' => '',

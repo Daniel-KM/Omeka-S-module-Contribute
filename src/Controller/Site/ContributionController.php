@@ -1021,9 +1021,13 @@ class ContributionController extends AbstractActionController
             $message = $template->dataValue('contribute_reviewer_confirmation_body') ?: $message;
         }
 
+        $from = $settings->get('contribute_sender_email')
+            ? [$settings->get('contribute_sender_email') => (string) $settings->get('contribute_sender_name')]
+            : null;
+
         if ($message) {
             $message = $this->replacePlaceholders($message, $contribution);
-            $this->sendContributionEmail($emails, $subject, $message); // @translate
+            $this->sendEmail($message, $subject, $emails, $from);
             return $this;
         }
 
@@ -1067,7 +1071,7 @@ class ContributionController extends AbstractActionController
                 break;
         }
 
-        $this->sendContributionEmail($emails, $subject, $message); // @translate
+        $this->sendEmail($message, $subject, $emails, $from);
         return $this;
     }
 
@@ -1079,7 +1083,7 @@ class ContributionController extends AbstractActionController
             return $this;
         }
 
-        $emails = $this->authorEmails($contribution);
+        $emails = $this->authorRecipients($contribution);
         if (empty($emails)) {
             $this->messenger()->err('The author of this contribution has no valid email. Check it or check the config.'); // @translate
             return $this;
@@ -1100,12 +1104,13 @@ class ContributionController extends AbstractActionController
         }
 
         $message = $this->replacePlaceholders($message, $contribution);
-
         $message = '<p>' . $message . '</p>';
 
-        $name = count($emails) === 1 && $contribution->owner() ? $contribution->owner()->name() : null;
+        $from = $settings->get('contribute_sender_email')
+            ? [$settings->get('contribute_sender_email') => (string) $settings->get('contribute_sender_name')]
+            : null;
 
-        $this->sendContributionEmail($emails, $subject, $message, $name); // @translate
+        $this->sendEmail($message, $subject, $emails, $from);
         return $this;
     }
 
@@ -1185,10 +1190,11 @@ class ContributionController extends AbstractActionController
         return $result;
     }
 
-    protected function authorEmails(?ContributionRepresentation $contribution = null): array
+    protected function authorRecipients(?ContributionRepresentation $contribution = null): array
     {
         $emails = [];
-        $propertyEmails = $this->settings()->get('contribute_author_emails', ['owner'])  ?: ['owner'];
+        $propertyEmails = $this->settings()->get('contribute_author_emails', ['owner'])
+            ?: ['owner'];
 
         /*
         if ($contribution && !in_array('owner', $propertyEmails)) {
@@ -1202,20 +1208,20 @@ class ContributionController extends AbstractActionController
             if ($propertyEmail === 'owner') {
                 $owner = $contribution ? $contribution->owner() : null;
                 if ($owner) {
-                    $emails[] = $owner->email();
+                    $emails[$owner->email()] = $owner->name();
                 }
             } elseif (strpos($propertyEmail, ':') && !empty($resourceData[$propertyEmail])) {
                 foreach ($resourceData[$propertyEmail] as $resourceValue) {
                     if (isset($resourceValue['@value'])) {
-                        $emails[] = $resourceValue['@value'];
+                        $emails[$resourceValue['@value']] = '';
                     }
                 }
             }
         }
 
-        foreach ($emails as $key => $email) {
+        foreach (array_keys($emails) as $email) {
             if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                unset($emails[$key]);
+                unset($emails[$email]);
             }
         }
 
