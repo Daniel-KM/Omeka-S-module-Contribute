@@ -48,9 +48,13 @@ class TokenAdapter extends AbstractEntityAdapter
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
     {
         /** @var \Contribute\Entity\Token $entity */
+
         $data = $request->getContent();
+
+        $entityManager = $this->getEntityManager();
+
         if (Request::CREATE === $request->getOperation()) {
-            $resource = $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+            $resource = $entityManager->find(\Omeka\Entity\Resource::class, $data['o:resource']['o:id']);
             $token = empty($data['o-module-contribute:token'])
                 ? $this->createToken()
                 : $data['o-module-contribute:token'];

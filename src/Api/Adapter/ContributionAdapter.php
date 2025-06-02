@@ -245,16 +245,21 @@ SQL;
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
     {
         // TODO Use shouldHydrate() and validateEntity().
+
         /** @var \Contribute\Entity\Contribution $entity */
+
         $data = $request->getContent();
+
+        $entityManager = $this->getEntityManager();
+
         if (Request::CREATE === $request->getOperation()) {
             $this->hydrateOwner($request, $entity);
             $resource = empty($data['o:resource']['o:id'])
                 ? null
-                : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+                : $entityManager->find(\Omeka\Entity\Resource::class, $data['o:resource']['o:id']);
             $token = empty($data['o-module-contribute:token'])
                 ? null
-                : $this->getAdapter('contribution_tokens')->findEntity($data['o-module-contribute:token']['o:id']);
+                : $entityManager->find(\Contribute\Entity\Token::class, $data['o-module-contribute:token']['o:id']);
             $email = empty($data['o:email']) ? null : $data['o:email'];
             $isPatch = !empty($resource);
             $submitted = !empty($data['o-module-contribute:submitted']);
@@ -274,7 +279,7 @@ SQL;
             if (!$entity->getResource() && $this->shouldHydrate($request, 'o:resource', $data)) {
                 $resource = empty($data['o:resource']['o:id'])
                     ? null
-                    : $this->getAdapter('resources')->findEntity($data['o:resource']['o:id']);
+                    : $entityManager->find(\Omeka\Entity\Resource::class, $data['o:resource']['o:id']);
                 if ($resource) {
                     $entity
                         ->setResource($resource);
