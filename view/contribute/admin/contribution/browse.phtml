@@ -43,6 +43,7 @@ $sortHeadings = [
 ];
 
 $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\ContributionAdapter::class, 'batch_delete');
+$userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAdapter::class, 'create');
 ?>
 
 <?= $this->pageTitle($translate('Contributions')) ?>
@@ -75,10 +76,10 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
             <option value="delete-all"><?= $translate('Delete all') ?></option>
         </select>
         <div class="batch-actions">
-            <button type="button" class="button default active" disabled="true"><?= $translate('Go') ?></button>
-            <input type="submit" class="validate-selected" name="validate_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit'], true)) ?>">
-            <input type="submit" class="validate-all" name="validate_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit-all'], true)) ?>">
-            <input type="hidden" name="query" class="batch-query" value="<?= $escape(json_encode($this->params()->fromQuery())) ?>">
+            <button type="button" class="button default active" disabled="disabled"><?= $translate('Go') ?></button>
+            <input type="submit" class="validate-selected" name="validate_selected" value="<?= $translate('Go') ?>" formaction="<?= $escapeAttr($url(null, ['action' => 'batch-edit'], true)) ?>">
+            <input type="submit" class="validate-all" name="validate_all" value="<?= $translate('Go') ?>" formaction="<?= $escapeAttr($url(null, ['action' => 'batch-edit-all'], true)) ?>">
+            <input type="hidden" name="query" class="batch-query" value="<?= $escapeAttr(json_encode($this->params()->fromQuery())) ?>">
             <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
             <a class="delete button sidebar-content delete-all" data-sidebar-selector="#sidebar-delete-all"><?= $translate('Go') ?></a>
         </div>
@@ -112,28 +113,34 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
                     <span class="title"><?= $contribution->linkResource($contribution->displayTitle()) ?></span>
                     <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
                     <ul class="actions">
-                        <li><span class="no-action"><span
-                            class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
-                            data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
-                            aria-label="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"
-                            title="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"></span>
-                        </span></li>
-                        <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
-                        <li><span class="single actions"><a href="#"
-                            class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
-                            data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-status')) ?>"
-                            data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
-                            aria-label="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"
-                            title="<?= $escape($translate('Toggle status reviewed/unreviewed')) ?>"></a>
-                        </span></li>
-                        <?php endif; ?>
                         <li>
+                            <span class="no-action"><span
+                                class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
+                                data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
+                                aria-label="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"
+                                title="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"></span>
+                            </span>
+                        </li>
+                        <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
+                        <li>
+                            <span class="single actions"><a href="#"
+                                class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                                data-status-toggle-url="<?= $escapeAttr($contribution->adminUrl('toggle-status')) ?>"
+                                data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                                aria-label="<?= $escapeAttr($translate('Toggle status reviewed/unreviewed')) ?>"
+                                title="<?= $escapeAttr($translate('Toggle status reviewed/unreviewed')) ?>"></a>
+                            </span>
+                        </li>
+                        <?php endif; ?>
                         <?php if ($contributionResource): ?>
+                        <li>
                             <?= $contribution->linkResource('', 'show', [
                                 'class' => 'o-icon-edit',
                                 'title' => $translate('Edit'),
                             ]) ?>
-                        <?php else: ?>
+                        </li>
+                        <?php elseif ($userIsAllowedToCreateResource): ?>
+                        <li>
                             <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
                                 'class' => 'o-icon-add',
                                 'data-id' => $contribution->id(),
@@ -142,19 +149,23 @@ $userIsAllowedBatchDelete = $this->userIsAllowed(\Contribute\Api\Adapter\Contrib
                         </li>
                         <?php endif; ?>
                         <?php if ($contribution->userIsAllowed('delete')): ?>
-                        <li><?= $hyperlink('', '#', [
-                            'data-sidebar-selector' => '#sidebar',
-                            'data-sidebar-content-url' => $contribution->adminUrl('delete-confirm'),
-                            'class' => 'o-icon-delete sidebar-content',
-                            'title' => $translate('Delete'),
-                        ]) ?></li>
+                        <li>
+                            <?= $hyperlink('', '#', [
+                                'data-sidebar-selector' => '#sidebar',
+                                'data-sidebar-content-url' => $contribution->adminUrl('delete-confirm'),
+                                'class' => 'o-icon-delete sidebar-content',
+                                'title' => $translate('Delete'),
+                            ]) ?>
+                        </li>
                         <?php endif; ?>
-                        <li><?= $hyperlink('', '#', [
-                            'data-sidebar-selector' => '#sidebar',
-                            'data-sidebar-content-url' => $contribution->adminUrl('show-details'),
-                            'class' => 'o-icon-more sidebar-content',
-                            'title' => $translate('Details'),
-                        ]) ?></li>
+                        <li>
+                            <?= $hyperlink('', '#', [
+                                'data-sidebar-selector' => '#sidebar',
+                                'data-sidebar-content-url' => $contribution->adminUrl('show-details'),
+                                'class' => 'o-icon-more sidebar-content',
+                                'title' => $translate('Details'),
+                            ]) ?>
+                        </li>
                     </ul>
                 </td>
                 <td><?= $ownerText ?></td>
