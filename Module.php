@@ -121,10 +121,11 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
 
-        $contributeMode = $settings->get('contribute_mode', 'user');
-        $isOpenContribution = $contributeMode === 'open' || $contributeMode === 'token';
+        $contributeModes = $settings->get('contribute_modes') ?: [];
+        $isOpenContribution = in_array('open', $contributeModes)
+            || in_array('token', $contributeModes);
 
-        $contributeRoles = $contributeMode === 'role'
+        $contributeRoles = in_array('role', $contributeModes)
             ? $settings->get('contribute_roles', [])
             : null;
 
@@ -480,8 +481,9 @@ class Module extends AbstractModule
     public function addHeadersAdminBrowse(Event $event): void
     {
         // Don't display the token form if it is not used.
-        $contributeMode = $this->getServiceLocator()->get('Omeka\Settings')->get('contribute_mode');
-        if ($contributeMode !== 'user_token' && $contributeMode !== 'token') {
+        $contributeModes = $this->getServiceLocator()->get('Omeka\Settings')->get('contribute_modes') ?: [];
+        $useToken = in_array('user_token', $contributeModes) || in_array('token', $contributeModes);
+        if (!$useToken) {
             return;
         }
         $this->addHeadersAdmin($event);
@@ -489,13 +491,17 @@ class Module extends AbstractModule
 
     public function adminViewShowSidebar(Event $event): void
     {
-        $view = $event->getTarget();
-        $plugins = $view->getHelperPluginManager();
-        $setting = $plugins->get('setting');
-        if (!in_array($setting('contribute_mode'), ['user_token', 'token'])) {
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $contributeModes = $settings->get('contribute_modes') ?: [];
+        $useToken = in_array('user_token', $contributeModes) || in_array('token', $contributeModes);
+        if (!$useToken) {
             return;
         }
 
+        $view = $event->getTarget();
+        $plugins = $view->getHelperPluginManager();
         $url = $plugins->get('url');
         $translate = $plugins->get('translate');
         $escapeAttr = $plugins->get('escapeHtmlAttr');

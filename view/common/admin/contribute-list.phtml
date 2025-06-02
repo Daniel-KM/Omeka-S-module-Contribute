@@ -15,12 +15,15 @@ $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
+
+$contributeModes = $setting('contribute_modes') ?: [];
+$useToken = in_array('user_token', $contributeModes) || in_array('token', $contributeModes);
 ?>
 
 <div class="contributions">
     <?php $totalTokens = $api->search('contribution_tokens', ['resource_id' => $resource->id(), 'limit' => 0])->getTotalResults(); ?>
     <?php if (empty($totalTokens)): ?>
-        <?php if (in_array($setting('contribute_mode'), ['user_token', 'token'])): ?>
+        <?php if ($useToken): ?>
     <div class="no-resources no-tokens">
         <p><?= $translate('There are no tokens for this resource or contribution mode doesn’t use token.') ?></p>
     </div>

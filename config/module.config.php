@@ -267,7 +267,8 @@ return [
     ],
     'contribute' => [
         'settings' => [
-            'contribute_mode' => 'user',
+            // ["user"] is set on install.
+            'contribute_modes' => [],
             'contribute_roles' => [],
             'contribute_email_regex' => '',
             'contribute_filter_user_settings' => [],

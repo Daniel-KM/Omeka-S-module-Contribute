@@ -21,27 +21,26 @@ class SettingsFieldset extends Fieldset
             ->setAttribute('id', 'contribute')
             ->setOption('element_groups', $this->elementGroups)
             ->add([
-                'name' => 'contribute_mode',
-                'type' => Element\Radio::class,
+                'name' => 'contribute_modes',
+                'type' => CommonElement\OptionalMultiCheckbox::class,
                 'options' => [
                     'element_group' => 'contribution',
-                    'label' => 'Contribution mode', // @translate
+                    'label' => 'Contribution modes', // @translate
                     'value_options' => [
+                        'open' => 'Open to any visitor', // @translate
+                        'token' => 'With token', // @translate
+                        'user' => 'Authenticated users', // @translate
                         'user_token' => 'Authenticated users with a token', // @translate
                         'auth_cas' => 'Authenticated users from cas', // @translate
                         'auth_ldap' => 'Authenticated users from ldap', // @translate
                         'auth_sso' => 'Authenticated users from sso', // @translate
+                        'role' => 'Roles', // @translate
                         'email_regex' => 'Authenticated users with an email matching regex below', // @translate
                         'filter_user_settings' => 'Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On', // @translate
-                        'user' => 'Authenticated users', // @translate
-                        'role' => 'Roles', // @translate
-                        'token' => 'With token', // @translate
-                        'open' => 'Open to any visitor', // @translate
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'contribute_mode',
-                    'value' => 'user_token',
+                    'id' => 'contribute_modes',
                 ],
             ])
 

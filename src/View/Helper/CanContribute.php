@@ -43,61 +43,87 @@ class CanContribute extends AbstractHelper
          * @var \Omeka\Entity\User $user
          */
         $view = $this->getView();
-        $setting = $view->plugin('setting');
-        $contributeMode = $setting('contribute_mode') ?: 'user';
         $user = $view->identity();
-        switch ($contributeMode) {
-            default:
+        $setting = $view->plugin('setting');
+        $contributeModes = $setting('contribute_modes') ?: [];
+        foreach ($contributeModes as $contributeMode) switch ($contributeMode) {
+            case 'open':
+                return true;
             case 'user':
-                return (bool) $user;
+                if ($user) {
+                    return true;
+                }
+                continue 2;
             case 'user_token':
-                return $user && $skipRequireToken;
+                if ($user && $skipRequireToken) {
+                    return true;
+                }
+                continue 2;
+            case 'token':
+                if ($skipRequireToken) {
+                    return true;
+                }
+                continue 2;
             case 'role':
-                return $user && in_array($user->getRole(), $setting('contribute_roles', []) ?: []);
+                if ($user && in_array($user->getRole(), $setting('contribute_roles', []) ?: [])) {
+                    return true;
+                }
+                continue 2;
             case 'auth_cas':
-                return $user && $this->isCasUser && $this->isCasUser($user);
+                if ($user && $this->isCasUser && $this->isCasUser($user)) {
+                    return true;
+                }
+                continue 2;
             case 'auth_ldap':
-                return $user && $this->isLdapUser && $this->isLdapUser($user);
+                if ($user && $this->isLdapUser && $this->isLdapUser($user)) {
+                    return true;
+                }
+                continue 2;
             case 'auth_sso':
-                return $user && $this->isSsoUser && $this->isSsoUser($user);
+                if ($user && $this->isSsoUser && $this->isSsoUser($user)) {
+                    return true;
+                }
+                continue 2;
             case 'email_regex':
                 $pattern = (string) $setting('contribute_email_regex');
-                return $user && $pattern && preg_match($pattern, $user->getEmail());
+                if ($user && $pattern && preg_match($pattern, $user->getEmail())) {
+                    return true;
+                }
+                continue 2;
             case 'filter_user_settings':
-                // The check is cumulative, so there are early returns.
+                // The check is cumulative, so there are early break.
                 if (!$user) {
-                    return false;
+                    continue 2;
                 }
                 $patterns = $setting('contribute_filter_user_settings');
                 $userSetting = $view->plugin('userSetting');
                 foreach ($patterns as $userSettingKey => $pattern) {
                     $pattern = trim($pattern);
                     if ($pattern === '') {
-                        return false;
+                        continue 3;
                     }
                     $userSettingValue = $userSetting($userSettingKey);
                     if (!is_scalar($userSettingValue)) {
-                        return false;
+                        continue 3;
                     }
                     $userSettingValue = trim((string) $userSettingValue);
                     if ($userSettingValue === '') {
-                        return false;
+                        continue 3;
                     }
                     if (mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~') {
                         if (!preg_match($pattern, $userSettingValue)) {
-                            return false;
+                            continue 3;
                         }
                     } else {
                         if ($userSettingValue !== $pattern) {
-                            return false;
+                            continue 3;
                         }
                     }
                 }
                 return true;
-            case 'token':
-                return $skipRequireToken;
-            case 'open':
-                return true;
+            default;
+                continue 2;
         }
+        return false;
     }
 }
