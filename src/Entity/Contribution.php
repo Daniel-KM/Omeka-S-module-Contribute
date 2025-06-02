@@ -107,7 +107,10 @@ class Contribution extends AbstractEntity
      *
      * @Column(
      *     type="boolean",
-     *     nullable=false
+     *     nullable=false,
+     *     options={
+     *         "default": false
+     *     }
      * )
      */
     protected $patch = false;
@@ -117,7 +120,10 @@ class Contribution extends AbstractEntity
      *
      * @Column(
      *     type="boolean",
-     *     nullable=false
+     *     nullable=false,
+     *     options={
+     *         "default": false
+     *     }
      * )
      */
     protected $submitted = false;
@@ -127,7 +133,10 @@ class Contribution extends AbstractEntity
      *
      * @Column(
      *     type="boolean",
-     *     nullable=false
+     *     nullable=false,
+     *     options={
+     *         "default": false
+     *     }
      * )
      */
     protected $reviewed = false;
