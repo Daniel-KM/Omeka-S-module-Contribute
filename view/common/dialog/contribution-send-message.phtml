@@ -1,0 +1,29 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+ * @var \Contribute\Form\SendMessageForm $form
+ * @var string $heading
+ * @var string $html Passed directly from the options.
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+
+$form->prepare();
+?>
+
+<dialog class="popup popup-dialog dialog-send-message">
+    <div class="dialog-background">
+        <div class="dialog-panel">
+            <div class="dialog-header">
+                <button type="button" class="dialog-header-close-button" title="<?= $translate('Close') ?>" autofocus="autofocus">
+                    <span class="dialog-close">🗙</span>
+                </button>
+            </div>
+            <div class="dialog-contents">
+                <?= $this->form($form) ?>
+            </div>
+        </div>
+    </div>
+</dialog>

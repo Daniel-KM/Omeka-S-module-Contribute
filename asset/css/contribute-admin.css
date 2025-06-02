@@ -283,8 +283,22 @@
     .contributions.browse .sidebar .meta-group.contribution {
         justify-content: normal;
     }
-    .contributions.browse .sidebar .meta-group.contribution .contribution{
-        padding-left: 12px;
+    .contributions.browse .sidebar .meta-group.contribution .contribution {
+        /* padding-left: 12px; */
+    }
+    .contributions.browse .sidebar .meta-group.contribution .contribution dt {
+        width: inherit;
+    }
+
+    dialog.dialog-send-message {
+        width: inherit;
+    }
+    dialog.dialog-send-message input[name=submit],
+    dialog.dialog-send-message .dialog-header-close-button {
+        float: right;
+    }
+    dialog.dialog-send-message label.required::after {
+        display: none;
     }
 }
 

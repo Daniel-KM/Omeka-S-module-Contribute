@@ -53,6 +53,108 @@ Omeka.contributionManageSelectedActions = function() {
 }(window.jQuery, window, document));
 
 $(document).ready(function() {
+    /**
+     * @see ContactUs, Contribute, Guest, SearchHistory, Selection, TwoFactorAuth.
+     */
+
+    const beforeSpin = function (element) {
+        var span = $(element).find('span');
+        if (!span.length) {
+            span = $(element).next('span.appended');
+            if (!span.length) {
+                $('<span class="appended"></span>').insertAfter($(element));
+                span = $(element).next('span');
+            }
+        }
+        element.hide();
+        span.addClass('fas fa-sync fa-spin');
+    };
+
+    const afterSpin = function (element) {
+        var span = $(element).find('span');
+        if (!span.length) {
+            span = $(element).next('span.appended');
+            if (span.length) {
+                span.remove();
+            }
+        } else {
+            span.removeClass('fas fa-sync fa-spin');
+        }
+        element.show();
+    };
+
+    /**
+     * Get the main message of jSend output, in particular for status fail.
+     */
+    const jSendMessage = function(data) {
+        if (typeof data !== 'object') {
+            return null;
+        }
+        if (data.message) {
+            return data.message;
+        }
+        if (!data.data) {
+            return null;
+        }
+        if (data.data.message) {
+            return data.data.message;
+        }
+        for (let value of Object.values(data.data)) {
+            if (typeof value === 'string' && value.length) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    const dialogMessage = function (message, nl2br = false) {
+        // Use a dialog to display a message, that should be escaped.
+        var dialog = document.querySelector('dialog.popup-message');
+        if (!dialog) {
+            dialog = `
+<dialog class="popup popup-dialog dialog-message popup-message" data-is-dynamic="1">
+    <div class="dialog-background">
+        <div class="dialog-panel">
+            <div class="dialog-header">
+                <button type="button" class="dialog-header-close-button" title="Close" autofocus="autofocus">
+                    <span class="dialog-close">🗙</span>
+                </button>
+            </div>
+            <div class="dialog-contents">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+</dialog>`;
+            $('body').append(dialog);
+            dialog = document.querySelector('dialog.dialog-message');
+        }
+        if (nl2br) {
+            message = message.replace(/(?:\r\n|\r|\n)/g, '<br/>');
+        }
+        dialog.innerHTML = dialog.innerHTML.replace('{{ message }}', message);
+        dialog.showModal();
+        $(dialog).trigger('o:dialog-opened');
+    };
+
+    /**
+     * Manage ajax fail.
+     *
+     * @param {Object} xhr
+     * @param {string} textStatus
+     * @param {string} errorThrown
+     */
+    const handleAjaxFail = function(xhr, textStatus, errorThrown) {
+        const data = xhr.responseJSON;
+        if (data && data.status === 'fail') {
+            let msg = jSendMessage(data);
+            dialogMessage(msg ? msg : 'Check input', true);
+        } else {
+            // Error is a server error (in particular cannot send mail).
+            let msg = data && data.status === 'error' && data.message && data.message.length ? data.message : 'An error occurred.';
+            dialogMessage(msg, true);
+        }
+    };
 
     var contributionInfo = function() {
         return `
@@ -179,6 +281,49 @@ $(document).ready(function() {
             }
         })
         .fail(alertFail)
+        .always(function () {
+            button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
+        });
+    });
+
+    // Display the dialog to send a message.
+    $('#content').on('click', '.contribution a.send-message', function(e) {
+        var url = $(this).data('url');
+        const dialog = document.querySelector('dialog.dialog-send-message');
+        $(dialog).find('form').prop('action', url);
+        dialog.showModal();
+        $(dialog).trigger('o:dialog-opened');
+    });
+
+    // Send a message via ajax.
+    $('#content').on('click', '#send-message-form [name=submit]', function(e) {
+        e.preventDefault();
+
+        const dialog = this.closest('dialog.popup');
+        const button = $(this);
+        const form = button.closest('form');
+        const url = form.prop('action');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: form.serialize(),
+            beforeSend: function() {
+                button.removeClass('o-icon-' + status).addClass('fas fa-sync fa-spin');
+            }
+        })
+        .done(function(data, textStatus, xhr) {
+            if (!data.status || data.status !== 'success') {
+                handleAjaxFail(xhr, textStatus);
+            } else {
+                dialog.close();
+                if (data.data && data.data.message) {
+                    dialogMessage(data.data.message);
+                }
+                // TODO Dynamically update status view after message sent.
+                // location.reload();
+            }
+        })
+        .fail(handleAjaxFail)
         .always(function () {
             button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
         });
@@ -331,6 +476,18 @@ $(document).ready(function() {
                 Omeka.closeSidebar(sidebar);
             }
         });
+    });
+
+    $(document).on('click', '.dialog-header-close-button', function(e) {
+        const dialog = this.closest('dialog.popup');
+        if (dialog) {
+            dialog.close();
+            if (dialog.hasAttribute('data-is-dynamic') && dialog.getAttribute('data-is-dynamic')) {
+                dialog.remove();
+            }
+        } else {
+            $(this).closest('.popup').addClass('hidden').hide();
+        }
     });
 
 });

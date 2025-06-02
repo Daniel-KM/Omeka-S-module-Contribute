@@ -3,6 +3,7 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Contribute\Api\Representation\ContributionRepresentation[] $contributions
  * @var \Contribute\Api\Representation\ContributionRepresentation[] $resources
+ * @var \Contribute\Form\SendMessageForm $formSendMessage
  * @var \Contribute\Form\QuickSearchForm $formSearch
  * @var \Omeka\Form\ConfirmForm $formDeleteSelected
  * @var \Omeka\Form\ConfirmForm $formDeleteAll
@@ -105,7 +106,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                 $ownerText = $contribution->email() ?: $translate('[no owner]');
             }
             ?>
-            <tr class="contribution">
+            <tr class="contribution" data-contribution-id="<?= $contribution->id() ?>">
                 <td>
                     <?php if (false && $contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
                     <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
@@ -132,6 +133,14 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                             </span>
                         </li>
                         <?php endif; ?>
+                        <li>
+                            <span class="single actions"><a href="#"
+                                data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'send-message', 'id' => $contribution->id()], true)) ?>"
+                                class="send-message o-icon- fa-envelope"
+                                aria-label="<?= $escape($translate('Send a message to the author')) ?>"
+                                title="<?= $escape($translate('Send a message to the author')) ?>"></a>
+                            </span>
+                        </li>
                         <?php if ($contributionResource): ?>
                         <li>
                             <?= $contribution->linkResource('', 'show', [
@@ -278,3 +287,6 @@ $('#sidebar-delete-all').on('click', 'input[name="confirm-delete-all-check"]', f
         </div>
     </div>
 </div>
+
+<?php $this->vars()->offsetSet('form', $formSendMessage); ?>
+<?= $this->partial('common/dialog/contribution-send-message') ?>

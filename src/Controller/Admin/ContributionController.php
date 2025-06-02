@@ -2,12 +2,16 @@
 
 namespace Contribute\Controller\Admin;
 
+use Common\Mvc\Controller\Plugin\JSend;
 use Common\Stdlib\PsrMessage;
 use Contribute\Controller\ContributionTrait;
+use Contribute\Form\SendMessageForm;
 use Contribute\Form\QuickSearchForm;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManager;
+use Laminas\Http\PhpEnvironment\RemoteAddress;
+use Laminas\Http\Response as HttpResponse;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
@@ -23,14 +27,46 @@ class ContributionController extends AbstractActionController
      */
     protected $entityManager;
 
-    public function __construct(EntityManager $entityManager)
+    /**
+     * @var array
+     */
+    protected $defaultMessages;
+
+    public function __construct(EntityManager $entityManager, array $defaultMessages)
     {
         $this->entityManager = $entityManager;
+        $this->defaultMessages = $defaultMessages;
     }
 
     public function browseAction()
     {
         $params = $this->params()->fromQuery();
+
+        $this->setBrowseDefaults('created', 'desc');
+        if (!isset($params['sort_by'])) {
+            $params['sort_by'] = 'created';
+            $params['sort_order'] = 'desc';
+        }
+
+        $this->browse()->setDefaults('contributions');
+
+        $response = $this->api()->search('contributions', $params);
+        $this->paginator($response->getTotalResults());
+
+        $subject = $this->settings()->get('contribute_author_message_subject')
+            ?: $this->translate($this->defaultMessages['contribute_author_message_subject']);
+        $body = $this->settings()->get('contribute_author_message_body')
+            ?: $this->translate($this->defaultMessages['contribute_author_message_body']);
+        $subject = $this->fillMessage($subject);
+        $body = $this->fillMessage($body);
+
+        /** @var \Contribute\Form\SendMessageForm $formSendMessage */
+        $formSendMessage = $this->getForm(SendMessageForm::class);
+        $formSendMessage
+            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'send-message'], true))
+            ->setAttribute('id', 'send-message-form')
+            ->setSubject($subject)
+            ->setBody($body);
 
         $formSearch = $this->getForm(QuickSearchForm::class);
         $formSearch
@@ -72,17 +108,6 @@ class ContributionController extends AbstractActionController
         // Don't check validity: this is a search form.
         $formSearch->setData($data);
 
-        $this->setBrowseDefaults('created', 'desc');
-        if (!isset($params['sort_by'])) {
-            $params['sort_by'] = 'created';
-            $params['sort_order'] = 'desc';
-        }
-
-        $this->browse()->setDefaults('contributions');
-
-        $response = $this->api()->search('contributions', $params);
-        $this->paginator($response->getTotalResults());
-
         /** @var \Omeka\Form\ConfirmForm $formDeleteSelected */
         $formDeleteSelected = $this->getForm(ConfirmForm::class);
         $formDeleteSelected
@@ -104,6 +129,7 @@ class ContributionController extends AbstractActionController
         return new ViewModel([
             'contributions' => $contributions,
             'resources' => $contributions,
+            'formSendMessage' => $formSendMessage,
             'formSearch' => $formSearch,
             'formDeleteSelected' => $formDeleteSelected,
             'formDeleteAll' => $formDeleteAll,
@@ -596,6 +622,129 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    public function sendMessageAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Method not allowed.' // @translate
+            ), HttpResponse::STATUS_CODE_405);
+        }
+
+        $id = $this->params('id');
+
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        try {
+            $contribution = $this->api()->read('contributions', $id)->getContent();
+        } catch (\Exception $e) {
+            return $this->jSend(JSend::FAIL, null, $this->translate('Resource not found.' // @translate
+            ), HttpResponse::STATUS_CODE_404);
+        }
+
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->identity();
+        if (!$user) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Unauthorized access.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        $updateContribution = (bool) $this->params()->fromPost('reject', false);
+        if ($updateContribution && !$contribution->userIsAllowed('update')) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'The user has no right to update the contribution.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        if ($updateContribution && $contribution->resource()) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'The contribution is already validated and status cannot be changed.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        // No check for validity, since this is a message in admin.
+        // Furthermore, the csrf is not updated for each post and may be false.
+        // Anyway, this is just pure text sent by admin.
+
+        // TODO Fill message sent?
+
+        $body = (string) $this->params()->fromPost('body');
+        $body = trim((string) $body);
+
+        if (!strlen($body)) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Empty message.' // @translate
+            ));
+        }
+
+        if (mb_strlen($body) > 10000) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Too long message.' // @translate
+            ));
+        }
+
+        $subject = $this->params()->fromPost('subject');
+        $subject = trim((string) $subject);
+        if (!strlen($subject)) {
+            $subject = $this->settings()->get('contribute_author_message_subject')
+                ?: $this->translate($this->defaultMessages['contribute_author_message_subject']);
+            $subject = $this->fillMessage($subject);
+        }
+
+        if (mb_strlen($body) > 1000) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Too long subject.' // @translate
+            ));
+        }
+
+        $owner = $contribution->owner();
+        $toEmail = $contribution->email() ?: ($owner ? $owner->email() : null);
+        if (!$toEmail) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'No email defined for this contribution.' // @translate
+            ));
+        }
+
+        $to = [$toEmail => $owner ? $owner->name() : ''];
+
+        $bcc = $this->params()->fromPost('bcc', false)
+            ? [$user->getEmail() => $user->getName()]
+            : null;
+
+        $replyTo = $this->params()->fromPost('reply_to', false)
+            ? [$user->getEmail() => $user->getName()]
+            : null;
+
+        /** @see \Common\Mvc\Controller\Plugin\SendEmail */
+        $result = $this->sendEmail($body, $subject, $to, null, null, $bcc, $replyTo);
+        if (!$result) {
+            return $this->jSend(JSend::ERROR, null, $this->translate(
+                'Sorry, the message cannot be sent. Contact the administrator.' // @translate
+            ));
+        }
+
+        if ($updateContribution) {
+            $data = [];
+            $data['o-module-contribute:submitted'] = true;
+            $data['o-module-contribute:reviewed'] = true;
+            $response = $this->api()
+                ->update('contributions', $id, $data, [], ['isPartial' => true]);
+            // Normally, there is never an issue here.
+            if (!$response) {
+                return $this->jSend(JSend::ERROR, null, $this->translate(
+                    'An internal error occurred.' // @translate
+                ));
+            }
+        }
+
+        $message = new PsrMessage(
+            'Message successfully sent to {email}.', // @translate
+            ['email' => $toEmail]
+        );
+        return $this->jSend(JSend::SUCCESS, [
+            'contribution' => $contribution,
+        ], $message->setTranslator($this->translator()));
+    }
+
     public function validateAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
@@ -714,5 +863,33 @@ class ContributionController extends AbstractActionController
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Fill a message with placeholders (moustache style).
+     */
+    protected function fillMessage(?string $message, array $placeholders = []): string
+    {
+        if (empty($message)) {
+            return (string) $message;
+        }
+
+        $plugins = $this->getPluginManager();
+        $url = $plugins->get('url');
+        $settings = $plugins->get('settings')();
+        // $site = $this->currentSite();
+
+        $replace = $placeholders;
+
+        $defaultPlaceholders = [
+            '{ip}' => (new RemoteAddress())->getIpAddress(),
+            '{main_title}' => $settings->get('installation_title', 'Omeka S'),
+            '{main_url}' => $url->fromRoute('top', [], ['force_canonical' => true]),
+            // '{site_title}' => $site->title(),
+            // '{site_url}' => $site->siteUrl(null, true),
+        ];
+        $replace += $defaultPlaceholders;
+
+        return strtr($message, $replace);
     }
 }

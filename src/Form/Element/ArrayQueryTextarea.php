@@ -4,6 +4,10 @@ namespace Contribute\Form\Element;
 
 use Omeka\Form\Element\ArrayTextarea;
 
+/**
+ * @deprecated Use Common.
+ * @see \Common\Form\Element\ArrayQueriesTextarea
+ */
 class ArrayQueryTextarea extends ArrayTextarea
 {
     public function setValue($value)

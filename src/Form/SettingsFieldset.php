@@ -262,7 +262,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'type' => Element\Text::class,
                 'options' => [
                     'element_group' => 'contribution',
-                    'label' => 'Subject of the confirmation email to the author', // @translate
+                    'label' => 'Subject of the email of confirmation to the author', // @translate
                     'info' => 'May be overridden by a specific subject set in the resource template', // @translate
                 ],
                 'attributes' => [
@@ -274,7 +274,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'type' => Element\Textarea::class,
                 'options' => [
                     'element_group' => 'contribution',
-                    'label' => 'Confirmation message to the author', // @translate
+                    'label' => 'Message of confirmation to the author', // @translate
                     'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
                 ],
                 'attributes' => [
@@ -288,7 +288,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'type' => Element\Text::class,
                 'options' => [
                     'element_group' => 'contribution',
-                    'label' => 'Subject of the confirmation email to the reviewers', // @translate
+                    'label' => 'Subject of the email of confirmation to the reviewers', // @translate
                     'info' => 'May be overridden by a specific subject set in the resource template', // @translate
                 ],
                 'attributes' => [
@@ -300,7 +300,7 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                 'type' => Element\Textarea::class,
                 'options' => [
                     'element_group' => 'contribution',
-                    'label' => 'Confirmation message to the reviewers', // @translate
+                    'label' => 'Message of confirmation to the reviewers', // @translate
                     'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
                 ],
                 'attributes' => [
@@ -308,6 +308,32 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
                     'rows' => 5,
                 ],
             ])
+
+            ->add([
+                'name' => 'contribute_author_message_subject',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Subject of the default email to the author', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_message_subject',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_author_message_body',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Default message to the author', // @translate
+                    'info' => 'Placeholders: {main_title}, {main_url}.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_author_message_body',
+                    'rows' => 5,
+                ],
+            ])
+
         ;
     }
 }

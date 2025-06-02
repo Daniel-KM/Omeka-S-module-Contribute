@@ -51,6 +51,7 @@ return [
         'invokables' => [
             Form\Element\ArrayQueryTextarea::class => Form\Element\ArrayQueryTextarea::class,
             Form\ContributeForm::class => Form\ContributeForm::class,
+            Form\SendMessageForm::class => Form\SendMessageForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
         'factories' => [
@@ -293,6 +294,18 @@ return [
             'contribute_author_confirmation_body' => '',
             'contribute_reviewer_confirmation_subject' => '',
             'contribute_reviewer_confirmation_body' => '',
+            'contribute_author_message_subject' => 'Your contribution on {main_title}', // @translate
+            'contribute_author_message_body' => <<<'MAIL'
+                Hello,
+                
+                Your contribution on {main_title} has been rejected.
+                
+                Follow the instructions to fill all required fields.
+                
+                Please contact us if you have any question.
+                
+                Sincerely,
+                MAIL,
         ],
     ],
 ];

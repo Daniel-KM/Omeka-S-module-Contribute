@@ -1156,7 +1156,7 @@ class ContributionController extends AbstractActionController
 
         // TODO Store and add ip.
 
-        return str_replace(array_keys($replace), array_values($replace), $message);
+        return strtr($message, $replace);
     }
 
     protected function filterEmails(?ContributionRepresentation $contribution = null): array
