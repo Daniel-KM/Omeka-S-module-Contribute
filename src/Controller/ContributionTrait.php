@@ -4,7 +4,6 @@ namespace Contribute\Controller;
 
 use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
-use Laminas\View\Model\JsonModel;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\ErrorStore;
 
@@ -194,34 +193,5 @@ trait ContributionTrait
             ->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
 
         return $contributionResource;
-    }
-
-    protected function jsonErrorUnauthorized($message = null, $errors = null): JsonModel
-    {
-        return $this->returnError($message ?? $this->translate('Unauthorized access.'), 'error', $errors); // @translate
-    }
-
-    protected function jsonErrorNotFound($message = null, $errors = null): JsonModel
-    {
-        return $this->returnError($message && $this->translate('Resource not found.'), 'error', $errors); // @translate
-    }
-
-    protected function jsonErrorUpdate($message = null, $errors = null): JsonModel
-    {
-        return $this->returnError($message ?? $this->translate('An internal error occurred.'), 'error', $errors); // @translate
-    }
-
-    protected function returnError($message, string $statusCode = 'error', $errors = null): JsonModel
-    {
-        $result = [
-            'status' => $statusCode,
-            'message' => is_object($message) ? $message->setTranslator($this->translator()) : $message,
-        ];
-        if (is_array($errors) && count($errors)) {
-            $result['data'] = $errors;
-        } elseif (is_object($errors) && $errors instanceof ErrorStore && $errors->hasErrors()) {
-            $result['data'] = $errors->getErrors();
-        }
-        return new JsonModel($result);
     }
 }

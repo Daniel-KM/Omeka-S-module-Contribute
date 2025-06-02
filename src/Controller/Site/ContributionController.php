@@ -863,7 +863,7 @@ class ContributionController extends AbstractActionController
             ->update('contributions', $resourceId, $data, [], ['isPartial' => true]);
         if (!$response) {
             $this->messenger()->addError('An error occurred: check your submission or ask an administrator.'); // @translate
-            return $this->jsonErrorUpdate();
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
         $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
