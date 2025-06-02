@@ -872,7 +872,8 @@ class ContributionController extends AbstractActionController
             ->notifyContribution($contribution, 'submit')
             ->confirmContribution($contribution, 'submit');
 
-        return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        $redirectUrl = $this->redirectUrl();
+        return $this->redirect()->toUrl($redirectUrl);
     }
 
     /**
@@ -902,6 +903,64 @@ class ContributionController extends AbstractActionController
             $nextQuery = '?next=' . rawurlencode($next);
         }
         return $this->redirect()->toUrl($contribution->siteUrl(null, false, $nextAction, $space === 'guest') . $nextQuery);
+    }
+
+    protected function redirectUrl(): string
+    {
+        $redirectUrl = $this->params()->fromQuery('redirect_url') ?: null;
+        if ($redirectUrl) {
+            return $redirectUrl;
+        }
+
+        /*
+        $session = Container::getDefaultManager()->getStorage();
+        $redirectUrl = $session->offsetGet('redirect_url');
+        if ($redirectUrl) {
+            return $redirectUrl;
+        }
+        */
+
+        return $this->redirectAfterSubmit()
+            ?: $this->url()->fromRoute('top');
+    }
+
+    /**
+     * Redirect to a page of the site according to settings.
+     *
+     * Adapted:
+     * @see \Contribute\Controller\Site\ContributionController::redirectAfterSubmit()
+     * @see \Guest\Controller\Site\AbstractGuestController::redirectToAdminOrSite()
+     * @see \Guest\Site\BlockLayout\TraitGuest::redirectToAdminOrSite()
+     * @see \SingleSignOn\Controller\SsoController::redirectToAdminOrSite()
+     */
+    protected function redirectAfterSubmit(): ?string
+    {
+        $redirect = $this->settings()->get('contribute_redirect_submit');
+        $user = $this->identity();
+        $hasGuest = class_exists('Guest\Module', false);
+        // Site slug may not be set for api.
+        $siteSlug = $this->params()->fromRoute('site-slug') ?: $this->viewHelpers()->get('defaultSite')('slug');
+        switch ($redirect) {
+            case 'home':
+                if ($this->userIsAllowed('Omeka\Controller\Admin\Index', 'index')) {
+                    return $this->url()->fromRoute('admin');
+                }
+            case 'site':
+                break;
+            case 'top':
+                return $this->url()->fromRoute('top');
+            case 'me' && $user && $hasGuest && $siteSlug:
+                return $this->url()->fromRoute('site/guest', ['site-slug' => $siteSlug]);
+            case 'contributions':
+            default:
+                if ($user && $hasGuest && $siteSlug) {
+                    return $this->url()->fromRoute('site/guest/contribution', ['site-slug' => $siteSlug, 'action' => 'browse']);
+                }
+                break;
+        }
+        return $siteSlug
+            ? $this->url()->fromRoute('site', ['site-slug' => $siteSlug])
+            : $this->url()->fromRoute('top');
     }
 
     /**

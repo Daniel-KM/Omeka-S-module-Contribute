@@ -245,6 +245,19 @@ info@example2.org resource_template_id[]=2&property[0][property]=dcterms:provena
             ])
 
             ->add([
+                'name' => 'contribute_redirect_submit',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Redirection after submission', // @translate
+                    'info' => 'Default is the page of contributions for guest users. Set "home" for home page (admin or public), "site" for the current site home, "top" for main public page, "me" for guest account, or any path starting with "/", including "/" itself for main home page.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_redirect_submit',
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_author_confirmation_subject',
                 'type' => Element\Text::class,
                 'options' => [

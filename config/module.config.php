@@ -287,6 +287,7 @@ return [
             'contribute_author_emails' => [],
             'contribute_message_add' => '',
             'contribute_message_edit' => '',
+            'contribute_redirect_submit' => '',
             'contribute_author_confirmations' => [],
             'contribute_author_confirmation_subject' => '',
             'contribute_author_confirmation_body' => '',
