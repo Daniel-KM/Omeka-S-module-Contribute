@@ -270,6 +270,7 @@ return [
             'contribute_mode' => 'user',
             'contribute_roles' => [],
             'contribute_email_regex' => '',
+            'contribute_filter_user_settings' => [],
             'contribute_templates' => [
                 // The id is set during install.
                 'Contribution',

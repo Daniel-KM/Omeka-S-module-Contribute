@@ -63,6 +63,37 @@ class CanContribute extends AbstractHelper
             case 'email_regex':
                 $pattern = (string) $setting('contribute_email_regex');
                 return $user && $pattern && preg_match($pattern, $user->getEmail());
+            case 'filter_user_settings':
+                // The check is cumulative, so there are early returns.
+                if (!$user) {
+                    return false;
+                }
+                $patterns = $setting('contribute_filter_user_settings');
+                $userSetting = $view->plugin('userSetting');
+                foreach ($patterns as $userSettingKey => $pattern) {
+                    $pattern = trim($pattern);
+                    if ($pattern === '') {
+                        return false;
+                    }
+                    $userSettingValue = $userSetting($userSettingKey);
+                    if (!is_scalar($userSettingValue)) {
+                        return false;
+                    }
+                    $userSettingValue = trim((string) $userSettingValue);
+                    if ($userSettingValue === '') {
+                        return false;
+                    }
+                    if (mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~') {
+                        if (!preg_match($pattern, $userSettingValue)) {
+                            return false;
+                        }
+                    } else {
+                        if ($userSettingValue !== $pattern) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
             case 'token':
                 return $skipRequireToken;
             case 'open':

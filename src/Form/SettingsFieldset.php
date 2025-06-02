@@ -32,6 +32,7 @@ class SettingsFieldset extends Fieldset
                         'auth_ldap' => 'Authenticated users from ldap', // @translate
                         'auth_sso' => 'Authenticated users from sso', // @translate
                         'email_regex' => 'Authenticated users with an email matching regex below', // @translate
+                        'filter_user_settings' => 'Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On', // @translate
                         'user' => 'Authenticated users', // @translate
                         'role' => 'Roles', // @translate
                         'token' => 'With token', // @translate
@@ -73,6 +74,26 @@ class SettingsFieldset extends Fieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_email_regex',
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_filter_user_settings',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Filters on settings of users allowed to contribute (option above)', // @translate
+                    'info' => 'The filters may be a raw string or a regex wrapped with "~". They are cumulative: all filters should be true.', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'contribute_filter_user_settings',
+                    'placeholder' => <<<'TXT'
+                        connection_idp = https://idp.example.org/idp/shibboleth
+                        singlesignon_person_affiliation = student
+                        singlesignon_entite_affectation = ~^(RAN|PUR|MMP|DEN|PHA)$~
+                        TXT,
+                    'rows' => '3',
                 ],
             ])
 
