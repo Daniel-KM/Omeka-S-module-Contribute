@@ -13,9 +13,12 @@ Access to the contribute and to the edit page may be controlled by a token, that
 you can send to your users, or to users only (in particular guest users), or to
 anybody.
 
-The two main differences with module [Collecting] is the fact that this module
-uses standard resource templates, so you don't need to create specific forms,
-and the possibility to complete or to revise an existing document.
+The three main differences with module [Collecting] is, first, the fact that
+this module uses standard resource templates, so you don't need to create
+specific forms, second, the possibility to complete or to revise an existing
+document, for example to ask visitor to fix spelling mistakes or to identify
+subjects, third, to define precise rights on who can contribute or not, via
+role, authentication, settings, etc.
 
 
 Installation
