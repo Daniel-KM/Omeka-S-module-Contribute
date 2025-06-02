@@ -195,7 +195,7 @@ class Contribution extends AbstractEntity
         return $this;
     }
 
-    public function getResource(): ?\Omeka\Entity\Resource
+    public function getResource(): ?Resource
     {
         return $this->resource;
     }

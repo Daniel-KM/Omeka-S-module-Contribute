@@ -148,11 +148,11 @@ class ContributionAdapter extends AbstractEntityAdapter
             $ids = array_filter($ids);
             if ($ids) {
                 // Not available in orm, but via direct dbal sql.
-                $sql = <<<SQL
-SELECT `id`
-FROM `contribution`
-WHERE JSON_EXTRACT(`proposal`, "$.template") IN (:templates);
-SQL;
+                $sql = <<<'SQL'
+                    SELECT `id`
+                    FROM `contribution`
+                    WHERE JSON_EXTRACT(`proposal`, "$.template") IN (:templates);
+                    SQL;
                 /** @var \Doctrine\DBAL\Connection $connection */
                 $connection = $this->getServiceLocator()->get('Omeka\Connection');
                 $contributionIds = $connection->executeQuery($sql, ['templates' => $ids], ['templates' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY])->fetchFirstColumn();
@@ -190,10 +190,10 @@ SQL;
                     $text = $propertyData['text'] ?? null;
                     // Not available in orm, but via direct dbal sql.
                     $sql = <<<SQL
-SELECT `id`
-FROM `contribution`
-WHERE JSON_EXTRACT(`proposal`, "$.{$property}[*].proposed.{$keyType}") IN (:values);
-SQL;
+                        SELECT `id`
+                        FROM `contribution`
+                        WHERE JSON_EXTRACT(`proposal`, "$.{$property}[*].proposed.{$keyType}") IN (:values);
+                        SQL;
                     /** @var \Doctrine\DBAL\Connection $connection */
                     $text = is_array($text) ? array_values($text) : [$text];
                     foreach ($text as &$t) {
@@ -402,6 +402,7 @@ SQL;
      *
      * @see \Annotate\Api\Adapter\QueryDateTimeTrait::searchDateTime()
      * @see \Contribute\Api\Adapter\ContributionAdapter::buildQueryDateComparison()
+     * @see \Generate\Api\Adapter\GeneratedResourceAdapter::buildQueryDateComparison()
      * @see \Log\Api\Adapter\LogAdapter::buildQueryDateComparison()
      *
      * @todo Normalize with NumericDataTypes.

@@ -1,14 +1,14 @@
 @media all {
     header nav .contribution:before {
-        content:"\f044"; /* fas fa-edit */
+        content: "\f044"; /* fas fa-edit */
     }
     .contributions .no-resources:before,
     #contribution .no-contributions:before,
     .contribution .no-resources:before {
-        content:"\f044"; /* far fa-edit */
+        content: "\f044"; /* far fa-edit */
     }
     #contribution .no-tokens:before {
-        content:""; /* clock */
+        content: ""; /* clock */
     }
     #contributions .property {
         display: inherit;
@@ -18,17 +18,17 @@
     }
     #resource-contributions.empty,
     #resource-contributions+.no-resources {
-        display:none;
+        display: none;
     }
     #resource-contributions.empty+.no-resources {
-        display:block;
-        padding:0 24px;
+        display: block;
+        padding: 0 24px;
     }
     #resource-contributions.empty+.no-resources:before {
-        content:"\f044"; /* far fa-edit */
+        content: "\f044"; /* far fa-edit */
     }
     #resource-contributions tr.delete {
-        background-color:#fcc;
+        background-color: #fcc;
     }
     .contributions .resource-details .contribution-internal-id {
         font-size: 0.7em;
@@ -281,6 +281,7 @@
         top: initial;
     }
     .contributions.browse .sidebar .meta-group.contribution {
+        flex-direction: column;
         justify-content: normal;
     }
     .contributions.browse .sidebar .meta-group.contribution .contribution {
@@ -304,10 +305,10 @@
 
 @media screen and (max-width: 640px) {
     fieldset.section>#resource-contributions.empty+.no-resources {
-        display:none;
+        display: none;
     }
     fieldset.section.mobile-active>#resource-contributions.empty+.no-resources {
-        display:block;
-        margin-top:48px;
+        display: block;
+        margin-top: 48px;
     }
 }

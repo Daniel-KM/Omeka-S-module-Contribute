@@ -47,7 +47,7 @@ class QuickSearchForm extends Form
                 'name' => 'fulltext_search',
                 'type' => Element\Search::class,
                 'options' => [
-                    'label' => 'Texte', // @translate
+                    'label' => 'Text', // @translate
                 ],
                 'attributes' => [
                     'id' => 'fulltext_search',

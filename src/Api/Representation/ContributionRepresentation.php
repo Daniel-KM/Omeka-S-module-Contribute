@@ -1344,6 +1344,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * @see \Contribute\Controller\ContributionTrait::customVocabUriLabels()
      * @see \Contribute\Api\Representation\ContributionRepresentation::customVocabUriLabels()
+     *
+     * @todo Use EasyMeta or CustomVocab directly.
      */
     protected function customVocabUriLabels(string $dataType): array
     {

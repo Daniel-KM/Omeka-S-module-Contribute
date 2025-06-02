@@ -11,20 +11,28 @@ use Omeka\Module\Exception\ModuleCannotInstallException;
  * @var string $newVersion
  * @var string $oldVersion
  *
- * @var \Doctrine\DBAL\Connection $connection
- * @var \Doctrine\ORM\EntityManager $entityManager
  * @var \Omeka\Api\Manager $api
- * @var \Common\Stdlib\EasyMeta $easyMeta
+ * @var \Omeka\View\Helper\Url $url
+ * @var \Laminas\Log\Logger $logger
+ * @var \Omeka\Settings\Settings $settings
+ * @var \Laminas\I18n\View\Helper\Translate $translate
+ * @var \Doctrine\DBAL\Connection $connection
+ * @var \Laminas\Mvc\I18n\Translator $translator
+ * @var \Doctrine\ORM\EntityManager $entityManager
+ * @var \Omeka\Settings\SiteSettings $siteSettings
  * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
 $plugins = $services->get('ControllerPluginManager');
+$url = $plugins->get('url');
 $api = $plugins->get('api');
-// $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
+$logger = $services->get('Omeka\Logger');
 $settings = $services->get('Omeka\Settings');
-$easyMeta = $services->get('Common\EasyMeta');
+$translate = $plugins->get('translate');
+$translator = $services->get('MvcTranslator');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
-// $entityManager = $services->get('Omeka\EntityManager');
+$siteSettings = $services->get('Omeka\Settings\Site');
+$entityManager = $services->get('Omeka\EntityManager');
 
 if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.69')) {
     $message = new \Omeka\Stdlib\Message(
@@ -35,7 +43,7 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
 }
 
 if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.36')) {
-    $message = new Message(
+    $message = new PsrMessage(
         'The module {module} should be upgraded to version {version} or later.', // @translate
         ['module' => 'AdvancedResourceTemplate', 'version' => '3.4.36']
     );
@@ -109,6 +117,8 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
         }
     }
 
+    /** @var \Common\Stdlib\EasyMeta $easyMeta */
+    $easyMeta = $services->get('Common\EasyMeta');
     $propertyTerms = $easyMeta->propertyTerms();
     foreach ($byTemplate as $templateId => $data) {
         try {

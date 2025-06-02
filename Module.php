@@ -2,7 +2,7 @@
 
 namespace Contribute;
 
-if (!class_exists(\Common\TraitModule::class)) {
+if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
@@ -101,7 +101,7 @@ class Module extends AbstractModule
         $templateItemIds = array_filter($templateIds);
         $settings->set('contribute_templates', array_values($templateItemIds));
 
-        // Set the tempalte Contribution File the template for media in main
+        // Set the template Contribution File the template for media in main
         // template Contribution.
         $templateFile = $templateFileIds['Contribution File'] ?? null;
         $templateItem = $templateItemIds['Contribution'] ?? null;
@@ -297,6 +297,7 @@ class Module extends AbstractModule
         );
 
         // Process validation only with api create/update, after all processes.
+        // The validation must not hydrate the resource.
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ItemAdapter::class,
             'api.hydrate.post',
@@ -354,7 +355,8 @@ class Module extends AbstractModule
                 'view.show.sidebar',
                 [$this, 'adminViewShowSidebar']
             );
-            // Add a tab to the resource show admin pages.
+            // Add a tab to the resource show admin pages to manage
+            // contributions.
             $sharedEventManager->attach(
                 $controller,
                 // There is no "view.show.before".
@@ -426,6 +428,12 @@ class Module extends AbstractModule
 
     /**
      * Add an error during hydration to avoid to save a resource to validate.
+     *
+     * Context: When a contribution is converted into an item, it should be
+     * checked first. Some checks are done via events in api and hydration.
+     * So the process requires options "isContribution" and"validateOnly"
+     * At the end, an error is added to the error store to avoid to save the
+     * resource.
      */
     public function handleValidateContribution(Event $event): void
     {
@@ -437,16 +445,19 @@ class Module extends AbstractModule
         ) {
             return;
         }
+
         $entity = $event->getParam('entity');
         if (!$entity instanceof \Omeka\Entity\Resource) {
             return;
         }
+
         // Don't add an error if there is already one.
         /** @var \Omeka\Stdlib\ErrorStore $errorStore */
         $errorStore = $event->getParam('errorStore');
         if ($errorStore->hasErrors()) {
             return;
         }
+
         // The validation of the entity in the adapter is processed after event,
         // so trigger it here with a new error store.
         $validateErrorStore = new \Omeka\Stdlib\ErrorStore;
@@ -455,6 +466,7 @@ class Module extends AbstractModule
         if ($validateErrorStore->hasErrors()) {
             return;
         }
+
         $errorStore->addError('validateOnly', 'No error');
     }
 
@@ -626,7 +638,7 @@ class Module extends AbstractModule
                 'limit' => 0,
             ])
             ->getTotalResults();
-        $contributions = $translate('Contributions'); // @translat
+        $heading = $translate('Contributions'); // @translat
         $message = $total
             ? new PsrMessage(
                 '{total} contributions ({count} not reviewed)', // @translate
@@ -636,7 +648,7 @@ class Module extends AbstractModule
         $message->setTranslator($translator);
         echo <<<HTML
             <div class="meta-group">
-                <h4>$contributions</h4>
+                <h4>$heading</h4>
                 <div class="value">
                     $message
                 </div>
