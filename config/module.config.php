@@ -65,6 +65,7 @@ return [
     ],
     'navigation_links' => [
         'invokables' => [
+            'contribute' => Site\Navigation\Link\Contribute::class,
             'contributions' => Site\Navigation\Link\Contributions::class,
         ],
     ],
