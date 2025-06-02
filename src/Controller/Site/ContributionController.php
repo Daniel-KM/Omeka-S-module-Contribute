@@ -1253,12 +1253,14 @@ class ContributionController extends AbstractActionController
         if ($resource) {
             $resourceTemplate = $resource->resourceTemplate();
         } elseif (isset($proposal['template'])) {
-            $resourceTemplate = $proposal['template'] ?? null;
-            $resourceTemplate = $this->api()->searchOne('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
-        } else {
-            $resourceTemplate = null;
+            $resourceTemplate = $proposal['template'];
+            try {
+                $resourceTemplate = $this->api()->read('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
+            } catch (\Exception $e) {
+                return null;
+            }
         }
-        if (!$resourceTemplate) {
+        if (!isset($resourceTemplate)) {
             return null;
         }
 
@@ -1694,9 +1696,11 @@ class ContributionController extends AbstractActionController
             $customVocabId = (int) substr($dataType, 12);
             if ($customVocabId) {
                 /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
-                $customVocab = $this->api()->searchOne('custom_vocabs', ['id' => $customVocabId])->getContent();
-                if ($customVocab) {
+                try {
+                    $customVocab = $this->api()->read('custom_vocabs', ['id' => $customVocabId])->getContent();
                     $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
+                } catch (\Exception $e) {
+                    // Skip.
                 }
             }
         }

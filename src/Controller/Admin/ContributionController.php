@@ -522,8 +522,9 @@ class ContributionController extends AbstractActionController
                 return $this->jsonErrorNotFound();
             }
             /** @var \Contribute\Api\Representation\TokenRepresentation $token */
-            $token = $this->api()->searchOne('contribution_tokens', ['token' => $token])->getContent();
-            if (!$token) {
+            try {
+                $token = $this->api()->read('contribution_tokens', ['token' => $token])->getContent();
+            } catch (\Exception $e) {
                 return $this->jsonErrorNotFound();
             }
         } else {

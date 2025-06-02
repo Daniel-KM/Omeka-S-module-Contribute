@@ -1349,11 +1349,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             $uriLabels[$dataType] = [];
             $customVocabId = (int) substr($dataType, 12);
             if ($customVocabId) {
-                $api = $this->getServiceLocator()->get('ControllerPluginManager')->get('api');
-                /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
-                $customVocab = $api->searchOne('custom_vocabs', ['id' => $customVocabId])->getContent();
-                if ($customVocab) {
+                $api = $this->getServiceLocator()->get('Omeka\ApiManager');
+                try {
+                    /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
+                    $customVocab = $api->read('custom_vocabs', ['id' => $customVocabId])->getContent();
                     $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
+                } catch (\Exception $e) {
+                    // Skip.
                 }
             }
         }

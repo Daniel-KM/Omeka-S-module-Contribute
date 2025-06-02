@@ -112,8 +112,9 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
 
     $propertyTerms = $easyMeta->propertyTerms();
     foreach ($byTemplate as $templateId => $data) {
-        $template = $api->searchOne('resource_templates', ['id' => $templateId])->getContent();
-        if (!$template) {
+        try {
+            $template = $api->read('resource_templates', ['id' => $templateId])->getContent();
+        } catch (\Exception $e) {
             continue;
         }
         // Force full json serialization.
@@ -168,8 +169,14 @@ if (version_compare($oldVersion, '3.3.0.16', '<')) {
     $messenger->addWarning($message);
     $services->get('Omeka\Logger')->warn($message);
 
-    $templateId = $settings->get('contribute_template_default') ?: $api
-        ->searchOne('resource_templates', ['label' => 'Contribution'], ['returnScalar' => 'id'])->getContent();
+    $templateId = (int) $settings->get('contribute_template_default');
+    if (!$templateId) {
+        try {
+            $templateId = $api->read('resource_templates', ['label' => 'Contribution'])->getContent()->id();
+        } catch (\Exception $e) {
+            $templateId = null;
+        }
+    }
     $settings->set('contribute_templates', $templateId ? [$templateId] : []);
     $settings->delete('contribute_template_default');
 

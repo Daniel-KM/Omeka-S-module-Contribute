@@ -66,17 +66,24 @@ class Module extends AbstractModule
 
     protected function postInstall(): void
     {
+        /**
+         * @var \Omeka\Api\Manager $api
+         * @var \Omeka\Settings\Settings $settings
+         */
         $services = $this->getServiceLocator();
 
-        $api = $services->get('ControllerPluginManager')->get('api');
+        $api = $services->get('Omeka\ApiManager');
         $settings = $services->get('Omeka\Settings');
 
         // Store the ids of the resource templates for medias.
         $templateNames = $settings->get('contribute_templates_media', []);
         $templateIds = [];
         foreach ($templateNames as $templateName) {
-            $templateIds[$templateName] = $api
-                ->searchOne('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName], ['returnScalar' => 'id'])->getContent();
+            try {
+                $templateIds[$templateName] = $api->read('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName])->getContent()->id();
+            } catch (\Exception $e) {
+                // Skip.
+            }
         }
         $templateFileIds = array_filter($templateIds);
         $settings->set('contribute_templates_media', array_values($templateFileIds));
@@ -85,8 +92,11 @@ class Module extends AbstractModule
         $templateNames = $settings->get('contribute_templates', []);
         $templateIds = [];
         foreach ($templateNames as $templateName) {
-            $templateIds[$templateName] = $api
-                ->searchOne('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName], ['returnScalar' => 'id'])->getContent();
+            try {
+                $templateIds[$templateName] = $api->read('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName])->getContent()->id();
+            } catch (\Exception $e) {
+                // Skip.
+            }
         }
         $templateItemIds = array_filter($templateIds);
         $settings->set('contribute_templates', array_values($templateItemIds));
