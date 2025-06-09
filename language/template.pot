@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-02 00:00+0000\n"
+"POT-Creation-Date: 2025-06-09 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,24 +22,24 @@ msgstr ""
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr ""
 
-#: Module.php:494 view/contribute/admin/contribution/browse.phtml:50
+#: Module.php:515 view/contribute/admin/contribution/browse.phtml:50
 #: view/guest/site/guest/contribution-browse.phtml:41
 msgid "Contributions"
 msgstr ""
 
-#: Module.php:546
+#: Module.php:567
 msgid "Create contribution token"
 msgstr ""
 
-#: Module.php:550 view/common/contribution-link.phtml:20
+#: Module.php:571 view/common/contribution-link.phtml:20
 msgid "Contribute"
 msgstr ""
 
-#: Module.php:551
+#: Module.php:572
 msgid "Please input optional email…"
 msgstr ""
 
-#: Module.php:552
+#: Module.php:573
 msgid "Create token"
 msgstr ""
 
@@ -641,7 +641,7 @@ msgid ""
 "module Advanced Resource Template, are: {json}."
 msgstr ""
 
-#: data/scripts/upgrade.php:207 Module.php:68 Module.php:792
+#: data/scripts/upgrade.php:207 Module.php:68 Module.php:812
 msgid "The directory \"{directory}\" is not writeable."
 msgstr ""
 
@@ -725,56 +725,60 @@ msgstr ""
 msgid "New navigation links are available to add resources and to list them."
 msgstr ""
 
-#: Module.php:652
+#: data/scripts/upgrade.php:406
+msgid "It’s now possible to define multiple emails to check."
+msgstr ""
+
+#: Module.php:673
 msgid "{total} contributions ({count} not reviewed)"
 msgstr ""
 
-#: Module.php:655
+#: Module.php:676
 msgid "No contribution"
 msgstr ""
 
-#: Module.php:681
+#: Module.php:701
 msgid "Media templates for contribution"
 msgstr ""
 
-#: Module.php:682
+#: Module.php:702
 msgid ""
 "If any, the templates should be in the list of allowed templates for "
 "contribution of a media. Warning: to use multiple media is supported only "
 "with specific themes for now."
 msgstr ""
 
-#: Module.php:690
+#: Module.php:710
 msgid "Select resource templates for media…"
 msgstr ""
 
-#: Module.php:698
+#: Module.php:718
 msgid "Specific confirmation subject to the contributor"
 msgstr ""
 
-#: Module.php:709
+#: Module.php:729
 msgid "Specific confirmation message to the contributor"
 msgstr ""
 
-#: Module.php:710 Module.php:735 src/Form/SettingsFieldset.php:306
-#: src/Form/SettingsFieldset.php:332
+#: Module.php:730 Module.php:755 src/Form/SettingsFieldset.php:312
+#: src/Form/SettingsFieldset.php:338
 msgid ""
 "Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
 msgstr ""
 
-#: Module.php:723
+#: Module.php:743
 msgid "Specific confirmation subject to the reviewer"
 msgstr ""
 
-#: Module.php:734
+#: Module.php:754
 msgid "Specific confirmation message to the reviewer"
 msgstr ""
 
-#: Module.php:754
+#: Module.php:774
 msgid "Contribute: Editable by contributor"
 msgstr ""
 
-#: Module.php:766
+#: Module.php:786
 msgid "Contribute: Fillable by contributor"
 msgstr ""
 
@@ -854,7 +858,7 @@ msgid "Roles"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:38
-msgid "Authenticated users with an email matching regex below"
+msgid "Authenticated users with defined emails below"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:39
@@ -872,113 +876,119 @@ msgid "Select roles…"
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:72
-msgid "Regex on email of users allowed to contribute (option above)"
+msgid "Filter on emails of users allowed to contribute (option above)"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:84
+#: src/Form/SettingsFieldset.php:73
+msgid ""
+"The filters may be a raw email or a regex wrapped with \"~\". They are "
+"independant: a single rule should be true to allow contribution."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:90
 msgid "Filters on settings of users allowed to contribute (option above)"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:85
+#: src/Form/SettingsFieldset.php:91
 msgid ""
 "The filters may be a raw string or a regex wrapped with \"~\". They are "
 "cumulative: all filters should be true."
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:104
+#: src/Form/SettingsFieldset.php:110
 msgid "Resource templates allowed for contribution"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:112 src/Form/SettingsFieldset.php:129
+#: src/Form/SettingsFieldset.php:118 src/Form/SettingsFieldset.php:135
 msgid "Select resources templates…"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:121
+#: src/Form/SettingsFieldset.php:127
 msgid "Resource templates allowed for media (linked contribution)"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:138
+#: src/Form/SettingsFieldset.php:144
 msgid "Days for token to expire"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:139
+#: src/Form/SettingsFieldset.php:145
 msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:145
+#: src/Form/SettingsFieldset.php:151
 msgid "90"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:156
+#: src/Form/SettingsFieldset.php:162
 msgid "No (directly submitted)"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:157
+#: src/Form/SettingsFieldset.php:163
 msgid "Until submission"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:158
+#: src/Form/SettingsFieldset.php:164
 msgid "Until validation"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:172
+#: src/Form/SettingsFieldset.php:178
 msgid "Email of the sender (else no-reply user or administrator)"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:173
+#: src/Form/SettingsFieldset.php:179
 msgid ""
 "The no-reply email can be set via module EasyAdmin. The administrator email "
 "can be set above."
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:185
+#: src/Form/SettingsFieldset.php:191
 msgid "Name of the sender when email above is set"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:198
+#: src/Form/SettingsFieldset.php:204
 msgid "Emails to notify contributions"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:199
+#: src/Form/SettingsFieldset.php:205
 msgid ""
 "A query can be appended to limit notifications to specific contributions."
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:217
+#: src/Form/SettingsFieldset.php:223
 msgid "Emails of the author"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:229
+#: src/Form/SettingsFieldset.php:235
 msgid "Select a property…"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:238
+#: src/Form/SettingsFieldset.php:244
 msgid "Confirmations to author"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:239
+#: src/Form/SettingsFieldset.php:245
 msgid "value_options"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:242
+#: src/Form/SettingsFieldset.php:248
 msgid "On submit"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:256
+#: src/Form/SettingsFieldset.php:262
 msgid "Message displayed when a contribution is added"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:268
+#: src/Form/SettingsFieldset.php:274
 msgid "Message displayed when a contribution is edited"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:280
+#: src/Form/SettingsFieldset.php:286
 msgid "Redirection after submission"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:281
+#: src/Form/SettingsFieldset.php:287
 msgid ""
 "Default is the page of contributions for guest users. Set \"home\" for home "
 "page (admin or public), \"site\" for the current site home, \"top\" for main "
@@ -986,35 +996,35 @@ msgid ""
 "including \"/\" itself for main home page."
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:293
+#: src/Form/SettingsFieldset.php:299
 msgid "Subject of the email of confirmation to the author"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:294 src/Form/SettingsFieldset.php:320
+#: src/Form/SettingsFieldset.php:300 src/Form/SettingsFieldset.php:326
 msgid "May be overridden by a specific subject set in the resource template"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:305
+#: src/Form/SettingsFieldset.php:311
 msgid "Message of confirmation to the author"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:319
+#: src/Form/SettingsFieldset.php:325
 msgid "Subject of the email of confirmation to the reviewers"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:331
+#: src/Form/SettingsFieldset.php:337
 msgid "Message of confirmation to the reviewers"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:345
+#: src/Form/SettingsFieldset.php:351
 msgid "Subject of the default email to the author"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:356
+#: src/Form/SettingsFieldset.php:362
 msgid "Default message to the author"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:357
+#: src/Form/SettingsFieldset.php:363
 msgid "Placeholders: {main_title}, {main_url}."
 msgstr ""
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-02 00:00+0000\n"
+"POT-Creation-Date: 2025-06-09 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
@@ -22,24 +22,24 @@ msgstr ""
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
 
-#: Module.php:494 view/contribute/admin/contribution/browse.phtml:50
+#: Module.php:515 view/contribute/admin/contribution/browse.phtml:50
 #: view/guest/site/guest/contribution-browse.phtml:41
 msgid "Contributions"
 msgstr "Contributions"
 
-#: Module.php:546
+#: Module.php:567
 msgid "Create contribution token"
 msgstr "Créer un jeton pour la contribution"
 
-#: Module.php:550 view/common/contribution-link.phtml:20
+#: Module.php:571 view/common/contribution-link.phtml:20
 msgid "Contribute"
 msgstr "Contribuer"
 
-#: Module.php:551
+#: Module.php:572
 msgid "Please input optional email…"
 msgstr "Ajouter un email si besoin…"
 
-#: Module.php:552
+#: Module.php:573
 msgid "Create token"
 msgstr "Créer un jeton"
 
@@ -664,7 +664,7 @@ msgstr ""
 "Pour information, les options supprimées à réutiliser dans le modèle, "
 "éventuellement avec le module Advanced Resource Template, sont : {json}"
 
-#: data/scripts/upgrade.php:207 Module.php:68 Module.php:792
+#: data/scripts/upgrade.php:207 Module.php:68 Module.php:812
 msgid "The directory \"{directory}\" is not writeable."
 msgstr "Le répertoire « {directory} » n’est pas accessible en écriture."
 
@@ -775,19 +775,23 @@ msgstr ""
 "De nouveaux liens de navigations sont disponibles pour ajouter une ressource "
 "ou les lister."
 
-#: Module.php:652
+#: data/scripts/upgrade.php:406
+msgid "It’s now possible to define multiple emails to check."
+msgstr "Il est désormais possible de définir plusieurs mails à vérifier."
+
+#: Module.php:673
 msgid "{total} contributions ({count} not reviewed)"
 msgstr "{total} contributions ({count} non relues)"
 
-#: Module.php:655
+#: Module.php:676
 msgid "No contribution"
 msgstr "Pas de contribution"
 
-#: Module.php:681
+#: Module.php:701
 msgid "Media templates for contribution"
 msgstr "Modèle de média pour la contribution"
 
-#: Module.php:682
+#: Module.php:702
 msgid ""
 "If any, the templates should be in the list of allowed templates for "
 "contribution of a media. Warning: to use multiple media is supported only "
@@ -797,39 +801,39 @@ msgstr ""
 "pour la contribution d’un média. Attention : utiliser plusieurs médias "
 "nécessite actuellement un thème spécifique."
 
-#: Module.php:690
+#: Module.php:710
 msgid "Select resource templates for media…"
 msgstr "Choisir un modèle de ressource pour les médias…"
 
-#: Module.php:698
+#: Module.php:718
 msgid "Specific confirmation subject to the contributor"
 msgstr "Sujet spécifique pour la confirmation au contributeur"
 
-#: Module.php:709
+#: Module.php:729
 msgid "Specific confirmation message to the contributor"
 msgstr "Message spécifique pour la confirmation au contributeur"
 
-#: Module.php:710 Module.php:735 src/Form/SettingsFieldset.php:306
-#: src/Form/SettingsFieldset.php:332
+#: Module.php:730 Module.php:755 src/Form/SettingsFieldset.php:312
+#: src/Form/SettingsFieldset.php:338
 msgid ""
 "Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
 msgstr ""
 "Jokers : entourer les propriétés avec des « {} », par exemple « {dcterms:"
 "title} »."
 
-#: Module.php:723
+#: Module.php:743
 msgid "Specific confirmation subject to the reviewer"
 msgstr "Sujet spécifique pour la confirmation au relecteur"
 
-#: Module.php:734
+#: Module.php:754
 msgid "Specific confirmation message to the reviewer"
 msgstr "Message spécifique pour la confirmation au relecteur"
 
-#: Module.php:754
+#: Module.php:774
 msgid "Contribute: Editable by contributor"
 msgstr "Contribute : Éditable par un contributeur"
 
-#: Module.php:766
+#: Module.php:786
 msgid "Contribute: Fillable by contributor"
 msgstr "Contribute : Remplissable par un contributeur"
 
@@ -919,9 +923,8 @@ msgid "Roles"
 msgstr "Rôles"
 
 #: src/Form/SettingsFieldset.php:38
-msgid "Authenticated users with an email matching regex below"
-msgstr ""
-"Utilisateurs authentifiés avec un mail correspondant au modèle ci-dessous"
+msgid "Authenticated users with defined emails below"
+msgstr "Utilisateurs authentifiés avec un mail défini ci-dessous"
 
 #: src/Form/SettingsFieldset.php:39
 msgid ""
@@ -929,7 +932,7 @@ msgid ""
 "Single Sign-On"
 msgstr ""
 "Utilisateurs filtrés selon leurs valeurs, en particulier les attributs IdP "
-"aligés via Single Sign-On"
+"alignés via Single Sign-On"
 
 #: src/Form/SettingsFieldset.php:55
 msgid "Roles allowed to contribute (option \"Roles\" above)"
@@ -940,17 +943,26 @@ msgid "Select roles…"
 msgstr "Choisir des rôles…"
 
 #: src/Form/SettingsFieldset.php:72
-msgid "Regex on email of users allowed to contribute (option above)"
+msgid "Filter on emails of users allowed to contribute (option above)"
 msgstr ""
-"Regex sur le mail des utilisateurs autorisés à contribuer (option ci-dessus)"
+"Filtres sur les mails des utilisateurs autorisés à contribuer (option ci-"
+"dessus)"
 
-#: src/Form/SettingsFieldset.php:84
+#: src/Form/SettingsFieldset.php:73
+msgid ""
+"The filters may be a raw email or a regex wrapped with \"~\". They are "
+"independant: a single rule should be true to allow contribution."
+msgstr ""
+"Les filtres peuvent être un mail ou une regex entourée de « ~ ». Ils sont "
+"indépendants : une règle doit être vraie pour autoriser les contributions."
+
+#: src/Form/SettingsFieldset.php:90
 msgid "Filters on settings of users allowed to contribute (option above)"
 msgstr ""
 "Filtres sur les paramètres des utilisateurs autorisés à contribuer (option "
 "ci-dessus)"
 
-#: src/Form/SettingsFieldset.php:85
+#: src/Form/SettingsFieldset.php:91
 msgid ""
 "The filters may be a raw string or a regex wrapped with \"~\". They are "
 "cumulative: all filters should be true."
@@ -958,23 +970,23 @@ msgstr ""
 "Les filtres peuvent être une chaîne ou une regex entourée de « ~ ». Ils sont "
 "cumulatifs : tous les filtres doivent être vrais."
 
-#: src/Form/SettingsFieldset.php:104
+#: src/Form/SettingsFieldset.php:110
 msgid "Resource templates allowed for contribution"
 msgstr "Modèles autorisés pour les contributions"
 
-#: src/Form/SettingsFieldset.php:112 src/Form/SettingsFieldset.php:129
+#: src/Form/SettingsFieldset.php:118 src/Form/SettingsFieldset.php:135
 msgid "Select resources templates…"
 msgstr "Choisir un modèle de ressource…"
 
-#: src/Form/SettingsFieldset.php:121
+#: src/Form/SettingsFieldset.php:127
 msgid "Resource templates allowed for media (linked contribution)"
 msgstr "Modèles autorisés pour les médias (contribution liée)"
 
-#: src/Form/SettingsFieldset.php:138
+#: src/Form/SettingsFieldset.php:144
 msgid "Days for token to expire"
 msgstr "Nombre de jours avant que le jeton n’expire"
 
-#: src/Form/SettingsFieldset.php:139
+#: src/Form/SettingsFieldset.php:145
 msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
@@ -982,28 +994,28 @@ msgstr ""
 "Permet de définir une durée avant expiration automatique du jeton. Laisser "
 "vide pour supprimer l’expiration."
 
-#: src/Form/SettingsFieldset.php:145
+#: src/Form/SettingsFieldset.php:151
 msgid "90"
 msgstr "90"
 
-#: src/Form/SettingsFieldset.php:156
+#: src/Form/SettingsFieldset.php:162
 msgid "No (directly submitted)"
 msgstr "Non (soumis directement)"
 
-#: src/Form/SettingsFieldset.php:157
+#: src/Form/SettingsFieldset.php:163
 msgid "Until submission"
 msgstr "Jusqu’à la soumission"
 
-#: src/Form/SettingsFieldset.php:158
+#: src/Form/SettingsFieldset.php:164
 msgid "Until validation"
 msgstr "Jusqu’à la validation"
 
-#: src/Form/SettingsFieldset.php:172
+#: src/Form/SettingsFieldset.php:178
 msgid "Email of the sender (else no-reply user or administrator)"
 msgstr ""
 "Mail de l’expéditeur (sinon le mail « ne pas répondre » ou l’administrateur)"
 
-#: src/Form/SettingsFieldset.php:173
+#: src/Form/SettingsFieldset.php:179
 msgid ""
 "The no-reply email can be set via module EasyAdmin. The administrator email "
 "can be set above."
@@ -1011,54 +1023,54 @@ msgstr ""
 "Le mail ne-pas-répondre est défini via le module EasyAdmin. Le mail "
 "administrateur peut être défini plus haut."
 
-#: src/Form/SettingsFieldset.php:185
+#: src/Form/SettingsFieldset.php:191
 msgid "Name of the sender when email above is set"
 msgstr "Nom de l’expéditeur quand le mail est défini ci-dessus"
 
-#: src/Form/SettingsFieldset.php:198
+#: src/Form/SettingsFieldset.php:204
 msgid "Emails to notify contributions"
-msgstr "Adresses mails pour informer des contributions"
+msgstr "Adresses mails pour notifier des contributions"
 
-#: src/Form/SettingsFieldset.php:199
+#: src/Form/SettingsFieldset.php:205
 msgid ""
 "A query can be appended to limit notifications to specific contributions."
 msgstr ""
 "Une requête peut être ajoutée pour limiter les notifications à des "
 "contributions spécifiques."
 
-#: src/Form/SettingsFieldset.php:217
+#: src/Form/SettingsFieldset.php:223
 msgid "Emails of the author"
 msgstr "Mails de l’auteur"
 
-#: src/Form/SettingsFieldset.php:229
+#: src/Form/SettingsFieldset.php:235
 msgid "Select a property…"
 msgstr "Choisir une propriété…"
 
-#: src/Form/SettingsFieldset.php:238
+#: src/Form/SettingsFieldset.php:244
 msgid "Confirmations to author"
 msgstr "Confirmations à l’auteur"
 
-#: src/Form/SettingsFieldset.php:239
+#: src/Form/SettingsFieldset.php:245
 msgid "value_options"
 msgstr "value_options"
 
-#: src/Form/SettingsFieldset.php:242
+#: src/Form/SettingsFieldset.php:248
 msgid "On submit"
 msgstr "Lors de la soumission"
 
-#: src/Form/SettingsFieldset.php:256
+#: src/Form/SettingsFieldset.php:262
 msgid "Message displayed when a contribution is added"
 msgstr "Message affiché quand une contribution est ajoutée"
 
-#: src/Form/SettingsFieldset.php:268
+#: src/Form/SettingsFieldset.php:274
 msgid "Message displayed when a contribution is edited"
 msgstr "Message affiché quand une contribution est modifiée"
 
-#: src/Form/SettingsFieldset.php:280
+#: src/Form/SettingsFieldset.php:286
 msgid "Redirection after submission"
 msgstr "Redirection après soumission"
 
-#: src/Form/SettingsFieldset.php:281
+#: src/Form/SettingsFieldset.php:287
 msgid ""
 "Default is the page of contributions for guest users. Set \"home\" for home "
 "page (admin or public), \"site\" for the current site home, \"top\" for main "
@@ -1072,35 +1084,35 @@ msgstr ""
 "chemin commençant par « / », y compris « / » pour la page d’accueil "
 "principale."
 
-#: src/Form/SettingsFieldset.php:293
+#: src/Form/SettingsFieldset.php:299
 msgid "Subject of the email of confirmation to the author"
 msgstr "Sujet du mail de confirmation à l’auteur"
 
-#: src/Form/SettingsFieldset.php:294 src/Form/SettingsFieldset.php:320
+#: src/Form/SettingsFieldset.php:300 src/Form/SettingsFieldset.php:326
 msgid "May be overridden by a specific subject set in the resource template"
 msgstr "Peut être remplacé par un sujet spécifique défini dans le modèle"
 
-#: src/Form/SettingsFieldset.php:305
+#: src/Form/SettingsFieldset.php:311
 msgid "Message of confirmation to the author"
 msgstr "Message de confirmation à l’auteur"
 
-#: src/Form/SettingsFieldset.php:319
+#: src/Form/SettingsFieldset.php:325
 msgid "Subject of the email of confirmation to the reviewers"
 msgstr "Sujet du mail de confirmation aux relecteurs"
 
-#: src/Form/SettingsFieldset.php:331
+#: src/Form/SettingsFieldset.php:337
 msgid "Message of confirmation to the reviewers"
 msgstr "Message de confirmation aux relecteurs"
 
-#: src/Form/SettingsFieldset.php:345
+#: src/Form/SettingsFieldset.php:351
 msgid "Subject of the default email to the author"
 msgstr "Sujet du mail de confirmation à l’auteur"
 
-#: src/Form/SettingsFieldset.php:356
+#: src/Form/SettingsFieldset.php:362
 msgid "Default message to the author"
 msgstr "Message par défaut à l’auteur"
 
-#: src/Form/SettingsFieldset.php:357
+#: src/Form/SettingsFieldset.php:363
 msgid "Placeholders: {main_title}, {main_url}."
 msgstr "Les jokers possibles sont : {main_title}, {main_url}."
 
@@ -1465,6 +1477,11 @@ msgstr "Préparer des jetons de contribution pour tous"
 #: config/module.config.php:302
 msgid "Your contribution on {main_title}"
 msgstr "Votre contribution sur {main_title}"
+
+#~ msgid "Regex on email of users allowed to contribute (option above)"
+#~ msgstr ""
+#~ "Regex sur le mail des utilisateurs autorisés à contribuer (option ci-"
+#~ "dessus)"
 
 #~ msgid "Email not sent: the subject is missing."
 #~ msgstr "Mail non envoyé : pas de sujet."
