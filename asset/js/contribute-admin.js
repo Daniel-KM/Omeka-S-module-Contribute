@@ -243,6 +243,7 @@ Omeka.contributionManageSelectedActions = function() {
                     button.data('status', status);
                     button.prop('title', data.data.contribution.statusLabel);
                     button.prop('aria-label', data.data.contribution.statusLabel);
+                    $(document).trigger('o:contribution-updated', data);
                 }
             })
             .fail(handleAjaxFail)
