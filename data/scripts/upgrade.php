@@ -371,3 +371,39 @@ if (version_compare($oldVersion, '3.4.31', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.32', '<')) {
+    $contributeModes = $settings->get('contribute_modes') ?: [];
+    if (in_array('role', $contributeModes)) {
+        $contributeModes[] = 'user_role';
+        unset($contributeModes[array_search('role', $contributeModes)]);
+    }
+    if (in_array('filter_user_settings', $contributeModes)) {
+        $contributeModes[] = 'user_settings';
+        unset($contributeModes[array_search('filter_user_settings', $contributeModes)]);
+    }
+    if (in_array('email_regex', $contributeModes)) {
+        $contributeModes[] = 'user_email';
+        unset($contributeModes[array_search('email_regex', $contributeModes)]);
+    }
+    $settings->set('contribute_modes', $contributeModes);
+
+    $userRoles = $settings->get('contribute_filter_user_roles');
+    if (!$userRoles) {
+        $userRoles = $settings->get('contribute_roles') ?: [];
+        $settings->set('contribute_filter_user_roles', $userRoles);
+    }
+    $settings->delete('contribute_roles');
+
+    $emailRegexes = $settings->get('contribute_filter_user_emails');
+    if (!$emailRegexes) {
+        $emailRegex = $settings->get('contribute_email_regex');
+        $settings->set('contribute_filter_user_emails', $emailRegex ? [$emailRegex] : []);
+    }
+    $settings->delete('contribute_email_regex');
+
+    $message = new PsrMessage(
+        'It’s now possible to define multiple emails to check.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
