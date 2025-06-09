@@ -682,7 +682,6 @@ class Module extends AbstractModule
                     $message
                 </div>
             </div>
-            
             HTML;
     }
 
