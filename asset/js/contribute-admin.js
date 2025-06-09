@@ -286,6 +286,7 @@ Omeka.contributionManageSelectedActions = function() {
                     }
                     // TODO Dynamically update status view after message sent.
                     // location.reload();
+                    $(document).trigger('o:contribution-email-sent', data);
                 }
             })
             .fail(handleAjaxFail)
