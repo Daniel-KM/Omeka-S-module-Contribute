@@ -20,6 +20,10 @@ document, for example to ask visitor to fix spelling mistakes or to identify
 subjects, third, to define precise rights on who can contribute or not, via
 role, authentication, settings, etc.
 
+This module can be used for institutional repositories too, so students can
+deposit their works and theses, like the thousands ones in [Dante] of
+Université de Toulouse.
+
 
 Installation
 ------------
