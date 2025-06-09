@@ -183,7 +183,7 @@ class Module extends AbstractModule
 
         // Open rights for guests for other modes.
         // The real check is done in controller anyway via CanContribute().
-        if (array_intersect($contributeModes, ['auth_cas', 'auth_ldap', 'auth_sso', 'email_regex', 'user_settings'])) {
+        if (array_intersect($contributeModes, ['auth_cas', 'auth_ldap', 'auth_sso', 'user_email', 'user_settings'])) {
             if ($hasGuest) {
                 $contributors[] = 'guest';
             }

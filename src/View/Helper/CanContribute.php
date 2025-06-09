@@ -84,10 +84,23 @@ class CanContribute extends AbstractHelper
                     return true;
                 }
                 continue 2;
-            case 'email_regex':
-                $pattern = (string) $setting('contribute_email_regex');
-                if ($user && $pattern && preg_match($pattern, $user->getEmail())) {
-                    return true;
+            case 'user_email':
+                // The check is not cumulative, so there are early returns.
+                if (!$user) {
+                    continue 2;
+                }
+                $email = $user->getEmail();
+                $patterns = $setting('contribute_filter_user_emails');
+                foreach ($patterns as $pattern) {
+                    $pattern = trim($pattern);
+                    if ($pattern) {
+                        $isRegex = mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~';
+                        if ($isRegex && preg_match($pattern, $email)) {
+                            return true;
+                        } elseif ($email === $pattern) {
+                            return true;
+                        }
+                    }
                 }
                 continue 2;
             case 'user_settings':

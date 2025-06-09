@@ -35,7 +35,7 @@ class SettingsFieldset extends Fieldset
                         'auth_ldap' => 'Authenticated users from ldap', // @translate
                         'auth_sso' => 'Authenticated users from sso', // @translate
                         'role' => 'Roles', // @translate
-                        'email_regex' => 'Authenticated users with an email matching regex below', // @translate
+                        'user_email' => 'Authenticated users with defined emails below', // @translate
                         'user_settings' => 'Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On', // @translate
                     ],
                 ],
@@ -65,14 +65,20 @@ class SettingsFieldset extends Fieldset
             ])
 
             ->add([
-                'name' => 'contribute_email_regex',
-                'type' => Element\Text::class,
+                'name' => 'contribute_filter_user_emails',
+                'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'element_group' => 'contribution',
-                    'label' => 'Regex on email of users allowed to contribute (option above)', // @translate
+                    'label' => 'Filter on emails of users allowed to contribute (option above)', // @translate
+                    'info' => 'The filters may be a raw email or a regex wrapped with "~". They are independant: a single rule should be true to allow contribution.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'contribute_email_regex',
+                    'id' => 'contribute_filter_user_emails',
+                    'placeholder' => <<<'TXT'
+                        alpha@beta.com
+                        ~^(\w+\.gamma@delta\.com)$~
+                        TXT,
+                    'rows' => '3',
                 ],
             ])
 
