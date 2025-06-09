@@ -36,7 +36,7 @@ class SettingsFieldset extends Fieldset
                         'auth_sso' => 'Authenticated users from sso', // @translate
                         'role' => 'Roles', // @translate
                         'email_regex' => 'Authenticated users with an email matching regex below', // @translate
-                        'filter_user_settings' => 'Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On', // @translate
+                        'user_settings' => 'Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On', // @translate
                     ],
                 ],
                 'attributes' => [

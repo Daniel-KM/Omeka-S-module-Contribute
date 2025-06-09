@@ -90,8 +90,8 @@ class CanContribute extends AbstractHelper
                     return true;
                 }
                 continue 2;
-            case 'filter_user_settings':
-                // The check is cumulative, so there are early break.
+            case 'user_settings':
+                // The check is cumulative, so there are early breaks.
                 if (!$user) {
                     continue 2;
                 }
@@ -103,7 +103,7 @@ class CanContribute extends AbstractHelper
                         continue 3;
                     }
                     $userSettingValues = $userSetting($userSettingKey);
-                    if ($userSettingValues === null || $userSettingValues === '' || $userSettingValues = []) {
+                    if ($userSettingValues === null || $userSettingValues === '' || $userSettingValues === []) {
                         continue 3;
                     }
                     if (is_scalar($userSettingValues)) {
