@@ -71,7 +71,7 @@ return [
     ],
     'controllers' => [
         'invokables' => [
-            'Contribute\Controller\Site\GuestBoard' => Controller\Site\GuestBoardController::class,
+            'Contribute\Controller\Site\Guest' => Controller\Site\GuestController::class,
         ],
         'factories' => [
             'Contribute\Controller\Admin\Contribution' => Service\Controller\AdminContributionControllerFactory::class,
@@ -168,7 +168,7 @@ return [
                                     ],
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Contribute\Controller\Site',
-                                        'controller' => 'guest-board',
+                                        'controller' => 'guest',
                                         'action' => 'browse',
                                     ],
                                 ],
@@ -184,7 +184,7 @@ return [
                                     ],
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Contribute\Controller\Site',
-                                        'controller' => 'guest-board',
+                                        'controller' => 'guest',
                                         'action' => 'show',
                                     ],
                                 ],

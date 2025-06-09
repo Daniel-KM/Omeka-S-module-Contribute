@@ -85,7 +85,7 @@ class Contribute implements LinkInterface
                     'resource' => 'item',
                     'action' => 'add',
                 ],
-                // 'resource' => 'Contribute\Controller\Site\GuestBoard',
+                // 'resource' => 'Contribute\Controller\Site\Guest',
             ];
         }
 

@@ -96,7 +96,7 @@ class Contributions implements LinkInterface
                 'action' => 'browse',
             ],
             // The controller has no rights defined in acl.
-            // 'resource' => 'Contribute\Controller\Site\GuestBoard',
+            // 'resource' => 'Contribute\Controller\Site\Guest',
         ];
     }
 

@@ -262,7 +262,7 @@ class Module extends AbstractModule
             // Administration in public side (module Guest).
             ->allow(
                 $roles,
-                ['Contribute\Controller\Site\GuestBoard'],
+                ['Contribute\Controller\Site\Guest'],
                 ['browse', 'show', 'view', 'add', 'edit', 'delete', 'delete-confirm', 'submit']
             )
 

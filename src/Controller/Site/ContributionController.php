@@ -783,7 +783,7 @@ class ContributionController extends AbstractActionController
 
         // Warning: the js reload the page, so this redirect is not used.
         return $space === 'guest'
-            ? $this->redirect()->toRoute('site/guest/contribution', ['controller' => 'guest-board', 'action' => 'browse'], true)
+            ? $this->redirect()->toRoute('site/guest/contribution', ['controller' => 'guest', 'action' => 'browse'], true)
             // TODO Update route when a main public browse of contributions will be available.
             // TODO Check this redirect. Is it delete?
             : $this->redirect()->toRoute('site', [], true);

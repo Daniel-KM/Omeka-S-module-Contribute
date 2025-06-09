@@ -5,13 +5,13 @@ namespace Contribute\Controller\Site;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 
-class GuestBoardController extends AbstractActionController
+class GuestController extends AbstractActionController
 {
     public function indexAction()
     {
         $params = $this->params()->fromRoute();
         $params['action'] = 'browse';
-        return $this->forward()->dispatch('Contribute\Controller\Site\GuestBoard', $params);
+        return $this->forward()->dispatch('Contribute\Controller\Site\Guest', $params);
     }
 
     public function browseAction()
@@ -20,7 +20,7 @@ class GuestBoardController extends AbstractActionController
 
         $user = $this->identity();
         if (!$user) {
-            return $this->redirect()->toRoute('top', [], true);
+            return $this->redirect()->toRoute('site', [], true);
         }
 
         $query = $this->params()->fromQuery();
