@@ -143,8 +143,8 @@ class Module extends AbstractModule
         $isOpenContribution = in_array('open', $contributeModes)
             || in_array('token', $contributeModes);
 
-        $contributeRoles = in_array('role', $contributeModes)
-            ? $settings->get('contribute_roles', [])
+        $contributeRoles = in_array('user_role', $contributeModes)
+            ? $settings->get('contribute_filter_user_roles', [])
             : null;
 
         $allowUpdateMode = $settings->get('contribute_allow_update', 'submission');
@@ -183,7 +183,7 @@ class Module extends AbstractModule
 
         // Open rights for guests for other modes.
         // The real check is done in controller anyway via CanContribute().
-        if (array_intersect($contributeModes, ['auth_cas', 'auth_ldap', 'auth_sso', 'user_email', 'user_settings'])) {
+        if (!$isOpenContribution) {
             if ($hasGuest) {
                 $contributors[] = 'guest';
             }

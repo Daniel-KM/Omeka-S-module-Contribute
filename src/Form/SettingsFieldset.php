@@ -34,7 +34,7 @@ class SettingsFieldset extends Fieldset
                         'auth_cas' => 'Authenticated users from cas', // @translate
                         'auth_ldap' => 'Authenticated users from ldap', // @translate
                         'auth_sso' => 'Authenticated users from sso', // @translate
-                        'role' => 'Roles', // @translate
+                        'user_role' => 'Roles', // @translate
                         'user_email' => 'Authenticated users with defined emails below', // @translate
                         'user_settings' => 'Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On', // @translate
                     ],
@@ -49,14 +49,14 @@ class SettingsFieldset extends Fieldset
                 // Anyway, it cannot be used simply, because it requires a value.
                 // 'type' => 'Omeka\Form\Element\RoleSelect',
                 'type' => CommonElement\OptionalRoleSelect::class,
-                'name' => 'contribute_roles',
+                'name' => 'contribute_filter_user_roles',
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Roles allowed to contribute (option "Roles" above)', // @translate
                     'empty_option' => '',
                 ],
                 'attributes' => [
-                    'id' => 'contribute_roles',
+                    'id' => 'contribute_filter_user_roles',
                     'multiple' => true,
                     'required' => false,
                     'class' => 'chosen-select',

@@ -64,8 +64,8 @@ class CanContribute extends AbstractHelper
                     return true;
                 }
                 continue 2;
-            case 'role':
-                if ($user && in_array($user->getRole(), $setting('contribute_roles', []) ?: [])) {
+            case 'user_role':
+                if ($user && in_array($user->getRole(), $setting('contribute_filter_user_roles', []) ?: [])) {
                     return true;
                 }
                 continue 2;
