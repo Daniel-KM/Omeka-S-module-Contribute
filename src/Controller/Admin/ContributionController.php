@@ -860,7 +860,7 @@ class ContributionController extends AbstractActionController
             $subject = $this->fillMessage($subject);
         }
 
-        if (mb_strlen($body) > 1000) {
+        if (mb_strlen($subject) > 190) {
             return $this->jSend(JSend::FAIL, null, $this->translate(
                 'Too long subject.' // @translate
             ));
