@@ -44,40 +44,32 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     public function getJsonLd()
     {
-        $token = $this->token();
-        if ($token) {
-            $token = $token->getReference();
-        }
-
-        $created = [
-            '@value' => $this->getDateTime($this->created()),
-            '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
-        ];
-
-        $modified = $this->modified();
-        if ($modified) {
-            $modified = [
-                '@value' => $this->getDateTime($modified),
-                '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
-            ];
-        }
-
-        $contributionResource = $this->resource();
         $owner = $this->owner();
+        $contributionResource = $this->resource();
+        $token = $this->token();
+        $modified = $this->modified();
 
         return [
             'o:id' => $this->id(),
-            'o:resource' => $contributionResource ? $contributionResource->getReference() : null,
-            'o:owner' => $owner ? $owner->getReference() : null,
+            'o:resource' => $contributionResource ? $contributionResource->getReference()->jsonSerialize() : null,
+            'o:owner' => $owner ? $owner->getReference()->jsonSerialize() : null,
             'o:email' => $owner ? null : $this->email(),
             'o-module-contribute:patch' => $this->isPatch(),
             'o-module-contribute:submitted' => $this->isSubmitted(),
             'o-module-contribute:undertaken' => $this->isUndertaken(),
             'o-module-contribute:validated' => $this->isValidated(),
             'o-module-contribute:proposal' => $this->proposal(),
-            'o-module-contribute:token' => $token,
-            'o:created' => $created,
-            'o:modified' => $modified,
+            'o-module-contribute:token' => $token ? $token->getReference()->jsonSerialize() : null,
+            'o:created' => [
+                '@value' => $this->getDateTime($this->created())->jsonSerialize(),
+                '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
+            ],
+            'o:modified' => $modified
+                ? [
+                    '@value' => $this->getDateTime($modified)->jsonSerialize(),
+                    '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
+                ]
+                : null,
         ];
     }
 

@@ -25,34 +25,29 @@ class TokenRepresentation extends AbstractEntityRepresentation
     public function getJsonLd()
     {
         $expire = $this->expire();
-        if ($expire) {
-            $expire = [
-                '@value' => $this->getDateTime($expire),
-                '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
-            ];
-        }
-
-        $created = [
-            '@value' => $this->getDateTime($this->created()),
-            '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
-        ];
-
         $accessed = $this->accessed();
-        if ($accessed) {
-            $accessed = [
-                '@value' => $this->getDateTime($accessed),
-                '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
-            ];
-        }
 
         return [
             'o:id' => $this->id(),
-            'o:resource' => $this->resource()->getReference(),
+            'o:resource' => $this->resource()->getReference()->jsonSerialize(),
             'o-module-contribute:token' => $this->token(),
             'o:email' => $this->email(),
-            'o-module-contribute:expire' => $expire,
-            'o:created' => $created,
-            'o-module-contribute:accessed' => $accessed,
+            'o-module-contribute:expire' => $expire
+                ? [
+                    '@value' => $this->getDateTime($expire)->jsonSerialize(),
+                    '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
+                ]
+                : null,
+            'o:created' => [
+                '@value' => $this->getDateTime($this->created())->jsonSerialize(),
+                '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
+            ],
+            'o-module-contribute:accessed' => $accessed
+                ? [
+                    '@value' => $this->getDateTime($accessed)->jsonSerialize(),
+                    '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
+                ]
+                : null,
         ];
     }
 
