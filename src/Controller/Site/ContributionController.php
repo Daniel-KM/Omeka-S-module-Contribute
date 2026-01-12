@@ -164,7 +164,7 @@ class ContributionController extends AbstractActionController
 
         // Prepare the resource template. Use the first if not queryied.
 
-       /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
+        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
         $plugins = $this->getPluginManager();
         $contributiveData = $plugins->get('contributiveData');
 
@@ -1085,7 +1085,7 @@ class ContributionController extends AbstractActionController
                     'User {user} has made a contribution (action: {action}).', // @translate
                     [
                         'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
-                        'action' => $actionMsg
+                        'action' => $actionMsg,
                     ]
                 ) . '</p>';
                 break;
@@ -1573,7 +1573,7 @@ class ContributionController extends AbstractActionController
                             continue 2;
                         }
                         if ($isCustomVocabUri) {
-                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri']] ?? $proposedValue['@label']  ?? '';
+                            $proposedValue['@label'] = $uriLabels[$proposedValue['@uri']] ?? $proposedValue['@label'] ?? '';
                         }
                         // Value suggest is stored as a link by js in form to
                         // get uri and label from the user.

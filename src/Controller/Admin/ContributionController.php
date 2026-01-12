@@ -5,8 +5,8 @@ namespace Contribute\Controller\Admin;
 use Common\Mvc\Controller\Plugin\JSend;
 use Common\Stdlib\PsrMessage;
 use Contribute\Controller\ContributionTrait;
-use Contribute\Form\SendMessageForm;
 use Contribute\Form\QuickSearchForm;
+use Contribute\Form\SendMessageForm;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\EntityManager;
@@ -400,9 +400,7 @@ class ContributionController extends AbstractActionController
             [
                 'total' => $count,
                 'email' => $email ?: new PsrMessage('none'), // @translate
-                'duration' => $tokenDuration
-                    ? new PsrMessage('{days} days', $tokenDuration) // @translate
-                    : new PsrMessage('unlimited'), // @translate
+                'duration' => $tokenDuration ? sprintf($this->translate('%d days', $tokenDuration)) : 'unlimited',
                 'urls' => '<ul><li>' . implode('</li><li>', $urls) . '</li></ul>',
             ]
         );

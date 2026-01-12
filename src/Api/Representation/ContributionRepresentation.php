@@ -771,9 +771,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         // First loop to keep, update or remove existing values.
         foreach ($existingValues as $term => $propertyData) {
             // Keep all existing values.
-            $data[$term] = array_map(function ($v) {
-                return $v->jsonSerialize();
-            }, $propertyData['values']);
+            $data[$term] = array_map(fn ($v) => $v->jsonSerialize(), $propertyData['values']);
             if ($hasProposedTermAndKey && $proposedTerm !== $term) {
                 continue;
             }

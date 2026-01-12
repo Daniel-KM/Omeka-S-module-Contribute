@@ -234,7 +234,7 @@ class TokenAdapter extends AbstractEntityAdapter
                         $paramTo = $adapter->createNamedParameter($qb, $valueTo);
                         $predicateExpr = $expr->not(
                             $expr->between('omeka_root.' . $field, $paramFrom, $paramTo)
-                            );
+                        );
                     } else {
                         $param = $adapter->createNamedParameter($qb, $value);
                         $predicateExpr = $expr->neq('omeka_root.' . $field, $param);

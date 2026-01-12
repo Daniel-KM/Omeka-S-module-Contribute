@@ -2,11 +2,11 @@
 
 namespace Contribute\Controller;
 
+use AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation;
 use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\ErrorStore;
-use AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation;
 
 /**
  * @todo Move ContributionTrait to controller plugins.
@@ -217,7 +217,7 @@ trait ContributionTrait
             } else {
                 $templateId = null;
             }
-        }elseif ($resourceOrTemplateOrResourceIds instanceof AbstractResourceEntityRepresentation
+        } elseif ($resourceOrTemplateOrResourceIds instanceof AbstractResourceEntityRepresentation
             || $resourceOrTemplateOrResourceIds instanceof ContributionRepresentation
         ) {
             $templateId = $resourceOrTemplateOrResourceIds->resourceTemplate();
