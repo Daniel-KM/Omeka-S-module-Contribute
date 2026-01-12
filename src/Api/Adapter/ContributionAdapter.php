@@ -98,21 +98,24 @@ class ContributionAdapter extends AbstractEntityAdapter
         if (isset($query['patch']) && (is_numeric($query['patch']) || is_bool($query['patch']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.patch',
-                $this->createNamedParameter($qb, (bool) $query['patch'])
+                // The double cast manage the three-state radio ("", "1", "00").
+                $this->createNamedParameter($qb, (bool) (int) $query['patch'])
             ));
         }
 
         if (isset($query['submitted']) && (is_numeric($query['submitted']) || is_bool($query['submitted']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.submitted',
-                $this->createNamedParameter($qb, (bool) $query['submitted'])
+                // The double cast manage the three-state radio ("", "1", "00").
+                $this->createNamedParameter($qb, (bool) (int) $query['submitted'])
             ));
         }
 
         if (isset($query['reviewed']) && (is_numeric($query['reviewed']) || is_bool($query['reviewed']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.reviewed',
-                $this->createNamedParameter($qb, (bool) $query['reviewed'])
+                // The double cast manage the three-state radio ("", "1", "00").
+                $this->createNamedParameter($qb, (bool) (int) $query['reviewed'])
             ));
         }
 
