@@ -77,6 +77,18 @@
         float: right;
     }
 
+    .contribution .actions {
+        float: right;
+        display: flex;
+        li {
+            display: inline;
+            .no-action,
+            .single-action {
+                padding-left: initial;
+             }
+        }
+    }
+
     .actions .no-action,
     .actions .no-action::before {
       width: 24px;
@@ -122,9 +134,13 @@
         color: #00FF00;
         content: ""; /* inbox */
     }
+    .contribution .o-icon-undetermined::before {
+        color: #FFA500;
+        content: ""; /* question */
+    }
     .contribution .o-icon-not-validated::before {
         color: #FF0000;
-        content: ""; /* question */
+        content: ""; /* cancel */
     }
     .contribution .o-icon-validated::before {
         color: #00FF00;

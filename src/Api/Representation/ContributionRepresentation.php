@@ -109,7 +109,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return $this->resource->getUndertaken();
     }
 
-    public function isValidated(): bool
+    public function isValidated(): ?bool
     {
         return $this->resource->getValidated();
     }
@@ -137,6 +137,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         } elseif ($allowEditUntil === 'undertaking') {
             return !$this->resource->getUndertaken() && !$this->resource->getValidated();
         } elseif ($allowEditUntil === 'validation') {
+            // Null or false.
             return !$this->resource->getValidated();
         } else {
             return false;

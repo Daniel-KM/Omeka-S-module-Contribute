@@ -786,7 +786,7 @@ class ContributionController extends AbstractActionController
         }
 
         if (!$contribution->isUpdatable()) {
-            if ($contribution->isValidated()) {
+            if ($contribution->isValidated() !== null) {
                 $this->messenger()->addWarning('This contribution has been validated and cannot be deleted.'); // @translate
             } elseif ($contribution->isUndertaken()) {
                 $this->messenger()->addWarning('This contribution has been taken in charge and cannot be deleted.'); // @translate
@@ -859,7 +859,7 @@ class ContributionController extends AbstractActionController
         }
 
         if (!$contribution->isUpdatable()) {
-            if ($contribution->isValidated()) {
+            if ($contribution->isValidated() !== null) {
                 $this->messenger()->addWarning('This contribution has been validated and cannot be updated.'); // @translate
             } elseif ($contribution->isUndertaken()) {
                 $this->messenger()->addWarning('This contribution has been taken in charge and cannot be updated.'); // @translate
@@ -884,7 +884,7 @@ class ContributionController extends AbstractActionController
 
         // Validate the contribution with the api process.
         $errorStore = new ErrorStore();
-        $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, true, true);
+        $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, '', '', true, true);
         if ($errorStore->hasErrors()) {
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }

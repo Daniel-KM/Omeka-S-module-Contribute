@@ -628,29 +628,21 @@ class ContributionController extends AbstractActionController
             ), HttpResponse::STATUS_CODE_404);
         }
 
-        // Only a resource already added can have a status validated.
+        // Now, the status validated can be used without resource.
         $resource = $contribution ? $contribution->resource() : null;
-        if (!$resource) {
-            return $this->jSend()->success([
-                // Status is updated, so inverted.
-                'contribution' => $contribution->jsonSerialize() + [
-                    'status' => 'not-validated',
-                    'statusLabel' => $this->translate('Not validated'), // @translate
-                ],
-            ]);
-        }
 
         // Only people who can edit the resource can update the status.
         if ($resource && !$resource->userIsAllowed('update')) {
-            return $this->jSend()->fail(null, $this->translate(
-                'Unauthorized access.' // @translate
+            return $this->jSend()->fail(null, $this->translate('Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
 
+        // This flag is three-states: null > true > false.
         $wasValidated = $contribution->isValidated();
+        $willBeValidated = $wasValidated === null ? true : ($wasValidated ? false : null);
 
         $data = [];
-        $data['o-module-contribute:validated'] = !$wasValidated;
+        $data['o-module-contribute:validated'] = $willBeValidated;
         $response = $this->api()
             ->update('contributions', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
@@ -661,13 +653,21 @@ class ContributionController extends AbstractActionController
 
         $contribution = $response->getContent();
 
+        $statuses = [
+            null => 'undetermined',
+            1 => 'validated',
+            0 => 'not-validated',
+        ];
+        $labels = [
+            null => $this->translate('Undetermined'), // @translate,
+            1 => $this->translate('Validated'), // @translate,
+            0 => $this->translate('Rejected'), // @translate,
+        ];
+
         return $this->jSend()->success([
-            // Status is updated, so inverted.
             'contribution' => $contribution->jsonSerialize() + [
-                'status' => $wasValidated ? 'not-validated' : 'validated',
-                'statusLabel' => $wasValidated
-                    ? $this->translate('Not validated') // @translate
-                    : $this->translate('Validated'), // @translate
+                'status' => $statuses[$willBeValidated === null ? null : (int) $willBeValidated],
+                'statusLabel' => $labels[$willBeValidated === null ? null : (int) $willBeValidated],
             ],
         ]);
     }
@@ -716,7 +716,7 @@ class ContributionController extends AbstractActionController
 
         // Validate and create the resource.
         $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, null, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
             return $this->jSend()->fail($errorStore->getErrors() ?: null, $this->translate(
@@ -727,6 +727,15 @@ class ContributionController extends AbstractActionController
             return $this->jSend()->error(null, $this->translate(
                 'An internal error occurred.' // @translate
             ));
+        }
+
+        // Toggle the flag undertaken.
+        $data = [];
+        $data['o-module-contribute:undertaken'] = true;
+        try {
+            $response = $this->api()
+                ->update('contributions', $id, $data, [], ['isPartial' => true]);
+        } catch (\Exception $e) {
         }
 
         // Check if the template should be converted.
@@ -787,9 +796,10 @@ class ContributionController extends AbstractActionController
         }
 
         return $this->jSend()->success([
-            'contribution' => $contribution,
-            'is_new' => true,
-            'url' => $resource->adminUrl(),
+            'contribution' => $contribution->jsonSerialize() + [
+                'is_new' => true,
+                'url' => $resource->adminUrl(),
+            ],
         ]);
     }
 
@@ -833,7 +843,7 @@ class ContributionController extends AbstractActionController
 
         // Validate and update the resource.
         $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, true, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
             return $this->jSend()->fail($errorStore->getErrors() ?: null, $this->translate(
@@ -848,16 +858,12 @@ class ContributionController extends AbstractActionController
 
         return $this->jSend()->success([
             // Status is updated, so inverted.
-            'contribution' => [
+            'contribution' => $contribution->jsonSerialize() + [
                 'status' => 'validated',
                 'statusLabel' => $this->translate('Validated'), // @translate
-                'validated' => [
-                    'status' => 'validated',
-                    'statusLabel' => $this->translate('Validated'), // @translate
-                ],
+                'is_new' => !$contribution->isPatch(),
+                'url' => $resource->adminUrl(),
             ],
-            'is_new' => !$contribution->isPatch(),
-            'url' => $resource->adminUrl(),
         ]);
     }
 
@@ -914,7 +920,7 @@ class ContributionController extends AbstractActionController
 
         // Validate the value for the resource.
         $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, true, false, false);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, '', false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
             return $this->jSend()->fail($errorStore->getErrors() ?: null, $this->translate(
@@ -1067,9 +1073,9 @@ class ContributionController extends AbstractActionController
 
         if ($updateContribution) {
             $data = [];
-            $data['o-module-contribute:submitted'] = true;
-            $data['o-module-contribute:undertaken'] = true;
-            $data['o-module-contribute:validated'] = true;
+            $data['o-module-contribute:submitted'] = false;
+            // $data['o-module-contribute:undertaken'] = true;
+            // $data['o-module-contribute:validated'] = null;
             $response = $this->api()
                 ->update('contributions', $id, $data, [], ['isPartial' => true]);
             // Normally, there is never an issue here.

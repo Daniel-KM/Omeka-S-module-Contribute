@@ -20,8 +20,12 @@ trait ContributionTrait
         ContributionRepresentation $contribution,
         array $resourceData,
         ErrorStore $errorStore,
-        bool $undertaken = false,
-        bool $validated = false,
+        // Undertaken and validated are for creating.
+        // When updating, it may or may not be updated.
+        // Values may be null for validated, bool or empty string for unchanged.
+        $undertaken = '',
+        // May be null
+        $validated = '',
         bool $validateOnly = false,
         bool $useMessenger = false
     ): ?AbstractResourceEntityRepresentation {
@@ -193,9 +197,15 @@ trait ContributionTrait
         $contributionResource = $response->getContent();
 
         $data = [];
-        $data['o:resource'] = $validateOnly || !$contributionResource ? null : ['o:id' => $contributionResource->id()];
-        $data['o-module-contribute:undertaken'] = $undertaken;
-        $data['o-module-contribute:validated'] = $validated;
+        $data['o:resource'] = $validateOnly || !$contributionResource ? null : [
+            'o:id' => $contributionResource->id()
+        ];
+        if ($undertaken !== '') {
+            $data['o-module-contribute:undertaken'] = $undertaken;
+        }
+        if ($validated !== '') {
+            $data['o-module-contribute:validated'] = $validated;
+        }
         $response = $this->api()
             ->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
 

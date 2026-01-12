@@ -124,12 +124,24 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['validated']) && (is_numeric($query['validated']) || is_bool($query['validated']))) {
-            $qb->andWhere($expr->eq(
-                'omeka_root.validated',
-                // The double cast manage the three-state radio ("", "1", "00").
-                $this->createNamedParameter($qb, (bool) (int) $query['validated'])
-            ));
+        if (isset($query['validated'])) {
+            $val = $query['validated'];
+            // Null is generally removed from query, so use string "null".
+            if ($val === 'null') {
+                $qb->andWhere($expr->isNull(
+                    'omeka_root.validated'
+                ));
+            } elseif (is_numeric($val) || is_bool($val)) {
+                $qb->andWhere($expr->eq(
+                    'omeka_root.validated',
+                    // The double cast manage the three-state radio ("", "1", "00").
+                    $this->createNamedParameter($qb, (bool) (int) $val)
+                ));
+            } elseif ($val !== '') {
+                $qb->andWhere($expr->eq(
+                    $this->createNamedParameter($qb, -1)
+                ));
+            }
         }
 
         if (isset($query['token_id']) && $query['token'] !== '') {
@@ -280,7 +292,8 @@ class ContributionAdapter extends AbstractEntityAdapter
             $isPatch = !empty($resource);
             $submitted = !empty($data['o-module-contribute:submitted']);
             $undertaken = !empty($data['o-module-contribute:undertaken']);
-            $validated = !empty($data['o-module-contribute:validated']);
+            $validated = $data['o-module-contribute:validated'] ?? null;
+            $validated = is_numeric($validated) || is_bool($validated) ? (bool) (int) $validated : null;
             $proposal = empty($data['o-module-contribute:proposal'])
                 ? []
                 : $this->uploadProposedFiles($data['o-module-contribute:proposal']);
@@ -315,7 +328,8 @@ class ContributionAdapter extends AbstractEntityAdapter
                     ->setUndertaken($undertaken);
             }
             if ($this->shouldHydrate($request, 'o-module-contribute:validated', $data)) {
-                $validated = !empty($data['o-module-contribute:validated']);
+                $validated = $data['o-module-contribute:validated'];
+                $validated = is_numeric($validated) || is_bool($validated) ? (bool) (int) $validated : null;
                 $entity
                     ->setValidated($validated);
             }

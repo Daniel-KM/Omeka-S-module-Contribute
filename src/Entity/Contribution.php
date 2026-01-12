@@ -146,13 +146,10 @@ class Contribution extends AbstractEntity
      *
      * @Column(
      *     type="boolean",
-     *     nullable=false,
-     *     options={
-     *         "default": false
-     *     }
+     *     nullable=true
      * )
      */
-    protected $validated = false;
+    protected $validated;
 
     /**
      * @var array
@@ -268,15 +265,15 @@ class Contribution extends AbstractEntity
         return (bool) $this->undertaken;
     }
 
-    public function setValidated($validated): self
+    public function setValidated(?bool $validated): self
     {
-        $this->validated = (bool) $validated;
+        $this->validated = $validated;
         return $this;
     }
 
-    public function getValidated(): bool
+    public function getValidated(): ?bool
     {
-        return (bool) $this->validated;
+        return $this->validated;
     }
 
     public function setProposal(array $proposal): self

@@ -121,6 +121,7 @@ class QuickSearchForm extends Form
                     'label' => 'Validated', // @translate
                     'value_options' => [
                         '' => 'Any', // @translate
+                        'null' => 'Undetermined', // @translate
                         '1' => 'Yes', // @translate
                         '00' => 'No', // @translate
                     ],

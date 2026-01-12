@@ -90,38 +90,6 @@
             $(dialog).trigger('o:dialog-opened');
         });
 
-        // Add a contribution.
-        $('#content').on('click', '.contribution .actions .o-icon-add', function(e) {
-            e.preventDefault();
-            const button = this;
-            const url = button.href;
-            let status = 'add';
-
-            CommonDialog.spinnerEnable(button);
-            $(button).removeClass('o-icon-' + status);
-
-            fetch(url, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.status || data.status !== 'success') {
-                        CommonDialog.jSendFail(data);
-                    } else {
-                        $(button).closest('td').find('span.title')
-                            .wrap('<a href="' + data.data.url + '"></a>');
-                        const newButton = '<a class="o-icon-edit"'
-                            + ' title="'+ Omeka.jsTranslate('Edit') + '"'
-                            + ' href="' + data.data.url + '"'
-                            + ' aria-label="' + Omeka.jsTranslate('Edit') + '"></a>';
-                        $(button).replaceWith(newButton);
-                    }
-                })
-                .catch(error => CommonDialog.jSendFail(error))
-                .finally(() => {
-                    CommonDialog.spinnerDisable(button);
-                    $(button).addClass('o-icon-' + status);
-                });
-        });
-
         // Validate all values of a contribution.
         $('#content').on('click', '.contribution .validate', function(e) {
             e.preventDefault();
@@ -212,6 +180,8 @@
                 iconSpan = button.querySelector('span.fas');
             }
 
+            const row = $(button.closest('tr'));
+
             // Undertaking toggle.
             if (button.matches('.undertaking-toggle') && data.data.contribution) {
                 const prev = button.dataset.status;
@@ -234,6 +204,21 @@
                     .addClass('o-icon-' + button.dataset.status);
             }
 
+            else if (button.matches('.create-resource') && data.data.contribution) {
+                row.find('span.title')
+                    .wrap('<a href="' + data.data.contribution.url + '"></a>');
+                const newButton = '<a class="o-icon-edit"'
+                    + ' title="'+ Omeka.jsTranslate('Show') + '"'
+                    + ' href="' + data.data.contribution.url + '"'
+                    + ' aria-label="' + Omeka.jsTranslate('Show') + '"></a>';
+                $(button).replaceWith(newButton);
+                updateStatuses(data.data.contribution);
+            }
+
+            else if (button.name === 'submit' && button.closest('form').name === 'send-message' && data.data.contribution) {
+                updateStatuses(data.data.contribution);
+            }
+
             // Expire token.
             else if (button.matches('.expire-token') && data.data.contribution_token) {
                 button.dataset.status = data.data.contribution_token.status;
@@ -243,6 +228,32 @@
             }
 
         }, false);
+
+        function updateStatuses(contribution) {
+            const contributionId = contribution['o:id'];
+            const rows = $('.contribution[data-id="' + contributionId + '"]');
+            const isSubmitted = contribution['o-module-contribute:submitted'];
+            const submittedButton = rows.find('.is-submitted span.fas');
+            submittedButton
+                .removeClass('o-icon-submitted o-icon-not-not-submitted')
+                .addClass('o-icon-' + (isSubmitted ? 'submitted' : 'not-submitted'))
+                .attr('title', isSubmitted ? Omeka.jsTranslate('Submitted') : Omeka.jsTranslate('Not submitted'))
+                .attr('aria-label', submittedButton.attr('title'));
+            const isUndertaken = contribution['o-module-contribute:undertaken'];
+            const undertakingButton = rows.find('.undertaking-toggle span.fas');
+            undertakingButton
+                .removeClass('o-icon-undertaken o-icon-not-undertaken')
+                .addClass('o-icon-' + (isUndertaken ? 'undertaken' : 'not-undertaken'))
+                .attr('title', isUndertaken ? Omeka.jsTranslate('Undertaken') : Omeka.jsTranslate('Not undertaken'))
+                .attr('aria-label', undertakingButton.attr('title'));
+            const isValidated = contribution['o-module-contribute:validated'];
+            const validateButton = rows.find('.status-toggle span.fas');
+            validateButton
+                .removeClass('o-icon-validated o-icon-not-validated o-icon-undetermined')
+                .addClass('o-icon-' + (isValidated === null ? 'undetermined' : (isValidated ? 'validated' : 'not-validated')))
+                .attr('title', isValidated === null ? Omeka.jsTranslate('Undetermined') : (isValidated ? Omeka.jsTranslate('Validated') : Omeka.jsTranslate('Rejected')))
+                .attr('aria-label', validateButton.attr('title'));
+        }
 
         /**
          * @see https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript

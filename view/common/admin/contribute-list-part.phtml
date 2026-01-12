@@ -139,6 +139,7 @@ unset($proposal['template'], $proposal['media']);
                             class="single-action jsend-action validate-value"
                             data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
+                            data-spinner="true"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"><span class="fas o-icon-validate-value"></span></button>
                     <?php endif; ?>
@@ -194,6 +195,7 @@ unset($proposal['template'], $proposal['media']);
                             class="single-action jsend-action validate-value"
                             data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
+                            data-spinner="true"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"><span class="fas o-icon-validate-value"></span></button>
                     <?php endif; ?>
@@ -242,6 +244,7 @@ unset($proposal['template'], $proposal['media']);
                             class="single-action jsend-action validate-value"
                             data-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
+                            data-spinner="true"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
                             title="<?= $txt ?>"><span class="fas o-icon-validate-value"></span></button>
                     <?php endif; ?>

@@ -108,7 +108,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                 $ownerText = $contribution->email() ?: $translate('[no owner]');
             }
             ?>
-            <tr class="contribution" data-contribution-id="<?= $contribution->id() ?>">
+            <tr class="contribution" data-id="<?= $contribution->id() ?>">
                 <td>
                     <?php if (false && $contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
                     <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">
@@ -117,8 +117,8 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                     <span class="template"><?= $escape($resourceTemplate ? $resourceTemplate->label() : $translate('No resource template')) ?></span>
                     <ul class="actions">
                         <li>
-                            <span class="no-action"><span
-                                class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'not-submitted' ?>"
+                            <span class="no-action is-submitted"><span
+                                class="fas o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'not-submitted' ?>"
                                 data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'not-submitted' ?>"
                                 aria-label="<?= $v = ($contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted'))) ?>"
                                 title="<?= $v ?>"></span>
@@ -138,10 +138,10 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                             <button type="button"
                                 class="single-action jsend-action toggle status-toggle"
                                 data-url="<?= $escapeAttr($contribution->adminUrl('toggle-status')) ?>"
-                                data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
+                                data-status="<?= $contribution->isValidated() === null ? 'undetermined' : ($contribution->isValidated() ? 'validated' : 'not-validated') ?>"
                                 data-spinner="true"
                                 aria-label="<?= $v = $escapeAttr($translate('Mark validated or not')) ?>"
-                                title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"></span></button>
+                                title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isValidated() === null ? 'undetermined' : ($contribution->isValidated() ? 'validated' : 'not-validated') ?>"></span></button>
                         </li>
                         <?php endif; ?>
                         <li>
@@ -161,11 +161,12 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                         </li>
                         <?php elseif ($userIsAllowedToCreateResource): ?>
                         <li>
-                            <?= $hyperlink('', $url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true), [
-                                'class' => 'o-icon-add',
-                                'data-id' => $contribution->id(),
-                                'title' => $translate('Create resource to be validated'),
-                            ]) ?>
+                            <button type="button"
+                                class="single-action jsend-action create-resource"
+                                data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
+                                data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true)) ?>"
+                                aria-label="<?= $v = $escape($translate('Create resource to be validated')) ?>"
+                                title="<?= $v ?>"><span class="fas o-icon-add"></span></button>
                         </li>
                         <?php endif; ?>
                         <?php if ($contribution->userIsAllowed('delete')): ?>

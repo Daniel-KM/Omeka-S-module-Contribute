@@ -250,6 +250,17 @@ return [
         'Prepare tokens to edit selected', // @translate
         'Prepare tokens to edit all', // @translate
         'Go', // @translate
+        'Contribute options', // @translate
+        'Editable', // @translate
+        'Fillable', // @translate
+        'Show', // @translate
+        'Submitted', // @translate
+        'Not submitted', // @translate
+        'Undertaken', // @translate
+        'Not undertaken', // @translate
+        'Undetermined', // @translate
+        'Validated', // @translate
+        'Rejected', // @translate
     ],
     'blocksdisposition' => [
         'views' => [

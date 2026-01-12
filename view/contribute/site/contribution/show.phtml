@@ -40,7 +40,7 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
         <li class="contribution-resource"><?= $resource ? $resource->linkPretty() : $escape($translate('No resource')) ?></li>
         <li class="submitted"><?= $escape($contribution->isSubmitted() ? $translate('Is submitted') : $translate('Is not submitted')) ?></li>
         <li class="undertaken"><?= $escape($contribution->isUndertaken() ? $translate('Is undertaken') : $translate('Is not undertaken')) ?></li>
-        <li class="validated"><?= $escape($contribution->isValidated() ? $translate('Is validated') : $translate('Is not validated')) ?></li>
+        <li class="validated"><?= $escape($contribution->isValidated() === null ? $translate('Is in progress') : ($contribution->isValidated() ? $translate('Is validated') : $translate('Is rejected'))) ?></li>
     </ul>
 
     <?php if ($msgs = $this->messages()): ?>

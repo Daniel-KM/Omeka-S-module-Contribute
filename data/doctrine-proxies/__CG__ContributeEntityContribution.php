@@ -327,7 +327,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setValidated($validated): \Contribute\Entity\Contribution
+    public function setValidated(?bool $validated): \Contribute\Entity\Contribution
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValidated', [$validated]);
@@ -338,7 +338,7 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getValidated(): bool
+    public function getValidated(): ?bool
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValidated', []);

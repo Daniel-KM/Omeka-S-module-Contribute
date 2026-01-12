@@ -90,9 +90,13 @@ class ContributionSearchFilters extends AbstractHelper
 
                 case 'validated':
                     $filterLabel = $translate('Is validated'); // @translate
-                    $filterValue = (int) $value
-                        ? $translate('Yes') // @translate
-                        : $translate('No'); // @translate
+                    if ($value === 'null') {
+                        $filterValue = $translate('Undetermined'); // @translate
+                    } else {
+                        $filterValue = (int) $value
+                            ? $translate('Yes') // @translate
+                            : $translate('No'); // @translate
+                    }
                     $filters[$filterLabel][] = $filterValue;
                     break;
 
