@@ -692,6 +692,23 @@ class Module extends AbstractModule
         $form = $event->getTarget();
         $fieldset = $form->get('o:data');
         $fieldset
+            ->add([
+                'name' => 'contribute_template_convert',
+                'type' => \Common\Form\Element\OptionalResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Template to use when the contribution is validated', // @translate
+                    'info' => 'In complex workflow, the template for the user may be different from the template of the item, for example to create a form with different property labels, or a different order, or more restrictive rules of property validation, or different templates for different users. So this option changes the template when the contribution is validated.', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    // 'id' => 'contribute_template_convert',
+                    'class' => 'setting chosen-select',
+                    'multiple' => false,
+                    'data-setting-key' => 'contribute_template_convert',
+                    'data-placeholder' => 'Select template…', // @translate
+                ],
+            ])
+
             // TODO Move contributive_templates_media to Advanced Resource Template.
             ->add([
                 'name' => 'contribute_templates_media',

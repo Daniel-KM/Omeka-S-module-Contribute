@@ -637,6 +637,63 @@ class ContributionController extends AbstractActionController
             ));
         }
 
+        // Check if the template should be converted.
+        $resourceTemplate = $contribution->resourceTemplate();
+        $message = null;
+        if ($resourceTemplate) {
+            $convertTemplate = $resourceTemplate->dataValue('contribute_template_convert');
+            if ($convertTemplate) {
+                /** @var \Omeka\Mvc\Controller\Plugin\Api $api */
+                $api = $this->api();
+                try {
+                    $convertTemplate = $api->read('resource_templates', is_numeric($convertTemplate) ? ['id' => $convertTemplate] : ['label' => $convertTemplate])->getContent();
+                } catch (\Exception $e) {
+                    $message = new PsrMessage(
+                        'The template "{val}" to convert into from template {template_id} does not exist or is not valid. The conversion is skipped', // @translate
+                        ['val' => $convertTemplate, 'template_id' => $resourceTemplate->id()]
+                    );
+                    $this->messenger()->addError($message);
+                }
+                if ($convertTemplate) {
+                    if ($convertTemplate->id() === $resourceTemplate->id()) {
+                        $message = new PsrMessage(
+                            'The template "{val}" should be converted to the same template. Check the template settings.', // @translate
+                            ['val' => $convertTemplate, 'template_id' => $resourceTemplate->id()]
+                        );
+                        $this->messenger()->addWarning($message);
+                    } else {
+                        // Option "skipValidation" is specific to AdvancedResourceTemplate.
+                        // The validation is done only against initial template.
+                        try {
+                            $response = $api
+                                ->update(
+                                    $resource->resourceName(),
+                                    $resource->id(),
+                                    ['o:resource_template' => ['o:id' => $convertTemplate->id()]],
+                                    [],
+                                    ['isPartial' => true, 'skipValidation' => true]
+                                );
+                        } catch (\Exception $e) {
+                            $response = null;
+                        }
+                        // The resource is already created, so just warn about the
+                        // issue, that should be fixed manually by the admin.
+                        if (!$response) {
+                            $message = new PsrMessage(
+                                'The template "{template_id}" to convert into from template {template_id_2} does not validate the resource. Check the consistency between the two termplates or missing required values in the second template.', // @translate
+                                ['template_id' => $convertTemplate->id(), 'template_id_2' => $resourceTemplate->id()]
+                            );
+                            $this->messenger()->addError($message);
+                        } else {
+                            // Generally the final resource template form is not
+                            // consistent with the new one.
+                            $resource = $response->getContent();
+                        }
+                    }
+                }
+            }
+        }
+
         return $this->jSend(JSend::SUCCESS, [
             'contribution' => $contribution,
             'is_new' => true,
@@ -886,6 +943,7 @@ class ContributionController extends AbstractActionController
             ));
         }
 
+        // Validate the value for the resource.
         $errorStore = new ErrorStore();
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, false, false);
         if ($errorStore->hasErrors()) {
