@@ -1,0 +1,24 @@
+{
+    "template": 1,
+    "media": [],
+    "dcterms:title": [
+        {
+            "original": {
+                "@value": null
+            },
+            "proposed": {
+                "@value": "Sample Contribution Title"
+            }
+        }
+    ],
+    "dcterms:description": [
+        {
+            "original": {
+                "@value": null
+            },
+            "proposed": {
+                "@value": "This is a sample contribution description for testing purposes."
+            }
+        }
+    ]
+}
