@@ -62,10 +62,27 @@ install version 3.4.23 then upgrade the module.
 Usage
 -----
 
-To be contributed or completed, a resource must have a template and be allowed
-in the main settings.
+To be contributed or completed, a resource must have a template and be allowed.
 
-- Configure the main settings, in particular the contribution mode.
+There are two ways to allow users to contribute: globally or by template.
+
+- global mode:
+  When the mode is global, the options in main settings will be checked for all
+  templates. Use this mode when there is only one template used for contribution
+  or when contributors can contribute via all templates.
+- by template mode:
+  When the mode is by template, the options should be set in each template. It
+  allows, for example, to limit contribution to one or some templates to some
+  users, for example a template "Thesis" for student authenticated by some sso
+  rules or for some mails, and a template "Master" for other students. So use
+  this mode when rights are complex or for a better ux for users and to skip the
+  first step where the user choose the templates.
+
+If you choose the global mode, the following options should be set in main
+settings. If you choose the mode by template, they should be filled in each
+templates used for contribution.
+
+- Configure the main settings, in particular the contribution modes.
 - Configure the resource templates to select the properties to be edited or
   filled. Note: If a property has no value, it can't be edited, even if the
   property is marked editable. To allow to add a value, choose "fillable". To
@@ -82,7 +99,8 @@ in the main settings.
   module Blocks Disposition.
 - After submission, the admin can go to the resource page of the edited items
   and apply changes, or decline them. A page lists all contributions too.
-  Contribution can be marked as reviewed and token can be made expired.
+  Contribution can be marked as undertaken and validated and token can be made
+  expired.
 
 
 TODO
@@ -111,6 +129,7 @@ TODO
 - [ ] Manage value annotations.
 - [ ] Include all fields as form elements (included laminas collections of elements).
 - [ ] Allow to edit item and media together.
+- [x] Use a three state (true, false, null) for validated/not-validated/undefined.
 
 
 Warning
@@ -161,7 +180,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2025 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2019-2026 (see [Daniel-KM] on GitLab)
 
 First version of this module was done for [Université de Paris-Saclay].
 Improvements were done for [Enssib] and for the site used to do the deposit and
