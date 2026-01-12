@@ -72,7 +72,7 @@ class ContributionController extends AbstractActionController
         $formSendMessage = $this->getForm(SendMessageForm::class);
         $formSendMessage
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'send-message'], true))
-            ->setAttribute('id', 'send-message-form')
+            ->setAttribute('id', 'contribute-send-message-form')
             ->populateValues($messageData);
 
         $formSearch = $this->getForm(QuickSearchForm::class);

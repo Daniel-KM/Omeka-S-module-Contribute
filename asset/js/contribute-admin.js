@@ -57,7 +57,7 @@ Omeka.contributionManageSelectedActions = function() {
     $(document).ready(function() {
 
         /**
-         * @see ContactUs, Contribute, Guest, SearchHistory, Selection, TwoFactorAuth.
+         * @see ContactUs, Contribute, Guest, Resa, SearchHistory, Selection, TwoFactorAuth.
          */
 
         const beforeSpin = function (element) {
@@ -285,14 +285,14 @@ Omeka.contributionManageSelectedActions = function() {
         // Display the dialog to send a message.
         $('#content').on('click', '.contribution a.send-message', function(e) {
             var url = $(this).data('url');
-            const dialog = document.querySelector('dialog.dialog-send-message');
+            const dialog = document.querySelector('dialog.dialog-send-message.dialog-contribute');
             $(dialog).find('form').prop('action', url);
             dialog.showModal();
             $(dialog).trigger('o:dialog-opened');
         });
 
         // Send a message via ajax.
-        $('#content').on('click', '#send-message-form [name=submit]', function(e) {
+        $('#content').on('click', '#contribute-send-message-form [name=submit]', function(e) {
             e.preventDefault();
 
             const dialog = this.closest('dialog.popup');

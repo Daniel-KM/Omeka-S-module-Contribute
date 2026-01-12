@@ -14,7 +14,7 @@ class SendMessageForm extends Form
     public function init(): void
     {
         $this
-            ->setAttribute('id', 'send-message-form')
+            ->setAttribute('id', 'contribute-send-message-form')
             ->setAttribute('class', 'send-message-form')
             ->setAttribute('method', 'post')
             ->setName('send-message');
