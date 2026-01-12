@@ -42,10 +42,10 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
     throw new ModuleCannotInstallException((string) $message);
 }
 
-if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.42')) {
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.47')) {
     $message = new PsrMessage(
         'The module {module} should be upgraded to version {version} or later.', // @translate
-        ['module' => 'AdvancedResourceTemplate', 'version' => '3.4.42']
+        ['module' => 'AdvancedResourceTemplate', 'version' => '3.4.47']
     );
     throw new ModuleCannotInstallException((string) $message);
 }
@@ -208,7 +208,7 @@ if (version_compare($oldVersion, '3.3.0.17', '<')) {
             'The directory "{directory}" is not writeable.', // @translate
             ['directory' => $basePath . '/contribution']
         );
-        throw new ModuleCannotInstallException((string) $message);
+        throw new ModuleCannotInstallException((string) $message->setTranslator($translator));
     }
 
     $sqls = <<<'SQL'
@@ -272,7 +272,7 @@ if (version_compare($oldVersion, '3.3.0.17.3', '<')) {
 }
 
 if (version_compare($oldVersion, '3.3.0.18', '<')) {
-    $settings->set('contribute_allow_update', 'submission');
+    $settings->set('contribute_allow_update', 'undertaking');
 
     $message = new PsrMessage(
         'It’s now possible to correct and fill existing resources.' // @translate
@@ -405,6 +405,115 @@ if (version_compare($oldVersion, '3.4.32', '<')) {
 
     $message = new PsrMessage(
         'It’s now possible to define multiple emails to check.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.33', '<')) {
+    $sql = <<<'SQL'
+        ALTER TABLE `contribution`
+        ADD `undertaken` tinyint(1) NOT NULL DEFAULT '0' AFTER `submitted`,
+        CHANGE `reviewed` `validated` tinyint(1) DEFAULT NULL AFTER `undertaken`;
+        SQL;
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+        // Already done.
+    }
+
+    $message = new PsrMessage(
+        'There is now a flag to indicate that a contribution is taken in charge. Furthermore, the flag "reviewed" was renamed "validated" and its value can be undetermined.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $settings->set('contribute_send_message_recipient_myself', ['bcc', 'reply']);
+    $settings->set('contribute_send_message_recipients_cc', []);
+    $settings->set('contribute_send_message_recipients_bcc', []);
+    $settings->set('contribute_send_message_recipients_reply', []);
+
+    $message = new PsrMessage(
+        'New options were added to send email to contributors.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
+
+    // Move the setting "contribute_templates" to template data.
+    $contributeTemplates = $settings->get('contribute_templates') ?: [];
+    foreach ($contributeTemplates as $id) {
+        try {
+            $template = $api->read('resource_templates', ['id' => $id])->getContent();
+        } catch (\Exception $e) {
+            continue;
+        }
+        $templateId = $template->id();
+        $data = $template->data() ?: [];
+        $data['contribute_template_contributable'] = 'global';
+        $sql = <<<'SQL'
+            UPDATE `resource_template_data`
+            SET `data` = :data
+            WHERE `resource_template_id` = :template_id
+            SQL;
+        $connection->executeStatement($sql, [
+            'data' => json_encode($data, 320),
+            'template_id' => $templateId,
+        ]);
+    }
+    $settings->delete('contribute_templates');
+
+    // Move the setting "contribute_templates_media" to template data.
+    $templatesMedias = $settings->get('contribute_templates_media') ?: [];
+    if ($templatesMedias) {
+        $templatesItems = $settings->get('contribute_templates') ?: [];
+        $templates = $api->search('resource_templates', ['id' => $templatesItems])->getContent();
+        foreach ($templates as $template) {
+            if ($template instanceof \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation) {
+                $resourceTemplateMediaIds = $template->dataValue('contribute_templates_media') ?: [];
+                if (!$resourceTemplateMediaIds) {
+                    $templateId = $template->id();
+                    $data = $template->data() ?: [];
+                    $data['contribute_templates_media'] = $templatesMedias;
+                    $sql = <<<'SQL'
+                        UPDATE `resource_template_data`
+                        SET `data` = :data
+                        WHERE `resource_template_id` = :template_id
+                        SQL;
+                    $connection->executeStatement($sql, [
+                        'data' => json_encode($data, 320),
+                        'template_id' => $templateId,
+                    ]);
+                }
+            }
+        }
+        $message = new PsrMessage(
+            'The option to specify the media template was removed. Only the options in templates will be used. You should check the options in the templates used for contribution: {template_ids}.', // @translate
+            ['template_ids' => $templatesItems]
+        );
+        $messenger->addWarning($message);
+    }
+    $settings->delete('contribute_templates_media');
+
+    // Rename some settings.
+    $renameds = [
+        'contribute_allow_update' => 'contribute_allow_edit_until',
+        'contribute_author_confirmation_subject' => 'contribute_message_author_confirmation_subject',
+        'contribute_author_confirmation_body' => 'contribute_message_author_confirmation_body',
+        'contribute_reviewer_confirmation_subject' => 'contribute_message_reviewer_confirmation_subject',
+        'contribute_reviewer_confirmation_body' => 'contribute_message_reviewer_confirmation_body',
+        'contribute_author_message_subject' => 'contribute_message_author_mail_subject',
+        'contribute_author_message_body' => 'contribute_message_author_mail_body',
+    ];
+    foreach ($renameds as $old => $new) {
+        $v = $settings->get($old);
+        $settings->set($new, $v);
+        $settings->delete($old);
+    }
+
+    // Store the template settings in a quick setting.
+    $this->mergeMainAndTemplateSettings();
+
+    $message = new PsrMessage(
+        'It is now possible to define contribute settings by template and not globally. It allows to limit contribution to one template to some users, for example a template "Thesis" for student authenticated by some sso rules or for some mails and a template "Master" for other students.' // @translate
     );
     $messenger->addSuccess($message);
 }

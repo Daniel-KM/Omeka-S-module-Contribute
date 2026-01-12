@@ -17,7 +17,7 @@ use Omeka\Module\AbstractModule;
 /**
  * Contribute.
  *
- * @copyright Daniel Berthereau, 2019-2025
+ * @copyright Daniel Berthereau, 2019-2026
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  */
 class Module extends AbstractModule
@@ -52,10 +52,10 @@ class Module extends AbstractModule
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
-        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.42')) {
+        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.47')) {
             $message = new \Omeka\Stdlib\Message(
                 $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-                'Advanced Resource Template', '3.4.42'
+                'Advanced Resource Template', '3.4.47'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
