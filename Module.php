@@ -157,16 +157,14 @@ class Module extends AbstractModule
          */
         $acl = $services->get('Omeka\Acl');
 
-        // Since Omeka 1.4, modules are ordered so Guest comes after Contribute.
-        // See \Guest\Module::onBootstrap().
-        $hasGuest = $this->isModuleActive('Guest');
-        if ($hasGuest) {
+        // Since Omeka 1.4, modules are ordered, so Guest comes after Access.
+        // See \Guest\Module::onBootstrap(). Manage other roles too: contributor, etc.
+        if (class_exists('Guest\Module', false)) {
             if (!$acl->hasRole('guest')) {
                 $acl->addRole('guest');
             }
         }
-        $hasGuestPrivate = $this->isModuleActive('GuestPrivate');
-        if ($hasGuestPrivate) {
+        if (class_exists('GuestPrivate\Module', false)) {
             if (!$acl->hasRole('guest_private')) {
                 $acl->addRole('guest_private');
             }
@@ -184,9 +182,11 @@ class Module extends AbstractModule
         // Open rights for guests for other modes.
         // The real check is done in controller anyway via CanContribute().
         if (!$isOpenContribution) {
+            $hasGuest = class_exists('Guest\Module', false);
             if ($hasGuest) {
                 $contributors[] = 'guest';
             }
+            $hasGuestPrivate = class_exists('GuestPrivate\Module', false);
             if ($hasGuestPrivate) {
                 $contributors[] = 'guest_private';
                 $contributors[] = 'guest_private_site';

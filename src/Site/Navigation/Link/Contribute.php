@@ -59,7 +59,14 @@ class Contribute implements LinkInterface
                     'resource' => 'no-privilege',
                 ];
             }
-            // Try to login first.
+            // Try to login first with module Guest, that is required.
+            if (!class_exists('Guest\Module', false)) {
+                return [
+                    // TODO Add a label.
+                    'type' => 'uri',
+                    'uri' => null,
+                ];
+            }
             return [
                 'label' => $data['label'],
                 'route' => 'site/guest/anonymous',
