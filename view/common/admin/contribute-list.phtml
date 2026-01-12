@@ -76,6 +76,7 @@ $editRight = $resource->userIsAllowed('update');
 
                 <span class="contribution-date"><?= $this->i18n()->dateFormat($contribution->created(), 'medium', 'medium') ?></span>
 
+                <?php // TODO Don't check "modified" when the modification is just a change of the flag. ?>
                 <?php if ($contribution->created() != $contribution->modified()): // Don't use !==. ?>
                 <span class="contribution-date-modified"><?= $translate('(modified)') ?></span>
                 <?php endif; ?>
@@ -93,8 +94,8 @@ $editRight = $resource->userIsAllowed('update');
                     class="validate o-icon-validate"
                     data-validate-url="<?= $escape($contribution->adminUrl('validate')) ?>"
                     data-status="validate"
-                    aria-label="<?= $escape($translate('Validate all values')) ?>"
-                    title="<?= $escape($translate('Validate all values')) ?>"></a></span>
+                    aria-label="<?= $v = $escape($translate('Validate all values')) ?>"
+                    title="<?= $v ?>"></a></span>
                 <span class="single actions"><a href="#"
                     class="undertaking-toggle o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
                     data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-undertaking')) ?>"
@@ -115,8 +116,8 @@ $editRight = $resource->userIsAllowed('update');
                 <span class="single single-action"><a href="#"
                     class="expire-token o-icon-expire-token"
                     data-expire-token-url="<?= $escape($contribution->adminUrl('expire-token')) ?>"
-                    aria-label="<?= $escape($translate('Expire token')) ?>"
-                    title="<?= $escape($translate('Expire token')) ?>"></a></span>
+                    aria-label="<?= $v = $escape($translate('Expire token')) ?>"
+                    title="<?= $v ?>"></a></span>
                 <?php endif; ?>
 
                 <?php else: ?>

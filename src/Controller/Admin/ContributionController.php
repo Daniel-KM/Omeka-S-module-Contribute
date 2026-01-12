@@ -400,7 +400,9 @@ class ContributionController extends AbstractActionController
             [
                 'total' => $count,
                 'email' => $email ?: new PsrMessage('none'), // @translate
-                'duration' => $tokenDuration ? sprintf($this->translate('%d days', $tokenDuration)) : 'unlimited',
+                'duration' => $tokenDuration
+                    ? new PsrMessage('{days} days', $tokenDuration) // @translate
+                    : new PsrMessage('unlimited'), // @translate
                 'urls' => '<ul><li>' . implode('</li><li>', $urls) . '</li></ul>',
             ]
         );
@@ -690,8 +692,8 @@ class ContributionController extends AbstractActionController
         $contributionResource = $contribution->resource();
         if ($contributionResource) {
             return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Resource not found.' // @translate
-            ), HttpResponse::STATUS_CODE_404);
+                'Resource exists already.' // @translate
+            ), HttpResponse::STATUS_CODE_400);
         }
 
         // Only people who can create resource can validate.
@@ -705,7 +707,7 @@ class ContributionController extends AbstractActionController
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
             return $this->jSend(JSend::FAIL, null, $this->translate(
-                $this->translate('Contribution is not valid: check template.') // @translate
+                'Contribution is not valid: check template.' // @translate
             ));
         }
 
@@ -785,6 +787,149 @@ class ContributionController extends AbstractActionController
             'contribution' => $contribution,
             'is_new' => true,
             'url' => $resource->adminUrl(),
+        ]);
+    }
+
+    public function validateAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Method not allowed.' // @translate
+            ), HttpResponse::STATUS_CODE_405);
+        }
+
+        $id = $this->params('id');
+
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        try {
+            $contribution = $this->api()->read('contributions', $id)->getContent();
+        } catch (\Exception $e) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Resource not found.' // @translate
+            ), HttpResponse::STATUS_CODE_404);
+        }
+
+        // If there is no resource, create it as a whole.
+        $contributionResource = $contribution->resource();
+
+        // Only people who can edit the resource can validate.
+        if (($contributionResource && !$contributionResource->userIsAllowed('update'))
+            || (!$contributionResource && !$contribution->getServiceLocator()->get('Omeka\Acl')->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create'))
+        ) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Unauthorized access.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        $resourceData = $contribution->proposalToResourceData();
+        if (!$resourceData) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Contribution is not valid.' // @translate
+            ));
+        }
+
+        // Validate and update the resource.
+        $errorStore = new ErrorStore();
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
+        if ($errorStore->hasErrors()) {
+            // Keep similar messages different to simplify debug.
+            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
+                'Contribution is not valid: check its values.' // @translate
+            ));
+        }
+        if (!$resource) {
+            return $this->jSend(JSend::ERROR, null, $this->translate(
+                'An internal error occurred.' // @translate
+            ));
+        }
+
+        return $this->jSend(JSend::SUCCESS, [
+            // Status is updated, so inverted.
+            'contribution' => [
+                'status' => 'validated',
+                'statusLabel' => $this->translate('Validated'), // @translate
+                'validated' => [
+                    'status' => 'validated',
+                    'statusLabel' => $this->translate('Validated'), // @translate
+                ],
+            ],
+            'is_new' => !$contribution->isPatch(),
+            'url' => $resource->adminUrl(),
+        ]);
+    }
+
+    public function validateValueAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Method not allowed.' // @translate
+            ), HttpResponse::STATUS_CODE_405);
+        }
+
+        $id = $this->params('id');
+
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        try {
+            $contribution = $this->api()->read('contributions', $id)->getContent();
+        } catch (\Exception $e) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Resource not found.' // @translate
+            ), HttpResponse::STATUS_CODE_404);
+        }
+
+        // A resource is required to update it.
+        $contributionResource = $contribution->resource();
+        if (!$contributionResource) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Resource not found.' // @translate
+            ), HttpResponse::STATUS_CODE_404);
+        }
+
+        // Only people who can edit the resource can validate.
+        if (!$contributionResource->userIsAllowed('update')) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Unauthorized access.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        $term = $this->params()->fromQuery('term');
+        $key = $this->params()->fromQuery('key');
+        if (!$term || !is_numeric($key)) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Missing term or key.' // @translate
+            ));
+        }
+
+        $key = (int) $key;
+
+        $resourceData = $contribution->proposalToResourceData($term, $key);
+        if (!$resourceData) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Contribution is not valid.' // @translate
+            ));
+        }
+
+        // Validate the value for the resource.
+        $errorStore = new ErrorStore();
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, true, false, false);
+        if ($errorStore->hasErrors()) {
+            // Keep similar messages different to simplify debug.
+            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
+                'Contribution is not valid: check values.' // @translate
+            ));
+        }
+        if (!$resource) {
+            return $this->jSend(JSend::ERROR, null, $this->translate(
+                'An internal error occurred.' // @translate
+            ));
+        }
+
+        return $this->jSend(JSend::SUCCESS, [
+            // Status is updated, so inverted.
+            'contribution' => [
+                'status' => 'validated-value',
+                'statusLabel' => $this->translate('Validated value'), // @translate
+            ],
         ]);
     }
 
@@ -939,149 +1084,6 @@ class ContributionController extends AbstractActionController
         return $this->jSend(JSend::SUCCESS, [
             'contribution' => $contribution,
         ], $message->setTranslator($this->translator()));
-    }
-
-    public function validateAction()
-    {
-        if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Method not allowed.' // @translate
-            ), HttpResponse::STATUS_CODE_405);
-        }
-
-        $id = $this->params('id');
-
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
-        try {
-            $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Resource not found.' // @translate
-            ), HttpResponse::STATUS_CODE_404);
-        }
-
-        // If there is no resource, create it as a whole.
-        $contributionResource = $contribution->resource();
-
-        // Only people who can edit the resource can validate.
-        if (($contributionResource && !$contributionResource->userIsAllowed('update'))
-            || (!$contributionResource && !$contribution->getServiceLocator()->get('Omeka\Acl')->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create'))
-        ) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Unauthorized access.' // @translate
-            ), HttpResponse::STATUS_CODE_401);
-        }
-
-        $resourceData = $contribution->proposalToResourceData();
-        if (!$resourceData) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Contribution is not valid.' // @translate
-            ));
-        }
-
-        // Validate and update the resource.
-        $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
-        if ($errorStore->hasErrors()) {
-            // Keep similar messages different to simplify debug.
-            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
-                'Contribution is not valid: check its values.' // @translate
-            ));
-        }
-        if (!$resource) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
-                'An internal error occurred.' // @translate
-            ));
-        }
-
-        return $this->jSend(JSend::SUCCESS, [
-            // Status is updated, so inverted.
-            'contribution' => [
-                'status' => 'validated',
-                'statusLabel' => $this->translate('Validated'), // @translate
-                'validated' => [
-                    'status' => 'validated',
-                    'statusLabel' => $this->translate('Validated'), // @translate
-                ],
-            ],
-            'is_new' => !$contribution->isPatch(),
-            'url' => $resource->adminUrl(),
-        ]);
-    }
-
-    public function validateValueAction()
-    {
-        if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Method not allowed.' // @translate
-            ), HttpResponse::STATUS_CODE_405);
-        }
-
-        $id = $this->params('id');
-
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
-        try {
-            $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Resource not found.' // @translate
-            ), HttpResponse::STATUS_CODE_404);
-        }
-
-        // A resource is required to update it.
-        $contributionResource = $contribution->resource();
-        if (!$contributionResource) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Resource not found.' // @translate
-            ), HttpResponse::STATUS_CODE_404);
-        }
-
-        // Only people who can edit the resource can validate.
-        if (!$contributionResource->userIsAllowed('update')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Unauthorized access.' // @translate
-            ), HttpResponse::STATUS_CODE_401);
-        }
-
-        $term = $this->params()->fromQuery('term');
-        $key = $this->params()->fromQuery('key');
-        if (!$term || !is_numeric($key)) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Missing term or key.' // @translate
-            ));
-        }
-
-        $key = (int) $key;
-
-        $resourceData = $contribution->proposalToResourceData($term, $key);
-        if (!$resourceData) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Contribution is not valid.' // @translate
-            ));
-        }
-
-        // Validate the value for the resource.
-        $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, true, false, false);
-        if ($errorStore->hasErrors()) {
-            // Keep similar messages different to simplify debug.
-            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
-                'Contribution is not valid: check values.' // @translate
-            ));
-        }
-        if (!$resource) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
-                'An internal error occurred.' // @translate
-            ));
-        }
-
-        return $this->jSend(JSend::SUCCESS, [
-            // Status is updated, so inverted.
-            'contribution' => [
-                'status' => 'validated-value',
-                'statusLabel' => $this->translate('Validated value'), // @translate
-            ],
-        ]);
     }
 
     /**

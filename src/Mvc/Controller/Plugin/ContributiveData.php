@@ -16,8 +16,8 @@ class ContributiveData extends AbstractPlugin
     /**
      * Get contributive data (editable, fillable, etc.) of a resource template.
      *
-     *  The list comes from the resource template if it is configured, else the
-     *  list of the first allowed resource template is used.
+     * The list comes from the resource template if it is configured, else the
+     * list of the first allowed resource template is used.
      *
      * The template can contain a sub-template for files. It is set in the main
      * resource template too (one level recursivity).

@@ -146,8 +146,8 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                             <span class="single actions"><a href="#"
                                 data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'send-message', 'id' => $contribution->id()], true)) ?>"
                                 class="send-message o-icon- fa-envelope"
-                                aria-label="<?= $escape($translate('Send a message to the author')) ?>"
-                                title="<?= $escape($translate('Send a message to the author')) ?>"></a>
+                                aria-label="<?= $v = $escape($translate('Send a message to the author')) ?>"
+                                title="<?= $v ?>"></a>
                             </span>
                         </li>
                         <?php if ($contributionResource): ?>

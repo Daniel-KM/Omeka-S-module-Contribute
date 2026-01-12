@@ -80,7 +80,11 @@ trait ContributionTrait
                 ];
                 $acl->allow($user ? $user->getRole() : null, $classes, [$action, 'change-owner']);
             }
-            $apiOptions = ['flushEntityManager' => false, 'validateOnly' => true, 'isContribution' => true];
+            $apiOptions = [
+                'flushEntityManager' => false,
+                'validateOnly' => true,
+                'isContribution' => true,
+            ];
         } else {
             $apiOptions = [];
         }

@@ -239,7 +239,7 @@ return [
     'translator' => [
         'translation_file_patterns' => [
             [
-                'type' => 'gettext',
+                'type' => \Laminas\I18n\Translator\Loader\Gettext::class,
                 'base_dir' => dirname(__DIR__) . '/language',
                 'pattern' => '%s.mo',
                 'text_domain' => null,
@@ -306,7 +306,7 @@ return [
                 Please contact us if you have any question.
                 
                 Sincerely,
-                MAIL,
+                MAIL, // @translate
             'contribute_send_message_recipient_myself' => [
                 'ccc',
                 'reply-to',

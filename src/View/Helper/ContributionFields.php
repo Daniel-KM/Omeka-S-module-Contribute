@@ -477,7 +477,7 @@ class ContributionFields extends AbstractHelper
             foreach ($field['contributions'] as &$fieldContribution) {
                 $proposed = null;
                 $dataType = $fieldContribution['type'];
-                if (!$contributive->isTermDatatype($term, $dataType)) {
+                if (!$contributive->isTermDataType($term, $dataType)) {
                     continue;
                 }
                 $baseType = $this->easyMeta->dataTypeMain($dataType);

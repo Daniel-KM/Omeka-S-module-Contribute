@@ -602,13 +602,13 @@ class Module extends AbstractModule
             $url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
         );
         $htmlText = [
-            'contritube' => $translate('Contribute'), // @translate
+            'contribute' => $translate('Contribute'), // @translate
             'email' => $escapeAttr($translate('Please input optional email…')), // @translate
             'token' => $escapeAttr($translate('Create token')), // @translate
         ];
         echo <<<HTML
             <div class="meta-group create_contribution_token">
-                <h4>{$htmlText['contritube']}</h4>
+                <h4>{$htmlText['contribute']}</h4>
                 <div class="value" id="create_contribution_token">$link</div>
                 <div id="create_contribution_token_dialog" class="modal" style="display:none;">
                     <div class="modal-content">
@@ -701,7 +701,7 @@ class Module extends AbstractModule
                 'limit' => 0,
             ])
             ->getTotalResults();
-        $heading = $translate('Contributions'); // @translat
+        $heading = $translate('Contributions'); // @translate
         $message = $total
             ? new PsrMessage(
                 '{total} contributions ({count} not validated)', // @translate

@@ -93,7 +93,7 @@ try {
     $this->headLink()
         ->appendStylesheet($assetUrl('css/valuesuggest.css', 'Contribute'));
     $this->headScript()
-        ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
+        ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'Common'), 'text/javascript', ['defer' => 'defer'])
         ->appendFile($assetUrl('js/valuesuggest.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     $js .= sprintf('const valueSuggestProxyUrl = "%s";', $this->escapeJs($proxyUrl));
 } catch (\Exception $e) {

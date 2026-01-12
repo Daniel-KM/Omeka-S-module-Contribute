@@ -1103,7 +1103,6 @@ class ContributionController extends AbstractActionController
 
     protected function confirmContribution(ContributionRepresentation $contribution, string $action = 'update'): self
     {
-        $settings = $this->settings();
         $confirms = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_author_confirmations') ?: [];
         if (empty($confirms) || !in_array($action, $confirms)) {
             return $this;
@@ -1186,9 +1185,9 @@ class ContributionController extends AbstractActionController
     }
 
     /**
-     * Get list of emails and optional queries.
+     * Get list of emails for notification.
      *
-     * @return array Email as key and query as value.
+     * The list  may be filtered with contribution metadata.
      */
     protected function filterEmails(?ContributionRepresentation $contribution = null): array
     {

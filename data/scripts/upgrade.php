@@ -127,6 +127,7 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
             continue;
         }
         // Force full json serialization.
+        // TODO Don't use json_decode(json_encode()).
         $json = json_decode(json_encode($template), true);
         $isUpdated = false;
         foreach ($json['o:resource_template_property'] ?? [] as $key => $rtp) {
