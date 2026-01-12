@@ -280,10 +280,6 @@ return [
                 // The id is set during install.
                 'Contribution',
             ],
-            'contribute_templates_media' => [
-                // The id is set during install.
-                'Contribution File',
-            ],
             // Days.
             'contribute_token_duration' => 30,
             'contribute_allow_update' => 'submission',

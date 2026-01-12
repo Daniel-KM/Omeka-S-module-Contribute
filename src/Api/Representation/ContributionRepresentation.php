@@ -342,8 +342,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $proposal = $this->proposal();
 
         // Normalize sub-proposal.
-        $isSubTemplate = is_int($indexProposalMedia);
-        if ($isSubTemplate) {
+        $isSubTemplateMedia = is_int($indexProposalMedia);
+        if ($isSubTemplateMedia) {
             $contributive = $contributive->contributiveMedia();
             if (!$contributive) {
                 return [];
@@ -660,7 +660,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
 
         // Normalize sub-proposal.
-        if (!$isSubTemplate) {
+        if (!$isSubTemplateMedia) {
             foreach ($medias ? array_keys($medias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;
                 // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
@@ -684,14 +684,14 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      *
      * @param string|null $proposedTerm Validate only a specific term.
      * @param int|null $proposedKey Validate only a specific key for the term.
-     * @param bool $isSubTemplate Internal param for recursive call.
+     * @param ResourceTemplateRepresentation $templateItem Internal param for recursive call.
      * @param int $indexProposalMedia Internal param for recursive call.
      * @return array Data to be used for api. Files for media are in key "file".
      */
     public function proposalToResourceData(
         ?string $proposedTerm = null,
         ?int $proposedKey = null,
-        ?bool $isSubTemplate = false,
+        ?ResourceTemplateRepresentation $templateItem = null,
         ?int $indexProposalMedia = null
     ): ?array {
         // The contribution requires a resource template in allowed templates.
@@ -700,9 +700,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return null;
         }
 
+        $isSubTemplateMedia = !empty($templateItem);
+
         // Right to update the resource is already checked.
         // There is always a resource template.
-        if ($isSubTemplate) {
+        if ($isSubTemplateMedia) {
             $contributive = $contributive->contributiveMedia();
             // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
             $resource = null;
@@ -744,7 +746,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
 
         // Clean data for the special keys.
-        $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
+        $proposalMedias = $isSubTemplateMedia ? [] : ($proposal['media'] ?? []);
         unset($proposal['template'], $proposal['media']);
 
         // First loop to keep, update or remove existing values.
@@ -927,11 +929,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         }
 
         // Recursive call to this method for each media.
-        if (!$isSubTemplate) {
+        if (!$isSubTemplateMedia) {
             foreach ($proposalMedias ? array_keys($proposalMedias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;
                 // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
-                $data['o:media'][$indexProposalMedia] = $this->proposalToResourceData($proposedTerm, $proposedKey, true, $indexProposalMedia);
+                $data['o:media'][$indexProposalMedia] = $this->proposalToResourceData($proposedTerm, $proposedKey, $resourceTemplate, $indexProposalMedia);
                 unset($data['o:media'][$indexProposalMedia]['o:media']);
                 unset($data['o:media'][$indexProposalMedia]['file']);
             }
@@ -1157,20 +1159,25 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return [];
         }
 
-        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
-        $contributionFields = $this->getViewHelper('contributionFields');
+        // This method allows to prepare the contributive data with the resource
+        // template of the current contribution.
         $contributive = $this->contributiveData();
+        // TODO Check if correction is still workiing for media? Has it worked like this anyway?
+        $templateItem = $contributive->template();
         $contributiveMedia = $contributive->contributiveMedia();
-        if (!$contributiveMedia) {
+        if (!$templateItem || !$contributiveMedia) {
             return [];
         }
+
+        /** @var \Contribute\View\Helper\ContributionFields $contributionFields */
+        $contributionFields = $this->getViewHelper('contributionFields');
 
         $resourceTemplateMedia = $contributiveMedia->template();
         foreach (array_keys($this->proposalMedias()) as $indexProposalMedia) {
             // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
             // So, there is no resource, but a proposal for a new media.
             $indexProposalMedia = (int) $indexProposalMedia;
-            $this->valuesMedias[$indexProposalMedia] = $contributionFields(null, $this, $resourceTemplateMedia, true, $indexProposalMedia);
+            $this->valuesMedias[$indexProposalMedia] = $contributionFields(null, $this, $resourceTemplateMedia, $templateItem, $indexProposalMedia);
         }
         return $this->valuesMedias;
     }

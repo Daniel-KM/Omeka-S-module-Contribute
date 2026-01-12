@@ -84,7 +84,8 @@ class Module extends AbstractModule
         $settings = $services->get('Omeka\Settings');
 
         // Store the ids of the resource templates for medias.
-        $templateNames = $settings->get('contribute_templates_media', []);
+        // TODO The main setting "contribute_templates_media" is no more used (only settings in templates), so the install process can be simplified.
+        $templateNames = ['Contribution File'];
         $templateIds = [];
         foreach ($templateNames as $templateName) {
             try {
@@ -94,7 +95,6 @@ class Module extends AbstractModule
             }
         }
         $templateFileIds = array_filter($templateIds);
-        $settings->set('contribute_templates_media', array_values($templateFileIds));
 
         // Store the ids of the resource templates for items.
         $templateNames = $settings->get('contribute_templates', []);
@@ -724,7 +724,7 @@ class Module extends AbstractModule
                     'class' => 'setting chosen-select',
                     'multiple' => true,
                     'data-setting-key' => 'contribute_templates_media',
-                    'data-placeholder' => 'Select resource templates for media…', // @translate
+                    'data-placeholder' => 'Select templates for media…', // @translate
                 ],
             ])
             // Specific messages for the contributor.

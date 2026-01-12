@@ -12,6 +12,7 @@ use Laminas\View\Model\ViewModel;
 // TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the cases), themes and security issues, so not sure it is simpler.
 // use Omeka\Form\ResourceForm;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Api\Representation\ResourceTemplateRepresentation;
 use Omeka\File\TempFileFactory;
 use Omeka\File\Uploader;
 use Omeka\Stdlib\ErrorStore;
@@ -385,17 +386,22 @@ class ContributionController extends AbstractActionController
         $fields = $contributionFields(null, $contribution, $resourceTemplate);
 
         // Only items can have a sub resource template for medias.
+        // A template for media should be linked to a template for item.
         // A media template may have no fields but it should be prepared anyway.
-        if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
+        if (in_array($resourceName, ['contributions', 'items'])
+            && $contributive->template()
+            && $contributive->contributiveMedia()
+        ) {
+            $templateItem = $contributive->template();
             $resourceTemplateMedia = $contributive->contributiveMedia()->template();
             $fieldsByMedia = [];
             foreach ($contribution ? array_keys($contribution->proposalMedias()) : [] as $indexProposalMedia) {
                 // TODO Match resource medias and contribution (for now only allowed until submission).
                 $indexProposalMedia = (int) $indexProposalMedia;
-                $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, true, $indexProposalMedia);
+                $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, $templateItem, $indexProposalMedia);
             }
             // Add a list of fields without values for new media.
-            $fieldsMediaBase = $contributionFields(null, $contribution, $contributive->contributiveMedia()->template(), true);
+            $fieldsMediaBase = $contributionFields(null, $contribution, $contributive->contributiveMedia()->template(), $templateItem);
         } else {
             $resourceTemplateMedia = null;
             $fieldsByMedia = [];
@@ -704,16 +710,20 @@ class ContributionController extends AbstractActionController
 
         // Only items can have a sub resource template for medias.
         // A media template may have no fields but it should be prepared anyway.
-        if (in_array($resourceName, ['contributions', 'items']) && $contributive->contributiveMedia()) {
+        if (in_array($resourceName, ['contributions', 'items'])
+            && $contributive->template()
+            && $contributive->contributiveMedia()
+        ) {
+            $templateItem = $contributive->template();
             $resourceTemplateMedia = $contributive->contributiveMedia()->template();
             $fieldsByMedia = [];
             foreach ($contribution ? array_keys($contribution->proposalMedias()) : [] as $indexProposalMedia) {
                 // TODO Match resource medias and contribution (for now only allowed until submission).
                 $indexProposalMedia = (int) $indexProposalMedia;
-                $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, true, $indexProposalMedia);
+                $fieldsByMedia[] = $contributionFields(null, $contribution, $resourceTemplateMedia, $templateItem, $indexProposalMedia);
             }
             // Add a list of fields without values for new media.
-            $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), true);
+            $fieldsMediaBase = $contributionFields(null, null, $contributive->contributiveMedia()->template(), $templateItem);
         } else {
             $resourceTemplateMedia = null;
             $fieldsByMedia = [];
@@ -1242,9 +1252,10 @@ class ContributionController extends AbstractActionController
     protected function prepareProposal(
         array $proposal,
         ?AbstractResourceEntityRepresentation $resource = null,
-        ?bool $isSubTemplate = false
+        ?ResourceTemplateRepresentation $templateItem = null
     ): ?array {
-        $isSubTemplate = (bool) $isSubTemplate;
+        // TODO Rename or remove variable $isSubTemplateMedia.
+        $isSubTemplateMedia = $templateItem !== null;
 
         // It's not possible to change the resource template of a resource in
         // public side.
@@ -1266,7 +1277,7 @@ class ContributionController extends AbstractActionController
 
         // The contribution requires a resource template in allowed templates.
         /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributive */
-        $contributive = clone $this->contributiveData($resourceTemplate, $isSubTemplate);
+        $contributive = clone $this->contributiveData($resourceTemplate, $templateItem);
         if (!$contributive->isContributive()) {
             return null;
         }
@@ -1294,7 +1305,7 @@ class ContributionController extends AbstractActionController
         }
 
         // Clean data for the special keys.
-        $proposalMedias = $isSubTemplate ? [] : ($proposal['media'] ?? []);
+        $proposalMedias = $isSubTemplateMedia ? [] : ($proposal['media'] ?? []);
         unset($proposal['template'], $proposal['media']);
 
         foreach ($proposal as &$values) {
@@ -1588,14 +1599,15 @@ class ContributionController extends AbstractActionController
             }
         }
 
-        if (!$isSubTemplate) {
+        if (!$isSubTemplateMedia) {
+            $templateItem = $contributive->template();
             $contributiveMedia = $contributive->contributiveMedia();
-            if ($contributiveMedia) {
+            if ($templateItem && $contributiveMedia) {
                 $templateMedia = $contributiveMedia->template()->id();
                 foreach ($proposalMedias ?: [] as $indexProposalMedia => $proposalMedia) {
                     // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
                     $proposalMedia['template'] = $templateMedia;
-                    $proposalMediaClean = $this->prepareProposal($proposalMedia, null, true);
+                    $proposalMediaClean = $this->prepareProposal($proposalMedia, null, $templateItem);
                     // Skip empty media (without keys "template" and "media").
                     if (count($proposalMediaClean) > 2) {
                         $result['media'][$indexProposalMedia] = $proposalMediaClean;

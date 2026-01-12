@@ -126,22 +126,23 @@ class ContributionFields extends AbstractHelper
      *
      * @todo Simplify when the status "is patch" or "new resource" (at least remove all original data).
      *
-     * @var bool $isSubTemplate Allow to check the good allowed template via
-     *   contributiveData(), so the allowed resource templates or allowed
-     *   resource templages for media). No other difference, so invoke the right
-     *   resource, the right contribution part, or the right template when
-     *   needed.
+     * @var \Omeka\Api\Representation\ResourceTemplateRepresentation $templateItem
+     *   To set the item template allows to check the good allowed template via
+     *   contributiveData() when using a media template. No other difference, so
+     *   invoke the right resource, the right contribution part, or the right
+     *   template when needed.
      */
     public function __invoke(
         ?AbstractResourceEntityRepresentation $resource = null,
         ?ContributionRepresentation $contribution = null,
         ?ResourceTemplateRepresentation $resourceTemplate = null,
-        ?bool $isSubTemplate = false,
+        ?ResourceTemplateRepresentation $templateItem = null,
         ?int $indexProposalMedia = null
     ): array {
         $fields = [];
 
-        $isSubTemplate = (bool) $isSubTemplate;
+        // TODO Rename or remove variable $$isSubTemplateMedia.
+        $isSubTemplateMedia = $templateItem !== null;
         $defaultField = [
             'template_property' => null,
             'property' => null,
@@ -164,11 +165,11 @@ class ContributionFields extends AbstractHelper
             $resource = $contribution->resource();
             if ($resource) {
                 $values = $resource->values();
-                if (!$isSubTemplate) {
+                if (!$isSubTemplateMedia) {
                     $resourceTemplate = $resource->resourceTemplate();
                 }
             }
-            if (!$isSubTemplate) {
+            if (!$isSubTemplateMedia) {
                 $resourceTemplate = $contribution->resourceTemplate();
             }
         } elseif ($resource) {
@@ -176,12 +177,13 @@ class ContributionFields extends AbstractHelper
             $values = $resource->values();
         }
 
+        // Clone() allows to get to contributive data with a different config.
         $contributive = clone $this->contributiveData;
-        $contributive = $contributive->__invoke($resourceTemplate, $isSubTemplate);
+        $contributive = $contributive->__invoke($resourceTemplate, $templateItem);
         $resourceTemplate = $contributive->template();
 
         // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
-        if ($isSubTemplate) {
+        if ($isSubTemplateMedia) {
             $values = [];
         }
 
