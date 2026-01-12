@@ -775,17 +775,30 @@ class Module extends AbstractModule
         // It is simpler to manage globally than individually because the
         // storage reference is removed currently.
         // TODO Add a column for files.
-        $sql = <<<SQL
+        // Files can be stored at two locations in the proposal:
+        // - $.media[*].file[*].proposed.store (nested in media for item contributions)
+        // - $.file[*].proposed.store (root level for media contributions)
+        $sqlNested = <<<SQL
             SELECT
                 JSON_EXTRACT( proposal, "$.media[*].file[*].proposed.store" ) AS proposal_json
             FROM contribution
             HAVING proposal_json IS NOT NULL;
             SQL;
+        $sqlRoot = <<<SQL
+            SELECT
+                JSON_EXTRACT( proposal, "$.file[*].proposed.store" ) AS proposal_json
+            FROM contribution
+            HAVING proposal_json IS NOT NULL;
+            SQL;
         /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
-        $storeds = $connection->executeQuery($sql)->fetchFirstColumn();
-        $storeds = array_map('json_decode', $storeds);
-        $storeds = $storeds ? array_unique(array_merge(...array_values($storeds))) : [];
+        $storedsNested = $connection->executeQuery($sqlNested)->fetchFirstColumn();
+        $storedsNested = array_map('json_decode', $storedsNested);
+        $storedsNested = $storedsNested ? array_merge(...array_values($storedsNested)) : [];
+        $storedsRoot = $connection->executeQuery($sqlRoot)->fetchFirstColumn();
+        $storedsRoot = array_map('json_decode', $storedsRoot);
+        $storedsRoot = $storedsRoot ? array_merge(...array_values($storedsRoot)) : [];
+        $storeds = array_unique(array_merge($storedsNested, $storedsRoot));
 
         // TODO Scan dir is local store only for now.
         $files = array_diff(scandir($dirPath) ?: [], ['.', '..']);

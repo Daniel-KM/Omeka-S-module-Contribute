@@ -1648,17 +1648,31 @@ class ContributionController extends AbstractActionController
             foreach ($uploadeds['media'][$key]['file'] as $mediaFile) {
                 $uploaded = $mediaFile['@value'];
                 if (empty($uploaded) || $uploaded['error'] == UPLOAD_ERR_NO_FILE) {
-                    unset($data['media'][$key]['file']);
+                    // Preserve existing store value from hidden form fields.
+                    // Only unset if there's no existing stored file reference.
+                    $existingStore = $data['media'][$key]['file'][0]['store'] ?? null;
+                    if (!$existingStore) {
+                        unset($data['media'][$key]['file']);
+                    }
+                    // If store exists, keep $data as-is (hidden fields preserved).
                 } elseif ($uploaded['error']) {
                     $hasError = true;
-                    unset($data['media'][$key]['file']);
+                    // On error, preserve existing store if available, otherwise unset.
+                    $existingStore = $data['media'][$key]['file'][0]['store'] ?? null;
+                    if (!$existingStore) {
+                        unset($data['media'][$key]['file']);
+                    }
                     $this->messenger()->addError(new PsrMessage(
                         'File {key}: {error}', // @translate
                         ['key' => $key, 'error' => $uploadErrorCodes[$uploaded['error']]]
                     ));
                 } elseif (!$uploaded['size']) {
                     $hasError = true;
-                    unset($data['media'][$key]['file']);
+                    // On error, preserve existing store if available, otherwise unset.
+                    $existingStore = $data['media'][$key]['file'][0]['store'] ?? null;
+                    if (!$existingStore) {
+                        unset($data['media'][$key]['file']);
+                    }
                     $this->messenger()->addError(new PsrMessage(
                         'Empty file for key {key}', // @translate
                         ['key' => $key]
@@ -1671,13 +1685,18 @@ class ContributionController extends AbstractActionController
                     $tempFile->setTempPath($uploaded['tmp_name']);
                     if (!(new \Omeka\File\Validator())->validate($tempFile)) {
                         $hasError = true;
-                        unset($data['media'][$key]['file']);
+                        // On validation error, preserve existing store if available.
+                        $existingStore = $data['media'][$key]['file'][0]['store'] ?? null;
+                        if (!$existingStore) {
+                            unset($data['media'][$key]['file']);
+                        }
                         $this->messenger()->addError(new PsrMessage(
                             'Invalid file type for key {key}', // @translate
                             ['key' => $key]
                         ));
                     } else {
                         // Take care of automatic rename of uploader (not used).
+                        // New upload replaces any existing store.
                         $data['media'][$key]['file'] = [
                             [
                                 '@value' => $uploaded['name'],
