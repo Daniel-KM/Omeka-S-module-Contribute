@@ -53,6 +53,7 @@ return [
             Form\ContributeForm::class => Form\ContributeForm::class,
             Form\SendMessageForm::class => Form\SendMessageForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
+            Form\TemplateContributeFieldset::class => Form\TemplateContributeFieldset::class,
         ],
         'factories' => [
             Form\QuickSearchForm::class => Service\Form\QuickSearchFormFactory::class,
