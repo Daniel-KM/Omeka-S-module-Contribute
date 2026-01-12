@@ -311,6 +311,13 @@ return [
                 
                 Sincerely,
                 MAIL,
+            'contribute_send_message_recipient_myself' => [
+                'ccc',
+                'reply-to',
+            ],
+            'contribute_send_message_recipients_cc' => [],
+            'contribute_send_message_recipients_bcc' => [],
+            'contribute_send_message_recipients_reply-to' => [],
         ],
     ],
 ];

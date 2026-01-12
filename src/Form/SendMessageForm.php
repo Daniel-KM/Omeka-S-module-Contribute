@@ -2,6 +2,7 @@
 
 namespace Contribute\Form;
 
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 
@@ -61,26 +62,52 @@ class SendMessageForm extends Form
             ])
 
             ->add([
-                'name' => 'bcc',
-                'type' => Element\Checkbox::class,
+                'name' => 'myself',
+                'type' => CommonElement\OptionalMultiCheckbox::class,
                 'options' => [
-                    'label' => 'Add myself as bcc', // @translate
+                    'label' => 'Add myself as', // @translate
+                    'value_options' => [
+                        'cc' => 'cc', // @translate
+                        'bcc' => 'bcc', // @translate
+                        'reply' => 'Reply to', // @translate'
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'myself',
+                ],
+            ])
+            ->add([
+                'name' => 'cc',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'label' => 'Add specific emails as cc', // @translate
+                    'info' => 'Use "=" to separate multiple emails.', // @translate
+                    'value_separator' => '=',
+                ],
+                'attributes' => [
+                    'id' => 'cc',
+                ],
+            ])
+            ->add([
+                'name' => 'bcc',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'label' => 'Add specific emails as bcc', // @translate
+                    'value_separator' => '=',
                 ],
                 'attributes' => [
                     'id' => 'bcc',
-                    'value' => '1',
                 ],
             ])
-
             ->add([
-                'name' => 'reply_to',
-                'type' => Element\Checkbox::class,
+                'name' => 'reply',
+                'type' => CommonElement\ArrayText::class,
                 'options' => [
-                    'label' => 'Add myself as reply-to', // @translate
+                    'label' => 'Add specific emails as reply-to', // @translate
+                    'value_separator' => '=',
                 ],
                 'attributes' => [
-                    'id' => 'reply_to',
-                    'value' => '1',
+                    'id' => 'reply',
                 ],
             ])
 
@@ -94,19 +121,5 @@ class SendMessageForm extends Form
                 ],
             ])
         ;
-    }
-
-    public function setSubject(string $subject): self
-    {
-        $this->subject = $subject;
-        $this->get('subject')->setAttribute('value', $subject);
-        return $this;
-    }
-
-    public function setBody(string $body): self
-    {
-        $this->body = $body;
-        $this->get('body')->setAttribute('value', $body);
-        return $this;
     }
 }

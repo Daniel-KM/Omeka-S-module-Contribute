@@ -368,6 +368,59 @@ class SettingsFieldset extends Fieldset
                 ],
             ])
 
+            ->add([
+                'name' => 'contribute_send_message_recipient_myself',
+                'type' => CommonElement\OptionalMultiCheckbox::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Default options to send a message: myself as recipient', // @translate
+                    'value_options' => [
+                        'cc' => 'cc', // @translate
+                        'bcc' => 'bcc', // @translate
+                        'reply' => 'Reply to', // @translate'
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'contribute_send_message_recipient_myself',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_send_message_recipients_cc',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Default options to send a message: cc emails', // @translate
+                    'info' => 'Use "=" to separate multiple emails.', // @translate
+                    'value_separator' => '=',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_send_message_recipients_cc',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_send_message_recipients_bcc',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Default options to send a message: bcc emails', // @translate
+                    'value_separator' => '=',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_send_message_recipients_bcc',
+                ],
+            ])
+            ->add([
+                'name' => 'contribute_send_message_recipients_reply',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Default options to send a message: reply-to emails', // @translate
+                    'value_separator' => '=',
+                ],
+                'attributes' => [
+                    'id' => 'contribute_send_message_recipients_reply',
+                ],
+            ])
         ;
     }
 }

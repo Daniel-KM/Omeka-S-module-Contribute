@@ -52,20 +52,28 @@ class ContributionController extends AbstractActionController
         $response = $this->api()->search('contributions', $params);
         $this->paginator($response->getTotalResults());
 
+        $settings = $this->settings();
+
         $subject = $this->settings()->get('contribute_author_message_subject')
             ?: $this->translate($this->defaultMessages['contribute_author_message_subject']);
         $body = $this->settings()->get('contribute_author_message_body')
             ?: $this->translate($this->defaultMessages['contribute_author_message_body']);
-        $subject = $this->fillMessage($subject);
-        $body = $this->fillMessage($body);
+
+        $messageData = [
+            'subject' => $this->fillMessage($subject),
+            'body' => $this->fillMessage($body),
+            'myself' => $settings->get('contribute_send_message_recipient_myself', []) ?: [],
+            'cc' => $settings->get('contribute_send_message_recipients_cc') ?: [],
+            'bcc' => $settings->get('contribute_send_message_recipients_bcc') ?: [],
+            'reply' => $settings->get('contribute_send_message_recipients_reply') ?: [],
+        ];
 
         /** @var \Contribute\Form\SendMessageForm $formSendMessage */
         $formSendMessage = $this->getForm(SendMessageForm::class);
         $formSendMessage
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'send-message'], true))
             ->setAttribute('id', 'send-message-form')
-            ->setSubject($subject)
-            ->setBody($body);
+            ->populateValues($messageData);
 
         $formSearch = $this->getForm(QuickSearchForm::class);
         $formSearch
@@ -709,7 +717,8 @@ class ContributionController extends AbstractActionController
             ), HttpResponse::STATUS_CODE_405);
         }
 
-        $id = $this->params('id');
+        $params = $this->params();
+        $id = $params->fromRoute('id');
 
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
@@ -727,7 +736,7 @@ class ContributionController extends AbstractActionController
             ), HttpResponse::STATUS_CODE_401);
         }
 
-        $updateContribution = (bool) $this->params()->fromPost('reject', false);
+        $updateContribution = (bool) $params->fromPost('reject', false);
         if ($updateContribution && !$contribution->userIsAllowed('update')) {
             return $this->jSend(JSend::FAIL, null, $this->translate(
                 'The user has no right to update the contribution.' // @translate
@@ -746,7 +755,7 @@ class ContributionController extends AbstractActionController
 
         // TODO Fill message sent?
 
-        $body = (string) $this->params()->fromPost('body');
+        $body = (string) $params->fromPost('body');
         $body = trim((string) $body);
 
         if (!strlen($body)) {
@@ -761,7 +770,7 @@ class ContributionController extends AbstractActionController
             ));
         }
 
-        $subject = $this->params()->fromPost('subject');
+        $subject = $params->fromPost('subject');
         $subject = trim((string) $subject);
         if (!strlen($subject)) {
             $subject = $this->settings()->get('contribute_author_message_subject')
@@ -783,18 +792,45 @@ class ContributionController extends AbstractActionController
             ));
         }
 
+        $post = $params->fromPost();
+        // Skip subject and body that are checked early.
+        $post['subject'] = '-';
+        $post['body'] = '-';
+
+        /** @var \Contribute\Form\SendMessageForm $form */
+        $form = $this->getForm(SendMessageForm::class);
+        $form->setData($post);
+        if (!$form->isValid()) {
+            // $this->messenger()->addFormErrors($form);
+            return $this->jSend(JSend::FAIL, [
+                'form' => $form->getMessages(),
+            ]);
+        }
+
+        $data = $form->getData();
+
         $to = [$toEmail => $owner ? $owner->name() : ''];
+        $cc = $data['cc'] ?? [];
+        $bcc = $data['bcc'] ?? [];
+        $replyTo = $data['reply'] ?? [];
+        $myself = $data['myself'] ?? [];
 
-        $bcc = $this->params()->fromPost('bcc', false)
-            ? [$user->getEmail() => $user->getName()]
-            : null;
+        if (in_array('cc', $myself)) {
+            $cc[$user->getEmail()] = $user->getName();
+        }
+        if (in_array('bcc', $myself)) {
+            $bcc[$user->getEmail()] = $user->getName();
+        }
+        if (in_array('reply', $myself)) {
+            $replyTo[$user->getEmail()] = $user->getName();
+        }
 
-        $replyTo = $this->params()->fromPost('reply_to', false)
-            ? [$user->getEmail() => $user->getName()]
-            : null;
+        $cc = array_filter($cc);
+        $bcc = array_filter($bcc);
+        $replyTo = array_filter($replyTo);
 
         /** @see \Common\Mvc\Controller\Plugin\SendEmail */
-        $result = $this->sendEmail($body, $subject, $to, null, null, $bcc, $replyTo);
+        $result = $this->sendEmail($body, $subject, $to, null, $cc, $bcc, $replyTo);
         if (!$result) {
             return $this->jSend(JSend::ERROR, null, $this->translate(
                 'Sorry, the message cannot be sent. Contact the administrator.' // @translate
