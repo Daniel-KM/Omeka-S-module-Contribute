@@ -34,10 +34,10 @@ $messenger = $plugins->get('messenger');
 $siteSettings = $services->get('Omeka\Settings\Site');
 $entityManager = $services->get('Omeka\EntityManager');
 
-if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.69')) {
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.76')) {
     $message = new \Omeka\Stdlib\Message(
         $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-        'Common', '3.4.69'
+        'Common', '3.4.76'
     );
     throw new ModuleCannotInstallException((string) $message);
 }
