@@ -11,9 +11,14 @@ class QuickSearchFormFactory implements FactoryInterface
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
         $api = $services->get('Omeka\ApiManager');
+        $settings = $services->get('Omeka\Settings');
+
         $availableTemplates = $api->search('resource_templates', [], ['returnScalar' => 'label'])->getContent();
-        $contributeTemplates = $services->get('Omeka\Settings')->get('contribute_templates', []);
-        $set = array_intersect_key($availableTemplates, array_flip($contributeTemplates));
+
+        $contributeConfig = $settings->get('contribute_config') ?: [];
+        $contributables = $contributeConfig['contribute_template_contributable'] ?? [];
+
+        $set = array_intersect_key($availableTemplates, $contributables);
         $unset = array_diff_key($availableTemplates, $set);
         natcasesort($set);
         natcasesort($unset);

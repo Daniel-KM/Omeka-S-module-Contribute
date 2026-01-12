@@ -124,13 +124,27 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     public function isUpdatable(): bool
     {
-        $settings = $this->getServiceLocator()->get('Omeka\Settings');
-        $allowUpdateUntil = $settings->get('contribute_allow_update') ?: 'undertaking';
-        if ($allowUpdateUntil === 'submission') {
+        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
+        $template = $this->resourceTemplate();
+        if ($template) {
+            $contributable = $template->dataValue('contribute_template_contributable');
+            if ($contributable === 'global') {
+                $settings = $this->getServiceLocator()->get('Omeka\Settings');
+                $allowEditUntil = $settings->get('contribute_allow_edit_until') ?: 'undertaking';
+            } elseif ($contributable === 'specific') {
+                $allowEditUntil = $template->dataValue('contribute_allow_edit_until') ?: 'undertaking';
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        if ($allowEditUntil === 'submission') {
             return !$this->resource->getSubmitted() && !$this->resource->getUndertaken() && !$this->resource->getValidated();
-        } elseif ($allowUpdateUntil === 'undertaking') {
+        } elseif ($allowEditUntil === 'undertaking') {
             return !$this->resource->getUndertaken() && !$this->resource->getValidated();
-        } elseif ($allowUpdateUntil === 'validation') {
+        } elseif ($allowEditUntil === 'validation') {
             return !$this->resource->getValidated();
         } else {
             return false;

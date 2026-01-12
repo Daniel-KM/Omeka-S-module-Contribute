@@ -6,6 +6,7 @@ use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\ErrorStore;
+use AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation;
 
 /**
  * @todo Move ContributionTrait to controller plugins.
@@ -195,5 +196,54 @@ trait ContributionTrait
             ->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
 
         return $contributionResource;
+    }
+
+    protected function settingTemplateOrMainOrConfig($resourceOrTemplateOrResourceIds, string $key, bool $includeConfig = false, ?string $resourceType = null)
+    {
+        if (!$resourceOrTemplateOrResourceIds) {
+            return null;
+        } elseif (is_array($resourceOrTemplateOrResourceIds)) {
+            // Get the list of resource templates ids from the ids.
+            // TODO For now, api does not allow to search mixed resources.
+            // Here, all resource ids are the same resource type.
+            $templateIds = $this->api()->search($resourceType ?? 'items',
+                ['id' => $resourceOrTemplateOrResourceIds],
+                ['returnScalar' => 'resourceTemplate']
+            )->getContent();
+            $templateIds = array_unique($templateIds);
+            if ($templateIds) {
+                // TODO For now, get the settings from the first template only. Else min/max/merge…?
+                $templateId = reset($templateIds);
+            } else {
+                $templateId = null;
+            }
+        }elseif ($resourceOrTemplateOrResourceIds instanceof AbstractResourceEntityRepresentation
+            || $resourceOrTemplateOrResourceIds instanceof ContributionRepresentation
+        ) {
+            $templateId = $resourceOrTemplateOrResourceIds->resourceTemplate();
+            $templateId = $templateId ? $templateId->id() : null;
+        } elseif ($resourceOrTemplateOrResourceIds instanceof ResourceTemplateRepresentation) {
+            $templateId = $resourceOrTemplateOrResourceIds->id();
+        } else {
+            return null;
+        }
+
+        if ($templateId) {
+            $settings = $this->settings();
+            $contributeConfig = $settings->get('contribute_config') ?: [];
+            if (array_key_exists($key, $contributeConfig) && array_key_exists($templateId, $contributeConfig[$key])) {
+                return $contributeConfig[$key][$templateId];
+            }
+        }
+
+        $val = $this->settings()->get($key);
+        if ($val !== null && $val !== '' && $val !== []) {
+            return $val;
+        } elseif ($includeConfig) {
+            $contributeConfig = dirname(__DIR__, 2) . '/config/module.config.php';
+            return $contributeConfig['contribute']['settings'][$key] ?? null;
+        } else {
+            return $val;
+        }
     }
 }

@@ -16,8 +16,8 @@ $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
 
-$contributeModes = $setting('contribute_modes') ?: [];
-$useToken = in_array('user_token', $contributeModes) || in_array('token', $contributeModes);
+$contributeConfig = $setting('contribute_config') ?: [];
+$useToken = !empty($contributeConfig['use_token']);
 ?>
 
 <div class="contributions">

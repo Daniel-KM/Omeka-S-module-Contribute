@@ -54,10 +54,10 @@ class ContributionController extends AbstractActionController
 
         $settings = $this->settings();
 
-        $subject = $this->settings()->get('contribute_author_message_subject')
-            ?: $this->translate($this->defaultMessages['contribute_author_message_subject']);
-        $body = $this->settings()->get('contribute_author_message_body')
-            ?: $this->translate($this->defaultMessages['contribute_author_message_body']);
+        $subject = $this->settings()->get('contribute_message_author_mail_subject')
+            ?: $this->translate($this->defaultMessages['contribute_message_author_mail_subject']);
+        $body = $this->settings()->get('contribute_message_author_mail_body')
+            ?: $this->translate($this->defaultMessages['contribute_message_author_mail_body']);
 
         $messageData = [
             'subject' => $this->fillMessage($subject),
@@ -304,14 +304,8 @@ class ContributionController extends AbstractActionController
         ];
 
         $resourceType = $params['resource_type'];
-        $resourceTypeMap = [
-            'item' => 'items',
-            'media' => 'media',
-            'item-set' => 'item_sets',
-            'items' => 'items',
-            'item_sets' => 'item_sets',
-        ];
-        if (!isset($resourceTypeMap[$resourceType])) {
+        $resourceName = $this->easyMeta()->resourceName($resourceType);
+        if (!in_array($resourceName, ['items', 'media', 'item_sets'])) {
             $this->messenger()->addError('You can create token only for items, media and item sets.'); // @translate
             return $params['redirect']
                 ? $this->redirect()->toUrl($params['redirect'])
@@ -327,9 +321,13 @@ class ContributionController extends AbstractActionController
                 : $this->redirect()->toRoute('admin/default', ['controller' => $resourceType, 'action' => 'browse'], true);
         }
 
-        $resource = $resourceTypeMap[$resourceType];
         // Normalize the resource type for controller url.
-        $resourceType = array_search($resource, $resourceTypeMap);
+        $resourceTypeMap = [
+            'items' => 'item',
+            'media' => 'media',
+            'item_sets' => 'item-set',
+        ];
+        $resourceType = $resourceTypeMap[$resourceName];
 
         $resourceIds = $params['resource_ids']
             ? (is_array($params['resource_ids']) ? $params['resource_ids'] : explode(',', $params['resource_ids']))
@@ -342,7 +340,7 @@ class ContributionController extends AbstractActionController
             $query = json_decode($params['query'] ?: [], true);
             unset($query['submit'], $query['page'], $query['per_page'], $query['limit'],
                 $query['offset'], $query['sort_by'], $query['sort_order']);
-            $resourceIds = $this->api()->search($resource, $query, ['returnScalar' => 'id'])->getContent();
+            $resourceIds = $this->api()->search($resourceName, $query, ['returnScalar' => 'id'])->getContent();
         }
 
         $count = count($resourceIds);
@@ -365,7 +363,7 @@ class ContributionController extends AbstractActionController
         }
 
         // $expire = $params['expire'];
-        $tokenDuration = $this->settings()->get('contribute_token_duration');
+        $tokenDuration = $this->settingTemplateOrMainOrConfig($resourceIds, 'contribute_token_duration', false);
         $expire = $tokenDuration > 0
             ? (new DateTime('now'))->add(new DateInterval('PT' . ($tokenDuration * 86400) . 'S'))
             : null;
@@ -504,7 +502,7 @@ class ContributionController extends AbstractActionController
         // Check rights to edit without token.
         if (!$token) {
             $canContribute = $this->viewHelpers()->get('canContribute');
-            $canEditWithoutToken = $canContribute();
+            $canEditWithoutToken = $canContribute($contribution ? $contribution->resourceTemplate() : null, true);
             if (!$canEditWithoutToken) {
                 return $this->jSend(JSend::FAIL, null, $this->translate(
                     'Unauthorized access.' // @translate
@@ -807,7 +805,8 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate('Resource not found.' // @translate
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
 
@@ -856,8 +855,8 @@ class ContributionController extends AbstractActionController
         $subject = $params->fromPost('subject');
         $subject = trim((string) $subject);
         if (!strlen($subject)) {
-            $subject = $this->settings()->get('contribute_author_message_subject')
-                ?: $this->translate($this->defaultMessages['contribute_author_message_subject']);
+            $subject = $this->settings()->get('contribute_message_author_mail_subject')
+                ?: $this->translate($this->defaultMessages['contribute_message_author_mail_subject']);
             $subject = $this->fillMessage($subject);
         }
 

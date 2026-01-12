@@ -60,7 +60,14 @@ $mapLabels = [
             'action' => $action,
             'mode' => $mode,
             'space' => $space,
-            'submitLabel' => $action === 'add' && $setting('contribute_allow_update') !== 'no' ? $translate('Add') : $translate('Submit'),
+            'submitLabel' => $action === 'add'
+                && (
+                    $resourceTemplate && $resourceTemplate->dataValue('contribute_template_contributable') === 'specific'
+                        ? $resourceTemplate->dataValue('contribute_allow_edit_until')
+                        : $setting('contribute_allow_edit_until')
+                    ) !== 'no'
+                ? $translate('Add')
+                : $translate('Submit'),
             'cancelLabel' => $translate('Cancel'),
             'isMainForm' => true,
             'skipContributeCss' => false,

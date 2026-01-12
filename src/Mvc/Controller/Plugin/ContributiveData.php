@@ -56,7 +56,6 @@ class ContributiveData extends AbstractPlugin
         ]);
 
         $controller = $this->getController();
-        $settings = $controller->settings();
         $this->data['datatypes_default'] = ['literal', 'resource', 'uri'];
 
         // TODO Manage valuesuggest and custom vocab differently, because it is not a single data type.
@@ -71,50 +70,43 @@ class ContributiveData extends AbstractPlugin
 
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
         $resourceTemplate = $this->resourceTemplate($resourceTemplate);
+        if (!$resourceTemplate) {
+            $controller->logger()->err('A resource template must be set to allow to contribute.'); // @translate
+            return $this;
+        }
+
+        if (!method_exists($resourceTemplate, 'data')) {
+            $controller->logger()->err('The module Advanced Resource Template is not available.'); // @translate
+            return $this;
+        }
 
         // If it is a sub-template, it is a media in all cases, so the item
         // template should be set.
         if ($isSubTemplateMedia) {
             // Get the templates from the item template.
             $templateItem = $this->resourceTemplate($templateItem);
-            $allowedResourceTemplates = $templateItem
-                ? ($templateItem->dataValue('contribute_templates_media', []) ?: [])
-                : [];
-        } else {
-            $allowedResourceTemplates = $settings->get('contribute_templates', []) ?: [];
-        }
-
-        // When a resource template is set, it should be allowed too.
-        // Anyway, if it is not prepared, it won't be editable/fillable (below).
-        // Else first resource template.
-        if ($resourceTemplate) {
+            if (!$templateItem) {
+                $controller->logger()->err('A resource template must be set to allow to contribute.'); // @translate
+                return $this;
+            }
+            $templateMedias = $templateItem->dataValue('contribute_templates_media', []) ?: [];
             $resourceTemplateId = $resourceTemplate->id();
-            if (!in_array($resourceTemplateId, $allowedResourceTemplates)) {
+            if (!$templateMedias || !in_array($resourceTemplateId, $templateMedias)) {
                 $controller->logger()->err(
-                    $isSubTemplateMedia
-                        ? 'The resource template #{template_id} is not in the list of allowed contribution templates for media.' // @translate
-                        : 'The resource template #{template_id} is not in the list of allowed contribution templates.', // @translate
-                    ['template_id' => $resourceTemplateId]
+                    'A resource template for media must be set to allow to contribute for template #{template_id}.', // @translate
+                    ['template_id' => $templateItem->id()]
                 );
                 return $this;
             }
         } else {
-            $resourceTemplate = reset($allowedResourceTemplates);
-            if ($resourceTemplate) {
-                $resourceTemplate = $this->resourceTemplate($resourceTemplate);
-            }
-            if (!$resourceTemplate) {
-                $controller->logger()->err('A resource template must be set to allow to contribute'); // @translate
+            $contributable = $resourceTemplate->dataValue('contribute_template_contributable');
+            if (!in_array($contributable, ['global', 'specific'])) {
+                $controller->logger()->err('A resource template must be set to allow to contribute.'); // @translate
                 return $this;
             }
         }
 
         $this->data['template'] = $resourceTemplate;
-
-        if (!method_exists($resourceTemplate, 'data')) {
-            $controller->logger()->err('The module Advanced Resource Template is not available.'); // @translate
-            return $this;
-        }
 
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $resourceTemplateProperty */
         foreach ($resourceTemplate->resourceTemplateProperties() as $resourceTemplateProperty) {
@@ -140,6 +132,7 @@ class ContributiveData extends AbstractPlugin
 
         // When a sub-template is not available, there is no break, so it is
         // possible to submit partially, for example with a multi-step process.
+        // TODO Clarify missing sub-template in the process step (probably useless now).
         if (!$isSubTemplateMedia) {
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation[] $resourceTemplateMedias */
             $resourceTemplateMediaIds = $resourceTemplate->dataValue('contribute_templates_media') ?: [];

@@ -272,18 +272,17 @@ return [
     ],
     'contribute' => [
         'settings' => [
-            // ["user"] is set on install.
+            // This setting is hidden. It merges main settings and templates
+            // ones for quick check.
+            'contribute_config' => [],
+            // Standard settings.
             'contribute_modes' => [],
             'contribute_filter_user_roles' => [],
             'contribute_filter_user_emails' => [],
             'contribute_filter_user_settings' => [],
-            'contribute_templates' => [
-                // The id is set during install.
-                'Contribution',
-            ],
             // Days.
             'contribute_token_duration' => 30,
-            'contribute_allow_update' => 'undertaking',
+            'contribute_allow_edit_until' => 'undertaking',
             'contribute_sender_email' => '',
             'contribute_sender_name' => '',
             'contribute_notify_recipients' => [],
@@ -292,12 +291,12 @@ return [
             'contribute_message_edit' => '',
             'contribute_redirect_submit' => '',
             'contribute_author_confirmations' => [],
-            'contribute_author_confirmation_subject' => '',
-            'contribute_author_confirmation_body' => '',
-            'contribute_reviewer_confirmation_subject' => '',
-            'contribute_reviewer_confirmation_body' => '',
-            'contribute_author_message_subject' => 'Your contribution on {main_title}', // @translate
-            'contribute_author_message_body' => <<<'MAIL'
+            'contribute_message_author_confirmation_subject' => '',
+            'contribute_message_author_confirmation_body' => '',
+            'contribute_message_reviewer_confirmation_subject' => '',
+            'contribute_message_reviewer_confirmation_body' => '',
+            'contribute_message_author_mail_subject' => 'Your contribution on {main_title}', // @translate
+            'contribute_message_author_mail_body' => <<<'MAIL'
                 Hello,
                 
                 Your contribution on {main_title} has been rejected.

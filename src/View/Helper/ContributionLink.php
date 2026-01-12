@@ -52,21 +52,20 @@ class ContributionLink extends AbstractHelper
 
         $plugins = $view->getHelperPluginManager();
         $user = $plugins->get('identity')();
-        $setting = $plugins->get('setting');
         $canContribute = $plugins->get('canContribute');
 
-        $canEditWithoutToken = $canContribute();
+        $canEditWithoutToken = $canContribute(null, true);
         $canEdit = $canEditWithoutToken
             || ($resource && $this->checkToken->__invoke($resource));
 
         $isEditable = false;
         if ($resource) {
+            /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
             $resourceTemplate = $resource->resourceTemplate();
             if ($resourceTemplate) {
-                $isEditable = in_array($resourceTemplate->id(), $setting('contribute_templates', []));
+                $contributable = $resourceTemplate->dataValue('contribute_template_contributable');
+                $isEditable = $contributable === 'global' || $contributable === 'specific';
             }
-        } else {
-            $isEditable = !empty($setting('contribute_templates', []));
         }
 
         $template = $options['template'];

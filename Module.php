@@ -77,39 +77,32 @@ class Module extends AbstractModule
         /**
          * @var \Omeka\Api\Manager $api
          * @var \Omeka\Settings\Settings $settings
+         * @var \Doctrine\DBAL\Connection $connection
          */
         $services = $this->getServiceLocator();
 
         $api = $services->get('Omeka\ApiManager');
         $settings = $services->get('Omeka\Settings');
+        $connection = $services->get('Omeka\Connection');
 
-        // Store the ids of the resource templates for medias.
-        // TODO The main setting "contribute_templates_media" is no more used (only settings in templates), so the install process can be simplified.
-        $templateNames = ['Contribution File'];
-        $templateIds = [];
-        foreach ($templateNames as $templateName) {
-            try {
-                $templateIds[$templateName] = $api->read('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName])->getContent()->id();
-            } catch (\Exception $e) {
-                // Skip.
-            }
-        }
-        $templateFileIds = array_filter($templateIds);
+        // Get all the templates ids and labels.
+        // Don't use EasyMeta here.
+        $qb = $connection->createQueryBuilder();
+        $qb
+            ->select(
+                '`resource_template`.`label` AS label',
+                '`resource_template`.`id` AS id'
+            )
+            ->from('resource_template', 'resource_template')
+            ->groupBy('`resource_template`.`id`')
+            ->orderBy('`resource_template`.`label`', 'asc')
+        ;
+        $templateIdsByLabels = $connection->executeQuery($qb)->fetchAllKeyValue();
 
-        // Store the ids of the resource templates for items.
-        $templateNames = $settings->get('contribute_templates', []);
-        $templateIds = [];
-        foreach ($templateNames as $templateName) {
-            try {
-                $templateIds[$templateName] = $api->read('resource_templates', is_numeric($templateName) ? ['id' => $templateName] : ['label' => $templateName])->getContent()->id();
-            } catch (\Exception $e) {
-                // Skip.
-            }
-        }
-        $templateItemIds = array_filter($templateIds);
-        $settings->set('contribute_templates', array_values($templateItemIds));
+        $templateFileIds = array_intersect_key($templateIdsByLabels, ['Contribution File']);
+        $templateItemIds = array_intersect_key($templateIdsByLabels, ['Contribution']);
 
-        // Set the template Contribution File the template for media in main
+        // Set the template Contribution File (template for media) in main
         // template Contribution.
         $templateFile = $templateFileIds['Contribution File'] ?? null;
         $templateItem = $templateItemIds['Contribution'] ?? null;
@@ -120,6 +113,8 @@ class Module extends AbstractModule
             $templateData['contribute_templates_media'] = [$templateFile];
             $api->update('resource_templates', $templateItem, ['o:data' => $templateData], [], ['isPartial' => true]);
         }
+
+        $this->mergeMainAndTemplateSettings();
     }
 
     protected function postUninstall(): void
@@ -139,15 +134,17 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
 
-        $contributeModes = $settings->get('contribute_modes') ?: [];
+        $contributeConfig = $settings->get('contribute_config') ?: [];
+        $contributeModes = $contributeConfig['modes'] ?? [];
+
         $isOpenContribution = in_array('open', $contributeModes)
             || in_array('token', $contributeModes);
 
         $contributeRoles = in_array('user_role', $contributeModes)
-            ? $settings->get('contribute_filter_user_roles', [])
+            ? $contributeConfig['filter_user_roles'] ?? []
             : null;
 
-        $allowUpdateMode = $settings->get('contribute_allow_update', 'submission');
+        $allowEditUntil = $contributeConfig['allow_edit_until'] ?? 'undertaking';
 
         /**
          * For default rights:
@@ -217,7 +214,7 @@ class Module extends AbstractModule
         // Nobody can view contributions except owner and admins.
         // So anonymous contributor cannot view or edit a contribution.
         // Once submitted, the contribution cannot be updated by the owner,
-        // except with option "contribute_allow_update".
+        // except with option "contribute_allow_edit_until".
         // Once validated, the contribution can be viewed like the resource.
 
         // Contribution.
@@ -253,7 +250,7 @@ class Module extends AbstractModule
                     ->addAssertion(new \Contribute\Permissions\Assertion\IsFullContributed())
             )
         ;
-        if (in_array($allowUpdateMode, ['submission', 'undertaking', 'validation'])) {
+        if (in_array($allowEditUntil, ['submission', 'undertaking', 'validation'])) {
             $acl
                 ->allow(
                     $contributors,
@@ -261,9 +258,9 @@ class Module extends AbstractModule
                     ['update', 'delete'],
                     (new \Laminas\Permissions\Acl\Assertion\AssertionAggregate)
                         ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
-                        ->addAssertion($allowUpdateMode === 'submission'
+                        ->addAssertion($allowEditUntil === 'submission'
                             ? new \Contribute\Permissions\Assertion\IsNotSubmitted()
-                            : ($allowUpdateMode === 'undertaking'
+                            : ($allowEditUntil === 'undertaking'
                                 ? new \Contribute\Permissions\Assertion\IsNotUndertaken()
                                 : new \Contribute\Permissions\Assertion\IsNotValidated())
                         )
@@ -445,6 +442,23 @@ class Module extends AbstractModule
             'form.add_elements',
             [$this, 'addResourceTemplatePropertyFieldsetElements']
         );
+        $sharedEventManager->attach(
+            \AdvancedResourceTemplate\Api\Adapter\ResourceTemplateAdapter::class,
+            'api.create.post',
+            [$this, 'handleApiUpdatePostResourceTemplate']
+        );
+        $sharedEventManager->attach(
+            \AdvancedResourceTemplate\Api\Adapter\ResourceTemplateAdapter::class,
+            'api.update.post',
+            [$this, 'handleApiUpdatePostResourceTemplate']
+        );
+    }
+
+    public function handleMainSettings(Event $event): void
+    {
+        $this->handleAnySettings($event, 'settings');
+
+        $this->mergeMainAndTemplateSettings();
     }
 
     /**
@@ -535,9 +549,8 @@ class Module extends AbstractModule
     public function addHeadersAdminBrowse(Event $event): void
     {
         // Don't display the token form if it is not used.
-        $contributeModes = $this->getServiceLocator()->get('Omeka\Settings')->get('contribute_modes') ?: [];
-        $useToken = in_array('user_token', $contributeModes) || in_array('token', $contributeModes);
-        if (!$useToken) {
+        $contributeConfig = $this->getServiceLocator()->get('Omeka\Settings')->get('contribute_config') ?: [];
+        if (empty($contributeConfig['use_token'])) {
             return;
         }
         $this->addHeadersAdmin($event);
@@ -545,28 +558,45 @@ class Module extends AbstractModule
 
     public function adminViewShowSidebar(Event $event): void
     {
-        $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
+        /**
+         * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+         * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template
+         */
+        $view = $event->getTarget();
+        $resource = $view->resource;
 
-        $contributeModes = $settings->get('contribute_modes') ?: [];
+        $template = $resource->resourceTemplate();
+        if (!$template) {
+            return;
+        }
+
+        // Check the mode for this template (none, global or specific).
+        $contributable = $template->dataValue('contribute_template_contributable');
+        if ($contributable === 'global') {
+            $contributeModes = $this->getServiceLocator()->get('Omeka\Settings')->get('contribute_modes') ?: [];
+        } elseif ($contributable === 'specific') {
+            $contributeModes = $template->dataValue('contribute_modes') ?: [];
+        } else {
+            return;
+        }
+
         $useToken = in_array('user_token', $contributeModes) || in_array('token', $contributeModes);
         if (!$useToken) {
             return;
         }
 
-        $view = $event->getTarget();
         $plugins = $view->getHelperPluginManager();
         $url = $plugins->get('url');
         $translate = $plugins->get('translate');
+        $hyperlink = $plugins->get('hyperlink');
         $escapeAttr = $plugins->get('escapeHtmlAttr');
 
-        $resource = $view->resource;
         $query = [
             'resource_type' => $resource->resourceName(),
             'resource_ids' => [$resource->id()],
             'redirect' => $this->getCurrentUrl($view),
         ];
-        $link = $view->hyperlink(
+        $link = $hyperlink(
             $translate('Create contribution token'), // @translate
             $url('admin/contribution/default', ['action' => 'create-token'], ['query' => $query])
         );
@@ -694,17 +724,32 @@ class Module extends AbstractModule
          * @var \Omeka\Form\ResourceTemplateForm $form
          * @var \AdvancedResourceTemplate\Form\ResourceTemplateDataFieldset $fieldset
          * @var \Contribute\Form\TemplateContributeFieldset $fieldsetContribute
+         * @var \Laminas\Form\Element $element
          */
         $services = $this->getServiceLocator();
         $formManager = $services->get('FormElementManager');
 
         $form = $event->getTarget();
+
+        $elementGroups = $form->getOption('element_groups') ?: [];
+        $elementGroups['contribution'] = 'Contribution'; // @translate
+        $form->setOption('element_groups', $elementGroups);
+
         $fieldset = $form->get('o:data');
+
+        $specificLabels = [
+            'contribute_modes' => 'Contribution modes', // @translate
+        ];
 
         $fieldsetContribute = $formManager
             ->get(\Contribute\Form\TemplateContributeFieldset::class);
         foreach ($fieldsetContribute->getElements() as $element) {
             $fieldset->add($element);
+            // Specific labels.
+            $name = $element->getName();
+            if (isset($specificLabels[$name])) {
+                $element->setOption('label', $specificLabels[$name]);
+            }
         }
     }
 
@@ -737,6 +782,12 @@ class Module extends AbstractModule
                     'data-setting-key' => 'fillable',
                 ],
             ]);
+    }
+
+    public function handleApiUpdatePostResourceTemplate(Event $event): void
+    {
+        // This is an api-post event, so id is ready and checks are done.
+        $this->mergeMainAndTemplateSettings();
     }
 
     /**
@@ -830,5 +881,99 @@ class Module extends AbstractModule
         return $query
             ? $url . '?' . $query
             : $url;
+    }
+
+    /**
+     * @todo The shortcut "contribute_config" does not seem to be used a lot. Anyway, it is generally preferable to use direct data from the resource template, generally nearly as simple and quick.
+     */
+    protected function mergeMainAndTemplateSettings(): void
+    {
+        /**
+         * @var \Omeka\Api\Manager $api
+         * @var \Omeka\Settings\Settings $settings
+         * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation[] $templates
+         */
+        $services = $this->getServiceLocator();
+        $api = $services->get('Omeka\ApiManager');
+        $settings = $services->get('Omeka\Settings');
+
+        $config = include __DIR__ . '/config/module.config.php';
+        $configKeys = array_keys($config['contribute']['settings']);
+        $configKeys = array_diff($configKeys, [
+            'contribute_config',
+            'contribute_redirect_submit',
+            'contribute_message_author_mail_subject',
+            'contribute_message_author_mail_body',
+            'contribute_send_message_recipient_myself',
+            'contribute_send_message_recipients_cc',
+            'contribute_send_message_recipients_bcc',
+            'contribute_send_message_recipients_reply',
+        ]);
+
+        $result = [
+            'modes' => [],
+            'filter_user_roles' => [],
+            'use_token' => false,
+            'allow_edit_until' => null,
+            'contribute_template_contributable' => [],
+        ];
+
+        $templates = $api->search('resource_templates')->getContent();
+        foreach ($templates as $template) {
+            $templateId = $template->id();
+            $contributable = $template->dataValue('contribute_template_contributable');
+            $isGlobal = $contributable === 'global';
+            $isSpecific = $contributable === 'specific';
+            if (!$isGlobal && !$isSpecific) {
+                continue;
+            }
+            $result['contribute_template_contributable'][$templateId] = $contributable;
+            if ($isSpecific) {
+                foreach ($configKeys as $key) {
+                    $result[$key][$templateId] = $template->dataValue($key);
+                }
+            }
+        }
+
+        // Add merged settings for quick bootstrap for some keys.
+
+        // Each specific should be an array, but may be null.
+        // Even if empty arrays are ignored, normalize result for consistency
+        $global = $settings->get('contribute_modes') ?: [];
+        $result['contribute_modes'] = array_map(fn ($v) => $v ?? [], $result['contribute_modes'] ?? []);
+        $specifics = $result['contribute_modes'];
+        $result['modes'] = count($specifics)
+            ? array_values(array_unique(array_merge($global, ...$specifics)))
+            : $global;
+
+        $global = $settings->get('contribute_filter_user_roles') ?: [];
+        $result['contribute_filter_user_roles'] = array_map(fn ($v) => $v ?? [], $result['contribute_filter_user_roles'] ?? []);
+        $specifics = $result['contribute_filter_user_roles'];
+        $result['filter_user_roles'] = count($specifics)
+            ? array_values(array_unique(array_merge($global, ...$specifics)))
+            : $global;
+
+        // This value is a single string and specific is a list of strings.
+        // Get the latest allow edit.
+        $global = $settings->get('contribute_allow_edit_until') ?: 'undertaking';
+        $specifics = $result['contribute_allow_edit_until'] ?? [];
+        $allowEditUntil = count($specifics)
+            ? array_values(array_unique(array_merge([$global], $specifics)))
+            : [$global];
+        if (in_array('validation', $allowEditUntil)) {
+            $result['allow_edit_until'] = 'validation';
+        } elseif (in_array('undertaking', $allowEditUntil)) {
+            $result['allow_edit_until'] = 'undertaking';
+        } elseif (in_array('submission', $allowEditUntil)) {
+            $result['allow_edit_until'] = 'submission';
+        } else {
+            $result['allow_edit_until'] = 'no';
+        }
+
+        $contributeModes = $result['modes'];
+        $result['use_token'] = in_array('user_token', $contributeModes)
+            || in_array('token', $contributeModes);
+
+        $settings->set('contribute_config', $result);
     }
 }

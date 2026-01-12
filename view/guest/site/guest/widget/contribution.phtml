@@ -5,7 +5,6 @@
 
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
-$setting = $plugins->get('setting');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 $canContribute = $plugins->get('canContribute');
@@ -18,7 +17,7 @@ $canContribute = $plugins->get('canContribute');
             $url('site/guest/contribution', [], true)
         ) ?>
     </li>
-    <?php if ($canContribute): ?>
+    <?php if ($canContribute()): ?>
     <li>
         <?= $hyperlink(
             $translate('Add a new record'),

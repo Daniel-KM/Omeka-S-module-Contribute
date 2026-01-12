@@ -2,13 +2,20 @@
 
 namespace Contribute\View\Helper;
 
+use AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation;
 use CAS\Mvc\Controller\Plugin\IsCasUser;
 use Laminas\View\Helper\AbstractHelper;
 use Ldap\Mvc\Controller\Plugin\IsLdapUser;
+use Omeka\Settings\Settings;
 use SingleSignOn\Mvc\Controller\Plugin\IsSsoUser;
 
 class CanContribute extends AbstractHelper
 {
+    /**
+     * @var array
+     */
+    protected $contributeConfig;
+
     /**
      * @var \CAS\Mvc\Controller\Plugin\IsCasUser
      */
@@ -24,28 +31,47 @@ class CanContribute extends AbstractHelper
      */
     protected $isSsoUser;
 
+    /**
+     * @var \Omeka\Settings\Settings
+     */
+    protected $settings;
+
     public function __construct(
+        array $contributeConfig,
         ?IsCasUser $isCasUser,
         ?IsLdapUser $isLdapUser,
-        ?IsSsoUser $isSsoUser
+        ?IsSsoUser $isSsoUser,
+        Settings $settings
     ) {
+        $this->contributeConfig = $contributeConfig;
         $this->isCasUser = $isCasUser;
         $this->isLdapUser = $isLdapUser;
         $this->isSsoUser = $isSsoUser;
+        $this->settings = $settings;
     }
 
     /**
      * Check if the visitor or user can contribute a new resource.
      */
-    public function __invoke(bool $skipRequireToken = false): bool
+    public function __invoke(?ResourceTemplateRepresentation $resourceTemplate = null, bool $skipRequireToken = false): bool
     {
         /**
          * @var \Omeka\Entity\User $user
          */
         $view = $this->getView();
         $user = $view->identity();
-        $setting = $view->plugin('setting');
-        $contributeModes = $setting('contribute_modes') ?: [];
+        if ($resourceTemplate) {
+            $contributable = $resourceTemplate->dataValue('contribute_template_contributable');
+            if ($contributable !== 'global' && $contributable !== 'specific') {
+                return false;
+            }
+            $isSpecificTemplate = $contributable=== 'specific';
+        } else {
+            $isSpecificTemplate = false;
+        }
+        $contributeModes = ($isSpecificTemplate
+            ? $resourceTemplate->dataValue('contribute_modes')
+            : $this->settings->get('contribute_modes')) ?: [];
         foreach ($contributeModes as $contributeMode) switch ($contributeMode) {
             case 'open':
                 return true;
@@ -65,7 +91,14 @@ class CanContribute extends AbstractHelper
                 }
                 continue 2;
             case 'user_role':
-                if ($user && in_array($user->getRole(), $setting('contribute_filter_user_roles', []) ?: [])) {
+                if ($user
+                    && in_array(
+                        $user->getRole(),
+                        ($isSpecificTemplate
+                            ? $resourceTemplate->dataValue('contribute_filter_user_roles')
+                            : $this->settings->get('contribute_filter_user_roles', [])) ?: []
+                    )
+                ) {
                     return true;
                 }
                 continue 2;
@@ -90,8 +123,10 @@ class CanContribute extends AbstractHelper
                     continue 2;
                 }
                 $email = $user->getEmail();
-                $patterns = $setting('contribute_filter_user_emails');
-                foreach ($patterns as $pattern) {
+                $patterns = ($isSpecificTemplate
+                    ? $resourceTemplate->dataValue('contribute_filter_user_emails')
+                    : $this->settings->get('contribute_filter_user_emails')) ?: [];
+                foreach ($patterns ?: [] as $pattern) {
                     $pattern = trim($pattern);
                     if ($pattern) {
                         $isRegex = mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~';
@@ -108,7 +143,9 @@ class CanContribute extends AbstractHelper
                 if (!$user) {
                     continue 2;
                 }
-                $patterns = $setting('contribute_filter_user_settings');
+                $patterns = ($isSpecificTemplate
+                    ? $resourceTemplate->dataValue('contribute_filter_user_settings')
+                    : $this->settings->get('contribute_filter_user_settings')) ?: [];
                 $userSetting = $view->plugin('userSetting');
                 foreach ($patterns as $userSettingKey => $pattern) {
                     $pattern = trim($pattern);
@@ -124,7 +161,7 @@ class CanContribute extends AbstractHelper
                     }
                     $isRegex = mb_substr($pattern, 0, 1) === '~' && mb_substr($pattern, -1) === '~';
                     if ($isRegex) {
-                        if (!array_filter($userSettingValues, fn ($v) => preg_match($pattern, $v))) {
+                        if (!array_filter($userSettingValues, fn ($v) => is_scalar($v) && preg_match($pattern, $v))) {
                             continue 3;
                         }
                     } else {
@@ -134,7 +171,7 @@ class CanContribute extends AbstractHelper
                     }
                 }
                 return true;
-            default;
+            default:
                 continue 2;
         }
         return false;

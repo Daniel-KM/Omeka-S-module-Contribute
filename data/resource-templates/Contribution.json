@@ -142,11 +142,13 @@
         "groups": [],
         "subject_values_order": [],
         "settings": "",
-        "contribute_template_media": "",
-        "contribute_author_confirmation_subject": "",
-        "contribute_author_confirmation_body": "",
-        "contribute_reviewer_confirmation_subject": "",
-        "contribute_reviewer_confirmation_body": "",
+        "contribute_template_contributable": "global",
+        "contribute_template_convert": "",
+        "contribute_templates_media": [],
+        "contribute_message_author_confirmation_subject": "",
+        "contribute_message_author_confirmation_body": "",
+        "contribute_message_reviewer_confirmation_subject": "",
+        "contribute_message_reviewer_confirmation_body": "",
         "suggested_resource_class_ids": []
     }
 }

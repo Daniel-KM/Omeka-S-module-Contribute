@@ -148,8 +148,9 @@ class ContributionController extends AbstractActionController
 
         $user = $this->identity();
 
+        /** @var \Contribute\View\Helper\CanContribute $canContribute */
         $canContribute = $this->viewHelpers()->get('canContribute');
-        $canEditWithoutToken = $canContribute();
+        $canEditWithoutToken = $canContribute(null, true);
 
         // TODO Allow to use a token to add a resource.
         // $token = $this->checkToken($resource);
@@ -159,18 +160,22 @@ class ContributionController extends AbstractActionController
             return $this->viewError403();
         }
 
+        $user = $this->identity();
+
         // Prepare the resource template. Use the first if not queryied.
 
-        /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
-        $contributiveData = $this->getPluginManager()->get('contributiveData');
-        $allowedResourceTemplates = $this->settings()->get('contribute_templates', []);
+       /** @var \Contribute\Mvc\Controller\Plugin\ContributiveData $contributiveData */
+        $plugins = $this->getPluginManager();
+        $contributiveData = $plugins->get('contributiveData');
+
         $templates = [];
-        $templateLabels = [];
-        // Remove non-contributive templates.
-        if ($allowedResourceTemplates) {
-            foreach ($this->api()->search('resource_templates', ['id' => $allowedResourceTemplates])->getContent() as $template) {
+        $settings = $this->settings();
+        $contributeConfig = $settings->get('contribute_config') ?: [];
+        $contributables = $contributeConfig['contribute_template_contributable'] ?? [];
+        if ($contributables) {
+            foreach ($this->api()->search('resource_templates', ['id' => array_keys($contributables)])->getContent() as $template) {
                 $contributive = $contributiveData($template);
-                if ($contributive->isContributive()) {
+                if ($contributive->isContributive() && $canContribute($template)) {
                     $templates[$template->id()] = $template;
                     $templateLabels[$template->id()] = $template->label();
                 }
@@ -312,8 +317,8 @@ class ContributionController extends AbstractActionController
                 $data = $this->checkAndIncludeFileData($data);
                 // To simplify process, a direct submission is made with a
                 // create then an update.
-                $allowUpdateUntil = $this->settings()->get('contribute_allow_update') ?: 'undertaking';
-                $isDirectSubmission = $allowUpdateUntil === 'no';
+                $allowEditUntil = $this->settingTemplateOrMainOrConfig($resourceTemplate, 'contribute_allow_edit_until') ?: 'undertaking';
+                $isDirectSubmission = $allowEditUntil === 'no';
                 if (empty($data['has_error'])) {
                     $proposal = $this->prepareProposal($data);
                     if ($proposal) {
@@ -490,8 +495,8 @@ class ContributionController extends AbstractActionController
 
         $user = $this->identity();
 
+        /** @var \Contribute\View\Helper\CanContribute $canContribute */
         $canContribute = $this->viewHelpers()->get('canContribute');
-        $canEditWithoutToken = $canContribute();
 
         // This is a contribution or a correction.
         $isContribution = $resourceName === 'contributions';
@@ -504,9 +509,14 @@ class ContributionController extends AbstractActionController
             $resource = $contribution->resource();
             $resourceTemplate = $contribution->resourceTemplate();
             $currentUrl = $this->url()->fromRoute(null, [], true);
+            $canEdit = $canContribute($contribution->resourceTemplate());
+            if (!$canEdit) {
+                return $this->viewError403();
+            }
         } else {
             $contribution = null;
             $token = $this->checkToken($resource);
+            $canEditWithoutToken = $canContribute($resource->resourceTemplate(), true);
             if (!$token && !$canEditWithoutToken) {
                 return $this->viewError403();
             }
@@ -562,6 +572,8 @@ class ContributionController extends AbstractActionController
                 );
         }
 
+        // Here, there is a resource template.
+
         // $formOptions = [
         // ];
 
@@ -578,11 +590,8 @@ class ContributionController extends AbstractActionController
             $form->get('mode')->setValue('read');
         }
 
-        $allowUpdateUntil = $this->settings()->get('contribute_allow_update') ?: 'undertaking';
-        $allowUpdateUntilValidation = $allowUpdateUntil === 'validation';
-        $isCorrection = !$contribution || $contribution->isPatch();
-
         if ($isModeWrite && $contribution) {
+            $isCorrection = $contribution->isPatch();
             if ($isCorrection) {
                 // For correction (is patch), the update is not allowed after
                 // submission:
@@ -760,27 +769,28 @@ class ContributionController extends AbstractActionController
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'show'], true);
         }
 
-        $allowUpdateUntil = $this->settings()->get('contribute_allow_update') ?: 'undertaking';
-        if ($allowUpdateUntil === 'no') {
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        $contribution = $this->api()->read('contributions', $id)->getContent();
+        $resourceTemplate = $contribution->resourceTemplate();
+
+        $allowEditUntil = $this->settingTemplateOrMainOrConfig($resourceTemplate, 'contribute_allow_edit_until') ?: 'undertaking';
+        if (!in_array($allowEditUntil, ['submission', 'undertaking', 'validation'])) {
             $this->messenger()->addWarning('A contribution cannot be updated or deleted.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $resource */
-        $resource = $this->api()->read('contributions', $id)->getContent();
-
-        if (!$resource->userIsAllowed('delete')) {
+        if (!$contribution->userIsAllowed('delete')) {
             // TODO The user won't see this warning.
             $this->messenger()->addError('The user is not allowed to delete the contribution.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
-        if (!$resource->isUpdatable()) {
-            if ($resource->isValidated()) {
+        if (!$contribution->isUpdatable()) {
+            if ($contribution->isValidated()) {
                 $this->messenger()->addWarning('This contribution has been validated and cannot be deleted.'); // @translate
-            } elseif ($resource->isUndertaken()) {
+            } elseif ($contribution->isUndertaken()) {
                 $this->messenger()->addWarning('This contribution has been taken in charge and cannot be deleted.'); // @translate
-            } elseif ($resource->isSubmitted()) {
+            } elseif ($contribution->isSubmitted()) {
                 $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
             } else {
                 // For correction?
@@ -1033,31 +1043,24 @@ class ContributionController extends AbstractActionController
         $contributionResource = $contribution->resource();
         $user = $this->identity();
 
-        $settings = $this->settings();
-        $subject = $settings->get('contribute_reviewer_confirmation_subject') ?: sprintf($translate('[Omeka] Contribution %s'), $action);
-        $message = $settings->get('contribute_reviewer_confirmation_body');
+        $subject = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_message_reviewer_confirmation_subject') ?: sprintf($translate('[Omeka] Contribution %s'), $action);
+        $body = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_message_reviewer_confirmation_body');
 
-        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
-        $template = $contribution->resourceTemplate();
-        if ($template) {
-            $subject = $template->dataValue('contribute_reviewer_confirmation_subject') ?: $subject;
-            $message = $template->dataValue('contribute_reviewer_confirmation_body') ?: $message;
-        }
-
-        $from = $settings->get('contribute_sender_email')
-            ? [$settings->get('contribute_sender_email') => (string) $settings->get('contribute_sender_name')]
+        $senderEmail = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_sender_email');
+        $from = $senderEmail
+            ? [$senderEmail => (string) $this->settingTemplateOrMainOrConfig($contribution, 'contribute_sender_name')]
             : null;
 
-        if ($message) {
-            $message = $this->replacePlaceholders($message, $contribution);
-            $this->sendEmail($message, $subject, $emails, $from);
+        if ($body) {
+            $body = $this->replacePlaceholders($body, $contribution);
+            $this->sendEmail($body, $subject, $emails, $from);
             return $this;
         }
 
         // Default message.
         switch (true) {
             case $contributionResource && $user:
-                $message = '<p>' . new PsrMessage(
+                $body = '<p>' . new PsrMessage(
                     'User {user} has made a contribution for resource #{resource} ({title}) (action: {action}).', // @translate
                     [
                         'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
@@ -1068,7 +1071,7 @@ class ContributionController extends AbstractActionController
                 ) . '</p>';
                 break;
             case $contributionResource:
-                $message = '<p>' . new PsrMessage(
+                $body = '<p>' . new PsrMessage(
                     'An anonymous user has made a contribution for resource {resource} ({title}) (action: {action}).', // @translate
                     [
                         'resource' => '<a href="' . $contributionResource->adminUrl('show', true) . '#contribution">' . $contributionResource->id() . '</a>',
@@ -1078,7 +1081,7 @@ class ContributionController extends AbstractActionController
                 ) . '</p>';
                 break;
             case $user:
-                $message = '<p>' . new PsrMessage(
+                $body = '<p>' . new PsrMessage(
                     'User {user} has made a contribution (action: {action}).', // @translate
                     [
                         'user' => '<a href="' . $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]) . '">' . $user->getName() . '</a>',
@@ -1087,21 +1090,21 @@ class ContributionController extends AbstractActionController
                 ) . '</p>';
                 break;
             default:
-                $message = '<p>' . new PsrMessage(
+                $body = '<p>' . new PsrMessage(
                     'An anonymous user has made a contribution (action: {action}).', // @translate
                     ['action' => $actionMsg]
                 ) . '</p>';
                 break;
         }
 
-        $this->sendEmail($message, $subject, $emails, $from);
+        $this->sendEmail($body, $subject, $emails, $from);
         return $this;
     }
 
     protected function confirmContribution(ContributionRepresentation $contribution, string $action = 'update'): self
     {
         $settings = $this->settings();
-        $confirms = $settings->get('contribute_author_confirmations', []);
+        $confirms = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_author_confirmations') ?: [];
         if (empty($confirms) || !in_array($action, $confirms)) {
             return $this;
         }
@@ -1114,32 +1117,27 @@ class ContributionController extends AbstractActionController
 
         $translate = $this->getPluginManager()->get('translate');
 
-        $subject = $settings->get('contribute_author_confirmation_subject') ?: $translate('[Omeka] Contribution');
-        $message = $settings->get('contribute_author_confirmation_body') ?: new PsrMessage(
+        $subject = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_message_author_confirmation_subject')
+            ?: $translate('[Omeka] Contribution');
+        $body = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_message_author_confirmation_body') ?: new PsrMessage(
             "Hi,\nThanks for your contribution.\n\nThe administrators will validate it as soon as possible.\n\nSincerely," // @translate
         );
 
-        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
-        $template = $contribution->resourceTemplate();
-        if ($template) {
-            $subject = $template->dataValue('contribute_author_confirmation_subject') ?: $subject;
-            $message = $template->dataValue('contribute_author_confirmation_body') ?: $message;
-        }
+        $body = $this->replacePlaceholders($body, $contribution);
+        $body = '<p>' . $body . '</p>';
 
-        $message = $this->replacePlaceholders($message, $contribution);
-        $message = '<p>' . $message . '</p>';
-
-        $from = $settings->get('contribute_sender_email')
-            ? [$settings->get('contribute_sender_email') => (string) $settings->get('contribute_sender_name')]
+        $senderEmail = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_sender_email');
+        $from = $senderEmail
+            ? [$senderEmail => (string) $this->settingTemplateOrMainOrConfig($contribution, 'contribute_sender_name')]
             : null;
 
-        $this->sendEmail($message, $subject, $emails, $from);
+        $this->sendEmail($body, $subject, $emails, $from);
         return $this;
     }
 
     protected function replacePlaceholders($message, ?ContributionRepresentation $contribution): string
     {
-        if (strpos($message, '{') === false || !$contribution) {
+        if (strpos((string) $message, '{') === false || !$contribution) {
             return (string) $message;
         }
 
@@ -1184,7 +1182,7 @@ class ContributionController extends AbstractActionController
 
         // TODO Store and add ip.
 
-        return strtr($message, $replace);
+        return strtr((string) $message, $replace);
     }
 
     /**
@@ -1194,7 +1192,7 @@ class ContributionController extends AbstractActionController
      */
     protected function filterEmails(?ContributionRepresentation $contribution = null): array
     {
-        $emails = $this->settings()->get('contribute_notify_recipients', []);
+        $emails = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_notify_recipients') ?: [];
         if (empty($emails)) {
             return [];
         }
@@ -1216,7 +1214,7 @@ class ContributionController extends AbstractActionController
     protected function authorRecipients(?ContributionRepresentation $contribution = null): array
     {
         $emails = [];
-        $propertyEmails = $this->settings()->get('contribute_author_emails', ['owner'])
+        $propertyEmails = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_author_emails')
             ?: ['owner'];
 
         /*

@@ -3,19 +3,48 @@
 namespace Contribute\Form;
 
 use Common\Form\Element as CommonElement;
-use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 
 class TemplateContributeFieldset extends Fieldset
 {
+    use TraitSettingsFieldset;
+
+    protected $label = 'Contribute'; // @translate
+
+    protected $elementGroups = [
+        'contribution' => 'Contribution', // @translate
+    ];
+
     public function init(): void
     {
         $this
+            ->setAttribute('id', 'contribute')
+            ->setOption('element_groups', $this->elementGroups)
+
+            ->add([
+                'name' => 'contribute_template_contributable',
+                'type' => CommonElement\OptionalRadio::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Can be used for contribution', // @translate
+                    'value_options' => [
+                        '' => 'No', // @translate
+                        'global' => 'With options defined in main settings', // @translate
+                        'specific' => 'With options defined below', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    // 'id' => 'contribute_template_contributable',
+                    'data-setting-key' => 'contribute_template_contributable',
+                ],
+            ])
+
             ->add([
                 'name' => 'contribute_template_convert',
                 'type' => CommonElement\OptionalResourceTemplateSelect::class,
                 'options' => [
-                    'label' => 'Template to use when the contribution is validated', // @translate
+                    'element_group' => 'contribution',
+                    'label' => 'Convert template when the contribution is validated', // @translate
                     'info' => 'In complex workflow, the template for the user may be different from the template of the item, for example to create a form with different property labels, or a different order, or more restrictive rules of property validation, or different templates for different users. So this option changes the template when the contribution is validated.', // @translate
                     'empty_option' => '',
                 ],
@@ -34,6 +63,7 @@ class TemplateContributeFieldset extends Fieldset
                 // Advanced Resource Template is a required dependency.
                 'type' => CommonElement\OptionalResourceTemplateSelect::class,
                 'options' => [
+                    'element_group' => 'contribution',
                     'label' => 'Media templates for contribution', // @translate
                     'info' => 'If any, the templates should be in the list of allowed templates for contribution of a media. Warning: to use multiple media is supported only with specific themes for now.', // @translate
                     'empty_option' => '',
@@ -46,55 +76,10 @@ class TemplateContributeFieldset extends Fieldset
                     'data-placeholder' => 'Select templates for media…', // @translate
                 ],
             ])
-            // Specific messages for the contributor.
-            ->add([
-                'name' => 'contribute_author_confirmation_subject',
-                'type' => Element\Text::class,
-                'options' => [
-                    'label' => 'Specific confirmation subject to the contributor', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'contribute_author_confirmation_subject',
-                    'data-setting-key' => 'contribute_author_confirmation_subject',
-                ],
-            ])
-            ->add([
-                'name' => 'contribute_author_confirmation_body',
-                'type' => Element\Textarea::class,
-                'options' => [
-                    'label' => 'Specific confirmation message to the contributor', // @translate
-                    'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'contribute_author_confirmation_body',
-                    'rows' => 5,
-                    'data-setting-key' => 'contribute_author_confirmation_body',
-                ],
-            ])
-            // Specific messages for the reviewer.
-            ->add([
-                'name' => 'contribute_reviewer_confirmation_subject',
-                'type' => Element\Text::class,
-                'options' => [
-                    'label' => 'Specific confirmation subject to the reviewer', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'contribute_reviewer_confirmation_subject',
-                    'data-setting-key' => 'contribute_reviewer_confirmation_subject',
-                ],
-            ])
-            ->add([
-                'name' => 'contribute_reviewer_confirmation_body',
-                'type' => Element\Textarea::class,
-                'options' => [
-                    'label' => 'Specific confirmation message to the reviewer', // @translate
-                    'info' => 'Placeholders: wrap properties with "{}", for example "{dcterms:title}".', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'contribute_reviewer_confirmation_body',
-                    'rows' => 5,
-                    'data-setting-key' => 'contribute_reviewer_confirmation_body',
-                ],
-            ]);
-        }
+
+            ->appendGlobalAndTemplateCommonSettings()
+
+            ->appendMessagesSettings()
+        ;
+    }
 }
