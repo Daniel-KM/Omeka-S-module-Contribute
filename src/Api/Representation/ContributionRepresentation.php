@@ -743,7 +743,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
         $resourceTemplate = $contributive->template();
         $proposal = $this->proposalNormalizeForValidation($indexProposalMedia);
-        $hasProposedTermAndKey = $proposedTerm && !is_null($proposedKey);
+        $hasProposedTermAndKey = $proposedTerm && $proposedKey !== null;
 
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $services = $this->getServiceLocator();
@@ -1023,7 +1023,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $resourceData = $this->proposalToResourceData();
 
         foreach ($query as $field => $value) {
-            if ($value === '' || is_null($value) || $value === []) {
+            if ($value === '' || $value === null || $value === []) {
                 continue;
             }
 

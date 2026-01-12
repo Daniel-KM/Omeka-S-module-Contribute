@@ -77,7 +77,7 @@ class Contribution
 
         $fileinfo = new \SplFileInfo($filepath);
         $realPath = $this->verifyFile($fileinfo, $errorStore);
-        if (is_null($realPath)) {
+        if ($realPath === null) {
             return null;
         }
 

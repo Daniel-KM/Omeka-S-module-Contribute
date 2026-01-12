@@ -47,7 +47,7 @@ class ContributionForm extends AbstractHelper
             'template' => self::PARTIAL_NAME,
         ];
 
-        $options = (is_null($options) ? $view->vars()->getArrayCopy() : $options)
+        $options = ($options === null ? $view->vars()->getArrayCopy() : $options)
             + $defaultOptions;
 
         $template = $options['template'];

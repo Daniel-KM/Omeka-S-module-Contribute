@@ -314,7 +314,7 @@ class ContributionController extends AbstractActionController
 
         $defaultSite = $this->viewHelpers()->get('defaultSite');
         $siteSlug = $defaultSite('slug');
-        if (is_null($siteSlug)) {
+        if ($siteSlug === null) {
             $this->messenger()->addError('A site is required to create a public token.'); // @translate
             return $params['redirect']
                 ? $this->redirect()->toUrl($params['redirect'])

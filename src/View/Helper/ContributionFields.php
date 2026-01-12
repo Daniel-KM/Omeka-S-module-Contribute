@@ -409,7 +409,7 @@ class ContributionFields extends AbstractHelper
                             break;
                         }
                     }
-                    if (is_null($proposed)) {
+                    if ($proposed === null) {
                         continue;
                     }
                     $fieldContribution['empty'] = false;
@@ -429,7 +429,7 @@ class ContributionFields extends AbstractHelper
                             break;
                         }
                     }
-                    if (is_null($proposed)) {
+                    if ($proposed === null) {
                         continue;
                     }
                     $fieldContribution['empty'] = false;
@@ -448,7 +448,7 @@ class ContributionFields extends AbstractHelper
                             break;
                         }
                     }
-                    if (is_null($proposed)) {
+                    if ($proposed === null) {
                         continue;
                     }
                     $fieldContribution['empty'] = false;
@@ -491,7 +491,7 @@ class ContributionFields extends AbstractHelper
                             break;
                         }
                     }
-                    if (is_null($proposed)) {
+                    if ($proposed === null) {
                         continue;
                     }
                     $fieldContribution['empty'] = false;
@@ -511,7 +511,7 @@ class ContributionFields extends AbstractHelper
                             break;
                         }
                     }
-                    if (is_null($proposed)) {
+                    if ($proposed === null) {
                         continue;
                     }
                     $fieldContribution['empty'] = false;
@@ -530,7 +530,7 @@ class ContributionFields extends AbstractHelper
                             break;
                         }
                     }
-                    if (is_null($proposed)) {
+                    if ($proposed === null) {
                         continue;
                     }
                     $fieldContribution['empty'] = false;

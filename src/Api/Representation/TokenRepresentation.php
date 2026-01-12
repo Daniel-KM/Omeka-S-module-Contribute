@@ -129,7 +129,7 @@ class TokenRepresentation extends AbstractEntityRepresentation
             $plugins = $services->get('ViewHelperManager');
             $defaultSite = $plugins->get('defaultSite');
             $siteSlug = $defaultSite('slug');
-            if (is_null($siteSlug)) {
+            if ($siteSlug === null) {
                 $messenger = $plugins->get('messenger');
                 $messenger()->addError('A site is required to create a public token.'); // @translate
                 return '';
