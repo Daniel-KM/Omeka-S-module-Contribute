@@ -119,7 +119,7 @@ if (strlen((string) $val)) {
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>
-    <?= str_replace(array_keys($replace), array_values($replace), $selectHtml) ?>
+    <?= strtr($selectHtml, $replace) ?>
     <ul class="actions resource-edit-remove-value">
         <li><button type="button" class="o-icon-delete button remove-value" title="<?= $escapeAttr($translate('Remove value')) ?>" href="#" aria-label="<?= $escapeAttr($translate('Remove value')) ?>"></button></li>
     </ul>

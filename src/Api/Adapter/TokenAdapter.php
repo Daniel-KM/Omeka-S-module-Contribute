@@ -370,7 +370,7 @@ class TokenAdapter extends AbstractEntityAdapter
 
         // Check if the token is unique.
         do {
-            $token = substr(str_replace(['+', '/', '='], ['', '', ''], base64_encode(random_bytes(128))), 0, 10);
+            $token = substr(strtr(base64_encode(random_bytes(128)), ['+' => '', '/' => '', '=' => '']), 0, 10);
             $result = $repository->findOneBy(['token' => $token]);
             if (!$result) {
                 break;
