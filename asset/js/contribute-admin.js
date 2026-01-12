@@ -9,6 +9,10 @@
 (function ($) {
     $(document).ready(function() {
 
+        /****
+         * Manage the creation of a specific token for a resource.
+         */
+
         const contributionInfo = function() {
             return `
                 <div class="field">
@@ -32,15 +36,15 @@
 
         // Manage the modal to create the token.
         // Get the modal.
-        const modal = document.getElementById('create_contribution_token_dialog');
+        const tokenModal = document.getElementById('create_contribution_token_dialog');
         // Get the button that opens the modal.
-        const btn = document.getElementById('create_contribution_token_dialog_go');
+        const tokenButton = document.getElementById('create_contribution_token_dialog_go');
         // Get the <span> element that closes the modal.
-        const span = document.getElementById('create_contribution_token_dialog_close');
+        const tokenSpan = document.getElementById('create_contribution_token_dialog_close');
 
         // When the user clicks the button, open the modal.
-        if (btn) {
-            btn.onclick = function() {
+        if (tokenButton) {
+            tokenButton.onclick = function() {
                 let href = $('#create_contribution_token a').prop('href');
                 const email = $('#create_contribution_token_dialog_email').val();
                 if (email !== '' && !validateEmail(email)) {
@@ -54,158 +58,36 @@
         }
 
         // When the user clicks on <span> (x), close the modal.
-        if (span) {
-            span.onclick = function() {
-                modal.style.display = 'none';
+        if (tokenSpan) {
+            tokenSpan.onclick = function() {
+                tokenModal.style.display = 'none';
             }
         }
 
         // TODO When the user clicks anywhere outside of the modal, close it.
         // window.onclick = function(event) {
-        //     if (event.target == modal) {
-        //         modal.style.display = 'none';
+        //     if (event.target == tokenModal) {
+        //         tokenModal.style.display = 'none';
         //     }
         // }
 
         $('#create_contribution_token').on('click', function(ev){
-            modal.style.display = 'block';
+            tokenModal.style.display = 'block';
             ev.preventDefault();
         })
 
-        // Mark a contribution undertaken.
-        $('#content').on('click', '.contribution a.undertaking-toggle', function(e) {
-            e.preventDefault();
-            const button = this;
-            const url = button.dataset.statusUndertakenToggleUrl;
-            let status = button.dataset.status;
-
-            CommonDialog.spinnerEnable(button);
-            $(button).removeClass('o-icon-' + status);
-
-            fetch(url, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.status || data.status !== 'success') {
-                        CommonDialog.jSendFail(data);
-                    } else {
-                        status = data.data.contribution.status;
-                        button.dataset.status = status;
-                        button.title = data.data.contribution.statusLabel;
-                        button.setAttribute('aria-label', data.data.contribution.statusLabel);
-                        $(document).trigger('o:contribution-updated', data);
-                    }
-                })
-                .catch(error => CommonDialog.jSendFail(error))
-                .finally(() => {
-                    CommonDialog.spinnerDisable(button);
-                    $(button).addClass('o-icon-' + status);
-                });
-        });
-
-        // Mark a contribution validated.
-        $('#content').on('click', '.contribution a.status-toggle', function(e) {
-            e.preventDefault();
-            const button = this;
-            const url = button.dataset.statusToggleUrl;
-            let status = button.dataset.status;
-
-            CommonDialog.spinnerEnable(button);
-            $(button).removeClass('o-icon-' + status);
-
-            fetch(url, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.status || data.status !== 'success') {
-                        CommonDialog.jSendFail(data);
-                    } else {
-                        status = data.data.contribution.status;
-                        button.dataset.status = status;
-                        button.title = data.data.contribution.statusLabel;
-                        button.setAttribute('aria-label', data.data.contribution.statusLabel);
-                        $(document).trigger('o:contribution-updated', data);
-                    }
-                })
-                .catch(error => CommonDialog.jSendFail(error))
-                .finally(() => {
-                    CommonDialog.spinnerDisable(button);
-                    $(button).addClass('o-icon-' + status);
-                });
-        });
+        /****
+         * Manage the contributions and valildations.
+         */
 
         // Display the dialog to send a message.
-        $('#content').on('click', '.contribution a.send-message', function(e) {
+        $('#content').on('click', '.contribution .send-message', function(e) {
             e.preventDefault();
             const url = $(this).data('url');
             const dialog = document.querySelector('dialog.dialog-send-message.dialog-contribute');
             $(dialog).find('form').prop('action', url);
             dialog.showModal();
             $(dialog).trigger('o:dialog-opened');
-        });
-
-        // Send a message via ajax.
-        $('#content').on('submit', '#contribute-send-message-form', function(e) {
-            e.preventDefault();
-            const dialog = this.closest('dialog.popup');
-            const button = event.submitter;
-            const form = this;
-            const url = form.action;
-            const formData = new FormData(form);
-            const formQuery = new URLSearchParams(formData).toString();
-
-            CommonDialog.spinnerEnable(button);
-
-            fetch(url, {
-                method: 'POST',
-                body: formQuery,
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.status || data.status !== 'success') {
-                    CommonDialog.jSendFail(data);
-                } else {
-                    dialog.close();
-                    const msg = CommonDialog.jSendMessage(data);
-                    if (msg) {
-                        CommonDialog.dialogAlert(msg);
-                    }
-                    // TODO Dynamically update status view after message sent.
-                    // location.reload();
-                    $(document).trigger('o:contribution-email-sent', data);
-                }
-            })
-            .catch(error => CommonDialog.jSendFail(error))
-            .finally(() => {
-                CommonDialog.spinnerDisable(button);
-            });
-        });
-
-        // Expire a token
-        $('#content').on('click', '.contribution a.expire-token', function(e) {
-            e.preventDefault();
-            const button = this;
-            const url = button.dataset.expireTokenUrl;
-            let status = 'expire';
-
-            CommonDialog.spinnerEnable(button);
-            $(button).removeClass('o-icon-expire-token');
-
-            fetch(url, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.status || data.status !== 'success') {
-                        CommonDialog.jSendFail(data);
-                    } else {
-                        status = 'expired';
-                        button.title = data.data.contribution_token.statusLabel;
-                        button.setAttribute('aria-label', data.data.contribution_token.statusLabel);
-                    }
-                })
-                .catch(error => CommonDialog.jSendFail(error))
-                .finally(() => {
-                    CommonDialog.spinnerDisable(button);
-                    $(button).addClass('o-icon-' + status + '-token');
-                });
         });
 
         // Add a contribution.
@@ -241,7 +123,7 @@
         });
 
         // Validate all values of a contribution.
-        $('#content').on('click', '.contribution a.validate', function(e) {
+        $('#content').on('click', '.contribution .validate', function(e) {
             e.preventDefault();
             const button = this;
             const url = button.dataset.validateUrl;
@@ -278,7 +160,7 @@
         });
 
         // Validate a specific value of a contribution.
-        $('#content').on('click', '.contribution a.validate-value', function(e) {
+        $('#content').on('click', '.contribution .validate-value', function(e) {
             e.preventDefault();
             const button = this;
             const url = button.dataset.validateValueUrl;
@@ -308,6 +190,61 @@
         });
 
         /**
+         * Update UI after any jSend success.
+         */
+        document.addEventListener('o:jsend-success', function(ev) {
+            const detail = ev.detail || {};
+            const data = detail.data || {};
+            const button = detail.context?.target || null;
+
+            if (!button) {
+                return;
+            }
+
+            // Fix issue when clicking span inside button, if any.
+            let iconSpan = button;
+            if (button.tagName === 'SPAN') {
+                button = button.closest('button') || button.closest('a');
+                if (!button) {
+                    return;
+                }
+            } else {
+                iconSpan = button.querySelector('span.fas');
+            }
+
+            // Undertaking toggle.
+            if (button.matches('.undertaking-toggle') && data.data.contribution) {
+                const prev = button.dataset.status;
+                button.dataset.status = data.data.contribution.status;
+                button.title = data.data.contribution.statusLabel || button.title;
+                button.ariaLabel = button.title;
+                $(iconSpan)
+                    .removeClass('o-icon-' + prev)
+                    .addClass('o-icon-' + button.dataset.status);
+            }
+
+            // Status toggle.
+            else if (button.matches('.status-toggle') && data.data.contribution) {
+                const prev = button.dataset.status;
+                button.dataset.status = data.data.contribution.status;
+                button.title = data.data.contribution.statusLabel || button.title;
+                button.ariaLabel = button.title;
+                $(iconSpan)
+                    .removeClass('o-icon-' + prev)
+                    .addClass('o-icon-' + button.dataset.status);
+            }
+
+            // Expire token.
+            else if (button.matches('.expire-token') && data.data.contribution_token) {
+                button.dataset.status = data.data.contribution_token.status;
+                button.title = data.data.contribution_token.statusLabel || button.title;
+                button.ariaLabel = button.title;
+                $(iconSpan).removeClass('o-icon-expire-token');
+            }
+
+        }, false);
+
+        /**
          * @see https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
          */
         function validateEmail(email) {
@@ -315,10 +252,14 @@
             return re.test(email);
         }
 
+        /****
+         * Other.
+         */
+
         /**
          * Search sidebar.
          */
-        $('#content').on('click', 'a.search', function(e) {
+        $('#content').on('click', '.button-sidebar-search', function(e) {
             e.preventDefault();
             const sidebar = $('#sidebar-search');
             Omeka.openSidebar(sidebar);

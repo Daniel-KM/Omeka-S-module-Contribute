@@ -55,7 +55,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
 
 <div class="browse-controls">
     <?= $this->pagination() ?>
-    <?= $hyperlink($translate('Quick search / Filter'), '#', ['class' => 'search advanced-search']) ?>
+    <button type="button" class="button-sidebar-search contribution-search"><?= $escape($translate('Quick search / Filter')) ?></button>
     <?= $this->sortSelector($sortHeadings) ?>
 </div>
 
@@ -126,37 +126,37 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                         </li>
                         <?php if ($contribution->userIsAllowed('update')): ?>
                         <li>
-                            <span class="single actions"><a href="#"
-                                class="status-toggle o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
-                                data-status-toggle-url="<?= $escapeAttr($contribution->adminUrl('toggle-undertaking')) ?>"
+                            <button type="button"
+                                class="single-action jsend-action toggle undertaking-toggle"
+                                data-url="<?= $escapeAttr($contribution->adminUrl('toggle-undertaking')) ?>"
                                 data-status="<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
+                                data-spinner="true"
                                 aria-label="<?= $v = $escapeAttr($translate('Mark taken in charge or not')) ?>"
-                                title="<?= $v ?>"></a>
-                            </span>
+                                title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"></span></button>
                         </li>
                         <li>
-                            <span class="single actions"><a href="#"
-                                class="status-toggle o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
-                                data-status-toggle-url="<?= $escapeAttr($contribution->adminUrl('toggle-status')) ?>"
+                            <button type="button"
+                                class="single-action jsend-action toggle status-toggle"
+                                data-url="<?= $escapeAttr($contribution->adminUrl('toggle-status')) ?>"
                                 data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
+                                data-spinner="true"
                                 aria-label="<?= $v = $escapeAttr($translate('Mark validated or not')) ?>"
-                                title="<?= $v ?>"></a>
-                            </span>
+                                title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"></span></button>
                         </li>
                         <?php endif; ?>
                         <li>
-                            <span class="single actions"><a href="#"
+                            <button type="button"
+                                class="single-action button-dialog-common send-message"
+                                data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
                                 data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'send-message', 'id' => $contribution->id()], true)) ?>"
-                                class="send-message o-icon- fa-envelope"
                                 aria-label="<?= $v = $escape($translate('Send a message to the author')) ?>"
-                                title="<?= $v ?>"></a>
-                            </span>
+                                title="<?= $v ?>"><span class="fas o-icon- fa-envelope"></span></button>
                         </li>
                         <?php if ($contributionResource): ?>
-                        <li>
+                        <li><?php // TODO Icon "edit" with link "show" for resource? ?>
                             <?= $contribution->linkResource('', 'show', [
                                 'class' => 'o-icon-edit',
-                                'title' => $translate('Edit'),
+                                'title' => $translate('Show resource'),
                             ]) ?>
                         </li>
                         <?php elseif ($userIsAllowedToCreateResource): ?>

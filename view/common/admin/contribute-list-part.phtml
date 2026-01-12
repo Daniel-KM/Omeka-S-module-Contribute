@@ -127,7 +127,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php endif; ?>
 
                     <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
-                    <span class="single actions">
+                    <div class="actions">
                     <?php if ($isValidated): ?>
                         <span class="no-action o-icon-validated-value" aria-label="<?= $escapeAttr($translate('Validated')) ?>"></span>
                     <?php elseif ($process === 'keep'): ?>
@@ -135,14 +135,14 @@ unset($proposal['template'], $proposal['media']);
                     <?php elseif (!$editRight): ?>
                         <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escapeAttr($translate('No right to write')) ?>"></span>
                     <?php else: ?>
-                        <a href="#"
-                            class="validate-value o-icon-validate-value"
+                        <button type="button"
+                            class="single-action jsend-action validate-value"
                             data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
-                            title="<?= $txt ?>"></a>
+                            title="<?= $txt ?>"><span class="fas o-icon-validate-value"></span></button>
                     <?php endif; ?>
-                    </span>
+                    </div>
                     <?php endif; ?>
                 </div>
                  <?php
@@ -182,7 +182,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php endif; ?>
 
                     <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
-                    <span class="single actions">
+                    <div class="single actions">
                     <?php if ($isValidated): ?>
                         <span class="no-action o-icon-validated-value" aria-label="<?= $escapeAttr($translate('Validated')) ?>"></span>
                     <?php elseif ($process === 'keep'): ?>
@@ -190,14 +190,14 @@ unset($proposal['template'], $proposal['media']);
                     <?php elseif (!$editRight): ?>
                         <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escapeAttr($translate('No right to write')) ?>"></span>
                     <?php else: ?>
-                        <a href="#"
-                            class="validate-value o-icon-validate-value"
+                        <button type="button"
+                            class="single-action jsend-action validate-value"
                             data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
-                            title="<?= $txt ?>"></a>
+                            title="<?= $txt ?>"><span class="fas o-icon-validate-value"></span></button>
                     <?php endif; ?>
-                    </span>
+                    </div>
                     <?php endif; ?>
                 </dd>
                 <?php
@@ -230,7 +230,7 @@ unset($proposal['template'], $proposal['media']);
                     <?php endif; ?>
 
                     <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
-                    <span class="single actions">
+                    <div class="single actions">
                     <?php if ($isValidated): ?>
                         <span class="no-action o-icon-validated-value" aria-label="<?= $escapeAttr($translate('Validated')) ?>"></span>
                     <?php elseif ($process === 'keep'): ?>
@@ -238,14 +238,14 @@ unset($proposal['template'], $proposal['media']);
                     <?php elseif (!$editRight): ?>
                         <span class="no-action o-icon-validate-value no-right" aria-label="<?= $escapeAttr($translate('No right to write')) ?>"></span>
                     <?php else: ?>
-                        <a href="#"
-                            class="validate-value o-icon-validate-value"
-                            data-validate-value-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
+                        <button type="button"
+                            class="single-action jsend-action validate-value"
+                            data-url="<?= $escapeAttr($contribution->adminUrl('validate-value') . "?term=$term&key=$key") ?>"
                             data-status="validate-value"
                             aria-label="<?= $txt = $escapeAttr(sprintf($translate('Validate this value (%s)'), $translate($process))) ?>"
-                            title="<?= $txt ?>"></a>
+                            title="<?= $txt ?>"><span class="fas o-icon-validate-value"></span></button>
                     <?php endif; ?>
-                    </span>
+                    </div>
                     <?php endif; ?>
                 </dd>
                  <?php

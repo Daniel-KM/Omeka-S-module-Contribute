@@ -71,7 +71,7 @@ $editRight = $resource->userIsAllowed('update');
                 <span class="contribution-id">#<?= $contribution->id() ?></span>
                 */ ?>
                 <?php if ($email = $contribution->email()): ?>
-                <span class="contribution-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
+                    <span class="contribution-email"><?= $hyperlink($email, 'mailto:' . $email) ?></span>
                 <?php endif; ?>
 
                 <span class="contribution-date"><?= $this->i18n()->dateFormat($contribution->created(), 'medium', 'medium') ?></span>
@@ -86,56 +86,75 @@ $editRight = $resource->userIsAllowed('update');
                 <span class="contribution-token"><?= $hyperlink($token->token(), $token->siteUrl($siteSlug, true)) ?></span>
                 <?php endif; ?>
 
-                <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
+                <ul class="actions">
+                    <?php if ($contribution->isPatch()): // Only patchs should be validated individually. ?>
 
-                <?php if ($editRight): ?>
-                <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
-                <span class="single actions"><a href="#"
-                    class="validate o-icon-validate"
-                    data-validate-url="<?= $escape($contribution->adminUrl('validate')) ?>"
-                    data-status="validate"
-                    aria-label="<?= $v = $escape($translate('Validate all values')) ?>"
-                    title="<?= $v ?>"></a></span>
-                <span class="single actions"><a href="#"
-                    class="undertaking-toggle o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
-                    data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-undertaking')) ?>"
-                    data-status="<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
-                    aria-label="<?= $v = $escape($translate('Mark undertaken or not')) ?>"
-                    title="<?= $v ?>"></a></span>
-                <span class="single actions"><a href="#"
-                    class="status-toggle o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
-                    data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-status')) ?>"
-                    data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
-                    aria-label="<?= $v = $escape($translate('Mark validated or not')) ?>"
-                    title="<?= $v ?>"></a></span>
-                <?php endif; ?>
+                    <?php if ($editRight): ?>
+                    <?php // TODO Check if all values are the same to change the default icon to "validated". ?>
+                    <li>
+                        <button type="button"
+                            class="single-action jsend-action validate"
+                            data-url="<?= $escape($contribution->adminUrl('validate')) ?>"
+                            data-status="validate"
+                            aria-label="<?= $v = $escape($translate('Validate all values')) ?>"
+                            title="<?= $v ?>"><span class="fas o-icon-validate"></span></button>
+                    </li>
+                    <li>
+                        <button type="button"
+                            class="single-action jsend-action toggle undertaking-toggle"
+                            data-url="<?= $escape($contribution->adminUrl('toggle-undertaking')) ?>"
+                            data-status="<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
+                            aria-label="<?= $v = $escape($translate('Mark undertaken or not')) ?>"
+                            title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"></span></button>
+                    </li>
+                    <li>
+                        <button type="button"
+                            class="single-action jsend-action toggle status-toggle"
+                            data-url="<?= $escape($contribution->adminUrl('toggle-status')) ?>"
+                            data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
+                            aria-label="<?= $v = $escape($translate('Mark validated or not')) ?>"
+                            title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"></span></button>
+                    </li>
+                    <?php endif; ?>
 
-                <?php if ($token && $token->isExpired()): ?>
-                <span class="single no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
-                <?php elseif ($token): ?>
-                <span class="single single-action"><a href="#"
-                    class="expire-token o-icon-expire-token"
-                    data-expire-token-url="<?= $escape($contribution->adminUrl('expire-token')) ?>"
-                    aria-label="<?= $v = $escape($translate('Expire token')) ?>"
-                    title="<?= $v ?>"></a></span>
-                <?php endif; ?>
+    <li>
+        <span class="no-action o-icon-expired-token" aria-label="<?= $escape($translate('TEST')) ?>"></span>
+    </li>
+                    <?php if ($token && $token->isExpired()): ?>
+                    <li>
+                        <span class="no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
+                    </li>
+                    <?php elseif ($token): ?>
+                    <li>
+                        <button type="button"
+                            class="single-action jsend-action expire-token"
+                            data-url="<?= $escape($contribution->adminUrl('expire-token')) ?>"
+                            aria-label="<?= $v = $escape($translate('Expire token')) ?>"
+                            title="<?= $v ?>"><span class="fas o-icon-expire-token"></span></button>
+                    </li>
+                    <?php endif; ?>
 
-                <?php else: ?>
+                    <?php else: ?>
 
-                <span class="single actions"><a href="#"
-                    class="undertaking-toggle o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
-                    data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-undertaking')) ?>"
-                    data-status="<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
-                    aria-label="<?= $v = $escape($translate('Mark undertaken or not')) ?>"
-                    title="<?= $v ?>"></a></span>
-                <span class="single actions"><a href="#"
-                    class="status-toggle o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
-                    data-status-toggle-url="<?= $escape($contribution->adminUrl('toggle-status')) ?>"
-                    data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
-                    aria-label="<?= $v = $escape($translate('Mark validated or not')) ?>"
-                    title="<?= $v ?>"></a></span>
+                    <li>
+                        <button type="button"
+                            class="single-action jsend-action undertaking-toggle"
+                            data-url="<?= $escape($contribution->adminUrl('toggle-undertaking')) ?>"
+                            data-status="<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
+                            aria-label="<?= $v = $escape($translate('Mark undertaken or not')) ?>"
+                            title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"></span></button>
+                    </li>
+                    <li>
+                        <button type="button"
+                            class="single-action jsend-action toggle status-toggle"
+                            data-url="<?= $escape($contribution->adminUrl('toggle-status')) ?>"
+                            data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
+                            aria-label="<?= $v = $escape($translate('Mark validated or not')) ?>"
+                            title="<?= $v ?>"><span class="fas o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"></span></button>
+                    </li>
 
-                <?php endif; ?>
+                    <?php endif; ?>
+                </ul>
             </th>
         </tr>
     </thead>

@@ -2,7 +2,6 @@
 
 namespace Contribute\Controller\Admin;
 
-use Common\Mvc\Controller\Plugin\JSend;
 use Common\Stdlib\PsrMessage;
 use Contribute\Controller\ContributionTrait;
 use Contribute\Form\QuickSearchForm;
@@ -471,7 +470,7 @@ class ContributionController extends AbstractActionController
     public function expireTokenAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -481,7 +480,7 @@ class ContributionController extends AbstractActionController
         if (empty($id)) {
             $token = $this->params()->fromQuery('token');
             if (empty($token)) {
-                return $this->jSend(JSend::FAIL, null, $this->translate(
+                return $this->jSend()->fail(null, $this->translate(
                     'Resource not found.' // @translate
                 ), HttpResponse::STATUS_CODE_404);
             }
@@ -489,7 +488,7 @@ class ContributionController extends AbstractActionController
             try {
                 $token = $this->api()->read('contribution_tokens', ['token' => $token])->getContent();
             } catch (\Exception $e) {
-                return $this->jSend(JSend::FAIL, null, $this->translate(
+                return $this->jSend()->fail(null, $this->translate(
                     'Resource not found.' // @translate
                 ), HttpResponse::STATUS_CODE_404);
             }
@@ -504,11 +503,11 @@ class ContributionController extends AbstractActionController
             $canContribute = $this->viewHelpers()->get('canContribute');
             $canEditWithoutToken = $canContribute($contribution ? $contribution->resourceTemplate() : null, true);
             if (!$canEditWithoutToken) {
-                return $this->jSend(JSend::FAIL, null, $this->translate(
+                return $this->jSend()->fail(null, $this->translate(
                     'Unauthorized access.' // @translate
                 ), HttpResponse::STATUS_CODE_401);
             }
-            return $this->jSend(JSend::SUCCESS, [
+            return $this->jSend()->success([
                 'contribution_token' => [
                     'status' => 'no-token',
                     'statusLabel' => $this->translate('No token'), // @translate
@@ -520,13 +519,13 @@ class ContributionController extends AbstractActionController
             $response = $this->api()
                 ->update('contribution_tokens', $token->id(), ['o-module-contribute:expire' => 'now'], [], ['isPartial' => true]);
             if (!$response) {
-                return $this->jSend(JSend::ERROR, null, $this->translate(
+                return $this->jSend()->error(null, $this->translate(
                     'An internal error occurred.' // @translate
                 ));
             }
         }
 
-        return $this->jSend(JSend::SUCCESS, [
+        return $this->jSend()->success([
             'contribution_token' => [
                 'status' => 'expired',
                 'statusLabel' => $this->translate('Expired'), // @translate
@@ -537,7 +536,7 @@ class ContributionController extends AbstractActionController
     public function toggleUndertakingAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -548,7 +547,7 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
@@ -565,14 +564,14 @@ class ContributionController extends AbstractActionController
                 $response = $this->api()
                     ->update('contributions', $id, $data, [], ['isPartial' => true]);
                 if (!$response) {
-                    return $this->jSend(JSend::ERROR, null, $this->translate(
+                    return $this->jSend()->error(null, $this->translate(
                         'An internal error occurred.' // @translate
                     ));
                 }
+                $contribution = $response->getContent();
             }
-            return $this->jSend(JSend::SUCCESS, [
-                // Status is updated, so inverted.
-                'contribution' => [
+            return $this->jSend()->success([
+                'contribution' => $contribution->jsonSerialize()+ [
                     'status' => 'undertaken',
                     'statusLabel' => $this->translate('Undertaken'), // @translate
                 ],
@@ -581,7 +580,7 @@ class ContributionController extends AbstractActionController
 
         // Only people who can edit the resource can update the status.
         if ($resource && !$resource->userIsAllowed('update')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
@@ -592,14 +591,16 @@ class ContributionController extends AbstractActionController
         $response = $this->api()
             ->update('contributions', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
+            return $this->jSend()->error(null, $this->translate(
                 'An internal error occurred.' // @translate
             ));
         }
 
-        return $this->jSend(JSend::SUCCESS, [
+        $contribution = $response->getContent();
+
+        return $this->jSend()->success([
             // Status is updated, so inverted.
-            'contribution' => [
+            'contribution' => $contribution->jsonSerialize()+ [
                 'status' => $wasUndertaken ? 'not-undertaken' : 'undertaken',
                 'statusLabel' => $wasUndertaken
                     ? $this->translate('Not undertaken') // @translate
@@ -611,7 +612,7 @@ class ContributionController extends AbstractActionController
     public function toggleStatusAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -622,7 +623,7 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
@@ -630,9 +631,9 @@ class ContributionController extends AbstractActionController
         // Only a resource already added can have a status validated.
         $resource = $contribution ? $contribution->resource() : null;
         if (!$resource) {
-            return $this->jSend(JSend::SUCCESS, [
+            return $this->jSend()->success([
                 // Status is updated, so inverted.
-                'contribution' => [
+                'contribution' => $contribution->jsonSerialize() + [
                     'status' => 'not-validated',
                     'statusLabel' => $this->translate('Not validated'), // @translate
                 ],
@@ -641,7 +642,7 @@ class ContributionController extends AbstractActionController
 
         // Only people who can edit the resource can update the status.
         if ($resource && !$resource->userIsAllowed('update')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
@@ -653,14 +654,16 @@ class ContributionController extends AbstractActionController
         $response = $this->api()
             ->update('contributions', $id, $data, [], ['isPartial' => true]);
         if (!$response) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
+            return $this->jSend()->error(null, $this->translate(
                 'An internal error occurred.' // @translate
             ));
         }
 
-        return $this->jSend(JSend::SUCCESS, [
+        $contribution = $response->getContent();
+
+        return $this->jSend()->success([
             // Status is updated, so inverted.
-            'contribution' => [
+            'contribution' => $contribution->jsonSerialize() + [
                 'status' => $wasValidated ? 'not-validated' : 'validated',
                 'statusLabel' => $wasValidated
                     ? $this->translate('Not validated') // @translate
@@ -672,7 +675,7 @@ class ContributionController extends AbstractActionController
     public function createResourceAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -683,7 +686,7 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
@@ -691,7 +694,7 @@ class ContributionController extends AbstractActionController
         // If there is a resource, it can't be created.
         $contributionResource = $contribution->resource();
         if ($contributionResource) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource exists already.' // @translate
             ), HttpResponse::STATUS_CODE_400);
         }
@@ -699,14 +702,14 @@ class ContributionController extends AbstractActionController
         // Only people who can create resource can validate.
         $acl = $contribution->getServiceLocator()->get('Omeka\Acl');
         if (!$acl->userIsAllowed(\Omeka\Api\Adapter\ItemAdapter::class, 'create')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
 
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Contribution is not valid: check template.' // @translate
             ));
         }
@@ -716,12 +719,12 @@ class ContributionController extends AbstractActionController
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
+            return $this->jSend()->fail($errorStore->getErrors() ?: null, $this->translate(
                 'Contribution cannot be created: some values are not valid.' // @translate
             ));
         }
         if (!$resource) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
+            return $this->jSend()->error(null, $this->translate(
                 'An internal error occurred.' // @translate
             ));
         }
@@ -783,7 +786,7 @@ class ContributionController extends AbstractActionController
             }
         }
 
-        return $this->jSend(JSend::SUCCESS, [
+        return $this->jSend()->success([
             'contribution' => $contribution,
             'is_new' => true,
             'url' => $resource->adminUrl(),
@@ -793,7 +796,7 @@ class ContributionController extends AbstractActionController
     public function validateAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -804,7 +807,7 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
@@ -816,14 +819,14 @@ class ContributionController extends AbstractActionController
         if (($contributionResource && !$contributionResource->userIsAllowed('update'))
             || (!$contributionResource && !$contribution->getServiceLocator()->get('Omeka\Acl')->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create'))
         ) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
 
         $resourceData = $contribution->proposalToResourceData();
         if (!$resourceData) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Contribution is not valid.' // @translate
             ));
         }
@@ -833,17 +836,17 @@ class ContributionController extends AbstractActionController
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
+            return $this->jSend()->fail($errorStore->getErrors() ?: null, $this->translate(
                 'Contribution is not valid: check its values.' // @translate
             ));
         }
         if (!$resource) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
+            return $this->jSend()->error(null, $this->translate(
                 'An internal error occurred.' // @translate
             ));
         }
 
-        return $this->jSend(JSend::SUCCESS, [
+        return $this->jSend()->success([
             // Status is updated, so inverted.
             'contribution' => [
                 'status' => 'validated',
@@ -861,7 +864,7 @@ class ContributionController extends AbstractActionController
     public function validateValueAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -872,7 +875,7 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
@@ -880,14 +883,14 @@ class ContributionController extends AbstractActionController
         // A resource is required to update it.
         $contributionResource = $contribution->resource();
         if (!$contributionResource) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
 
         // Only people who can edit the resource can validate.
         if (!$contributionResource->userIsAllowed('update')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
@@ -895,7 +898,7 @@ class ContributionController extends AbstractActionController
         $term = $this->params()->fromQuery('term');
         $key = $this->params()->fromQuery('key');
         if (!$term || !is_numeric($key)) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Missing term or key.' // @translate
             ));
         }
@@ -904,7 +907,7 @@ class ContributionController extends AbstractActionController
 
         $resourceData = $contribution->proposalToResourceData($term, $key);
         if (!$resourceData) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Contribution is not valid.' // @translate
             ));
         }
@@ -914,17 +917,17 @@ class ContributionController extends AbstractActionController
         $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, true, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
-            return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
+            return $this->jSend()->fail($errorStore->getErrors() ?: null, $this->translate(
                 'Contribution is not valid: check values.' // @translate
             ));
         }
         if (!$resource) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
+            return $this->jSend()->error(null, $this->translate(
                 'An internal error occurred.' // @translate
             ));
         }
 
-        return $this->jSend(JSend::SUCCESS, [
+        return $this->jSend()->success([
             // Status is updated, so inverted.
             'contribution' => [
                 'status' => 'validated-value',
@@ -936,7 +939,7 @@ class ContributionController extends AbstractActionController
     public function sendMessageAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Method not allowed.' // @translate
             ), HttpResponse::STATUS_CODE_405);
         }
@@ -948,7 +951,7 @@ class ContributionController extends AbstractActionController
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
         } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
         }
@@ -956,20 +959,20 @@ class ContributionController extends AbstractActionController
         /** @var \Omeka\Entity\User $user */
         $user = $this->identity();
         if (!$user) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Unauthorized access.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
 
         $updateContribution = (bool) $params->fromPost('reject', false);
         if ($updateContribution && !$contribution->userIsAllowed('update')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'The user has no right to update the contribution.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
 
         if ($updateContribution && $contribution->resource()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'The contribution is already validated and status cannot be changed.' // @translate
             ), HttpResponse::STATUS_CODE_401);
         }
@@ -984,13 +987,13 @@ class ContributionController extends AbstractActionController
         $body = trim((string) $body);
 
         if (!strlen($body)) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Empty message.' // @translate
             ));
         }
 
         if (mb_strlen($body) > 10000) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Too long message.' // @translate
             ));
         }
@@ -1004,7 +1007,7 @@ class ContributionController extends AbstractActionController
         }
 
         if (mb_strlen($subject) > 190) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'Too long subject.' // @translate
             ));
         }
@@ -1012,7 +1015,7 @@ class ContributionController extends AbstractActionController
         $owner = $contribution->owner();
         $toEmail = $contribution->email() ?: ($owner ? $owner->email() : null);
         if (!$toEmail) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
+            return $this->jSend()->fail(null, $this->translate(
                 'No email defined for this contribution.' // @translate
             ));
         }
@@ -1027,7 +1030,7 @@ class ContributionController extends AbstractActionController
         $form->setData($post);
         if (!$form->isValid()) {
             // $this->messenger()->addFormErrors($form);
-            return $this->jSend(JSend::FAIL, [
+            return $this->jSend()->fail([
                 'form' => $form->getMessages(),
             ]);
         }
@@ -1057,7 +1060,7 @@ class ContributionController extends AbstractActionController
         /** @see \Common\Mvc\Controller\Plugin\SendEmail */
         $result = $this->sendEmail($body, $subject, $to, null, $cc, $bcc, $replyTo);
         if (!$result) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
+            return $this->jSend()->error(null, $this->translate(
                 'Sorry, the message cannot be sent. Contact the administrator.' // @translate
             ));
         }
@@ -1071,7 +1074,7 @@ class ContributionController extends AbstractActionController
                 ->update('contributions', $id, $data, [], ['isPartial' => true]);
             // Normally, there is never an issue here.
             if (!$response) {
-                return $this->jSend(JSend::ERROR, null, $this->translate(
+                return $this->jSend()->error(null, $this->translate(
                     'An internal error occurred.' // @translate
                 ));
             }
@@ -1081,7 +1084,7 @@ class ContributionController extends AbstractActionController
             'Message successfully sent to {email}.', // @translate
             ['email' => $toEmail]
         );
-        return $this->jSend(JSend::SUCCESS, [
+        return $this->jSend()->success([
             'contribution' => $contribution,
         ], $message->setTranslator($this->translator()));
     }

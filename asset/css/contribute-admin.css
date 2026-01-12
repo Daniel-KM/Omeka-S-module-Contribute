@@ -138,30 +138,23 @@
         color: #00FF00;
         content: ""; /* check */
     }
-    .contribution .o-icon-unvalidated::before,
-    .contribution .o-icon-unapprove::before {
+    .contribution .o-icon-not-approve::before {
         color: #FF0000;
         content: ""; /* cancel */
     }
-    .contribution .o-icon-validate-value::before,
-    .contribution .o-icon-validate::before {
+    .contribution .o-icon-validate-value::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
     }
-    .contribution .o-icon-validate-value.no-right::before,
-    .contribution .o-icon-validate.no-right::before {
+    .contribution .o-icon-validate-value.no-right::before {
         color: #FFA500;
         content: "\f359"; /* arrow left */
-    }
-    .contribution .o-icon-validated::before {
-        color: #00FF00;
-        content: "\f359"; /* arrow left / equal not available iin 5.0.8 */
     }
     .contribution .o-icon-validated-value::before {
         color: #00FF00;
         content: ""; /* check */
     }
-    .contribution .o-icon-unvalidated-value::before {
+    .contribution .o-icon-not-validated-value::before {
         color: #FF0000;
         content: ""; /* cancel */
     }
@@ -200,25 +193,6 @@
     .proposal-media {
         border-bottom: solid 1px;
         opacity: 0.7;
-    }
-
-    .single-action {
-        margin: 0 0 0 auto;
-        padding: 0;
-    }
-    .single-action span,
-    .single-action span::before,
-    .single-action a,
-    .single-action a::before,
-    .single-action button,
-    .single-action button::before {
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
-        text-align: right;
-        vertical-align: top;
-        border: 0;
-        box-shadow: none;
     }
 
     .contribution .contribution-email,
@@ -309,6 +283,13 @@
     }
     dialog.dialog-send-message label.required::after {
         display: none;
+    }
+    form#contribute-send-message-form > div:last-child,
+    form#contribute-send-message-form #submit_field {
+        background-color: #fff;
+        .field-meta {
+            display: none;
+        }
     }
 }
 

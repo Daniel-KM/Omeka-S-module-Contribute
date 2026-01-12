@@ -10,6 +10,7 @@ $plugins = $this->getHelperPluginManager();
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
 ?>
 
 <?php if (empty($tokens)): ?>
@@ -53,15 +54,17 @@ $editRight = $resource->userIsAllowed('update');
                 <?php if ($token->isExpired()): ?>
                 <span class="single actions no-action o-icon-expired-token" aria-label="<?= $escape($translate('Expired token')) ?>"></span>
                 <?php else: ?>
+                <div class="actions">
                     <?php if ($editRight): ?>
-                <span class="single actions"><a href="#"
-                    class="expire-token o-icon-expire-token"
-                    data-expire-token-url="<?= $escape($token->adminUrl('expire-token')) ?>"
-                    aria-label="<?= $escape($translate('Expire token')) ?>"
-                    title="<?= $escape($translate('Expire token')) ?>"></a></span>
+                    <button type="button"
+                        class="single-action jsend-action expire-token"
+                        data-url="<?= $escape($token->adminUrl('expire-token')) ?>"
+                        aria-label="<?= $v = $escapeAttr($translate('Expire token')) ?>"
+                        title="<?= $v ?>"><span class="fas o-icon-expire-token"></span></button>
                     <?php else: ?>
-                <span class="single no-action o-icon-expire-token" aria-label="<?= $escape($translate('Unused token')) ?>"></span>
+                    <span class="no-action o-icon-expire-token" aria-label="<?= $escape($translate('Unused token')) ?>"></span>
                     <?php endif; ?>
+                </div>
                 <?php endif; ?>
             </td>
         </tr>

@@ -9,9 +9,12 @@ use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
+use Common\Api\Adapter\CommonAdapterTrait;
 
 class ContributionAdapter extends AbstractEntityAdapter
 {
+    use CommonAdapterTrait;
+
     protected $sortFields = [
         'id' => 'id',
         'resource' => 'resource',

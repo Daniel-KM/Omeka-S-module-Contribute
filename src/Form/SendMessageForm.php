@@ -15,7 +15,7 @@ class SendMessageForm extends Form
     {
         $this
             ->setAttribute('id', 'contribute-send-message-form')
-            ->setAttribute('class', 'send-message-form')
+            ->setAttribute('class', 'form-send-message jsend-form')
             ->setAttribute('method', 'post')
             ->setName('send-message');
 
@@ -113,11 +113,15 @@ class SendMessageForm extends Form
 
             ->add([
                 'name' => 'submit',
-                'type' => Element\Submit::class,
+                'type' => Element\Button::class,
+                'options' => [
+                    'label' => 'Send message' // @translate
+                ],
                 'attributes' => [
                     'id' => 'submit',
+                    'type' => 'submit',
                     'class' => 'submit',
-                    'value' => 'Send message', // @translate
+                    'data-spinner' => 'true',
                 ],
             ])
         ;
