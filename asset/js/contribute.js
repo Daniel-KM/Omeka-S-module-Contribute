@@ -1,3 +1,10 @@
+
+'use strict';
+
+/**
+ * Requires common-dialog.js.
+ */
+
 $(document).ready(function() {
 
     // Get fields and mediaFields from html.
@@ -7,7 +14,7 @@ $(document).ready(function() {
      *
      * @see https://harvesthq.github.io/chosen/
      */
-    var chosenOptions = {
+    const chosenOptions = {
         allow_single_deselect: true,
         disable_search_threshold: 10,
         width: '100%',
@@ -33,7 +40,7 @@ $(document).ready(function() {
             }));
         });
         let specificChosenOptions = chosenOptions;
-        let placeholder = target.data('placeholder');
+        const placeholder = target.data('placeholder');
         specificChosenOptions['placeholder_text_single'] = placeholder
             ? placeholder
             : 'Select…';
@@ -41,15 +48,15 @@ $(document).ready(function() {
     }
 
     function fillHiddenInput() {
-        let group = $(this).closest('.group-input-part');
+        const group = $(this).closest('.group-input-part');
         if (group.find('[data-input-part=year]').length) {
             return;
         }
-        let main = group.find('[data-input-part=main]');
-        var parts = group.find('[data-input-part]:not([data-input-part=main])');
-        let separator = main.data('separator');
+        const main = group.find('[data-input-part=main]');
+        const parts = group.find('[data-input-part]:not([data-input-part=main])');
+        const separator = main.data('separator');
         if (separator && separator.length) {
-            var list = [];
+            const list = [];
             parts.each(function(index, part) {
                 list.push($(part).val());
             });
@@ -60,37 +67,47 @@ $(document).ready(function() {
     }
 
     function fillDate() {
-        let group = $(this).closest('.group-input-part');
-        let main = group.find('[data-input-part=main]');
-        let year = group.find('[data-input-part=year]').val();
-        let month = group.find('[data-input-part=month]').val();
-        let day = group.find('[data-input-part=day]').val();
+        const group = $(this).closest('.group-input-part');
+        const main = group.find('[data-input-part=main]');
+        const year = group.find('[data-input-part=year]').val();
+        const month = group.find('[data-input-part=month]').val();
+        const day = group.find('[data-input-part=day]').val();
         if (!year.length && !month.length && !day.length) {
             main.val('');
             return;
         }
-        let iso = ('0000' + year).slice (-4) + '-' + ('00' + month).slice (-2) + '-' + ('00' + day).slice (-2);
         // Full iso regex, to complete the input pattern one.
         // @see https://stackoverflow.com/questions/12756159/regex-and-iso8601-formatted-datetime
+        const iso = ('0000' + year).slice (-4) + '-' + ('00' + month).slice (-2) + '-' + ('00' + day).slice (-2);
         const regex = /^(\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/
         main.val(regex.test(iso) ? iso : '');
     }
 
-    function contributionDelete(id, urlDelete, urlRedirect) {
-        $.post({
-            url: url,
-            data: {
-                id: id,
-                confirmform_csrf: confirmFormCsrf,
-            },
+    function contributionDelete(button, id, urlDelete, urlRedirect) {
+        CommonDialog.spinnerEnable(button);
+
+        const formData = new URLSearchParams({
+            id: id,
+            confirmform_csrf: confirmFormCsrf,
+        });
+
+        fetch(urlDelete, {
+            method: 'POST',
+            body: formData.toString(),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         })
-        .done(function(data) {
-            window.location.href = urlRedirect;
-            window.location.reload();
-         })
-        .fail(function() {
-            alert('An error occured.');
-         });
+        .then(response => response.json())
+        .then(data => {
+            if (!data.status || data.status !== 'success') {
+                CommonDialog.jSendFail(data);
+            } else {
+                window.location.href = urlRedirect;
+            }
+        })
+        .catch(error => CommonDialog.jSendFail(error))
+        .finally(() => {
+            CommonDialog.spinnerDisable(button);
+        });
     }
 
     // On load, hide all buttons "more" where the number of values is greater
@@ -132,7 +149,7 @@ $(document).ready(function() {
     $('#edit-resource').on('click', '.add-values .add-value', function(ev) {
         ev.stopPropagation();
 
-        var target = $(ev.target);
+        const target = $(ev.target);
         const adds = [
             '.add-value-new',
             '.add-value-literal',
@@ -148,13 +165,13 @@ $(document).ready(function() {
             return;
         }
 
-        var selector = target.closest('.add-values');
-        var term = selector.data('next-term');
-        var index = selector.data('next-index') ? parseInt(selector.data('next-index')) : 0;
-        var isMedia = target.hasClass('add-value-media');
-        var indexMedia = isMedia ? parseInt(target.closest('.contribute-media').data('index-media')) : null;
-        var inputs = target.closest('.property').find('.values').first();
-        var newElement,
+        const selector = target.closest('.add-values');
+        const term = selector.data('next-term');
+        let index = selector.data('next-index') ? parseInt(selector.data('next-index')) : 0;
+        const isMedia = target.hasClass('add-value-media');
+        const indexMedia = isMedia ? parseInt(target.closest('.contribute-media').data('index-media')) : null;
+        const inputs = target.closest('.property').find('.values').first();
+        let newElement,
             name,
             namel,
             newInput;
@@ -172,7 +189,7 @@ $(document).ready(function() {
         }
 
         if (target.hasClass('add-value-new')) {
-            var template = target.data('template');
+            const template = target.data('template');
             newElement = $('#' + template + ' > .value').clone();
             namel = baseName(term, index, indexMedia);
             name = namel + '[@value]';
@@ -302,7 +319,7 @@ $(document).ready(function() {
         ev.preventDefault();
         // Add a new value when it is a required one and no more value is set.
         // The button "add-value" or the template may be missing.
-        var val = $(this).closest('.value');
+        const val = $(this).closest('.value');
         val.find('.chosen-option').chosen('destroy');
         const isRequired = val.find(':input[required]').length;
         if (isRequired && $(this).closest('.values').find('> .value').length <= 1) {
@@ -322,10 +339,10 @@ $(document).ready(function() {
     });
 
     $('#edit-resource').on('click', '.inputs-media .add-media-new', function(ev) {
-        var target = $(ev.target);
-        var fieldsetMedias = target.closest('.contribute-medias');
-        var indexMedia = 0 + parseInt(fieldsetMedias.data('next-index-media'));
-        var fieldsetMedia = $('#edit_template_media > .sub-form').clone();
+        const target = $(ev.target);
+        const fieldsetMedias = target.closest('.contribute-medias');
+        const indexMedia = 0 + parseInt(fieldsetMedias.data('next-index-media'));
+        const fieldsetMedia = $('#edit_template_media > .sub-form').clone();
         // Set all names and indexes.
         fieldsetMedia
             .prop('name', 'media[' + indexMedia + ']')
@@ -360,15 +377,20 @@ $(document).ready(function() {
         }
     });
 
-    $('.remove-contribution').on('click', function(ev) {
+    $('.remove-contribution').on('click', async function(ev) {
         ev.stopPropagation();
         ev.preventDefault();
+        const button = this;
         const id = $(this).data('contribution-id');
         const urlDelete = $(this).data('contribution-url');
         const urlRedirect = $(this).data('redirect-url') ? $(this).data('redirect-url') : urlDelete.slice(0, urlDelete.lastIndexOf('/')).slice(0, urlDelete.lastIndexOf('/'));
         const message = $(this).closest('.actions').data('message-remove-contribution');
-        if (urlDelete && confirm(message)) {
-            contributionDelete(id, urlDelete, urlRedirect);
+
+        if (urlDelete) {
+            const confirmed = await CommonDialog.dialogConfirm(message);
+            if (confirmed) {
+                contributionDelete(button, id, urlDelete, urlRedirect);
+            }
         }
         return false;
     });

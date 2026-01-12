@@ -542,8 +542,10 @@ class Module extends AbstractModule
         $view = $event->getTarget();
         $assetUrl = $view->plugin('assetUrl');
         $view->headLink()
+            ->appendStylesheet($assetUrl('css/common-dialog.css', 'Common'))
             ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
         $view->headScript()
+            ->appendFile($assetUrl('js/common-dialog.js', 'Common'), 'text/javascript', ['defer' => 'defer'])
             ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
@@ -554,7 +556,15 @@ class Module extends AbstractModule
         if (empty($contributeConfig['use_token'])) {
             return;
         }
-        $this->addHeadersAdmin($event);
+
+        $view = $event->getTarget();
+        $assetUrl = $view->plugin('assetUrl');
+        $view->headLink()
+            ->appendStylesheet($assetUrl('css/common-dialog.css', 'Common'))
+            ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
+        $view->headScript()
+            ->appendFile($assetUrl('js/common-dialog.js', 'Common'), 'text/javascript', ['defer' => 'defer'])
+            ->appendFile($assetUrl('js/contribute-admin.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function adminViewShowSidebar(Event $event): void

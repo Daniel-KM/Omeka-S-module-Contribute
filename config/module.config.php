@@ -249,6 +249,7 @@ return [
     'js_translate_strings' => [
         'Prepare tokens to edit selected', // @translate
         'Prepare tokens to edit all', // @translate
+        'Go', // @translate
     ],
     'blocksdisposition' => [
         'views' => [

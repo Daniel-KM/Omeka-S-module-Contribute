@@ -1,3 +1,5 @@
+'use strict';
+
 /*
  * Adapted from module Value Suggest, required to use Value Suggest in public
  * side (the function should be available to all js).
@@ -8,21 +10,21 @@
 $(document).ready(function() {
 
     $('.valuesuggest-input').each(function() {
-        var suggestInput = $(this);
+        const suggestInput = $(this);
         valueSuggestAutocomplete(suggestInput);
     });
 
 });
 
 function valueSuggestAutocomplete(suggestInput) {
-    var type = suggestInput.data('data-type');
+    let type = suggestInput.data('data-type');
     if (type.indexOf('valuesuggest:') !== 0 && type.indexOf('valuesuggestall:') !== 0) {
         return;
     }
 
-    // Use an hidden value to simplify submission.
+    // Use a hidden value to simplify submission.
     // TODO Move this hack to the prompt element with Zend validator/filter.
-    var suggestHidden = $('<input>')
+    const suggestHidden = $('<input>')
         .attr('type', 'hidden')
         .attr('name', suggestInput.attr('name'))
         .val('');
@@ -35,10 +37,10 @@ function valueSuggestAutocomplete(suggestInput) {
         suggestInput.val(suggestInput.data('value'));
     }
 
-    var allResults;
+    let allResults;
 
     // Build the autocomplete options.
-    var options = {
+    const options = {
         // Must disable triggerSelectOnValidInput or onSelect will be
         // triggered whether the user wants it or not. The user must
         // explicitly select the suggestion.
@@ -74,7 +76,7 @@ function valueSuggestAutocomplete(suggestInput) {
             suggestInput.val(suggestion.value);
             if (suggestion.data.uri) {
                 suggestInput.attr('data-uri', suggestion.data.uri);
-                var link = $('<a>')
+                const link = $('<a>')
                     .attr('href', suggestion.data.uri)
                     .attr('target', '_blank')
                     // Unlike value-suggest-admin, the value is used as text.
@@ -103,7 +105,7 @@ function valueSuggestAutocomplete(suggestInput) {
                 }
             });
             // Hide suggestions that contain no matches.
-            var hasSuggestions = container.children(':has(strong)');
+            const hasSuggestions = container.children(':has(strong)');
             hasSuggestions.show();
             if (hasSuggestions.length) {
                 container.children().not(':has(strong)').hide();
