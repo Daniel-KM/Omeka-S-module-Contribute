@@ -8,7 +8,7 @@ use Laminas\Permissions\Acl\Assertion\AssertionInterface;
 use Laminas\Permissions\Acl\Resource\ResourceInterface;
 use Laminas\Permissions\Acl\Role\RoleInterface;
 
-class IsNotReviewed implements AssertionInterface
+class IsFullContributed implements AssertionInterface
 {
     public function assert(
         Acl $acl,
@@ -19,6 +19,11 @@ class IsNotReviewed implements AssertionInterface
         if (!$resource instanceof Contribution) {
             return false;
         }
-        return !$resource->getReviewed();
+        $contributedResource = $resource->getResource();
+        return $contributedResource
+            && $resource->getSubmitted()
+            && $resource->getUndertaken()
+            && $resource->getValidated()
+            && $contributedResource->isPublic();
     }
 }

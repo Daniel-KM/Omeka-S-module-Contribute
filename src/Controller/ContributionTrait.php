@@ -19,7 +19,8 @@ trait ContributionTrait
         ContributionRepresentation $contribution,
         array $resourceData,
         ErrorStore $errorStore,
-        bool $reviewed = false,
+        bool $undertaken = false,
+        bool $validated = false,
         bool $validateOnly = false,
         bool $useMessenger = false
     ): ?AbstractResourceEntityRepresentation {
@@ -188,7 +189,8 @@ trait ContributionTrait
 
         $data = [];
         $data['o:resource'] = $validateOnly || !$contributionResource ? null : ['o:id' => $contributionResource->id()];
-        $data['o-module-contribute:reviewed'] = $reviewed;
+        $data['o-module-contribute:undertaken'] = $undertaken;
+        $data['o-module-contribute:validated'] = $validated;
         $response = $this->api()
             ->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
 

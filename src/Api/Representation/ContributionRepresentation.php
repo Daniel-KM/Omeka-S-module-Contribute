@@ -10,6 +10,11 @@ use Omeka\Api\Representation\ResourceTemplateRepresentation;
 class ContributionRepresentation extends AbstractEntityRepresentation
 {
     /**
+     * @var \Contribute\Entity\Contribution
+     */
+    protected $resource;
+
+    /**
      * @var array
      */
     protected $values;
@@ -67,7 +72,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             'o:email' => $owner ? null : $this->email(),
             'o-module-contribute:patch' => $this->isPatch(),
             'o-module-contribute:submitted' => $this->isSubmitted(),
-            'o-module-contribute:reviewed' => $this->isReviewed(),
+            'o-module-contribute:undertaken' => $this->isUndertaken(),
+            'o-module-contribute:validated' => $this->isValidated(),
             'o-module-contribute:proposal' => $this->proposal(),
             'o-module-contribute:token' => $token,
             'o:created' => $created,
@@ -106,21 +112,28 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         return $this->resource->getSubmitted();
     }
 
-    public function isReviewed(): bool
+    public function isUndertaken(): bool
     {
-        return $this->resource->getReviewed();
+        return $this->resource->getUndertaken();
+    }
+
+    public function isValidated(): bool
+    {
+        return $this->resource->getValidated();
     }
 
     public function isUpdatable(): bool
     {
         $settings = $this->getServiceLocator()->get('Omeka\Settings');
-        $allowUpdate = $settings->get('contribute_allow_update') ?: 'submission';
-        if ($allowUpdate === 'no') {
-            return false;
-        } elseif ($allowUpdate === 'validation') {
-            return !$this->resource->getReviewed();
+        $allowUpdateUntil = $settings->get('contribute_allow_update') ?: 'undertaking';
+        if ($allowUpdateUntil === 'submission') {
+            return !$this->resource->getSubmitted() && !$this->resource->getUndertaken() && !$this->resource->getValidated();
+        } elseif ($allowUpdateUntil === 'undertaking') {
+            return !$this->resource->getUndertaken() && !$this->resource->getValidated();
+        } elseif ($allowUpdateUntil === 'validation') {
+            return !$this->resource->getValidated();
         } else {
-            return !$this->resource->getSubmitted() && !$this->resource->getReviewed();
+            return false;
         }
     }
 

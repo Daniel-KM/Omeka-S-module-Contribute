@@ -7,6 +7,11 @@ use Omeka\Api\Representation\AbstractEntityRepresentation;
 
 class TokenRepresentation extends AbstractEntityRepresentation
 {
+    /**
+     * @var \Contribute\Entity\Token
+     */
+    protected $resource;
+
     public function getControllerName()
     {
         return 'contribution';

@@ -67,10 +67,10 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'patch', 'submitted', 'reviewed', 'proposal', 'token', 'created', 'modified'];
+            return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'patch', 'submitted', 'undertaken', 'validated', 'proposal', 'token', 'created', 'modified'];
         }
 
-        return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'patch', 'submitted', 'reviewed', 'proposal', 'token', 'created', 'modified'];
+        return ['__isInitialized__', 'id', 'resource', 'owner', 'email', 'patch', 'submitted', 'undertaken', 'validated', 'proposal', 'token', 'created', 'modified'];
     }
 
     /**
@@ -305,23 +305,45 @@ class Contribution extends \Contribute\Entity\Contribution implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function setReviewed($reviewed): \Contribute\Entity\Contribution
+    public function setUndertaken($undertaken): \Contribute\Entity\Contribution
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setReviewed', [$reviewed]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUndertaken', [$undertaken]);
 
-        return parent::setReviewed($reviewed);
+        return parent::setUndertaken($undertaken);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getReviewed(): bool
+    public function getUndertaken(): bool
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getReviewed', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUndertaken', []);
 
-        return parent::getReviewed();
+        return parent::getUndertaken();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setValidated($validated): \Contribute\Entity\Contribution
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValidated', [$validated]);
+
+        return parent::setValidated($validated);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getValidated(): bool
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValidated', []);
+
+        return parent::getValidated();
     }
 
     /**

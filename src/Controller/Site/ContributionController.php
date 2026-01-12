@@ -312,8 +312,8 @@ class ContributionController extends AbstractActionController
                 $data = $this->checkAndIncludeFileData($data);
                 // To simplify process, a direct submission is made with a
                 // create then an update.
-                $allowUpdate = $this->settings()->get('contribute_allow_update');
-                $isDirectSubmission = $allowUpdate === 'no';
+                $allowUpdateUntil = $this->settings()->get('contribute_allow_update') ?: 'undertaking';
+                $isDirectSubmission = $allowUpdateUntil === 'no';
                 if (empty($data['has_error'])) {
                     $proposal = $this->prepareProposal($data);
                     if ($proposal) {
@@ -326,7 +326,8 @@ class ContributionController extends AbstractActionController
                             'o:email' => $token ? $token->email() : ($user ? $user->getEmail() : null),
                             'o-module-contribute:patch' => false,
                             'o-module-contribute:submitted' => false,
-                            'o-module-contribute:reviewed' => false,
+                            'o-module-contribute:undertaken' => false,
+                            'o-module-contribute:validated' => false,
                             'o-module-contribute:proposal' => $proposal,
                         ];
                         $response = $this->api($form)->create('contributions', $data);
@@ -577,36 +578,26 @@ class ContributionController extends AbstractActionController
             $form->get('mode')->setValue('read');
         }
 
-        $allowUpdate = $this->settings()->get('contribute_allow_update');
-        $allowUpdateUntilValidation = $allowUpdate === 'validation';
+        $allowUpdateUntil = $this->settings()->get('contribute_allow_update') ?: 'undertaking';
+        $allowUpdateUntilValidation = $allowUpdateUntil === 'validation';
         $isCorrection = !$contribution || $contribution->isPatch();
 
-        // TODO Use method isUpdatable().
-        if (!$isCorrection
-            && $isModeWrite
-            && !$allowUpdateUntilValidation
-            && $contribution
-            && $contribution->isSubmitted()
-        ) {
-            $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
-            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
-        }
-
-        // When a user wants to edit a resource, create a new correction.
-        if ($isCorrection
-            && $isModeWrite
-            && !$allowUpdateUntilValidation
-            && $contribution
-            && $contribution->isSubmitted()
-        ) {
-            $contribution = null;
-        } elseif ($isCorrection
-            && $isModeWrite
-            && $allowUpdateUntilValidation
-            && $contribution
-            && $contribution->isReviewed()
-        ) {
-            $contribution = null;
+        if ($isModeWrite && $contribution) {
+            if ($isCorrection) {
+                // For correction (is patch), the update is not allowed after
+                // submission:
+                // When a user wants to edit a resource, create a new correction.
+                if (!$contribution->isUpdatable()) {
+                    $contribution = null;
+                }
+            } else {
+                // For contribution, the update is possible according to setting
+                // "allow update".
+                if (!$contribution->isUpdatable()) {
+                    $this->messenger()->addWarning('This contribution has been submitted and cannot be edited.'); // @translate
+                    return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+                }
+            }
         }
 
         // No need to set the template, but simplify view for form.
@@ -641,7 +632,8 @@ class ContributionController extends AbstractActionController
                                 'o-module-contribute:patch' => true,
                                 // A patch is always a submission.
                                 'o-module-contribute:submitted' => true,
-                                'o-module-contribute:reviewed' => false,
+                                'o-module-contribute:undertaken' => false,
+                                'o-module-contribute:validated' => false,
                                 'o-module-contribute:proposal' => $proposal,
                             ];
                             $response = $this->api($form)->create('contributions', $data);
@@ -649,7 +641,7 @@ class ContributionController extends AbstractActionController
                                 $this->messenger()->addSuccess('Contribution successfully submitted!'); // @translate
                                 // $this->prepareContributionEmail($response->getContent(), 'submit');
                             }
-                        } elseif ($contribution->isSubmitted() && !$allowUpdateUntilValidation) {
+                        } elseif (!$contribution->isUpdatable()) {
                             $this->messenger()->addWarning('This contribution is already submitted and cannot be updated.'); // @translate
                             $response = $this->api()->read('contributions', $contribution->id());
                         } elseif ($proposal === $contribution->proposal()) {
@@ -657,7 +649,8 @@ class ContributionController extends AbstractActionController
                             $response = $this->api()->read('contributions', $contribution->id());
                         } else {
                             $data = [
-                                'o-module-contribute:reviewed' => false,
+                                // Do not change status of "undertaken".
+                                'o-module-contribute:validated' => false,
                                 'o-module-contribute:proposal' => $proposal,
                             ];
                             $response = $this->api($form)->update('contributions', $contribution->id(), $data, [], ['isPartial' => true]);
@@ -767,24 +760,40 @@ class ContributionController extends AbstractActionController
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'show'], true);
         }
 
-        $allowUpdate = $this->settings()->get('contribute_allow_update') ?: 'submission';
-        if ($allowUpdate === 'no') {
+        $allowUpdateUntil = $this->settings()->get('contribute_allow_update') ?: 'undertaking';
+        if ($allowUpdateUntil === 'no') {
             $this->messenger()->addWarning('A contribution cannot be updated or deleted.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $resource */
         $resource = $this->api()->read('contributions', $id)->getContent();
 
-        if ($allowUpdate !== 'validation' && $resource->isSubmitted()) {
-            $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
-            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
-        }
-        if ($allowUpdate === 'validation' && $resource->isReviewed()) {
-            $this->messenger()->addWarning('This contribution has been reviewed and cannot be deleted.'); // @translate
+        if (!$resource->userIsAllowed('delete')) {
+            // TODO The user won't see this warning.
+            $this->messenger()->addError('The user is not allowed to delete the contribution.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
-        $response = $this->api()->delete('contributions', $id);
+        if (!$resource->isUpdatable()) {
+            if ($resource->isValidated()) {
+                $this->messenger()->addWarning('This contribution has been validated and cannot be deleted.'); // @translate
+            } elseif ($resource->isUndertaken()) {
+                $this->messenger()->addWarning('This contribution has been taken in charge and cannot be deleted.'); // @translate
+            } elseif ($resource->isSubmitted()) {
+                $this->messenger()->addWarning('This contribution has been submitted and cannot be deleted.'); // @translate
+            } else {
+                // For correction?
+                $this->messenger()->addWarning('This contribution cannot be deleted.'); // @translate
+            }
+            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
+        }
+
+        try {
+            $response = $this->api()->delete('contributions', $id);
+        } catch (\Exception $e) {
+            $response = null;
+        }
         if ($response) {
             $this->messenger()->addSuccess('Contribution successfully deleted.'); // @translate
         } else {
@@ -834,19 +843,22 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         $contribution = $api->read('contributions', ['id' => $resourceId])->getContent();
 
-        $allowUpdate = $this->settings()->get('contribute_allow_update') ?: 'submission';
-
         if (!$contribution->userIsAllowed('update')) {
             $this->messenger()->addError('Only the contributor can update a contribution.'); // @translate
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
-        if ($allowUpdate !== 'validation' && $contribution->isSubmitted()) {
-            $this->messenger()->addWarning('This contribution has already been submitted.'); // @translate
-            return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
-        }
-        if ($allowUpdate === 'validation' && $contribution->isReviewed()) {
-            $this->messenger()->addWarning('This contribution has already been reviewed.'); // @translate
+        if (!$contribution->isUpdatable()) {
+            if ($contribution->isValidated()) {
+                $this->messenger()->addWarning('This contribution has been validated and cannot be updated.'); // @translate
+            } elseif ($contribution->isUndertaken()) {
+                $this->messenger()->addWarning('This contribution has been taken in charge and cannot be updated.'); // @translate
+            } elseif ($contribution->isSubmitted()) {
+                $this->messenger()->addWarning('This contribution has already been submitted and cannot be updated.'); // @translate
+            } else {
+                // For correction?
+                $this->messenger()->addWarning('This contribution cannot be updated.'); // @translate
+            }
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
 
@@ -862,7 +874,7 @@ class ContributionController extends AbstractActionController
 
         // Validate the contribution with the api process.
         $errorStore = new ErrorStore();
-        $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, true, true);
+        $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, true, true);
         if ($errorStore->hasErrors()) {
             return $this->redirect()->toRoute($space === 'guest' ? 'site/guest/contribution-id' : 'site/contribution-id', ['action' => 'view'], true);
         }
@@ -991,7 +1003,8 @@ class ContributionController extends AbstractActionController
             if ($resource = $contribution->resource()) {
                 $entity->setResource($this->api()->read('resources', ['id' => $resource->id()], ['responseContent' => 'resource'])->getContent());
             }
-            $entity->setReviewed($contribution->isReviewed());
+            $entity->setUndertaken($contribution->isUndertaken());
+            $entity->setValidated($contribution->isValidated());
         }
 
         unset($data['csrf'], $data['edit-resource-submit']);

@@ -222,7 +222,37 @@ Omeka.contributionManageSelectedActions = function() {
             ev.preventDefault();
         })
 
-        // Mark a contribution reviewed/unreviewed.
+        // Mark a contribution undertaken.
+        $('#content').on('click', '.contribution a.undertaking-toggle', function(e) {
+            e.preventDefault();
+
+            const button = $(this);
+            const url = button.data('status-undertaken-toggle-url');
+            let status = button.data('status');
+            $.ajax({
+                url: url,
+                beforeSend: function() {
+                    button.removeClass('o-icon-' + status).addClass('fas fa-sync fa-spin');
+                }
+            })
+            .done(function(data, textStatus, xhr) {
+                if (!data.status || data.status !== 'success') {
+                    handleAjaxFail(xhr, textStatus);
+                } else {
+                    status = data.data.contribution.status;
+                    button.data('status', status);
+                    button.prop('title', data.data.contribution.statusLabel);
+                    button.prop('aria-label', data.data.contribution.statusLabel);
+                    $(document).trigger('o:contribution-updated', data);
+                }
+            })
+            .fail(handleAjaxFail)
+            .always(function () {
+                button.removeClass('fas fa-sync fa-spin').addClass('o-icon-' + status);
+            });
+        });
+
+        // Mark a contribution validated.
         $('#content').on('click', '.contribution a.status-toggle', function(e) {
             e.preventDefault();
 
@@ -371,11 +401,11 @@ Omeka.contributionManageSelectedActions = function() {
                 if (!data.status || data.status !== 'success') {
                     handleAjaxFail(xhr, textStatus);
                 } else {
-                    // Set the contribution reviewed in all cases.
-                    status = data.data.contribution.reviewed.status;
-                    buttonReviewed = button.closest('th').find('a.status-toggle');
-                    buttonReviewed.data('status', status);
-                    buttonReviewed.addClass('o-icon-' + status);
+                    // Set the contribution validated in all cases.
+                    status = data.data.contribution.validated.status;
+                    const buttonValidated = button.closest('th').find('a.status-toggle');
+                    buttonValidated.data('status', status);
+                    buttonValidated.addClass('o-icon-' + status);
 
                     // Update the validate button.
                     status = data.data.contribution.status;

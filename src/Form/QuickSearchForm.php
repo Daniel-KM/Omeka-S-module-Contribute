@@ -99,10 +99,10 @@ class QuickSearchForm extends Form
                 ],
             ])
             ->add([
-                'name' => 'reviewed',
+                'name' => 'undertaken',
                 'type' => Element\Radio::class,
                 'options' => [
-                    'label' => 'Reviewed', // @translate
+                    'label' => 'Undertaken', // @translate
                     'value_options' => [
                         '' => 'Any', // @translate
                         '1' => 'Yes', // @translate
@@ -110,7 +110,23 @@ class QuickSearchForm extends Form
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'reviewed',
+                    'id' => 'undertaken',
+                    'value' => '',
+                ],
+            ])
+            ->add([
+                'name' => 'validated',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Validated', // @translate
+                    'value_options' => [
+                        '' => 'Any', // @translate
+                        '1' => 'Yes', // @translate
+                        '00' => 'No', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'validated',
                     'value' => '',
                 ],
             ])

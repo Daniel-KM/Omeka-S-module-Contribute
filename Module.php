@@ -218,9 +218,10 @@ class Module extends AbstractModule
         // So anonymous contributor cannot view or edit a contribution.
         // Once submitted, the contribution cannot be updated by the owner,
         // except with option "contribute_allow_update".
-        // Once reviewed, the contribution can be viewed like the resource.
+        // Once validated, the contribution can be viewed like the resource.
 
         // Contribution.
+        // Of course, if there is no contributors, the module is useless.
         $acl
             ->allow(
                 $contributors,
@@ -249,10 +250,10 @@ class Module extends AbstractModule
                 (new \Laminas\Permissions\Acl\Assertion\AssertionAggregate)
                     ->setMode(\Laminas\Permissions\Acl\Assertion\AssertionAggregate::MODE_AT_LEAST_ONE)
                     ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
-                    ->addAssertion(new \Contribute\Permissions\Assertion\IsSubmittedAndReviewedAndHasPublicResource)
+                    ->addAssertion(new \Contribute\Permissions\Assertion\IsFullContributed())
             )
         ;
-        if ($allowUpdateMode === 'submission' || $allowUpdateMode === 'validation') {
+        if (in_array($allowUpdateMode, ['submission', 'undertaking', 'validation'])) {
             $acl
                 ->allow(
                     $contributors,
@@ -262,7 +263,9 @@ class Module extends AbstractModule
                         ->addAssertion(new \Omeka\Permissions\Assertion\OwnsEntityAssertion)
                         ->addAssertion($allowUpdateMode === 'submission'
                             ? new \Contribute\Permissions\Assertion\IsNotSubmitted()
-                            : new \Contribute\Permissions\Assertion\IsNotReviewed()
+                            : ($allowUpdateMode === 'undertaking'
+                                ? new \Contribute\Permissions\Assertion\IsNotUndertaken()
+                                : new \Contribute\Permissions\Assertion\IsNotValidated())
                         )
                 );
         }
@@ -660,18 +663,18 @@ class Module extends AbstractModule
                 'limit' => 0,
             ])
             ->getTotalResults();
-        $totalNotReviewed = $view->api()
+        $totalNotValidated = $view->api()
             ->search('contributions', [
                 'resource_id' => $resource->id(),
-                'reviewed' => '0',
+                'validated' => '0',
                 'limit' => 0,
             ])
             ->getTotalResults();
         $heading = $translate('Contributions'); // @translat
         $message = $total
             ? new PsrMessage(
-                '{total} contributions ({count} not reviewed)', // @translate
-                ['total' => $total, 'count' => $totalNotReviewed]
+                '{total} contributions ({count} not validated)', // @translate
+                ['total' => $total, 'count' => $totalNotValidated]
             )
             : new PsrMessage('No contribution'); // @translate
         $message->setTranslator($translator);

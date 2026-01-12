@@ -116,20 +116,29 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                     <ul class="actions">
                         <li>
                             <span class="no-action"><span
-                                class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
-                                data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'unsubmitted' ?>"
-                                aria-label="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"
-                                title="<?= $contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted')) ?>"></span>
+                                class="o-icon-<?= $contribution->isSubmitted() ? 'submitted' : 'not-submitted' ?>"
+                                data-proposal="<?= $contribution->isSubmitted() ? 'submitted' : 'not-submitted' ?>"
+                                aria-label="<?= $v = ($contribution->isSubmitted() ? $escapeAttr($translate('Is submitted')) : $escapeAttr($translate('Is not submitted'))) ?>"
+                                title="<?= $v ?>"></span>
                             </span>
                         </li>
-                        <?php if ($contributionResource && $contribution->userIsAllowed('update')): ?>
+                        <?php if ($contribution->userIsAllowed('update')): ?>
                         <li>
                             <span class="single actions"><a href="#"
-                                class="status-toggle o-icon-<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
+                                class="status-toggle o-icon-<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
+                                data-status-toggle-url="<?= $escapeAttr($contribution->adminUrl('toggle-undertaking')) ?>"
+                                data-status="<?= $contribution->isUndertaken() ? 'undertaken' : 'not-undertaken' ?>"
+                                aria-label="<?= $v = $escapeAttr($translate('Mark taken in charge or not')) ?>"
+                                title="<?= $v ?>"></a>
+                            </span>
+                        </li>
+                        <li>
+                            <span class="single actions"><a href="#"
+                                class="status-toggle o-icon-<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
                                 data-status-toggle-url="<?= $escapeAttr($contribution->adminUrl('toggle-status')) ?>"
-                                data-status="<?= $contribution->isReviewed() ? 'reviewed' : 'unreviewed' ?>"
-                                aria-label="<?= $escapeAttr($translate('Toggle status reviewed/unreviewed')) ?>"
-                                title="<?= $escapeAttr($translate('Toggle status reviewed/unreviewed')) ?>"></a>
+                                data-status="<?= $contribution->isValidated() ? 'validated' : 'not-validated' ?>"
+                                aria-label="<?= $v = $escapeAttr($translate('Mark validated or not')) ?>"
+                                title="<?= $v ?>"></a>
                             </span>
                         </li>
                         <?php endif; ?>

@@ -8,7 +8,7 @@ use Laminas\Permissions\Acl\Assertion\AssertionInterface;
 use Laminas\Permissions\Acl\Resource\ResourceInterface;
 use Laminas\Permissions\Acl\Role\RoleInterface;
 
-class IsSubmittedAndReviewedAndHasPublicResource implements AssertionInterface
+class IsNotValidated implements AssertionInterface
 {
     public function assert(
         Acl $acl,
@@ -19,10 +19,6 @@ class IsSubmittedAndReviewedAndHasPublicResource implements AssertionInterface
         if (!$resource instanceof Contribution) {
             return false;
         }
-        $contributedResource = $resource->getResource();
-        return $contributedResource
-            && $resource->getSubmitted()
-            && $resource->getReviewed()
-            && $contributedResource->isPublic();
+        return !$resource->getValidated();
     }
 }

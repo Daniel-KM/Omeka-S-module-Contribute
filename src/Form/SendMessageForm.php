@@ -53,7 +53,7 @@ class SendMessageForm extends Form
                 'name' => 'reject',
                 'type' => Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Mark unsubmitted', // @translate
+                    'label' => 'Mark not submitted', // @translate
                 ],
                 'attributes' => [
                     'id' => 'reject',

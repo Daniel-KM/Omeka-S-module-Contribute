@@ -283,7 +283,7 @@ return [
             ],
             // Days.
             'contribute_token_duration' => 30,
-            'contribute_allow_update' => 'submission',
+            'contribute_allow_update' => 'undertaking',
             'contribute_sender_email' => '',
             'contribute_sender_name' => '',
             'contribute_notify_recipients' => [],

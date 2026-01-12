@@ -80,8 +80,16 @@ class ContributionSearchFilters extends AbstractHelper
                     $filters[$filterLabel][] = $filterValue;
                     break;
 
-                case 'reviewed':
-                    $filterLabel = $translate('Is reviewed'); // @translate
+                case 'undertaken':
+                    $filterLabel = $translate('Is undertaken'); // @translate
+                    $filterValue = (int) $value
+                        ? $translate('Yes') // @translate
+                        : $translate('No'); // @translate
+                    $filters[$filterLabel][] = $filterValue;
+                    break;
+
+                case 'validated':
+                    $filterLabel = $translate('Is validated'); // @translate
                     $filterValue = (int) $value
                         ? $translate('Yes') // @translate
                         : $translate('No'); // @translate

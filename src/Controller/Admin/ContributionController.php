@@ -96,11 +96,18 @@ class ContributionController extends AbstractActionController
                 $params['submitted'] = '0';
             }
         }
-        if (isset($data['reviewed'])) {
-            if ($data['reviewed'] === '0') {
-                $data['reviewed'] = '00';
-            } elseif ($params['reviewed'] === '00') {
-                $params['reviewed'] = '0';
+        if (isset($data['undertaken'])) {
+            if ($data['undertaken'] === '0') {
+                $data['undertaken'] = '00';
+            } elseif ($params['undertaken'] === '00') {
+                $params['undertaken'] = '0';
+            }
+        }
+        if (isset($data['validated'])) {
+            if ($data['validated'] === '0') {
+                $data['validated'] = '00';
+            } elseif ($params['validated'] === '00') {
+                $params['validated'] = '0';
             }
         }
         if (isset($data['resource_template_id']) && is_array($data['resource_template_id'])) {
@@ -463,65 +470,6 @@ class ContributionController extends AbstractActionController
         return $this->redirect()->toRoute('admin/id', ['controller' => $resourceType, 'action' => 'show'], true);
     }
 
-    public function toggleStatusAction()
-    {
-        if (!$this->getRequest()->isXmlHttpRequest()) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Method not allowed.' // @translate
-            ), HttpResponse::STATUS_CODE_405);
-        }
-
-        $id = $this->params('id');
-
-        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
-        try {
-            $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Resource not found.' // @translate
-            ), HttpResponse::STATUS_CODE_404);
-        }
-
-        // Only a resource already added can have a status reviewed.
-        $resource = $contribution ? $contribution->resource() : null;
-        if (!$resource) {
-            return $this->jSend(JSend::SUCCESS, [
-                // Status is updated, so inverted.
-                'contribution' => [
-                    'status' => 'unreviewed',
-                    'statusLabel' => $this->translate('Unreviewed'), // @translate
-                ],
-            ]);
-        }
-
-        // Only people who can edit the resource can update the status.
-        if ($resource && !$resource->userIsAllowed('update')) {
-            return $this->jSend(JSend::FAIL, null, $this->translate(
-                'Unauthorized access.' // @translate
-            ), HttpResponse::STATUS_CODE_401);
-        }
-
-        $isReviewed = $contribution->isReviewed();
-
-        $data = [];
-        $data['o-module-contribute:reviewed'] = !$isReviewed;
-        $response = $this->api()
-            ->update('contributions', $id, $data, [], ['isPartial' => true]);
-        if (!$response) {
-            return $this->jSend(JSend::ERROR, null, $this->translate(
-                'An internal error occurred.' // @translate
-            ));
-        }
-
-        return $this->jSend(JSend::SUCCESS, [
-            // Status is updated, so inverted.
-            'contribution' => [
-                'status' => $isReviewed ? 'unreviewed' : 'reviewed',
-                'statusLabel' => $isReviewed ? $this->translate('Unreviewed') : $this->translate('Reviewed'), // @translate
-            ],
-        ]);
-    }
-
     public function expireTokenAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
@@ -588,6 +536,141 @@ class ContributionController extends AbstractActionController
         ]);
     }
 
+    public function toggleUndertakingAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Method not allowed.' // @translate
+            ), HttpResponse::STATUS_CODE_405);
+        }
+
+        $id = $this->params('id');
+
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        try {
+            $contribution = $this->api()->read('contributions', $id)->getContent();
+        } catch (\Exception $e) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Resource not found.' // @translate
+            ), HttpResponse::STATUS_CODE_404);
+        }
+
+        $wasUndertaken = $contribution->isUndertaken();
+
+        // If there is a resource, it is always undertaken (except patch).
+        $resource = $contribution ? $contribution->resource() : null;
+        if ($resource && !$contribution->isPatch()) {
+            // Set the contribution undertaking flag true if it is not set.
+            if (!$wasUndertaken) {
+                $data = [];
+                $data['o-module-contribute:undertaken'] = true;
+                $response = $this->api()
+                    ->update('contributions', $id, $data, [], ['isPartial' => true]);
+                if (!$response) {
+                    return $this->jSend(JSend::ERROR, null, $this->translate(
+                        'An internal error occurred.' // @translate
+                    ));
+                }
+            }
+            return $this->jSend(JSend::SUCCESS, [
+                // Status is updated, so inverted.
+                'contribution' => [
+                    'status' => 'undertaken',
+                    'statusLabel' => $this->translate('Undertaken'), // @translate
+                ],
+            ]);
+        }
+
+        // Only people who can edit the resource can update the status.
+        if ($resource && !$resource->userIsAllowed('update')) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Unauthorized access.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        // In other cases, toggle the flag.
+        $data = [];
+        $data['o-module-contribute:undertaken'] = !$wasUndertaken;
+        $response = $this->api()
+            ->update('contributions', $id, $data, [], ['isPartial' => true]);
+        if (!$response) {
+            return $this->jSend(JSend::ERROR, null, $this->translate(
+                'An internal error occurred.' // @translate
+            ));
+        }
+
+        return $this->jSend(JSend::SUCCESS, [
+            // Status is updated, so inverted.
+            'contribution' => [
+                'status' => $wasUndertaken ? 'not-undertaken' : 'undertaken',
+                'statusLabel' => $wasUndertaken
+                    ? $this->translate('Not undertaken') // @translate
+                    : $this->translate('Undertaken'), // @translate
+            ],
+        ]);
+    }
+
+    public function toggleStatusAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Method not allowed.' // @translate
+            ), HttpResponse::STATUS_CODE_405);
+        }
+
+        $id = $this->params('id');
+
+        /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+        try {
+            $contribution = $this->api()->read('contributions', $id)->getContent();
+        } catch (\Exception $e) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Resource not found.' // @translate
+            ), HttpResponse::STATUS_CODE_404);
+        }
+
+        // Only a resource already added can have a status validated.
+        $resource = $contribution ? $contribution->resource() : null;
+        if (!$resource) {
+            return $this->jSend(JSend::SUCCESS, [
+                // Status is updated, so inverted.
+                'contribution' => [
+                    'status' => 'not-validated',
+                    'statusLabel' => $this->translate('Not validated'), // @translate
+                ],
+            ]);
+        }
+
+        // Only people who can edit the resource can update the status.
+        if ($resource && !$resource->userIsAllowed('update')) {
+            return $this->jSend(JSend::FAIL, null, $this->translate(
+                'Unauthorized access.' // @translate
+            ), HttpResponse::STATUS_CODE_401);
+        }
+
+        $wasValidated = $contribution->isValidated();
+
+        $data = [];
+        $data['o-module-contribute:validated'] = !$wasValidated;
+        $response = $this->api()
+            ->update('contributions', $id, $data, [], ['isPartial' => true]);
+        if (!$response) {
+            return $this->jSend(JSend::ERROR, null, $this->translate(
+                'An internal error occurred.' // @translate
+            ));
+        }
+
+        return $this->jSend(JSend::SUCCESS, [
+            // Status is updated, so inverted.
+            'contribution' => [
+                'status' => $wasValidated ? 'not-validated' : 'validated',
+                'statusLabel' => $wasValidated
+                    ? $this->translate('Not validated') // @translate
+                    : $this->translate('Validated'), // @translate
+            ],
+        ]);
+    }
+
     public function createResourceAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {
@@ -632,7 +715,7 @@ class ContributionController extends AbstractActionController
 
         // Validate and create the resource.
         $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
             return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
@@ -840,7 +923,8 @@ class ContributionController extends AbstractActionController
         if ($updateContribution) {
             $data = [];
             $data['o-module-contribute:submitted'] = true;
-            $data['o-module-contribute:reviewed'] = true;
+            $data['o-module-contribute:undertaken'] = true;
+            $data['o-module-contribute:validated'] = true;
             $response = $this->api()
                 ->update('contributions', $id, $data, [], ['isPartial' => true]);
             // Normally, there is never an issue here.
@@ -900,7 +984,7 @@ class ContributionController extends AbstractActionController
 
         // Validate and update the resource.
         $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, false, false, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
             return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(
@@ -918,9 +1002,9 @@ class ContributionController extends AbstractActionController
             'contribution' => [
                 'status' => 'validated',
                 'statusLabel' => $this->translate('Validated'), // @translate
-                'reviewed' => [
-                    'status' => 'reviewed',
-                    'statusLabel' => $this->translate('Reviewed'), // @translate
+                'validated' => [
+                    'status' => 'validated',
+                    'statusLabel' => $this->translate('Validated'), // @translate
                 ],
             ],
             'is_new' => !$contribution->isPatch(),
@@ -981,7 +1065,7 @@ class ContributionController extends AbstractActionController
 
         // Validate the value for the resource.
         $errorStore = new ErrorStore();
-        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, false, false);
+        $resource = $this->validateOrCreateOrUpdate($contribution, $resourceData, $errorStore, true, true, false, false);
         if ($errorStore->hasErrors()) {
             // Keep similar messages different to simplify debug.
             return $this->jSend(JSend::FAIL, $errorStore->getErrors() ?: null, $this->translate(

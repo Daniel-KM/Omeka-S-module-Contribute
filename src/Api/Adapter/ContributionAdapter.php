@@ -19,7 +19,8 @@ class ContributionAdapter extends AbstractEntityAdapter
         'email' => 'email',
         'patch' => 'patch',
         'submitted' => 'submitted',
-        'reviewed' => 'reviewed',
+        'undertaken' => 'undertaken',
+        'validated' => 'validated',
         'token' => 'token',
         'created' => 'created',
         'modified' => 'modified',
@@ -32,7 +33,8 @@ class ContributionAdapter extends AbstractEntityAdapter
         'email' => 'email',
         'patch' => 'patch',
         'submitted' => 'submitted',
-        'reviewed' => 'reviewed',
+        'undertaken' => 'undertaken',
+        'validated' => 'validated',
         'proposal' => 'proposal',
         'token' => 'token',
         'created' => 'created',
@@ -111,11 +113,19 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['reviewed']) && (is_numeric($query['reviewed']) || is_bool($query['reviewed']))) {
+        if (isset($query['undertaken']) && (is_numeric($query['undertaken']) || is_bool($query['undertaken']))) {
             $qb->andWhere($expr->eq(
-                'omeka_root.reviewed',
+                'omeka_root.undertaken',
                 // The double cast manage the three-state radio ("", "1", "00").
-                $this->createNamedParameter($qb, (bool) (int) $query['reviewed'])
+                $this->createNamedParameter($qb, (bool) (int) $query['undertaken'])
+            ));
+        }
+
+        if (isset($query['validated']) && (is_numeric($query['validated']) || is_bool($query['validated']))) {
+            $qb->andWhere($expr->eq(
+                'omeka_root.validated',
+                // The double cast manage the three-state radio ("", "1", "00").
+                $this->createNamedParameter($qb, (bool) (int) $query['validated'])
             ));
         }
 
@@ -266,7 +276,8 @@ class ContributionAdapter extends AbstractEntityAdapter
             $email = empty($data['o:email']) ? null : $data['o:email'];
             $isPatch = !empty($resource);
             $submitted = !empty($data['o-module-contribute:submitted']);
-            $reviewed = !empty($data['o-module-contribute:reviewed']);
+            $undertaken = !empty($data['o-module-contribute:undertaken']);
+            $validated = !empty($data['o-module-contribute:validated']);
             $proposal = empty($data['o-module-contribute:proposal'])
                 ? []
                 : $this->uploadProposedFiles($data['o-module-contribute:proposal']);
@@ -276,7 +287,8 @@ class ContributionAdapter extends AbstractEntityAdapter
                 ->setEmail($email)
                 ->setPatch($isPatch)
                 ->setSubmitted($submitted)
-                ->setReviewed($reviewed)
+                ->setUndertaken($undertaken)
+                ->setValidated($validated)
                 ->setProposal($proposal);
         } elseif (Request::UPDATE === $request->getOperation()) {
             if (!$entity->getResource() && $this->shouldHydrate($request, 'o:resource', $data)) {
@@ -294,10 +306,15 @@ class ContributionAdapter extends AbstractEntityAdapter
                 $entity
                     ->setSubmitted($submitted);
             }
-            if ($this->shouldHydrate($request, 'o-module-contribute:reviewed', $data)) {
-                $reviewed = !empty($data['o-module-contribute:reviewed']);
+            if ($this->shouldHydrate($request, 'o-module-contribute:undertaken', $data)) {
+                $undertaken = !empty($data['o-module-contribute:undertaken']);
                 $entity
-                    ->setReviewed($reviewed);
+                    ->setUndertaken($undertaken);
+            }
+            if ($this->shouldHydrate($request, 'o-module-contribute:validated', $data)) {
+                $validated = !empty($data['o-module-contribute:validated']);
+                $entity
+                    ->setValidated($validated);
             }
             if ($this->shouldHydrate($request, 'o-module-contribute:proposal', $data)) {
                 $proposal = empty($data['o-module-contribute:proposal'])

@@ -139,7 +139,20 @@ class Contribution extends AbstractEntity
      *     }
      * )
      */
-    protected $reviewed = false;
+    protected $undertaken = false;
+
+    /**
+     * @var bool
+     *
+     * @Column(
+     *     type="boolean",
+     *     nullable=false,
+     *     options={
+     *         "default": false
+     *     }
+     * )
+     */
+    protected $validated = false;
 
     /**
      * @var array
@@ -244,15 +257,26 @@ class Contribution extends AbstractEntity
         return (bool) $this->submitted;
     }
 
-    public function setReviewed($reviewed): self
+    public function setUndertaken($undertaken): self
     {
-        $this->reviewed = (bool) $reviewed;
+        $this->undertaken = (bool) $undertaken;
         return $this;
     }
 
-    public function getReviewed(): bool
+    public function getUndertaken(): bool
     {
-        return (bool) $this->reviewed;
+        return (bool) $this->undertaken;
+    }
+
+    public function setValidated($validated): self
+    {
+        $this->validated = (bool) $validated;
+        return $this;
+    }
+
+    public function getValidated(): bool
+    {
+        return (bool) $this->validated;
     }
 
     public function setProposal(array $proposal): self

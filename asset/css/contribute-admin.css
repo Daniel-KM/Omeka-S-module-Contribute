@@ -104,7 +104,7 @@
     .contribution .resource-name.media::before {
         content: ""; /* media */
     }
-    .contribution .o-icon-unsubmitted::before {
+    .contribution .o-icon-not-submitted::before {
         color: #FF0000;
         content: ""; /* bookmark */
         opacity: 0.5;
@@ -114,11 +114,19 @@
         content: ""; /* bookmark */
         opacity: 0.5;
     }
-    .contribution .o-icon-unreviewed::before {
+    .contribution .o-icon-not-undertaken::before {
         color: #FF0000;
         content: ""; /* question */
     }
-    .contribution .o-icon-reviewed::before {
+    .contribution .o-icon-undertaken::before {
+        color: #00FF00;
+        content: ""; /* inbox */
+    }
+    .contribution .o-icon-not-validated::before {
+        color: #FF0000;
+        content: ""; /* question */
+    }
+    .contribution .o-icon-validated::before {
         color: #00FF00;
         content: ""; /* check */
     }

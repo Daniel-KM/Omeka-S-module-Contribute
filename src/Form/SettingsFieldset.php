@@ -144,6 +144,7 @@ class SettingsFieldset extends Fieldset
                     'value_options' => [
                         'no' => 'No (directly submitted)', // @translate
                         'submission' => 'Until submission', // @translate
+                        'undertaking' => 'Until undertaking', // @translate
                         'validation' => 'Until validation', // @translate
                     ],
                 ],
