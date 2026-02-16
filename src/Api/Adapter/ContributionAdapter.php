@@ -100,7 +100,9 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['patch']) && (is_numeric($query['patch']) || is_bool($query['patch']))) {
+        // Note: "00" is used for "false" in the form to distinguish from empty
+        // string "". Check for non-empty values that are numeric or boolean.
+        if (isset($query['patch']) && $query['patch'] !== '' && (is_numeric($query['patch']) || is_bool($query['patch']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.patch',
                 // The double cast manage the three-state radio ("", "1", "00").
@@ -108,7 +110,7 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['submitted']) && (is_numeric($query['submitted']) || is_bool($query['submitted']))) {
+        if (isset($query['submitted']) && $query['submitted'] !== '' && (is_numeric($query['submitted']) || is_bool($query['submitted']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.submitted',
                 // The double cast manage the three-state radio ("", "1", "00").
@@ -116,7 +118,7 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['undertaken']) && (is_numeric($query['undertaken']) || is_bool($query['undertaken']))) {
+        if (isset($query['undertaken']) && $query['undertaken'] !== '' && (is_numeric($query['undertaken']) || is_bool($query['undertaken']))) {
             $qb->andWhere($expr->eq(
                 'omeka_root.undertaken',
                 // The double cast manage the three-state radio ("", "1", "00").
@@ -124,7 +126,7 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
-        if (isset($query['validated'])) {
+        if (isset($query['validated']) && $query['validated'] !== '') {
             $val = $query['validated'];
             // Null is generally removed from query, so use string "null".
             if ($val === 'null') {
@@ -137,9 +139,11 @@ class ContributionAdapter extends AbstractEntityAdapter
                     // The double cast manage the three-state radio ("", "1", "00").
                     $this->createNamedParameter($qb, (bool) (int) $val)
                 ));
-            } elseif ($val !== '') {
+            } else {
+                // Unknown value: return no results.
                 $qb->andWhere($expr->eq(
-                    $this->createNamedParameter($qb, -1)
+                    'omeka_root.id',
+                    $this->createNamedParameter($qb, 0)
                 ));
             }
         }

@@ -401,7 +401,10 @@ $(document).ready(function() {
         const message = $(this).closest('.actions').data('message-remove-contribution');
 
         if (urlDelete) {
-            const confirmed = await CommonDialog.dialogConfirm(message);
+            const confirmed = await CommonDialog.dialogConfirm({
+                heading: Omeka.jsTranslate('Contribution'),
+                message: message,
+            });
             if (confirmed) {
                 contributionDelete(button, id, urlDelete, urlRedirect);
             }

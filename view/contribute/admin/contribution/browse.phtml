@@ -25,7 +25,7 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 $this->htmlElement('body')->appendAttribute('class', 'contributions browse');
 
 $this->headLink()
-    ->appendStylesheet($assetUrl('css/common-dialog.css', 'Common'))
+    ->appendStylesheet($assetUrl('css/common-dialog-admin.css', 'Common'))
     ->appendStylesheet($assetUrl('css/contribute-admin.css', 'Contribute'));
 $this->headScript()
     ->appendFile($assetUrl('js/common-dialog.js', 'Common'), 'text/javascript', ['defer' => 'defer'])
