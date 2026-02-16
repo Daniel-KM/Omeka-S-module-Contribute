@@ -7,6 +7,7 @@
  * @var \Contribute\Form\QuickSearchForm $formSearch
  * @var \Omeka\Form\ConfirmForm $formDeleteSelected
  * @var \Omeka\Form\ConfirmForm $formDeleteAll
+ * @var int[] $contributionsMissingFiles
  */
 
 // TODO Batch edition.
@@ -108,7 +109,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                 $ownerText = $contribution->email() ?: $translate('[no owner]');
             }
             ?>
-            <tr class="contribution" data-id="<?= $contribution->id() ?>">
+            <tr class="contribution<?= in_array($contribution->id(), $contributionsMissingFiles) ? ' warning' : '' ?>" data-id="<?= $contribution->id() ?>">
                 <td>
                     <?php if (false && $contribution->userIsAllowed('update') || $contribution->userIsAllowed('delete')): ?>
                     <input type="checkbox" name="resource_ids[]" value="<?= $contribution->id() ?>" aria-label="<?= $translate('Select contribution') ?>">

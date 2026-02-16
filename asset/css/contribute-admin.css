@@ -30,6 +30,14 @@
     #resource-contributions tr.delete {
         background-color: #fcc;
     }
+    .contributions tr.warning {
+        background-color: #fff3cd;
+    }
+    .resource-details h4.warning {
+        color: #856404;
+        background-color: #fff3cd;
+        padding: 4px 8px;
+    }
     .contributions .resource-details .contribution-internal-id {
         font-size: 0.7em;
     }

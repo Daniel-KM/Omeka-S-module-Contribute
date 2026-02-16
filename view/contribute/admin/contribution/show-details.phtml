@@ -4,6 +4,7 @@
  * @var \Contribute\Api\Representation\ContributionRepresentation $resource
  * @var bool $linkTitle
  * @var array $values Empty array
+ * @var string[] $missingFiles
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -49,5 +50,15 @@ $translate = $plugins->get('translate');
         </div>
         <?= $resource->displayValues() ?>
     </div>
+    <?php if (!empty($missingFiles)): ?>
+    <div class="meta-group contribution">
+        <h4 class="warning"><?= $escape($translate('Missing files')) ?></h4>
+        <ul>
+            <?php foreach ($missingFiles as $file): ?>
+            <li><?= $escape($file) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
     <?php $this->trigger('view.details', ['entity' => $resource]); ?>
 </div>

@@ -139,6 +139,41 @@ class ContributionController extends AbstractActionController
 
         $contributions = $response->getContent();
 
+        // Quick check for missing files in unvalidated contributions
+        // (not yet transformed into a resource).
+        $basePath = $this->getEvent()->getApplication()->getServiceManager()
+            ->get('Config')['file_store']['local']['base_path']
+            ?: (OMEKA_PATH . '/files');
+        $contributionPath = $basePath . '/contribution/';
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('c.id', 'c.proposal')
+            ->from(\Contribute\Entity\Contribution::class, 'c')
+            ->where('c.resource IS NULL');
+        $rows = $qb->getQuery()->getArrayResult();
+        $missingFiles = [];
+        foreach ($rows as $row) {
+            $proposal = $row['proposal'] ?? [];
+            foreach ($proposal['media'] ?? [] as $mediaData) {
+                foreach ($mediaData['file'] ?? [] as $fileData) {
+                    $store = $fileData['proposed']['store'] ?? null;
+                    if ($store && !file_exists($contributionPath . $store)) {
+                        $missingFiles[$row['id']][] = $fileData['proposed']['@value'] ?? $store;
+                    }
+                }
+            }
+        }
+        if ($missingFiles) {
+            $list = [];
+            foreach ($missingFiles as $id => $files) {
+                $list[] = sprintf('Contribution #%d: %s', $id, implode(', ', $files));
+            }
+            $message = new PsrMessage(
+                '{count} contribution(s) without resource have missing files in /files/contribution: {list}', // @translate
+                ['count' => count($missingFiles), 'list' => implode(' ; ', $list)]
+            );
+            $this->messenger()->addWarning($message);
+        }
+
         return new ViewModel([
             'contributions' => $contributions,
             'resources' => $contributions,
@@ -146,6 +181,7 @@ class ContributionController extends AbstractActionController
             'formSearch' => $formSearch,
             'formDeleteSelected' => $formDeleteSelected,
             'formDeleteAll' => $formDeleteAll,
+            'contributionsMissingFiles' => array_keys($missingFiles),
         ]);
     }
 
@@ -176,10 +212,28 @@ class ContributionController extends AbstractActionController
         $response = $this->api()->read('contributions', $this->params('id'));
         $contribution = $response->getContent();
 
+        // Check missing files for this contribution.
+        $missingFiles = [];
+        if (!$contribution->resource()) {
+            $basePath = $this->getEvent()->getApplication()->getServiceManager()
+                ->get('Config')['file_store']['local']['base_path']
+                ?: (OMEKA_PATH . '/files');
+            $contributionPath = $basePath . '/contribution/';
+            foreach ($contribution->proposalMedias() as $mediaData) {
+                foreach ($mediaData['file'] ?? [] as $fileData) {
+                    $store = $fileData['proposed']['store'] ?? null;
+                    if ($store && !file_exists($contributionPath . $store)) {
+                        $missingFiles[] = $fileData['proposed']['@value'] ?? $store;
+                    }
+                }
+            }
+        }
+
         $view = new ViewModel([
             'linkTitle' => $linkTitle,
             'resource' => $contribution,
             'values' => json_encode([]),
+            'missingFiles' => $missingFiles,
         ]);
         return $view
             ->setTemplate('contribute/admin/contribution/show-details')
