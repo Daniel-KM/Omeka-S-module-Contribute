@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-03 00:00+0000\n"
+"POT-Creation-Date: 2026-02-16 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
@@ -20,168 +20,168 @@ msgstr ""
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
 
-#: Module.php:533 Module.php:714
-#: view/contribute/admin/contribution/browse.phtml:52
+#: Module.php:552 Module.php:733
+#: view/contribute/admin/contribution/browse.phtml:53
 #: view/guest/site/guest/contribution-browse.phtml:41
 msgid "Contributions"
 msgstr "Contributions"
 
-#: Module.php:611
+#: Module.php:630
 msgid "Create contribution token"
 msgstr "Créer un jeton pour la contribution"
 
-#: Module.php:615 view/common/contribution-link.phtml:20
+#: Module.php:634 view/common/contribution-link.phtml:20
 msgid "Contribute"
 msgstr "Contribuer"
 
-#: Module.php:616
+#: Module.php:635
 msgid "Please input optional email…"
 msgstr "Ajouter un email si besoin…"
 
-#: Module.php:617
+#: Module.php:636
 msgid "Create token"
 msgstr "Créer un jeton"
 
-#: src/Controller/Admin/ContributionController.php:474
-#: src/Controller/Admin/ContributionController.php:540
-#: src/Controller/Admin/ContributionController.php:616
-#: src/Controller/Admin/ContributionController.php:679
-#: src/Controller/Admin/ContributionController.php:810
-#: src/Controller/Admin/ContributionController.php:874
-#: src/Controller/Admin/ContributionController.php:949
+#: src/Controller/Admin/ContributionController.php:528
+#: src/Controller/Admin/ContributionController.php:594
+#: src/Controller/Admin/ContributionController.php:670
+#: src/Controller/Admin/ContributionController.php:733
+#: src/Controller/Admin/ContributionController.php:864
+#: src/Controller/Admin/ContributionController.php:928
+#: src/Controller/Admin/ContributionController.php:1003
 msgid "Method not allowed."
 msgstr "Méthode non autorisée."
 
-#: src/Controller/Admin/ContributionController.php:484
-#: src/Controller/Admin/ContributionController.php:492
-#: src/Controller/Admin/ContributionController.php:551
-#: src/Controller/Admin/ContributionController.php:627
-#: src/Controller/Admin/ContributionController.php:690
-#: src/Controller/Admin/ContributionController.php:821
-#: src/Controller/Admin/ContributionController.php:885
-#: src/Controller/Admin/ContributionController.php:893
-#: src/Controller/Admin/ContributionController.php:961
+#: src/Controller/Admin/ContributionController.php:538
+#: src/Controller/Admin/ContributionController.php:546
+#: src/Controller/Admin/ContributionController.php:605
+#: src/Controller/Admin/ContributionController.php:681
+#: src/Controller/Admin/ContributionController.php:744
+#: src/Controller/Admin/ContributionController.php:875
+#: src/Controller/Admin/ContributionController.php:939
+#: src/Controller/Admin/ContributionController.php:947
+#: src/Controller/Admin/ContributionController.php:1015
 msgid "Resource not found."
 msgstr "Ressource non trouvée."
 
-#: src/Controller/Admin/ContributionController.php:507
-#: src/Controller/Admin/ContributionController.php:584
-#: src/Controller/Admin/ContributionController.php:636
-#: src/Controller/Admin/ContributionController.php:706
-#: src/Controller/Admin/ContributionController.php:833
-#: src/Controller/Admin/ContributionController.php:900
-#: src/Controller/Admin/ContributionController.php:969
+#: src/Controller/Admin/ContributionController.php:561
+#: src/Controller/Admin/ContributionController.php:638
+#: src/Controller/Admin/ContributionController.php:690
+#: src/Controller/Admin/ContributionController.php:760
+#: src/Controller/Admin/ContributionController.php:887
+#: src/Controller/Admin/ContributionController.php:954
+#: src/Controller/Admin/ContributionController.php:1023
 msgid "Unauthorized access."
 msgstr "Accès interdit."
 
-#: src/Controller/Admin/ContributionController.php:513
+#: src/Controller/Admin/ContributionController.php:567
 msgid "No token"
 msgstr "Pas de jeton"
 
-#: src/Controller/Admin/ContributionController.php:523
-#: src/Controller/Admin/ContributionController.php:568
-#: src/Controller/Admin/ContributionController.php:595
-#: src/Controller/Admin/ContributionController.php:650
-#: src/Controller/Admin/ContributionController.php:728
-#: src/Controller/Admin/ContributionController.php:855
-#: src/Controller/Admin/ContributionController.php:932
-#: src/Controller/Admin/ContributionController.php:1084
+#: src/Controller/Admin/ContributionController.php:577
+#: src/Controller/Admin/ContributionController.php:622
+#: src/Controller/Admin/ContributionController.php:649
+#: src/Controller/Admin/ContributionController.php:704
+#: src/Controller/Admin/ContributionController.php:782
+#: src/Controller/Admin/ContributionController.php:909
+#: src/Controller/Admin/ContributionController.php:986
+#: src/Controller/Admin/ContributionController.php:1138
 msgid "An internal error occurred."
 msgstr "Une erreur interne s’est produite."
 
-#: src/Controller/Admin/ContributionController.php:531
+#: src/Controller/Admin/ContributionController.php:585
 msgid "Expired"
 msgstr "Expiré"
 
-#: src/Controller/Admin/ContributionController.php:576
-#: src/Controller/Admin/ContributionController.php:607
+#: src/Controller/Admin/ContributionController.php:630
+#: src/Controller/Admin/ContributionController.php:661
 #: view/common/admin/contribute-list.phtml:107
 #: view/common/admin/contribute-list.phtml:142
 msgid "Undertaken"
 msgstr "Pris en charge"
 
-#: src/Controller/Admin/ContributionController.php:606
+#: src/Controller/Admin/ContributionController.php:660
 #: view/common/admin/contribute-list.phtml:107
 #: view/common/admin/contribute-list.phtml:142
 msgid "Not undertaken"
 msgstr "Non pris en charge"
 
-#: src/Controller/Admin/ContributionController.php:662
+#: src/Controller/Admin/ContributionController.php:716
 #: src/View/Helper/ContributionSearchFilters.php:94
 msgid "Undetermined"
 msgstr "Indéterminé"
 
-#: src/Controller/Admin/ContributionController.php:663
-#: src/Controller/Admin/ContributionController.php:863
+#: src/Controller/Admin/ContributionController.php:717
+#: src/Controller/Admin/ContributionController.php:917
 #: view/common/admin/contribute-list-part.phtml:132
 #: view/common/admin/contribute-list-part.phtml:188
 #: view/common/admin/contribute-list-part.phtml:237
 msgid "Validated"
 msgstr "Validé"
 
-#: src/Controller/Admin/ContributionController.php:664
-#: view/contribute/admin/contribution/show-details.phtml:38
+#: src/Controller/Admin/ContributionController.php:718
+#: view/contribute/admin/contribution/show-details.phtml:39
 msgid "Rejected"
 msgstr "Rejeté"
 
-#: src/Controller/Admin/ContributionController.php:698
+#: src/Controller/Admin/ContributionController.php:752
 msgid "Resource exists already."
 msgstr "La ressource existe déjà."
 
-#: src/Controller/Admin/ContributionController.php:713
+#: src/Controller/Admin/ContributionController.php:767
 msgid "Contribution is not valid: check template."
 msgstr "La contribution est invalide : vérifier le modèle."
 
-#: src/Controller/Admin/ContributionController.php:723
+#: src/Controller/Admin/ContributionController.php:777
 msgid "Contribution cannot be created: some values are not valid."
 msgstr "La contribution est incorrecte : certaines valeurs sont incorrectes."
 
-#: src/Controller/Admin/ContributionController.php:840
-#: src/Controller/Admin/ContributionController.php:917
+#: src/Controller/Admin/ContributionController.php:894
+#: src/Controller/Admin/ContributionController.php:971
 msgid "Contribution is not valid."
 msgstr "La contribution n’est pas valable."
 
-#: src/Controller/Admin/ContributionController.php:850
+#: src/Controller/Admin/ContributionController.php:904
 msgid "Contribution is not valid: check its values."
 msgstr "La contribution est incorrecte : vérifier ses valeurs."
 
-#: src/Controller/Admin/ContributionController.php:908
+#: src/Controller/Admin/ContributionController.php:962
 msgid "Missing term or key."
 msgstr "Terme ou clé manquante."
 
-#: src/Controller/Admin/ContributionController.php:927
+#: src/Controller/Admin/ContributionController.php:981
 msgid "Contribution is not valid: check values."
 msgstr "La contribution est incorrecte : vérifier les valeurs."
 
-#: src/Controller/Admin/ContributionController.php:940
+#: src/Controller/Admin/ContributionController.php:994
 msgid "Validated value"
 msgstr "Valeur validée"
 
-#: src/Controller/Admin/ContributionController.php:976
+#: src/Controller/Admin/ContributionController.php:1030
 msgid "The user has no right to update the contribution."
 msgstr "L’utilisateur n’a pas les droits pour mettre à jour la contribution."
 
-#: src/Controller/Admin/ContributionController.php:982
+#: src/Controller/Admin/ContributionController.php:1036
 msgid "The contribution is already validated and status cannot be changed."
 msgstr "Cette contribution est déjà soumise et ne peut pas être mise à jour."
 
-#: src/Controller/Admin/ContributionController.php:997
+#: src/Controller/Admin/ContributionController.php:1051
 msgid "Empty message."
 msgstr "Message vide."
 
-#: src/Controller/Admin/ContributionController.php:1003
+#: src/Controller/Admin/ContributionController.php:1057
 msgid "Too long message."
 msgstr "Message trop long."
 
-#: src/Controller/Admin/ContributionController.php:1017
+#: src/Controller/Admin/ContributionController.php:1071
 msgid "Too long subject."
 msgstr "Sujet trop long."
 
-#: src/Controller/Admin/ContributionController.php:1025
+#: src/Controller/Admin/ContributionController.php:1079
 msgid "No email defined for this contribution."
 msgstr "Aucun mail défini pour cette contribution."
 
-#: src/Controller/Admin/ContributionController.php:1070
+#: src/Controller/Admin/ContributionController.php:1124
 msgid "Sorry, the message cannot be sent. Contact the administrator."
 msgstr ""
 "Désolé, le message ne peut pas être envoyé. Contactez l’administrateur."
@@ -264,22 +264,22 @@ msgid "Full contribution"
 msgstr "Contribution complète"
 
 #: src/View/Helper/ContributionSearchFilters.php:76
-#: view/contribute/admin/contribution/browse.phtml:123
-#: view/contribute/admin/contribution/show-details.phtml:36
+#: view/contribute/admin/contribution/browse.phtml:124
+#: view/contribute/admin/contribution/show-details.phtml:37
 #: view/contribute/site/contribution/show.phtml:41
 #: view/guest/site/guest/contribution-browse.phtml:54
 msgid "Is submitted"
 msgstr "Soumis"
 
 #: src/View/Helper/ContributionSearchFilters.php:84
-#: view/contribute/admin/contribution/show-details.phtml:37
+#: view/contribute/admin/contribution/show-details.phtml:38
 #: view/contribute/site/contribution/show.phtml:42
 #: view/guest/site/guest/contribution-browse.phtml:55
 msgid "Is undertaken"
 msgstr "Est pris en charge"
 
 #: src/View/Helper/ContributionSearchFilters.php:92
-#: view/contribute/admin/contribution/show-details.phtml:38
+#: view/contribute/admin/contribution/show-details.phtml:39
 #: view/contribute/site/contribution/show.phtml:43
 #: view/guest/site/guest/contribution-browse.phtml:56
 msgid "Is validated"
@@ -291,8 +291,8 @@ msgid "Media %s"
 msgstr "Média %s"
 
 #: view/common/admin/contribute-list-part.phtml:40
-#: view/contribute/admin/contribution/browse.phtml:117
-#: view/contribute/admin/contribution/show-details.phtml:48
+#: view/contribute/admin/contribution/browse.phtml:118
+#: view/contribute/admin/contribution/show-details.phtml:49
 msgid "No resource template"
 msgstr "Pas de modèle de ressource"
 
@@ -350,7 +350,7 @@ msgstr "Valider toutes les valeurs"
 
 #: view/common/admin/contribute-list.phtml:116
 #: view/common/admin/contribute-list.phtml:151
-#: view/contribute/admin/contribution/browse.phtml:143
+#: view/contribute/admin/contribution/browse.phtml:144
 msgid "Mark validated or not"
 msgstr "Marquer validé ou non"
 
@@ -449,79 +449,79 @@ msgstr "%s [indisponible]"
 msgid "Files"
 msgstr "Fichiers"
 
-#: view/contribute/admin/contribution/browse.phtml:58
+#: view/contribute/admin/contribution/browse.phtml:59
 msgid "Quick search / Filter"
 msgstr "Recherche rapide / filtre"
 
-#: view/contribute/admin/contribution/browse.phtml:72
+#: view/contribute/admin/contribution/browse.phtml:73
 msgid "Set status checked"
 msgstr "Marquer le statut vérifié"
 
-#: view/contribute/admin/contribution/browse.phtml:73
+#: view/contribute/admin/contribution/browse.phtml:74
 msgid "Set status checked all"
 msgstr "Marquer le statut vérifié pour tous"
 
-#: view/contribute/admin/contribution/browse.phtml:74
+#: view/contribute/admin/contribution/browse.phtml:75
 msgid "Set status unchecked"
 msgstr "Marquer le statut non vérifié"
 
-#: view/contribute/admin/contribution/browse.phtml:75
+#: view/contribute/admin/contribution/browse.phtml:76
 msgid "Set status unchecked all"
 msgstr "Marquer le statut non vérifié pour tous"
 
-#: view/contribute/admin/contribution/browse.phtml:76
+#: view/contribute/admin/contribution/browse.phtml:77
 msgid "Validate selected"
 msgstr "Valider la sélection"
 
-#: view/contribute/admin/contribution/browse.phtml:77
+#: view/contribute/admin/contribution/browse.phtml:78
 msgid "Validate all"
 msgstr "Tout valider"
 
-#: view/contribute/admin/contribution/browse.phtml:108
-#: view/contribute/admin/contribution/show-details.phtml:27
+#: view/contribute/admin/contribution/browse.phtml:109
+#: view/contribute/admin/contribution/show-details.phtml:28
 msgid "[no owner]"
 msgstr "[Pas de propriétaire]"
 
-#: view/contribute/admin/contribution/browse.phtml:114
+#: view/contribute/admin/contribution/browse.phtml:115
 msgid "Select contribution"
 msgstr "Choisir une contribution"
 
-#: view/contribute/admin/contribution/browse.phtml:123
-#: view/contribute/admin/contribution/show-details.phtml:36
+#: view/contribute/admin/contribution/browse.phtml:124
+#: view/contribute/admin/contribution/show-details.phtml:37
 #: view/contribute/site/contribution/show.phtml:41
 #: view/guest/site/guest/contribution-browse.phtml:54
 msgid "Is not submitted"
 msgstr "Non soumis"
 
-#: view/contribute/admin/contribution/browse.phtml:134
+#: view/contribute/admin/contribution/browse.phtml:135
 msgid "Mark taken in charge or not"
 msgstr "Marquer pris en charge ou non"
 
-#: view/contribute/admin/contribution/browse.phtml:152
+#: view/contribute/admin/contribution/browse.phtml:153
 msgid "Send a message to the author"
 msgstr "Envoyer un message à l’auteur"
 
-#: view/contribute/admin/contribution/browse.phtml:159
+#: view/contribute/admin/contribution/browse.phtml:160
 msgid "Show resource"
 msgstr "Voir la ressource"
 
-#: view/contribute/admin/contribution/browse.phtml:168
+#: view/contribute/admin/contribution/browse.phtml:169
 msgid "Create resource to be validated"
 msgstr "Créer une ressource pour la valider"
 
-#: view/contribute/admin/contribution/browse.phtml:223
-#: view/contribute/admin/contribution/browse.phtml:241
+#: view/contribute/admin/contribution/browse.phtml:224
+#: view/contribute/admin/contribution/browse.phtml:242
 msgid "Delete contributions"
 msgstr "Supprimer les contributions"
 
-#: view/contribute/admin/contribution/browse.phtml:224
+#: view/contribute/admin/contribution/browse.phtml:225
 msgid "Are you sure you would like to delete the selected contributions?"
 msgstr ""
 "Êtes-vous certain de vouloir supprimer toutes les contributions "
 "sélectionnées ?"
 
-#: view/contribute/admin/contribution/browse.phtml:226
-#: view/contribute/admin/contribution/browse.phtml:244
+#: view/contribute/admin/contribution/browse.phtml:227
+#: view/contribute/admin/contribution/browse.phtml:245
 #, php-format
 msgid ""
 "%1$s: this action will permanently delete %2$s contributions and cannot be "
@@ -530,7 +530,7 @@ msgstr ""
 "%1$s : cette action supprimera %2$s contributions de manière définitive et "
 "ne pourra pas être annulée.."
 
-#: view/contribute/admin/contribution/browse.phtml:242
+#: view/contribute/admin/contribution/browse.phtml:243
 msgid ""
 "Are you sure you would like to delete all contributions on all pages of this "
 "result?"
@@ -538,35 +538,39 @@ msgstr ""
 "Êtes-vous certain de vouloir supprimer toutes les contributions de toutes "
 "les pages de ce résultat ?"
 
-#: view/contribute/admin/contribution/browse.phtml:284
+#: view/contribute/admin/contribution/browse.phtml:285
 msgid "Omeka could not find any contributions."
 msgstr "Omeka ne trouve pas de contributions."
 
-#: view/contribute/admin/contribution/browse.phtml:296
+#: view/contribute/admin/contribution/browse.phtml:297
 msgid "Search contribution"
 msgstr "Recherche une contribution"
 
-#: view/contribute/admin/contribution/show-details.phtml:35
+#: view/contribute/admin/contribution/show-details.phtml:36
 #: view/contribute/site/contribution/show.phtml:40
 #: view/guest/site/guest/contribution-browse.phtml:53
 msgid "No resource"
 msgstr "Pas de ressource"
 
-#: view/contribute/admin/contribution/show-details.phtml:37
+#: view/contribute/admin/contribution/show-details.phtml:38
 #: view/contribute/site/contribution/show.phtml:42
 #: view/guest/site/guest/contribution-browse.phtml:55
 msgid "Is not undertaken"
 msgstr "Non pris en charge"
 
-#: view/contribute/admin/contribution/show-details.phtml:38
+#: view/contribute/admin/contribution/show-details.phtml:39
 #: view/contribute/site/contribution/show.phtml:43
 #: view/guest/site/guest/contribution-browse.phtml:56
 msgid "Is in progress"
 msgstr "En cours"
 
-#: view/contribute/admin/contribution/show-details.phtml:42
+#: view/contribute/admin/contribution/show-details.phtml:43
 msgid "Proposal"
 msgstr "Proposition"
+
+#: view/contribute/admin/contribution/show-details.phtml:55
+msgid "Missing files"
+msgstr "Fichiers manquants"
 
 #: view/contribute/site/contribution/edit.phtml:39
 #, php-format
@@ -702,7 +706,7 @@ msgstr ""
 "Pour information, les options supprimées à réutiliser dans le modèle, "
 "éventuellement avec le module Advanced Resource Template, sont : {json}"
 
-#: data/scripts/upgrade.php:208 Module.php:68 Module.php:820
+#: data/scripts/upgrade.php:208 Module.php:68 Module.php:850
 msgid "The directory \"{directory}\" is not writeable."
 msgstr "Le répertoire « {directory} » n’est pas accessible en écriture."
 
@@ -853,26 +857,26 @@ msgstr ""
 "Il est désormais possible de définir les paramètres de contribution par "
 "modèle et non plus globalement. Cela permet de limiter la contribution à un "
 "modèle pour certains utilisateurs, par exemple un modèle \"Thèse\" pour les "
-"étudiants authentifiés par certaines règles sso ou pour certains courriers "
+"étudiants authentifiés par certaines règles sso ou pour certains courriels "
 "et un modèle \"Master\" pour les autres étudiants."
 
-#: Module.php:717
+#: Module.php:736
 msgid "{total} contributions ({count} not validated)"
 msgstr "{total} contributions ({count} non validées)"
 
-#: Module.php:720
+#: Module.php:739
 msgid "No contribution"
 msgstr "Pas de contribution"
 
-#: Module.php:752
+#: Module.php:771
 msgid "Contribution modes"
 msgstr "Modes de contribution"
 
-#: Module.php:776
+#: Module.php:795
 msgid "Contribute: Editable by contributor"
 msgstr "Contribute : Éditable par un contributeur"
 
-#: Module.php:788
+#: Module.php:807
 msgid "Contribute: Fillable by contributor"
 msgstr "Contribute : Remplissable par un contributeur"
 
@@ -980,28 +984,28 @@ msgstr "Options par défaut pour envoyer un message : mails ccc"
 msgid "Default options to send a message: reply-to emails"
 msgstr "Options par défaut pour envoyer un message : mails en réponse"
 
-#: src/Form/QuickSearchForm.php:42
+#: src/Form/QuickSearchForm.php:47
 msgid "Select a template…"
 msgstr "Choisir un modèle…"
 
-#: src/Form/QuickSearchForm.php:65
+#: src/Form/QuickSearchForm.php:70
 msgid "Set a date with optional comparator…"
 msgstr "Indiquer une date avec un signe éventuel de comparaison…"
 
-#: src/Form/QuickSearchForm.php:75 src/Form/QuickSearchForm.php:91
-#: src/Form/QuickSearchForm.php:107 src/Form/QuickSearchForm.php:123
+#: src/Form/QuickSearchForm.php:83 src/Form/QuickSearchForm.php:101
+#: src/Form/QuickSearchForm.php:117 src/Form/QuickSearchForm.php:133
 msgid "Any"
 msgstr "Tous"
 
-#: src/Form/QuickSearchForm.php:89
+#: src/Form/QuickSearchForm.php:99 config/module.config.php:258
 msgid "Submitted"
 msgstr "Soumis"
 
-#: src/Form/QuickSearchForm.php:163
+#: src/Form/QuickSearchForm.php:173
 msgid "User by id"
 msgstr "Utilisateur par id"
 
-#: src/Form/QuickSearchForm.php:173
+#: src/Form/QuickSearchForm.php:183
 msgid "User by email"
 msgstr "Utilisateur par mail"
 
@@ -1134,21 +1138,21 @@ msgstr ""
 "Utilisateurs filtrés selon leurs valeurs, en particulier les attributs IdP "
 "alignés via Single Sign-On"
 
-#: src/Form/TraitSettingsFieldset.php:48
+#: src/Form/TraitSettingsFieldset.php:49
 msgid "Roles allowed to contribute (option \"Roles\" above)"
 msgstr "Rôles autorisés à contribuer (option « Rôles » ci-dessus)"
 
-#: src/Form/TraitSettingsFieldset.php:56
+#: src/Form/TraitSettingsFieldset.php:58
 msgid "Select roles…"
 msgstr "Choisir des rôles…"
 
-#: src/Form/TraitSettingsFieldset.php:65
+#: src/Form/TraitSettingsFieldset.php:67
 msgid "Filter on emails of users allowed to contribute (option above)"
 msgstr ""
 "Filtres sur les mails des utilisateurs autorisés à contribuer (option ci-"
 "dessus)"
 
-#: src/Form/TraitSettingsFieldset.php:66
+#: src/Form/TraitSettingsFieldset.php:68
 msgid ""
 "The filters may be a raw email or a regex wrapped with \"~\". They are "
 "independant: a single rule should be true to allow contribution."
@@ -1156,13 +1160,13 @@ msgstr ""
 "Les filtres peuvent être un mail ou une regex entourée de « ~ ». Ils sont "
 "indépendants : une règle doit être vraie pour autoriser les contributions."
 
-#: src/Form/TraitSettingsFieldset.php:83
+#: src/Form/TraitSettingsFieldset.php:86
 msgid "Filters on settings of users allowed to contribute (option above)"
 msgstr ""
 "Filtres sur les paramètres des utilisateurs autorisés à contribuer (option "
 "ci-dessus)"
 
-#: src/Form/TraitSettingsFieldset.php:84
+#: src/Form/TraitSettingsFieldset.php:87
 msgid ""
 "The filters may be a raw string or a regex wrapped with \"~\". They are "
 "cumulative: all filters should be true."
@@ -1170,11 +1174,11 @@ msgstr ""
 "Les filtres peuvent être une chaîne ou une regex entourée de « ~ ». Ils sont "
 "cumulatifs : tous les filtres doivent être vrais."
 
-#: src/Form/TraitSettingsFieldset.php:103
+#: src/Form/TraitSettingsFieldset.php:107
 msgid "Days for token to expire"
 msgstr "Nombre de jours avant que le jeton n’expire"
 
-#: src/Form/TraitSettingsFieldset.php:104
+#: src/Form/TraitSettingsFieldset.php:108
 msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
@@ -1182,32 +1186,32 @@ msgstr ""
 "Permet de définir une durée avant expiration automatique du jeton. Laisser "
 "vide pour supprimer l’expiration."
 
-#: src/Form/TraitSettingsFieldset.php:110
+#: src/Form/TraitSettingsFieldset.php:115
 msgid "90"
 msgstr "90"
 
-#: src/Form/TraitSettingsFieldset.php:122
+#: src/Form/TraitSettingsFieldset.php:127
 msgid "No (directly submitted)"
 msgstr "Non (soumis directement)"
 
-#: src/Form/TraitSettingsFieldset.php:123
+#: src/Form/TraitSettingsFieldset.php:128
 msgid "Until submission"
 msgstr "Jusqu’à la soumission"
 
-#: src/Form/TraitSettingsFieldset.php:124
+#: src/Form/TraitSettingsFieldset.php:129
 msgid "Until undertaking"
 msgstr "Jusqu’à la prise en charge"
 
-#: src/Form/TraitSettingsFieldset.php:125
+#: src/Form/TraitSettingsFieldset.php:130
 msgid "Until validation"
 msgstr "Jusqu’à la validation"
 
-#: src/Form/TraitSettingsFieldset.php:139
+#: src/Form/TraitSettingsFieldset.php:145
 msgid "Email of the sender (else no-reply user or administrator)"
 msgstr ""
 "Mail de l’expéditeur (sinon le mail « ne pas répondre » ou l’administrateur)"
 
-#: src/Form/TraitSettingsFieldset.php:140
+#: src/Form/TraitSettingsFieldset.php:146
 msgid ""
 "The no-reply email can be set via module EasyAdmin. The administrator email "
 "can be set above."
@@ -1215,88 +1219,88 @@ msgstr ""
 "Le mail ne-pas-répondre est défini via le module EasyAdmin. Le mail "
 "administrateur peut être défini plus haut."
 
-#: src/Form/TraitSettingsFieldset.php:152
+#: src/Form/TraitSettingsFieldset.php:159
 msgid "Name of the sender when email above is set"
 msgstr "Nom de l’expéditeur quand le mail est défini ci-dessus"
 
-#: src/Form/TraitSettingsFieldset.php:165
+#: src/Form/TraitSettingsFieldset.php:173
 msgid "Emails to notify contributions"
 msgstr "Adresses mails pour notifier des contributions"
 
-#: src/Form/TraitSettingsFieldset.php:166
+#: src/Form/TraitSettingsFieldset.php:174
 msgid ""
 "A query can be appended to limit notifications to specific contributions."
 msgstr ""
 "Une requête peut être ajoutée pour limiter les notifications à des "
 "contributions spécifiques."
 
-#: src/Form/TraitSettingsFieldset.php:184
+#: src/Form/TraitSettingsFieldset.php:193
 msgid "Emails of the author"
 msgstr "Mails de l’auteur"
 
-#: src/Form/TraitSettingsFieldset.php:196
+#: src/Form/TraitSettingsFieldset.php:206
 msgid "Select a property…"
 msgstr "Choisir une propriété…"
 
-#: src/Form/TraitSettingsFieldset.php:205
+#: src/Form/TraitSettingsFieldset.php:215
 msgid "Confirmations to author"
 msgstr "Confirmations à l’auteur"
 
-#: src/Form/TraitSettingsFieldset.php:206
+#: src/Form/TraitSettingsFieldset.php:216
 msgid "value_options"
 msgstr "value_options"
 
-#: src/Form/TraitSettingsFieldset.php:209
+#: src/Form/TraitSettingsFieldset.php:219
 msgid "On submit"
 msgstr "Lors de la soumission"
 
-#: src/Form/TraitSettingsFieldset.php:230
+#: src/Form/TraitSettingsFieldset.php:241
 msgid "Message displayed when a contribution is added"
 msgstr "Message affiché quand une contribution est ajoutée"
 
-#: src/Form/TraitSettingsFieldset.php:242
+#: src/Form/TraitSettingsFieldset.php:254
 msgid "Message displayed when a contribution is edited"
 msgstr "Message affiché quand une contribution est modifiée"
 
-#: src/Form/TraitSettingsFieldset.php:254
+#: src/Form/TraitSettingsFieldset.php:267
 msgid "Subject of the email of confirmation to the author"
 msgstr "Sujet du mail de confirmation à l’auteur"
 
-#: src/Form/TraitSettingsFieldset.php:255
-#: src/Form/TraitSettingsFieldset.php:281
+#: src/Form/TraitSettingsFieldset.php:268
+#: src/Form/TraitSettingsFieldset.php:296
 msgid "May be overridden by a specific subject set in the resource template"
 msgstr "Peut être remplacé par un sujet spécifique défini dans le modèle"
 
-#: src/Form/TraitSettingsFieldset.php:266
+#: src/Form/TraitSettingsFieldset.php:280
 msgid "Message of confirmation to the author"
 msgstr "Message de confirmation à l’auteur"
 
-#: src/Form/TraitSettingsFieldset.php:267
-#: src/Form/TraitSettingsFieldset.php:293
+#: src/Form/TraitSettingsFieldset.php:281
+#: src/Form/TraitSettingsFieldset.php:309
 msgid ""
 "Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
 msgstr ""
 "Jokers : entourer les propriétés avec des « {} », par exemple "
 "« {dcterms:title} »."
 
-#: src/Form/TraitSettingsFieldset.php:280
+#: src/Form/TraitSettingsFieldset.php:295
 msgid "Subject of the email of confirmation to the reviewers"
 msgstr "Sujet du mail de confirmation aux relecteurs"
 
-#: src/Form/TraitSettingsFieldset.php:292
+#: src/Form/TraitSettingsFieldset.php:308
 msgid "Message of confirmation to the reviewers"
 msgstr "Message de confirmation aux relecteurs"
 
-#: src/Api/Adapter/ContributionAdapter.php:369
+#: src/Api/Adapter/ContributionAdapter.php:374
 msgid "Invalid or empty file for key {key}."
 msgstr "Type de fichier incorrect ou vide pour l’index {key}."
 
-#: src/Api/Adapter/ContributionAdapter.php:381
+#: src/Api/Adapter/ContributionAdapter.php:386
 msgid "Invalid file type for key {key}."
 msgstr "Type de fichier incorrect pour l’index {key}."
 
 #: src/Api/Representation/TokenRepresentation.php:129
-#: src/Controller/Admin/ContributionController.php:317
+#: src/Controller/Admin/ContributionController.php:371
 msgid "A site is required to create a public token."
 msgstr "Un site est nécessaire pour créer un jeton public."
 
@@ -1328,42 +1332,50 @@ msgstr "Le fichier n’est pas lisible."
 msgid "The store for file is not set."
 msgstr "L’emplacement de stockage du fichier n’est pas défini."
 
-#: src/Controller/Admin/ContributionController.php:159
+#: src/Controller/Admin/ContributionController.php:171
+msgid ""
+"{count} contribution(s) without resource have missing files in /files/"
+"contribution: {list}"
+msgstr ""
+"{count} contribution sans ressource ont des fichiers manquants dans /files/"
+"contribution: {list}"
+
+#: src/Controller/Admin/ContributionController.php:195
 msgid "This contribution is a new resource or has no more resource."
 msgstr ""
 "Cette contribution est une nouvelle ressource ou n’a plus de ressource."
 
-#: src/Controller/Admin/ContributionController.php:198
+#: src/Controller/Admin/ContributionController.php:252
 msgid "contribution"
 msgstr "contribution"
 
-#: src/Controller/Admin/ContributionController.php:216
+#: src/Controller/Admin/ContributionController.php:270
 msgid "Contribution successfully deleted"
 msgstr "La contribution a été correctement supprimée"
 
-#: src/Controller/Admin/ContributionController.php:237
+#: src/Controller/Admin/ContributionController.php:291
 msgid "You must select at least one contribution to batch delete."
 msgstr "Vous devez choisir au moins une contribution pour supprimer en lot."
 
-#: src/Controller/Admin/ContributionController.php:246
+#: src/Controller/Admin/ContributionController.php:300
 msgid "Contributions successfully deleted"
 msgstr "Les contributions ont été correctement supprimées"
 
-#: src/Controller/Admin/ContributionController.php:272
+#: src/Controller/Admin/ContributionController.php:326
 msgid "Deleting contributions. This may take a while."
 msgstr "Suppression des contributions en cours. Cela peut prendre un moment."
 
-#: src/Controller/Admin/ContributionController.php:308
+#: src/Controller/Admin/ContributionController.php:362
 msgid "You can create token only for items, media and item sets."
 msgstr ""
 "Vous pouvez créer un jeton seulement pour les contenus, les médias et les "
 "collections."
 
-#: src/Controller/Admin/ContributionController.php:347
+#: src/Controller/Admin/ContributionController.php:401
 msgid "You must select at least one resource to create a token."
 msgstr "Vous devez choisir au moins une ressource pour créer un jeton."
 
-#: src/Controller/Admin/ContributionController.php:356
+#: src/Controller/Admin/ContributionController.php:410
 msgid ""
 "You set the optional email \"{email}\" to create a contribution token, but "
 "it is not well-formed."
@@ -1371,7 +1383,7 @@ msgstr ""
 "Vous avez saisi « {email} » comme mail optionnel pour le jeton de "
 "contribution, mais il n’est pas correctement écrit."
 
-#: src/Controller/Admin/ContributionController.php:398
+#: src/Controller/Admin/ContributionController.php:452
 msgid ""
 "Created {total} contribution tokens (email: {email}, duration: {duration}): "
 "{urls}"
@@ -1379,27 +1391,27 @@ msgstr ""
 "Création de {total} jetons de contribution (email : {email}, durée : "
 "{duration}) : {urls}"
 
-#: src/Controller/Admin/ContributionController.php:401
+#: src/Controller/Admin/ContributionController.php:455
 msgid "none"
 msgstr "aucun"
 
-#: src/Controller/Admin/ContributionController.php:403
+#: src/Controller/Admin/ContributionController.php:457
 msgid "{days} days"
 msgstr "{days} jours"
 
-#: src/Controller/Admin/ContributionController.php:404
+#: src/Controller/Admin/ContributionController.php:458
 msgid "unlimited"
 msgstr "illimité"
 
-#: src/Controller/Admin/ContributionController.php:442
+#: src/Controller/Admin/ContributionController.php:496
 msgid "Resource #{resource_id} has no tokens to expire."
 msgstr "La ressource #{resource_id} n’a pas de jeton à expirer."
 
-#: src/Controller/Admin/ContributionController.php:465
+#: src/Controller/Admin/ContributionController.php:519
 msgid "All tokens of the resource were expired."
 msgstr "Tous les jetons de la ressource ont été expirés."
 
-#: src/Controller/Admin/ContributionController.php:753
+#: src/Controller/Admin/ContributionController.php:807
 msgid ""
 "The template \"{val}\" to convert into from template {template_id} does not "
 "exist or is not valid. The conversion is skipped"
@@ -1407,7 +1419,7 @@ msgstr ""
 "Le modèle \"{val}\" à convertir à partir du modèle {template_id} n’existe "
 "pas ou n’est pas valide. La conversion est ignorée"
 
-#: src/Controller/Admin/ContributionController.php:761
+#: src/Controller/Admin/ContributionController.php:815
 msgid ""
 "The template \"{val}\" should be converted to the same template. Check the "
 "template settings."
@@ -1415,7 +1427,7 @@ msgstr ""
 "Le modèle \"{val}\" devrait être converti dans le même modèle. Vérifiez les "
 "paramètres du modèle."
 
-#: src/Controller/Admin/ContributionController.php:784
+#: src/Controller/Admin/ContributionController.php:838
 msgid ""
 "The template \"{template_id}\" to convert into from template {template_id_2} "
 "does not validate the resource. Check the consistency between the two "
@@ -1425,7 +1437,7 @@ msgstr ""
 "ne valide pas la ressource. Vérifier la cohérence entre les deux modèles ou "
 "les valeurs requises manquantes dans le second modèle."
 
-#: src/Controller/Admin/ContributionController.php:1090
+#: src/Controller/Admin/ContributionController.php:1144
 msgid "Message successfully sent to {email}."
 msgstr "Message envoyé avec succès à {email}."
 
@@ -1603,19 +1615,19 @@ msgstr ""
 "\n"
 "Cordialement,"
 
-#: src/Controller/Site/ContributionController.php:1666
+#: src/Controller/Site/ContributionController.php:1676
 msgid "File {key}: {error}"
 msgstr "Fichier {key} : {error}"
 
-#: src/Controller/Site/ContributionController.php:1673
+#: src/Controller/Site/ContributionController.php:1687
 msgid "Empty file for key {key}"
 msgstr "Fichier vide pour l’index {key}"
 
-#: src/Controller/Site/ContributionController.php:1686
+#: src/Controller/Site/ContributionController.php:1704
 msgid "Invalid file type for key {key}"
 msgstr "Type de fichier incorrect pour l’index {key}"
 
-#: src/Controller/Site/ContributionController.php:1747
+#: src/Controller/Site/ContributionController.php:1766
 msgid "Forbidden access."
 msgstr "Accès interdit."
 
@@ -1635,19 +1647,35 @@ msgstr "Contribution : nouvelle"
 msgid "Contribute: Edit link"
 msgstr "Contribution : Lien de modification"
 
-#: config/module.config.php:250
+#: config/module.config.php:251
 msgid "Prepare tokens to edit selected"
 msgstr "Préparer les jetons de contribution pour la sélection"
 
-#: config/module.config.php:251
+#: config/module.config.php:252
 msgid "Prepare tokens to edit all"
 msgstr "Préparer des jetons de contribution pour tous"
 
-#: config/module.config.php:310
+#: config/module.config.php:254
+msgid "Contribute options"
+msgstr "Options de contribution"
+
+#: config/module.config.php:255
+msgid "Editable"
+msgstr "Modifiable"
+
+#: config/module.config.php:256
+msgid "Fillable"
+msgstr "Remplissable"
+
+#: config/module.config.php:259
+msgid "Not submitted"
+msgstr "Non soumis"
+
+#: config/module.config.php:311
 msgid "Your contribution on {main_title}"
 msgstr "Votre contribution sur {main_title}"
 
-#: config/module.config.php:311
+#: config/module.config.php:312
 msgid ""
 "Hello,\n"
 "\n"
@@ -1973,9 +2001,6 @@ msgstr ""
 #~ "Autoriser l’utilisateur à ajouter de nouvelles valeurs pour les "
 #~ "propriétés choisies. Cette option est utilisée seulement quand le modèle "
 #~ "n’est pas configuré."
-
-#~ msgid "Editable datatypes"
-#~ msgstr "Types de donnée modifiables"
 
 #~ msgid "Other datatypes are not editable."
 #~ msgstr "Les autres types de données ne sont pas éditables."
