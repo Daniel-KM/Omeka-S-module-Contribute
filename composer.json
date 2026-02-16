@@ -1,0 +1,42 @@
+{
+    "name": "daniel-km/omeka-s-module-contribute",
+    "type": "omeka-s-module",
+    "description": "Module for Omeka S: Allow guest users or visitors to add a resource and to edit and complete metadata of a resource in the public side.",
+    "keywords": [
+        "Omeka S",
+        "Omeka S module",
+        "public interaction",
+        "crowdsourcing",
+        "contribute",
+        "correction"
+    ],
+    "license": "CECILL-2.1",
+    "homepage": "https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute",
+    "authors": [
+        {
+            "name": "Daniel Berthereau",
+            "email": "Daniel.packagist@Berthereau.net"
+        }
+    ],
+    "support": {
+        "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/issues",
+        "forum": "https://forum.omeka.org/"
+    },
+    "_require (not set until Omeka S merges PR #2412)": {
+        "omeka/omeka-s": "^4.0",
+        "daniel-km/omeka-s-module-common": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Contribute\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ContributeTest\\": "tests/ContributeTest/"
+        }
+    },
+    "extra": {
+        "installer-name": "Contribute"
+    }
+}

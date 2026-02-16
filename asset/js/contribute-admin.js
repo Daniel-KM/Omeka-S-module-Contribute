@@ -163,7 +163,7 @@
         document.addEventListener('o:jsend-success', function(ev) {
             const detail = ev.detail || {};
             const data = detail.data || {};
-            const button = detail.context?.target || null;
+            let button = detail.context?.target || null;
 
             if (!button) {
                 return;
