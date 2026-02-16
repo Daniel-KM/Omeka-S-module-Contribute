@@ -34,6 +34,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_modes',
+                    'data-setting-key' => 'contribute_modes',
                 ],
             ])
 
@@ -50,6 +51,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_filter_user_roles',
+                    'data-setting-key' => 'contribute_filter_user_roles',
                     'multiple' => true,
                     'required' => false,
                     'class' => 'chosen-select',
@@ -67,6 +69,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_filter_user_emails',
+                    'data-setting-key' => 'contribute_filter_user_emails',
                     'placeholder' => <<<'TXT'
                         alpha@beta.com
                         ~^(\w+\.gamma@delta\.com)$~
@@ -86,6 +89,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_filter_user_settings',
+                    'data-setting-key' => 'contribute_filter_user_settings',
                     'placeholder' => <<<'TXT'
                         connection_idp = https://idp.example.org/idp/shibboleth
                         singlesignon_person_affiliation = student
@@ -105,6 +109,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_token_duration',
+                    'data-setting-key' => 'contribute_token_duration',
                     'min' => '0',
                     'step' => '1',
                     'data-placeholder' => '90', // @translate
@@ -127,6 +132,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_allow_edit_until',
+                    'data-setting-key' => 'contribute_allow_edit_until',
                     'value' => 'undertaking',
                 ],
             ])
@@ -141,6 +147,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_sender_email',
+                    'data-setting-key' => 'contribute_sender_email',
                     'required' => false,
                 ],
             ])
@@ -153,6 +160,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_sender_name',
+                    'data-setting-key' => 'contribute_sender_name',
                     'required' => false,
                 ],
             ])
@@ -168,6 +176,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_notify_recipients',
+                    'data-setting-key' => 'contribute_notify_recipients',
                     'required' => false,
                     'placeholder' => <<<'TXT'
                         contact@example.org
@@ -190,6 +199,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_author_emails',
+                    'data-setting-key' => 'contribute_author_emails',
                     'multiple' => true,
                     'required' => false,
                     'class' => 'chosen-select',
@@ -211,6 +221,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_author_confirmations',
+                    'data-setting-key' => 'contribute_author_confirmations',
                     'required' => false,
                 ],
             ])
@@ -231,6 +242,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_message_add',
+                    'data-setting-key' => 'contribute_message_add',
                 ],
             ])
 
@@ -243,6 +255,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_message_edit',
+                    'data-setting-key' => 'contribute_message_edit',
                 ],
             ])
 
@@ -256,6 +269,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_message_author_confirmation_subject',
+                    'data-setting-key' => 'contribute_message_author_confirmation_subject',
                 ],
             ])
             ->add([
@@ -268,6 +282,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_message_author_confirmation_body',
+                    'data-setting-key' => 'contribute_message_author_confirmation_body',
                     'rows' => 5,
                 ],
             ])
@@ -282,6 +297,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_message_reviewer_confirmation_subject',
+                    'data-setting-key' => 'contribute_message_reviewer_confirmation_subject',
                 ],
             ])
             ->add([
@@ -294,6 +310,7 @@ trait TraitSettingsFieldset
                 ],
                 'attributes' => [
                     'id' => 'contribute_message_reviewer_confirmation_body',
+                    'data-setting-key' => 'contribute_message_reviewer_confirmation_body',
                     'rows' => 5,
                 ],
             ])

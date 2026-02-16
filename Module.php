@@ -453,6 +453,25 @@ class Module extends AbstractModule
             'api.update.post',
             [$this, 'handleApiUpdatePostResourceTemplate']
         );
+
+        // Add JS for contribution options visibility in resource template forms.
+        // Use both identifiers to support with and without AdvancedResourceTemplate delegator.
+        $resourceTemplateControllers = [
+            'Omeka\Controller\Admin\ResourceTemplate',
+            \AdvancedResourceTemplate\Controller\Admin\ResourceTemplateControllerDelegator::class,
+        ];
+        foreach ($resourceTemplateControllers as $controller) {
+            $sharedEventManager->attach(
+                $controller,
+                'view.edit.form.after',
+                [$this, 'addResourceTemplateFormJs']
+            );
+            $sharedEventManager->attach(
+                $controller,
+                'view.add.form.after',
+                [$this, 'addResourceTemplateFormJs']
+            );
+        }
     }
 
     public function handleMainSettings(Event $event): void
@@ -793,6 +812,17 @@ class Module extends AbstractModule
                     'data-setting-key' => 'fillable',
                 ],
             ]);
+    }
+
+    /**
+     * Add JS for contribution options visibility toggle in resource template form.
+     */
+    public function addResourceTemplateFormJs(Event $event): void
+    {
+        $view = $event->getTarget();
+        $assetUrl = $view->plugin('assetUrl');
+        $view->headScript()
+            ->appendFile($assetUrl('js/contribute-resource-template.js', 'Contribute'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function handleApiUpdatePostResourceTemplate(Event $event): void
