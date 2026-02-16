@@ -86,7 +86,7 @@ class QuickSearchForm extends Form
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'submitted',
+                    'id' => 'patch',
                     'value' => '',
                 ],
             ]);
