@@ -58,6 +58,15 @@ the module to `Contribute`.
 The upgrade from the module Correction was removed in version 3.4.24. If needed,
 install version 3.4.23 then upgrade the module.
 
+* For test
+
+The module includes a comprehensive test suite with unit and functional tests.
+Run them from the root of Omeka:
+
+```sh
+vendor/bin/phpunit -c modules/Contribute/phpunit.xml --testdox
+```
+
 
 Usage
 -----
