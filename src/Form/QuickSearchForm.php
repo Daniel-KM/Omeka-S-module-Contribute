@@ -14,6 +14,11 @@ class QuickSearchForm extends Form
     protected $resourceTemplates = [];
 
     /**
+     * @var bool
+     */
+    protected $hasBothPatchTypes = true;
+
+    /**
      * @var Url
      */
     protected $urlHelper;
@@ -66,7 +71,10 @@ class QuickSearchForm extends Form
                 ],
             ])
 
-            ->add([
+        ;
+
+        if ($this->hasBothPatchTypes) {
+            $this->add([
                 'name' => 'patch',
                 'type' => Element\Radio::class,
                 'options' => [
@@ -81,8 +89,10 @@ class QuickSearchForm extends Form
                     'id' => 'submitted',
                     'value' => '',
                 ],
-            ])
-            ->add([
+            ]);
+        }
+
+        $this->add([
                 'name' => 'submitted',
                 'type' => Element\Radio::class,
                 'options' => [
@@ -203,6 +213,12 @@ class QuickSearchForm extends Form
     public function setUrlHelper(Url $urlHelper): self
     {
         $this->urlHelper = $urlHelper;
+        return $this;
+    }
+
+    public function setHasBothPatchTypes(bool $hasBothPatchTypes): self
+    {
+        $this->hasBothPatchTypes = $hasBothPatchTypes;
         return $this;
     }
 }

@@ -35,9 +35,16 @@ class QuickSearchFormFactory implements FactoryInterface
 
         $urlHelper = $services->get('ViewHelperManager')->get('url');
 
+        // Check if both contribution types (patch and full) exist.
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $services->get('Omeka\Connection');
+        $patchCount = (int) $connection->executeQuery('SELECT COUNT(DISTINCT patch) FROM contribution')->fetchOne();
+        $hasBothPatchTypes = $patchCount > 1;
+
         $form = new QuickSearchForm(null, $options ?? []);
         return $form
             ->setResourceTemplates($resourceTemplates)
-            ->setUrlHelper($urlHelper);
+            ->setUrlHelper($urlHelper)
+            ->setHasBothPatchTypes($hasBothPatchTypes);
     }
 }
