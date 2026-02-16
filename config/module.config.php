@@ -86,11 +86,12 @@ return [
         ],
     ],
     'navigation' => [
-        'AdminResource' => [
+        'AdminModule' => [
             'contribution' => [
                 'label' => 'Contributions', // @translate
                 'class' => 'o-icon- contributions fa-edit',
                 'route' => 'admin/contribution',
+                'admin_section' => 'users',
                 // 'resource' => Controller\Admin\ContributionController::class,
                 // 'privilege' => 'browse',
                 'pages' => [
