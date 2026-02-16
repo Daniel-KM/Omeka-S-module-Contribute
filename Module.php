@@ -52,10 +52,10 @@ class Module extends AbstractModule
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
-        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.47')) {
+        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.51')) {
             $message = new \Omeka\Stdlib\Message(
                 $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-                'Advanced Resource Template', '3.4.47'
+                'Advanced Resource Template', '3.4.51'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
