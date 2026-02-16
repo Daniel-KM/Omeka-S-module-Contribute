@@ -370,6 +370,20 @@ $(document).ready(function() {
         $(this).closest('.contribute-media').remove();
     });
 
+    /* Avoid double submission. */
+    $('#edit-resource').on('submit', function() {
+        var $form = $(this);
+        if ($form.data('submitting')) {
+            return false;
+        }
+        $form.data('submitting', true);
+        $form.find('[type=submit]').prop('disabled', true).addClass('submitting');
+        setTimeout(function() {
+            $form.data('submitting', false);
+            $form.find('[type=submit]').prop('disabled', false).removeClass('submitting');
+        }, 15000);
+    });
+
     /* Avoid submission with return key. */
     $('#edit-resource').on('keypress', ':input:not(textarea):not([type=submit])', function(ev) {
         if ((ev.keycode || ev.which) == '13') {
