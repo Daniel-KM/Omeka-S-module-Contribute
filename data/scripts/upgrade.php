@@ -452,9 +452,9 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
         $data = $template->data() ?: [];
         $data['contribute_template_contributable'] = 'global';
         $sql = <<<'SQL'
-            UPDATE `resource_template_data`
-            SET `data` = :data
-            WHERE `resource_template_id` = :template_id
+            INSERT INTO `resource_template_data` (`resource_template_id`, `data`)
+            VALUES (:template_id, :data)
+            ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)
             SQL;
         $connection->executeStatement($sql, [
             'data' => json_encode($data, 320),
@@ -466,8 +466,7 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
     // Move the setting "contribute_templates_media" to template data.
     $templatesMedias = $settings->get('contribute_templates_media') ?: [];
     if ($templatesMedias) {
-        $templatesItems = $settings->get('contribute_templates') ?: [];
-        $templates = $api->search('resource_templates', ['id' => $templatesItems])->getContent();
+        $templates = $api->search('resource_templates', ['id' => $contributeTemplates])->getContent();
         foreach ($templates as $template) {
             if ($template instanceof \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation) {
                 $resourceTemplateMediaIds = $template->dataValue('contribute_templates_media') ?: [];
@@ -476,9 +475,10 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
                     $data = $template->data() ?: [];
                     $data['contribute_templates_media'] = $templatesMedias;
                     $sql = <<<'SQL'
-                        UPDATE `resource_template_data`
-                        SET `data` = :data
-                        WHERE `resource_template_id` = :template_id
+                        INSERT INTO `resource_template_data`
+                            (`resource_template_id`, `data`)
+                        VALUES (:template_id, :data)
+                        ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)
                         SQL;
                     $connection->executeStatement($sql, [
                         'data' => json_encode($data, 320),
@@ -518,4 +518,53 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
         'It is now possible to define contribute settings by template and not globally. It allows to limit contribution to one template to some users, for example a template "Thesis" for student authenticated by some sso rules or for some mails and a template "Master" for other students.' // @translate
     );
     $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.35', '<')) {
+    // Fix templates that lost their "contributable" flag during upgrade to
+    // 3.4.33: templates without an existing resource_template_data row were
+    // silently skipped. Detect them by checking which templates have properties
+    // with editable/fillable set but no contributable flag.
+    $sql = <<<'SQL'
+        SELECT DISTINCT rtpd.resource_template_id
+        FROM resource_template_property_data rtpd
+        LEFT JOIN resource_template_data rtd
+            ON rtpd.resource_template_id = rtd.resource_template_id
+        WHERE (
+            JSON_EXTRACT(rtpd.data, "$.editable") = "1"
+            OR JSON_EXTRACT(rtpd.data, "$.fillable") = "1"
+        )
+        AND (
+            rtd.id IS NULL
+            OR JSON_EXTRACT(rtd.data, "$.contribute_template_contributable") IS NULL
+            OR JSON_EXTRACT(rtd.data, "$.contribute_template_contributable") = ""
+        )
+        SQL;
+    $templateIds = $connection->executeQuery($sql)->fetchFirstColumn();
+    if ($templateIds) {
+        foreach ($templateIds as $templateId) {
+            try {
+                $template = $api->read('resource_templates', ['id' => $templateId])->getContent();
+            } catch (\Exception $e) {
+                continue;
+            }
+            $data = $template->data() ?: [];
+            $data['contribute_template_contributable'] = 'global';
+            $sql = <<<'SQL'
+                INSERT INTO `resource_template_data` (`resource_template_id`, `data`)
+                VALUES (:template_id, :data)
+                ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)
+                SQL;
+            $connection->executeStatement($sql, [
+                'data' => json_encode($data, 320),
+                'template_id' => $templateId,
+            ]);
+        }
+        $this->mergeMainAndTemplateSettings();
+        $message = new PsrMessage(
+            '{count} resource templates were re-enabled for contribution.', // @translate
+            ['count' => count($templateIds)]
+        );
+        $messenger->addSuccess($message);
+    }
 }
