@@ -188,6 +188,17 @@ class QuickSearchForm extends Form
             ])
 
             ->add([
+                'name' => 'missing_files',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Missing files', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'missing_files',
+                ],
+            ])
+
+            ->add([
                 'name' => 'submit',
                 'type' => Element\Submit::class,
                 'attributes' => [

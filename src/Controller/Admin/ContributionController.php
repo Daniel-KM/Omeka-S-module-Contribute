@@ -48,6 +48,43 @@ class ContributionController extends AbstractActionController
 
         $this->browse()->setDefaults('contributions');
 
+        // Quick check for missing files in unvalidated contributions
+        // (not yet transformed into a resource).
+        $basePath = $this->getEvent()->getApplication()->getServiceManager()
+            ->get('Config')['file_store']['local']['base_path']
+            ?: (OMEKA_PATH . '/files');
+        $contributionPath = $basePath . '/contribution/';
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('c.id', 'c.proposal')
+            ->from(\Contribute\Entity\Contribution::class, 'c')
+            ->where('c.resource IS NULL');
+        $rows = $qb->getQuery()->getArrayResult();
+        $missingFiles = [];
+        foreach ($rows as $row) {
+            $proposal = $row['proposal'] ?? [];
+            foreach ($proposal['media'] ?? [] as $mediaData) {
+                foreach ($mediaData['file'] ?? [] as $fileData) {
+                    $store = $fileData['proposed']['store'] ?? null;
+                    if ($store && !file_exists($contributionPath . $store)) {
+                        $missingFiles[$row['id']][] = $fileData['proposed']['@value'] ?? $store;
+                    }
+                }
+            }
+        }
+
+        // Filter by missing files if requested via sidebar checkbox.
+        $hasMissingFilesFilter = !empty($params['missing_files']);
+        unset($params['missing_files']);
+        if ($hasMissingFilesFilter) {
+            $params['id'] = $missingFiles ? array_keys($missingFiles) : [0];
+        }
+
+        // Ensure page is set: $params was captured before setBrowseDefaults
+        // set page on the request, so re-read it.
+        if (!isset($params['page'])) {
+            $params['page'] = $this->params()->fromQuery('page', 1);
+        }
+
         $response = $this->api()->search('contributions', $params);
         $this->paginator($response->getTotalResults());
 
@@ -81,6 +118,9 @@ class ContributionController extends AbstractActionController
 
         // Fix form radio for empty value and form select.
         $data = $params;
+        if ($hasMissingFilesFilter) {
+            $data['missing_files'] = '1';
+        }
         if (isset($data['patch'])) {
             if ($data['patch'] === '0') {
                 $data['patch'] = '00';
@@ -139,37 +179,10 @@ class ContributionController extends AbstractActionController
 
         $contributions = $response->getContent();
 
-        // Quick check for missing files in unvalidated contributions
-        // (not yet transformed into a resource).
-        $basePath = $this->getEvent()->getApplication()->getServiceManager()
-            ->get('Config')['file_store']['local']['base_path']
-            ?: (OMEKA_PATH . '/files');
-        $contributionPath = $basePath . '/contribution/';
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('c.id', 'c.proposal')
-            ->from(\Contribute\Entity\Contribution::class, 'c')
-            ->where('c.resource IS NULL');
-        $rows = $qb->getQuery()->getArrayResult();
-        $missingFiles = [];
-        foreach ($rows as $row) {
-            $proposal = $row['proposal'] ?? [];
-            foreach ($proposal['media'] ?? [] as $mediaData) {
-                foreach ($mediaData['file'] ?? [] as $fileData) {
-                    $store = $fileData['proposed']['store'] ?? null;
-                    if ($store && !file_exists($contributionPath . $store)) {
-                        $missingFiles[$row['id']][] = $fileData['proposed']['@value'] ?? $store;
-                    }
-                }
-            }
-        }
         if ($missingFiles) {
-            $list = [];
-            foreach ($missingFiles as $id => $files) {
-                $list[] = sprintf('Contribution #%d: %s', $id, implode(', ', $files));
-            }
             $message = new PsrMessage(
-                '{count} contribution(s) without resource have missing files in /files/contribution: {list}', // @translate
-                ['count' => count($missingFiles), 'list' => implode(' ; ', $list)]
+                '{count} contribution(s) without resource have missing files. They are highlighted in orange and can be filtered via the sidebar.', // @translate
+                ['count' => count($missingFiles)]
             );
             $this->messenger()->addWarning($message);
         }
