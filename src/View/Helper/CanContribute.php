@@ -103,17 +103,17 @@ class CanContribute extends AbstractHelper
                 }
                 continue 2;
             case 'auth_cas':
-                if ($user && $this->isCasUser && $this->isCasUser($user)) {
+                if ($user && $this->isCasUser && $this->isCasUser->__invoke($user)) {
                     return true;
                 }
                 continue 2;
             case 'auth_ldap':
-                if ($user && $this->isLdapUser && $this->isLdapUser($user)) {
+                if ($user && $this->isLdapUser && $this->isLdapUser->__invoke($user)) {
                     return true;
                 }
                 continue 2;
             case 'auth_sso':
-                if ($user && $this->isSsoUser && $this->isSsoUser($user)) {
+                if ($user && $this->isSsoUser && $this->isSsoUser->__invoke($user)) {
                     return true;
                 }
                 continue 2;
