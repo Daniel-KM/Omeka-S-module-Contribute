@@ -10,6 +10,7 @@
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
 $partial = $plugins->get('partial');
+$setting = $plugins->get('setting');
 $escape = $plugins->get('escapeHtml');
 $translate = $plugins->get('translate');
 $siteSetting = $plugins->get('siteSetting');
@@ -57,6 +58,21 @@ $this->htmlElement('body')->appendAttribute('class', 'contribution resource show
     <ul class="actions" data-message-remove-contribution="<?= $escapeAttr($translate('Are you sure to remove this contribution?')) ?>">
         <?php if ($contribution->userIsAllowed('update')): ?>
         <li><a class="o-icon-edit button edit-button edit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'edit', $space === 'guest')) ?>"><?= $escape($translate('Edit')) ?></a></li>
+        <?php endif; ?>
+        <?php
+        $contributeConfig = $setting('contribute_config') ?: [];
+        $templateId = $contribution->resourceTemplate() ? $contribution->resourceTemplate()->id() : null;
+        $acceptStep = ($templateId && isset($contributeConfig['contribute_accept_step'][$templateId])
+            ? $contributeConfig['contribute_accept_step'][$templateId] : null)
+            ?: $setting('contribute_accept_step');
+        $acceptation = ($templateId && isset($contributeConfig['contribute_message_accept'][$templateId])
+            ? $contributeConfig['contribute_message_accept'][$templateId] : null)
+            ?: $setting('contribute_message_accept');
+        if ($acceptation && $acceptStep === 'end'): ?>
+        <li class="warn-acceptation">
+            <input type="checkbox" required="required" name="accept_rights" id="accept_rights" value=""/>
+            <label for="accept_rights"><?= $acceptation ?></label>
+        </li>
         <?php endif; ?>
         <li><a class="o-icon-submit button submit-button submit-contribution" href="<?= $escapeAttr($contribution->siteUrl($siteSlug, false, 'submit', $space === 'guest')) ?>"><?= $escape($translate('Submit')) ?></a></li>
         <?php if ($contribution->userIsAllowed('delete')): ?>

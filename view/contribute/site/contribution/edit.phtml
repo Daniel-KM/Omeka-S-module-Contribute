@@ -75,12 +75,31 @@ $mapLabels = [
         $this->trigger("view.$action.after");
 
     elseif ($action === 'add' && $form): // First step form to select a resource template.
+        $acceptation = $setting('contribute_message_accept');
+        $acceptationAtStart = $acceptation
+            && $setting('contribute_accept_step') === 'start';
         if ($mode === 'read') {
             $form->remove('submit');
             echo $this->form($form);
-        } else {
+        } elseif (!$acceptationAtStart) {
             $form->get('submit')->setValue('Select'); // @translate
             echo $this->form($form);
+        } else {
+            $formElement = $plugins->get('formElement');
+            $form->prepare();
+            $form->get('submit')->setValue('Select'); // @translate
+            echo $this->form()->openTag($form);
+            echo $formElement($form->get('template'));
+            echo '<div class="warn-acceptation">'
+                . '<input type="checkbox" required="required" name="accept_rights" id="accept_rights" form="edit-resource" value=""/>'
+                . ' <label for="accept_rights">' . $acceptation . '</label>'
+                . '</div>';
+            echo $formElement($form->get('step'));
+            echo $formElement($form->get('next'));
+            echo $formElement($form->get('mode'));
+            echo $formElement($form->get('csrf'));
+            echo $formElement($form->get('submit'));
+            echo $this->form()->closeTag();
         }
 
     else: ?>

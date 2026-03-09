@@ -97,4 +97,25 @@
     select.chosen-select:invalid[multiple] {
         margin-top: 15px !important;
     }
+
+    .warn-acceptation {
+        list-style: none;
+        margin: 10px 0;
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        font-size: 14px;
+    }
+    .warn-acceptation label {
+        cursor: pointer;
+    }
+    .warn-acceptation.warn-highlight {
+        outline: 2px solid #EA3535;
+        animation: warn-pulse 0.3s ease-in-out;
+    }
+
+    @keyframes warn-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
 }

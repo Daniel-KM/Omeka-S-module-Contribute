@@ -391,6 +391,17 @@ $(document).ready(function() {
         }
     });
 
+    /* Validate acceptation checkbox before submission. */
+    $('.submit-contribution').on('click', function(event) {
+        var $accept = $('#accept_rights');
+        if ($accept.length && !$accept.is(':checked')) {
+            event.stopPropagation();
+            event.preventDefault();
+            $accept.closest('.warn-acceptation').addClass('warn-highlight');
+            return false;
+        }
+    });
+
     $('.remove-contribution').on('click', async function(ev) {
         ev.stopPropagation();
         ev.preventDefault();
