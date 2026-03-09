@@ -3,7 +3,7 @@
 namespace Contribute\Service\Form;
 
 use Contribute\Form\QuickSearchForm;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class QuickSearchFormFactory implements FactoryInterface

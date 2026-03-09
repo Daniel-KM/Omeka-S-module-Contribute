@@ -3,7 +3,7 @@
 namespace Contribute\Service\File;
 
 use Contribute\File\Contribution;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ContributionFactory implements FactoryInterface

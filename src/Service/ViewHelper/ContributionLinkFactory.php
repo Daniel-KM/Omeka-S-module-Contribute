@@ -3,7 +3,7 @@
 namespace Contribute\Service\ViewHelper;
 
 use Contribute\View\Helper\ContributionLink;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ContributionLinkFactory implements FactoryInterface
