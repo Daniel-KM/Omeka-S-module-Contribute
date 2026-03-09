@@ -246,7 +246,10 @@ trait ContributionTrait
             $settings = $this->settings();
             $contributeConfig = $settings->get('contribute_config') ?: [];
             if (array_key_exists($key, $contributeConfig) && array_key_exists($templateId, $contributeConfig[$key])) {
-                return $contributeConfig[$key][$templateId];
+                $val = $contributeConfig[$key][$templateId];
+                if ($val !== null && $val !== '' && $val !== []) {
+                    return $val;
+                }
             }
         }
 
