@@ -15,6 +15,16 @@ class ContributionRepresentation extends AbstractEntityRepresentation
     protected $resource;
 
     /**
+     * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null|false
+     */
+    protected $contributionResource = false;
+
+    /**
+     * @var \Omeka\Api\Representation\ResourceTemplateRepresentation|null|false
+     */
+    protected $contributionResourceTemplate = false;
+
+    /**
      * @var array
      */
     protected $values;
@@ -75,10 +85,13 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     public function resource(): ?\Omeka\Api\Representation\AbstractResourceEntityRepresentation
     {
-        $contributionResource = $this->resource->getResource();
-        return $contributionResource
-            ? $this->getAdapter('resources')->getRepresentation($contributionResource)
-            : null;
+        if ($this->contributionResource === false) {
+            $entity = $this->resource->getResource();
+            $this->contributionResource = $entity
+                ? $this->getAdapter('resources')->getRepresentation($entity)
+                : null;
+        }
+        return $this->contributionResource;
     }
 
     public function owner(): ?\Omeka\Api\Representation\UserRepresentation
@@ -165,6 +178,9 @@ class ContributionRepresentation extends AbstractEntityRepresentation
      */
     public function resourceTemplate(): ?ResourceTemplateRepresentation
     {
+        if ($this->contributionResourceTemplate !== false) {
+            return $this->contributionResourceTemplate;
+        }
         $contributionResource = $this->resource();
         if ($contributionResource) {
             $resourceTemplate = $contributionResource->resourceTemplate();
@@ -182,7 +198,8 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                 }
             }
         }
-        return $resourceTemplate;
+        $this->contributionResourceTemplate = $resourceTemplate ?? null;
+        return $this->contributionResourceTemplate;
     }
 
     public function token(): ?\Contribute\Api\Representation\TokenRepresentation
