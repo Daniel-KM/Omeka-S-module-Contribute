@@ -525,6 +525,7 @@ if (version_compare($oldVersion, '3.4.35', '<')) {
     // 3.4.33: templates without an existing resource_template_data row were
     // silently skipped. Detect them by checking which templates have properties
     // with editable/fillable set but no contributable flag.
+    // Exclude media-only templates (use_for_resources without "items").
     $sql = <<<'SQL'
         SELECT DISTINCT rtpd.resource_template_id
         FROM resource_template_property_data rtpd
@@ -549,6 +550,11 @@ if (version_compare($oldVersion, '3.4.35', '<')) {
                 continue;
             }
             $data = $template->data() ?: [];
+            // Skip media-only templates.
+            $useForResources = $data['use_for_resources'] ?? [];
+            if ($useForResources && !in_array('items', $useForResources)) {
+                continue;
+            }
             $data['contribute_template_contributable'] = 'global';
             $sql = <<<'SQL'
                 INSERT INTO `resource_template_data` (`resource_template_id`, `data`)
@@ -567,4 +573,45 @@ if (version_compare($oldVersion, '3.4.35', '<')) {
         );
         $messenger->addSuccess($message);
     }
+}
+
+if (version_compare($oldVersion, '3.4.36', '<')) {
+    // Remove the contributable flag from media-only templates
+    // that were incorrectly marked during previous upgrades.
+    $sql = <<<'SQL'
+        SELECT rtd.resource_template_id, rtd.data
+        FROM resource_template_data rtd
+        WHERE JSON_EXTRACT(rtd.data, "$.contribute_template_contributable") IS NOT NULL
+            AND JSON_EXTRACT(rtd.data, "$.contribute_template_contributable") != ""
+        SQL;
+    $rows = $connection->executeQuery($sql)->fetchAllAssociative();
+    $fixed = 0;
+    foreach ($rows as $row) {
+        $data = json_decode($row['data'], true) ?: [];
+        $useForResources = $data['use_for_resources'] ?? [];
+        if (!$useForResources || in_array('items', $useForResources)) {
+            continue;
+        }
+        unset($data['contribute_template_contributable']);
+        $connection->executeStatement(
+            'UPDATE `resource_template_data` SET `data` = :data WHERE `resource_template_id` = :id',
+            ['data' => json_encode($data, 320), 'id' => $row['resource_template_id']]
+        );
+        ++$fixed;
+    }
+    if ($fixed) {
+        $this->mergeMainAndTemplateSettings();
+        $message = new PsrMessage(
+            '{count} media-only templates were removed from contributable templates.', // @translate
+            ['count' => $fixed]
+        );
+        $messenger->addNotice($message);
+    }
+
+    $settings->set('contribute_message_accept', $translate('By checking this box, you accept the conditions of deposit and reuse of your work.'));
+
+    $message = new PsrMessage(
+        'An option allows to set a specific message for acceptation, at start or end of contribution.' // @translate
+    );
+    $messenger->addNotice($message);
 }
