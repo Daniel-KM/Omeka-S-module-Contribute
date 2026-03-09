@@ -969,6 +969,11 @@ class Module extends AbstractModule
             if (!$isGlobal && !$isSpecific) {
                 continue;
             }
+            // Skip media-only templates.
+            $useForResources = $template->dataValue('use_for_resources') ?: [];
+            if ($useForResources && !in_array('items', $useForResources)) {
+                continue;
+            }
             $result['contribute_template_contributable'][$templateId] = $contributable;
             if ($isSpecific) {
                 foreach ($configKeys as $key) {
