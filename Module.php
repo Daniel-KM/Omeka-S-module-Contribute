@@ -53,23 +53,27 @@ class Module extends AbstractModule
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
+        $errors = [];
+
         if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.51')) {
-            $message = new \Omeka\Stdlib\Message(
+            $errors[] = (string) new \Omeka\Stdlib\Message(
                 $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
                 'Advanced Resource Template', '3.4.51'
             );
-            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
         $config = $services->get('Config');
         $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
 
         if (!$this->checkDestinationDir($basePath . '/contribution')) {
-            $message = new PsrMessage(
+            $errors[] = (string) (new PsrMessage(
                 'The directory "{directory}" is not writeable.', // @translate
                 ['directory' => $basePath . '/contribution']
-            );
-            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message->setTranslator($translator));
+            ))->setTranslator($translator);
+        }
+
+        if ($errors) {
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException(implode("\n", $errors));
         }
     }
 
