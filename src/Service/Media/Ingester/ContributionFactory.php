@@ -13,7 +13,7 @@ class ContributionFactory implements FactoryInterface
      *
      * @return Contribution
      */
-    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null)
     {
         return new Contribution(
             $services->get(\Contribute\File\Contribution::class)
