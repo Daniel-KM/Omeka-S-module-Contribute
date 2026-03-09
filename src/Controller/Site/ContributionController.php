@@ -1021,7 +1021,7 @@ class ContributionController extends AbstractActionController
         $entity = new \Contribute\Entity\Contribution();
         if ($contribution) {
             if ($resource = $contribution->resource()) {
-                $entity->setResource($this->api()->read('resources', ['id' => $resource->id()], ['responseContent' => 'resource'])->getContent());
+                $entity->setResource($this->api()->read('resources', ['id' => $resource->id()], [], ['responseContent' => 'resource'])->getContent());
             }
             $entity->setUndertaken($contribution->isUndertaken());
             $entity->setValidated($contribution->isValidated());
