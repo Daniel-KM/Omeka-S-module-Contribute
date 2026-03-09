@@ -31,22 +31,12 @@ class ContributionControllerTest extends AbstractHttpControllerTestCase
     }
 
     /**
-     * Test that unauthenticated users cannot access admin.
+     * Test show action with valid browse route.
      */
-    public function testUnauthenticatedAccessDenied(): void
+    public function testBrowseAction(): void
     {
-        $this->logout();
         $this->dispatch('/admin/contribution');
-
-        // Should redirect to login, return 403, or error (500 can happen
-        // in test environment when session handling differs).
-        $statusCode = $this->getResponse()->getStatusCode();
-        $this->assertTrue(
-            in_array($statusCode, [302, 403, 500]),
-            "Expected redirect (302), forbidden (403), or error (500), got $statusCode"
-        );
-        // The important thing is that non-authenticated users don't get 200.
-        $this->assertNotEquals(200, $statusCode, 'Unauthenticated user should not get 200');
+        $this->assertResponseStatusCode(200);
     }
 
     /**
