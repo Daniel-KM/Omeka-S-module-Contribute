@@ -1063,6 +1063,9 @@ class ContributionController extends AbstractActionController
 
         if ($body) {
             $body = $this->replacePlaceholders($body, $contribution);
+            if (mb_substr($body, 0, 1) !== '<') {
+                $body = '<p>' . nl2br((string) $body) . '</p>';
+            }
             $this->sendEmail($body, $subject, $emails, $from);
             return $this;
         }
@@ -1133,7 +1136,9 @@ class ContributionController extends AbstractActionController
         );
 
         $body = $this->replacePlaceholders($body, $contribution);
-        $body = '<p>' . $body . '</p>';
+        if (mb_substr($body, 0, 1) !== '<') {
+            $body = '<p>' . nl2br((string) $body) . '</p>';
+        }
 
         $senderEmail = $this->settingTemplateOrMainOrConfig($contribution, 'contribute_sender_email');
         $from = $senderEmail
