@@ -248,7 +248,7 @@ class ContributionController extends AbstractActionController
                     && $this->settings()->get('contribute_message_accept'));
             if (count($templates) === 1 && !$forceTemplateStep) {
                 $resourceTemplate = reset($templates);
-                $contributive = clone $contributiveData($template);
+                $contributive = clone $contributiveData($resourceTemplate);
             } else {
                 $resourceTemplate = null;
             }
