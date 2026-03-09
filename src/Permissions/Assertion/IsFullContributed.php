@@ -12,8 +12,8 @@ class IsFullContributed implements AssertionInterface
 {
     public function assert(
         Acl $acl,
-        RoleInterface $role = null,
-        ResourceInterface $resource = null,
+        ?RoleInterface $role = null,
+        ?ResourceInterface $resource = null,
         $privilege = null
     ) {
         if (!$resource instanceof Contribution) {
