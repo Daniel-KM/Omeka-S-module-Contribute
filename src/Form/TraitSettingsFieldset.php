@@ -234,6 +234,40 @@ trait TraitSettingsFieldset
     {
         $this
             ->add([
+                'name' => 'contribute_accept_step',
+                'type' => CommonElement\OptionalRadio::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Step to display conditions acceptance', // @translate
+                    'value_options' => [
+                        '' => 'None', // @translate
+                        'start' => 'First step (resource template selection)', // @translate
+                        'end' => 'Last step (deposit)', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'contribute_accept_step',
+                    'data-setting-key' => 'contribute_accept_step',
+                    'value' => '',
+                ],
+            ])
+
+            ->add([
+                'name' => 'contribute_message_accept',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'element_group' => 'contribution',
+                    'label' => 'Message to accept conditions', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'contribute_message_accept',
+                    'data-setting-key' => 'contribute_message_accept',
+                    'placeholder' => 'By checking this box, you accept the conditions of deposit and reuse of your work.', // @translate
+                    'rows' => 5,
+                ],
+            ])
+
+            ->add([
                 'name' => 'contribute_message_add',
                 'type' => Element\Text::class,
                 'options' => [

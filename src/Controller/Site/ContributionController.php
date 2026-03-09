@@ -236,7 +236,17 @@ class ContributionController extends AbstractActionController
         }
 
         if (!$template) {
-            if (count($templates) === 1) {
+            // Do not auto-select if acceptation check is at start.
+            // Check template-specific setting when there is only
+            // one template.
+            $singleTemplate = count($templates) === 1
+                ? reset($templates) : null;
+            $forceTemplateStep = $singleTemplate
+                ? ($this->settingTemplateOrMainOrConfig($singleTemplate, 'contribute_accept_step') === 'start'
+                    && $this->settingTemplateOrMainOrConfig($singleTemplate, 'contribute_message_accept'))
+                : ($this->settings()->get('contribute_accept_step') === 'start'
+                    && $this->settings()->get('contribute_message_accept'));
+            if (count($templates) === 1 && !$forceTemplateStep) {
                 $resourceTemplate = reset($templates);
                 $contributive = clone $contributiveData($template);
             } else {

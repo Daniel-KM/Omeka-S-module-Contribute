@@ -300,6 +300,8 @@ return [
             'contribute_sender_name' => '',
             'contribute_notify_recipients' => [],
             'contribute_author_emails' => [],
+            'contribute_accept_step' => '',
+            'contribute_message_accept' => 'By checking this box, you accept the conditions of deposit and reuse of your work.', // @translate
             'contribute_message_add' => '',
             'contribute_message_edit' => '',
             'contribute_redirect_submit' => '',

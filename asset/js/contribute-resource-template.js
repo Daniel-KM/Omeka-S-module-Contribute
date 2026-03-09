@@ -32,6 +32,8 @@
             'contribute_notify_recipients',
             'contribute_author_emails',
             'contribute_author_confirmations',
+            'contribute_accept_step',
+            'contribute_message_accept',
             'contribute_message_add',
             'contribute_message_edit',
             'contribute_message_author_confirmation_subject',
