@@ -1263,7 +1263,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $thumbnailType = 'square',
         $titleDefault = null,
         $action = null,
-        array $attributes = null
+        ?array $attributes = null
     ): string {
         $escape = $this->getViewHelper('escapeHtml');
         $thumbnail = $this->getViewHelper('thumbnail');
@@ -1293,7 +1293,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         $thumbnailType = 'square',
         $titleDefault = null,
         $action = null,
-        array $attributes = null
+        ?array $attributes = null
     ): string {
         $contributionResource = $this->resource();
         if (!$contributionResource) {
