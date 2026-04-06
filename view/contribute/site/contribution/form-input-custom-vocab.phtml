@@ -113,6 +113,11 @@ if (strlen((string) $val)) {
     $escapedVal = $escapeAttr($val);
     $replace['<option value="' . $escapedVal . '"'] = '<option value="' . $escapedVal . '" selected="selected"';
 }
+
+// Remove the trailing "(#id)" added by CustomVocab\DataType\CustomVocab
+// on resource selects: in a public contribution form the internal id is
+// noise for the end user.
+$selectHtml = preg_replace('/ \(#\d+\)(<\/option>)/', '$1', $selectHtml);
 ?>
 
 <div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>" data-basetype="<?= $customVocabType ?>">
