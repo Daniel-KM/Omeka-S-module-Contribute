@@ -107,7 +107,7 @@ class ContributionSearchFilters extends AbstractHelper
                     }
                     try {
                         $filters[$filterLabel] = $this->api->search('users', ['id' => $value], ['returnScalar' => 'name'])->getContent();
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         // Avoid issue with rights.
                     }
                     break;

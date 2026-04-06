@@ -69,7 +69,7 @@
                         try {
                             $res = $api->read('resources', ['id' => $contributionData['proposed']['@resource']])->getContent();
                             echo $res->link($res->displayTitle());
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             echo sprintf($translate('%s [unavailable]'), $contributionData['proposed']['@resource']);
                         }
                     elseif ($term === 'file'): // File is always a new value.
@@ -89,7 +89,7 @@
                         try {
                             $res = $api->read('resources', ['id' => $contributionData['original']['@resource']])->getContent();
                             echo $res->link($res->displayTitle());
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             echo sprintf($translate('%s [unavailable]'), $contributionData['original']['@resource']);
                         };
                     else:
@@ -103,7 +103,7 @@
                         try {
                             $res = $api->read('resources', ['id' => $contributionData['proposed']['@resource']])->getContent();
                             echo $res->link($res->displayTitle());
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             echo sprintf($translate('%s [unavailable]'), $contributionData['proposed']['@resource']);
                         }
                     else:

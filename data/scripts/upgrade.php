@@ -131,7 +131,7 @@ if (version_compare($oldVersion, '3.3.0.13', '<')) {
     foreach ($byTemplate as $templateId => $data) {
         try {
             $template = $api->read('resource_templates', ['id' => $templateId])->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             continue;
         }
         // Force full json serialization.
@@ -191,7 +191,7 @@ if (version_compare($oldVersion, '3.3.0.16', '<')) {
     if (!$templateId) {
         try {
             $templateId = $api->read('resource_templates', ['label' => 'Contribution'])->getContent()->id();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $templateId = null;
         }
     }
@@ -425,7 +425,7 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         // Already done.
     }
 
@@ -451,7 +451,7 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
     foreach ($contributeTemplates as $id) {
         try {
             $template = $api->read('resource_templates', ['id' => $id])->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             continue;
         }
         $templateId = $template->id();
@@ -552,7 +552,7 @@ if (version_compare($oldVersion, '3.4.35', '<')) {
         foreach ($templateIds as $templateId) {
             try {
                 $template = $api->read('resource_templates', ['id' => $templateId])->getContent();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 continue;
             }
             $data = $template->data() ?: [];

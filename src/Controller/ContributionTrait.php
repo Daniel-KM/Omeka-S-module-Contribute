@@ -165,7 +165,7 @@ trait ContributionTrait
                 $acl->deny($user ? $user->getRole() : null, $classes, [$action, 'change-owner']);
             }
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->entityManager->clear();
             $message = new PsrMessage(
                 'Unable to store the resource of the contribution: {message}', // @translate

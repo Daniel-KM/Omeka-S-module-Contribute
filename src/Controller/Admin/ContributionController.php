@@ -567,7 +567,7 @@ class ContributionController extends AbstractActionController
             /** @var \Contribute\Api\Representation\TokenRepresentation $token */
             try {
                 $token = $this->api()->read('contribution_tokens', ['token' => $token])->getContent();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 return $this->jSend()->fail(null, $this->translate(
                     'Resource not found.' // @translate
                 ), HttpResponse::STATUS_CODE_404);
@@ -626,7 +626,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
@@ -702,7 +702,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
@@ -765,7 +765,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
@@ -815,7 +815,7 @@ class ContributionController extends AbstractActionController
         try {
             $response = $this->api()
                 ->update('contributions', $id, $data, [], ['isPartial' => true]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
 
         // Check if the template should be converted.
@@ -828,7 +828,7 @@ class ContributionController extends AbstractActionController
                 $api = $this->api();
                 try {
                     $convertTemplate = $api->read('resource_templates', is_numeric($convertTemplate) ? ['id' => $convertTemplate] : ['label' => $convertTemplate])->getContent();
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $message = new PsrMessage(
                         'The template "{val}" to convert into from template {template_id} does not exist or is not valid. The conversion is skipped', // @translate
                         ['val' => $convertTemplate, 'template_id' => $resourceTemplate->id()]
@@ -854,7 +854,7 @@ class ContributionController extends AbstractActionController
                                     [],
                                     ['isPartial' => true, 'skipValidation' => true]
                                 );
-                        } catch (\Exception $e) {
+                        } catch (\Throwable $e) {
                             $response = null;
                         }
                         // The resource is already created, so just warn about the
@@ -896,7 +896,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
@@ -960,7 +960,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);
@@ -1036,7 +1036,7 @@ class ContributionController extends AbstractActionController
         /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
         try {
             $contribution = $this->api()->read('contributions', $id)->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->jSend()->fail(null, $this->translate(
                 'Resource not found.' // @translate
             ), HttpResponse::STATUS_CODE_404);

@@ -1401,7 +1401,7 @@ class ContributionRepresentation extends AbstractEntityRepresentation
                     /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $customVocab */
                     $customVocab = $api->read('custom_vocabs', ['id' => $customVocabId])->getContent();
                     $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Skip.
                 }
             }

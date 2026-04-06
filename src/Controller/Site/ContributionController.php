@@ -811,7 +811,7 @@ class ContributionController extends AbstractActionController
 
         try {
             $response = $this->api()->delete('contributions', $id);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $response = null;
         }
         if ($response) {
@@ -1170,7 +1170,7 @@ class ContributionController extends AbstractActionController
             } elseif (!empty($first['value_resource_id'])) {
                 try {
                     $replace['{' . $term . '}'] = $api->read('resources', ['id' => $first['value_resource_id']], [], ['initialize' => false, 'finalize' => false])->getContent()->getTitle();
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $replace['{' . $term . '}'] = $this->translate('[Unknown resource]'); // @translate
                 }
             } elseif (isset($first['@value']) && strlen((string) $first['@value'])) {
@@ -1292,7 +1292,7 @@ class ContributionController extends AbstractActionController
             $resourceTemplate = $proposal['template'];
             try {
                 $resourceTemplate = $this->api()->read('resource_templates', is_numeric($resourceTemplate) ? ['id' => $resourceTemplate] : ['label' => $resourceTemplate])->getContent();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 return null;
             }
         }
@@ -1755,7 +1755,7 @@ class ContributionController extends AbstractActionController
                 try {
                     $customVocab = $this->api()->read('custom_vocabs', ['id' => $customVocabId])->getContent();
                     $uriLabels[$customVocabId] = $customVocab->listUriLabels() ?: [];
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Skip.
                 }
             }
