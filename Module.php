@@ -766,18 +766,21 @@ class Module extends AbstractModule
 
         $form = $event->getTarget();
 
-        $elementGroups = $form->getOption('element_groups') ?: [];
-        $elementGroups['contribution'] = 'Contribution'; // @translate
-        $form->setOption('element_groups', $elementGroups);
-
         $fieldset = $form->get('o:data');
+
+        $fieldsetContribute = $formManager
+            ->get(\Contribute\Form\TemplateContributeFieldset::class);
+
+        $elementGroups = $fieldset->getOption('element_groups') ?: [];
+        $newGroups = $fieldsetContribute->getOption('element_groups') ?: [];
+        if ($newGroups) {
+            $fieldset->setOption('element_groups', $elementGroups + $newGroups);
+        }
 
         $specificLabels = [
             'contribute_modes' => 'Contribution modes', // @translate
         ];
 
-        $fieldsetContribute = $formManager
-            ->get(\Contribute\Form\TemplateContributeFieldset::class);
         foreach ($fieldsetContribute->getElements() as $element) {
             $fieldset->add($element);
             // Specific labels.

@@ -13,6 +13,7 @@ class TemplateContributeFieldset extends Fieldset
 
     protected $elementGroups = [
         'contribution' => 'Contribution', // @translate
+        'contact' => 'Contact', // @translate
     ];
 
     public function init(): void
