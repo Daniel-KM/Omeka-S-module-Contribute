@@ -1190,9 +1190,9 @@ class ContributionController extends AbstractActionController
 
         $replace['{main_title}'] = $settings->get('installation_title', 'Omeka S');
         $replace['{main_url}'] = $url('top', [], ['force_canonical' => true]);
-        // TODO Currently, the site is not stored, so use main title and main url.
-        $replace['{site_title}'] = $replace['{main_title}'];
-        $replace['{site_url}'] = $replace['{main_url}'];
+        $site = $this->currentSite();
+        $replace['{site_title}'] = $site ? $site->title() : $replace['{main_title}'];
+        $replace['{site_url}'] = $site ? $site->siteUrl(null, true) : $replace['{main_url}'];
 
         // TODO Store and add ip.
 
