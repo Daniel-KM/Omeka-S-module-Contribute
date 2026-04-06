@@ -198,7 +198,7 @@ trait ContributionTrait
 
         $data = [];
         $data['o:resource'] = $validateOnly || !$contributionResource ? null : [
-            'o:id' => $contributionResource->id()
+            'o:id' => $contributionResource->id(),
         ];
         if ($undertaken !== '') {
             $data['o-module-contribute:undertaken'] = $undertaken;

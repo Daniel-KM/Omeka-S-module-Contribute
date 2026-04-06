@@ -193,14 +193,14 @@ class ContributionAdapterTest extends AbstractHttpControllerTestCase
 
         // Search submitted only.
         $results = $this->api()->search('contributions', ['submitted' => true])->getContent();
-        $ids = array_map(fn($c) => $c->id(), $results);
+        $ids = array_map(fn ($c) => $c->id(), $results);
         $this->assertContains($contribution2->id(), $ids);
         $this->assertContains($contribution3->id(), $ids);
         $this->assertNotContains($contribution1->id(), $ids);
 
         // Search undertaken.
         $results = $this->api()->search('contributions', ['undertaken' => true])->getContent();
-        $ids = array_map(fn($c) => $c->id(), $results);
+        $ids = array_map(fn ($c) => $c->id(), $results);
         $this->assertContains($contribution3->id(), $ids);
         $this->assertNotContains($contribution1->id(), $ids);
         $this->assertNotContains($contribution2->id(), $ids);
@@ -223,7 +223,7 @@ class ContributionAdapterTest extends AbstractHttpControllerTestCase
         // Remove from cleanup list since we're testing delete.
         $this->createdContributions = array_filter(
             $this->createdContributions,
-            fn($id) => $id !== $contributionId
+            fn ($id) => $id !== $contributionId
         );
 
         // Delete.

@@ -184,7 +184,7 @@ class ContributionControllerTest extends AbstractHttpControllerTestCase
         // Remove from cleanup.
         $this->createdContributions = array_filter(
             $this->createdContributions,
-            fn($id) => $id !== $contributionId
+            fn ($id) => $id !== $contributionId
         );
 
         $siteSlug = $this->site->slug();

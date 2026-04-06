@@ -176,7 +176,7 @@ class ContributionControllerTest extends AbstractHttpControllerTestCase
             $contributions[] = $this->createContribution(null, $proposal);
         }
 
-        $ids = array_map(fn($c) => $c->id(), $contributions);
+        $ids = array_map(fn ($c) => $c->id(), $contributions);
 
         // Remove from cleanup list since we'll delete them.
         $this->createdContributions = array_diff($this->createdContributions, $ids);

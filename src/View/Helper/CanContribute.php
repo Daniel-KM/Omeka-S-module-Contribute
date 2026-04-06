@@ -65,7 +65,7 @@ class CanContribute extends AbstractHelper
             if ($contributable !== 'global' && $contributable !== 'specific') {
                 return false;
             }
-            $isSpecificTemplate = $contributable=== 'specific';
+            $isSpecificTemplate = $contributable === 'specific';
         } else {
             $isSpecificTemplate = false;
         }

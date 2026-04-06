@@ -651,7 +651,7 @@ class ContributionController extends AbstractActionController
                 $contribution = $response->getContent();
             }
             return $this->jSend()->success([
-                'contribution' => $contribution->jsonSerialize()+ [
+                'contribution' => $contribution->jsonSerialize() + [
                     'status' => 'undertaken',
                     'statusLabel' => $this->translate('Undertaken'), // @translate
                 ],
@@ -680,7 +680,7 @@ class ContributionController extends AbstractActionController
 
         return $this->jSend()->success([
             // Status is updated, so inverted.
-            'contribution' => $contribution->jsonSerialize()+ [
+            'contribution' => $contribution->jsonSerialize() + [
                 'status' => $wasUndertaken ? 'not-undertaken' : 'undertaken',
                 'statusLabel' => $wasUndertaken
                     ? $this->translate('Not undertaken') // @translate

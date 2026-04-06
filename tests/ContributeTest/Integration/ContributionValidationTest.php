@@ -460,7 +460,7 @@ class ContributionValidationTest extends AbstractHttpControllerTestCase
         // Remove from cleanup list since we're testing deletion.
         $this->createdContributions = array_filter(
             $this->createdContributions,
-            fn($id) => $id !== $contributionId
+            fn ($id) => $id !== $contributionId
         );
 
         // Delete the contribution.

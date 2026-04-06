@@ -2,6 +2,7 @@
 
 namespace Contribute\Api\Adapter;
 
+use Common\Api\Adapter\CommonAdapterTrait;
 use Common\Stdlib\PsrMessage;
 use Doctrine\ORM\Query\Expr\Comparison;
 use Doctrine\ORM\QueryBuilder;
@@ -9,7 +10,6 @@ use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
-use Common\Api\Adapter\CommonAdapterTrait;
 
 class ContributionAdapter extends AbstractEntityAdapter
 {

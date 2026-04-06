@@ -115,7 +115,7 @@ class SendMessageForm extends Form
                 'name' => 'submit',
                 'type' => Element\Button::class,
                 'options' => [
-                    'label' => 'Send message' // @translate
+                    'label' => 'Send message', // @translate
                 ],
                 'attributes' => [
                     'id' => 'submit',
