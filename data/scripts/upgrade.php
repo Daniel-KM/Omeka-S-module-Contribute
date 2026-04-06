@@ -495,7 +495,7 @@ if (version_compare($oldVersion, '3.4.33', '<')) {
         }
         $message = new PsrMessage(
             'The option to specify the media template was removed. Only the options in templates will be used. You should check the options in the templates used for contribution: {template_ids}.', // @translate
-            ['template_ids' => $templatesItems]
+            ['template_ids' => implode(', ', $contributeTemplates)]
         );
         $messenger->addWarning($message);
     }
