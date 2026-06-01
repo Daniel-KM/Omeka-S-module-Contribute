@@ -44,9 +44,9 @@ class Module extends AbstractModule
         $plugins = $services->get('ControllerPluginManager');
         $translator = $services->get('MvcTranslator');
 
-        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.83')) {
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.86')) {
             $message = new \Omeka\Stdlib\Message(
-                'Common', '3.4.83'
+                'Common', '3.4.86'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
