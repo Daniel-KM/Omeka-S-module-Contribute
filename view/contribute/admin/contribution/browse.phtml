@@ -153,7 +153,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                                 aria-haspopup="dialog" aria-controls="dialog-contribute-send" data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
                                 data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'send-message', 'id' => $contribution->id()], true)) ?>"
                                 aria-label="<?= $v = $escape($translate('Send a message to the author')) ?>"
-                                title="<?= $v ?>"><span class="fas o-icon- fa-envelope"></span></button>
+                                title="<?= $v ?>"><span class="fas fa-envelope"></span></button>
                         </li>
                         <?php if ($contributionResource): ?>
                         <li><?php // TODO Icon "edit" with link "show" for resource? ?>

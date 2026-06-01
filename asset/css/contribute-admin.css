@@ -318,14 +318,6 @@
     .contributions.browse .sidebar .meta-group.contribution .contribution dt {
         width: inherit;
     }
-
-    dialog.dialog-send-message label.required::after {
-        display: none;
-    }
-    form#contribute-send-message-form > div:last-child,
-    form#contribute-send-message-form #submit_field {
-        background-color: #fff;
-    }
 }
 
 @media screen and (max-width: 640px) {

@@ -37,9 +37,6 @@ class SendMessageForm extends Form
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Message', // @translate
-                    'label_attributes' => [
-                        'class' => 'required',
-                    ],
                 ],
                 'attributes' => [
                     'id' => 'body',
