@@ -73,18 +73,19 @@ class SettingsFieldset extends Fieldset
 
             ->add([
                 'name' => 'contribute_send_message_recipient_myself',
-                'type' => CommonElement\OptionalMultiCheckbox::class,
+                'type' => Element\Radio::class,
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Default options to send a message: myself as recipient', // @translate
                     'value_options' => [
-                        'cc' => 'cc', // @translate
-                        'bcc' => 'bcc', // @translate
-                        'reply' => 'Reply to', // @translate'
+                        '' => 'No copy', // @translate
+                        'cc' => 'Copy (cc)', // @translate
+                        'bcc' => 'Hidden copy (bcc)', // @translate
                     ],
                 ],
                 'attributes' => [
                     'id' => 'contribute_send_message_recipient_myself',
+                    'value' => '',
                 ],
             ])
             ->add([

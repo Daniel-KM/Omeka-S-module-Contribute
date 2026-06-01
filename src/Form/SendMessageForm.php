@@ -63,17 +63,18 @@ class SendMessageForm extends Form
 
             ->add([
                 'name' => 'myself',
-                'type' => CommonElement\OptionalMultiCheckbox::class,
+                'type' => Element\Radio::class,
                 'options' => [
-                    'label' => 'Add myself as', // @translate
+                    'label' => 'Copy to me', // @translate
                     'value_options' => [
-                        'cc' => 'cc', // @translate
-                        'bcc' => 'bcc', // @translate
-                        'reply' => 'Reply to', // @translate'
+                        '' => 'No copy', // @translate
+                        'cc' => 'Copy (cc)', // @translate
+                        'bcc' => 'Hidden copy (bcc)', // @translate
                     ],
                 ],
                 'attributes' => [
                     'id' => 'myself',
+                    'value' => '',
                 ],
             ])
             ->add([

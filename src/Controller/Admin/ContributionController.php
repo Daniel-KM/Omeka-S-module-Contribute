@@ -98,7 +98,7 @@ class ContributionController extends AbstractActionController
         $messageData = [
             'subject' => $this->fillMessage($subject),
             'body' => $this->fillMessage($body),
-            'myself' => $settings->get('contribute_send_message_recipient_myself', []) ?: [],
+            'myself' => $settings->get('contribute_send_message_recipient_myself', '') ?: '',
             'cc' => $settings->get('contribute_send_message_recipients_cc') ?: [],
             'bcc' => $settings->get('contribute_send_message_recipients_bcc') ?: [],
             'reply' => $settings->get('contribute_send_message_recipients_reply') ?: [],
@@ -1093,16 +1093,13 @@ class ContributionController extends AbstractActionController
         $cc = $data['cc'] ?? [];
         $bcc = $data['bcc'] ?? [];
         $replyTo = $data['reply'] ?? [];
-        $myself = $data['myself'] ?? [];
+        $myself = $data['myself'] ?? '';
 
-        if (in_array('cc', $myself)) {
+        if ($myself === 'cc') {
             $cc[$user->getEmail()] = $user->getName();
         }
-        if (in_array('bcc', $myself)) {
+        if ($myself === 'bcc') {
             $bcc[$user->getEmail()] = $user->getName();
-        }
-        if (in_array('reply', $myself)) {
-            $replyTo[$user->getEmail()] = $user->getName();
         }
 
         $cc = array_filter($cc);
