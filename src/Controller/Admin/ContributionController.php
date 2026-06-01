@@ -108,46 +108,16 @@ class ContributionController extends AbstractActionController
         $formSendMessage = $this->getForm(SendMessageForm::class);
         $formSendMessage
             ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'send-message'], true))
-            ->setAttribute('id', 'contribute-send-message-form')
             ->populateValues($messageData);
 
         $formSearch = $this->getForm(QuickSearchForm::class);
         $formSearch
-            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'browse'], true))
-            ->setAttribute('id', 'contribution-search');
+            ->setAttribute('action', $this->url()->fromRoute(null, ['action' => 'browse'], true));
 
-        // Fix form radio for empty value and form select.
+        // Fix form select.
         $data = $params;
         if ($hasMissingFilesFilter) {
             $data['missing_files'] = '1';
-        }
-        if (isset($data['patch'])) {
-            if ($data['patch'] === '0') {
-                $data['patch'] = '00';
-            } elseif ($params['patch'] === '00') {
-                $params['patch'] = '0';
-            }
-        }
-        if (isset($data['submitted'])) {
-            if ($data['submitted'] === '0') {
-                $data['submitted'] = '00';
-            } elseif ($params['submitted'] === '00') {
-                $params['submitted'] = '0';
-            }
-        }
-        if (isset($data['undertaken'])) {
-            if ($data['undertaken'] === '0') {
-                $data['undertaken'] = '00';
-            } elseif ($params['undertaken'] === '00') {
-                $params['undertaken'] = '0';
-            }
-        }
-        if (isset($data['validated'])) {
-            if ($data['validated'] === '0') {
-                $data['validated'] = '00';
-            } elseif ($params['validated'] === '00') {
-                $params['validated'] = '0';
-            }
         }
         if (isset($data['resource_template_id']) && is_array($data['resource_template_id'])) {
             $data['resource_template_id'] = empty($data['resource_template_id']) ? '' : reset($data['resource_template_id']);
@@ -164,14 +134,12 @@ class ContributionController extends AbstractActionController
         /** @var \Omeka\Form\ConfirmForm $formDeleteSelected */
         $formDeleteSelected = $this->getForm(ConfirmForm::class);
         $formDeleteSelected
-            ->setAttribute('id', 'confirm-delete-selected')
             ->setAttribute('action', $this->url()->fromRoute('admin/contribution/default', ['action' => 'batch-delete'], true))
             ->setButtonLabel('Confirm Delete'); // @translate
 
         /** @var \Omeka\Form\ConfirmForm $formDeleteAll */
         $formDeleteAll = $this->getForm(ConfirmForm::class);
         $formDeleteAll
-            ->setAttribute('id', 'confirm-delete-all')
             ->setAttribute('action', $this->url()->fromRoute('admin/contribution/default', ['action' => 'batch-delete-all'], true))
             ->setButtonLabel('Confirm Delete'); // @translate
         $formDeleteAll
@@ -1116,9 +1084,7 @@ class ContributionController extends AbstractActionController
         $form->setData($post);
         if (!$form->isValid()) {
             // $this->messenger()->addFormErrors($form);
-            return $this->jSend()->fail([
-                'form' => $form->getMessages(),
-            ]);
+            return $this->jSend()->fail($this->jSend()->flattenFormMessages($form, true));
         }
 
         $data = $form->getData();
