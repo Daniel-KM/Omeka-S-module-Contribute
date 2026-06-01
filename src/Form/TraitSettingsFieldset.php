@@ -141,7 +141,7 @@ trait TraitSettingsFieldset
                 'name' => 'contribute_sender_email',
                 'type' => CommonElement\OptionalEmail::class,
                 'options' => [
-                    'element_group' => 'contact',
+                    'element_group' => 'contribution',
                     'label' => 'Email of the sender (else no-reply user or administrator)', // @translate
                     'info' => 'The no-reply email can be set via module EasyAdmin. The administrator email can be set above.', // @translate
                 ],
@@ -155,7 +155,7 @@ trait TraitSettingsFieldset
                 'name' => 'contribute_sender_name',
                 'type' => Element\Text::class,
                 'options' => [
-                    'element_group' => 'contact',
+                    'element_group' => 'contribution',
                     'label' => 'Name of the sender when email above is set', // @translate
                 ],
                 'attributes' => [
