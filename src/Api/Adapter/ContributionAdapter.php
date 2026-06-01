@@ -59,6 +59,18 @@ class ContributionAdapter extends AbstractEntityAdapter
         return \Contribute\Entity\Contribution::class;
     }
 
+    /**
+     * Build the search query for contributions.
+     *
+     * Filtering by proposal content (property[], filter[],
+     * resource_template_id, resource_class_id) is a partial reimplementation
+     * operating on the JSON `proposal` column, not on the underlying resource.
+     * It covers the most common cases (types eq, res, in) but is not a full
+     * AdvancedSearch DSL port. Unsupported types and unknown top-level
+     * arguments are logged with a warning — check the logs when configuring
+     * queries in settings (e.g. contribute_notify_recipients) or in resource
+     * templates.
+     */
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
         $expr = $qb->expr();
@@ -203,7 +215,60 @@ class ContributionAdapter extends AbstractEntityAdapter
             }
         }
 
-        /** @experimental */
+        // The search on the proposal is used for notifications when resource
+        // template is not enough.
+
+        // Normalize AdvancedSearch `filter[i][field/type/val]` into the
+        // existing `property[]` and `resource_template_id` slots.
+        // Multiple values inside a filter are or; multiple filters are and.
+        // Filters operate on the contribution proposal, not on the underlying
+        // resource.
+        /** @var \Laminas\Log\LoggerInterface $logger */
+        $logger = $this->getServiceLocator()->get('Omeka\Logger');
+
+        if (!empty($query['filter']) && is_array($query['filter'])) {
+            foreach ($query['filter'] as $filterRow) {
+                if (!is_array($filterRow)) {
+                    continue;
+                }
+                $fld = $filterRow['field'] ?? null;
+                $val = $filterRow['val'] ?? null;
+                if ($fld === null || $fld === '' || $val === null || $val === '' || $val === []) {
+                    continue;
+                }
+                $type = $filterRow['type'] ?? 'eq';
+                if (!in_array($type, ['eq', 'res', 'in'], true)) {
+                    $logger->warn((new PsrMessage(
+                        'Contribute search: filter type "{type}" is not supported and is treated as "eq".', // @translate
+                        ['type' => $type]
+                    ))->getMessage(), ['type' => $type]);
+                }
+                if ($fld === 'resource_template_id') {
+                    $vals = is_array($val) ? array_values($val) : [$val];
+                    $query['resource_template_id'] = array_merge(
+                        isset($query['resource_template_id']) && is_array($query['resource_template_id'])
+                        ? $query['resource_template_id']
+                        : (isset($query['resource_template_id']) ? [$query['resource_template_id']] : []),
+                        $vals
+                        );
+                    continue;
+                }
+                if (!preg_match('~^[\w-]+\:[\w-]+$~i', (string) $fld)) {
+                    $logger->warn((new PsrMessage(
+                        'Contribute search: filter field "{field}" is not a valid term and is ignored.', // @translate
+                        ['field' => (string) $fld]
+                    ))->getMessage(), ['field' => (string) $fld]);
+                    continue;
+                }
+                $query['property'][] = [
+                    'property' => $fld,
+                    'type' => in_array($type, ['eq', 'res', 'in'], true) ? ($type === 'in' ? 'eq' : $type) : 'eq',
+                    'text' => is_array($val) ? array_values($val) : $val,
+                ];
+            }
+            unset($query['filter']);
+        }
+
         if (isset($query['property']) && $query['property'] !== '' && $query['property'] !== []) {
             foreach ($query['property'] as $propertyData) {
                 $property = $propertyData['property'] ?? null;
@@ -218,6 +283,12 @@ class ContributionAdapter extends AbstractEntityAdapter
                         'eq' => '@value',
                         'res' => '@resource',
                     ];
+                    if (!isset($types[$type])) {
+                        $logger->warn((new PsrMessage(
+                            'Contribute search: property type "{type}" is not supported and is treated as "eq".', // @translate
+                            ['type' => $type]
+                        ))->getMessage(), ['type' => $type]);
+                    }
                     $keyType = $types[$type] ?? '@value';
                     $text = $propertyData['text'] ?? null;
                     // Not available in orm, but via direct dbal sql.
@@ -259,6 +330,24 @@ class ContributionAdapter extends AbstractEntityAdapter
                 'omeka_root.proposal',
                 $this->createNamedParameter($qb, '%' . strtr($query['fulltext_search'], ['%' => '\%', '_' => '\_', '\\' => '\\\\']) . '%')
             ));
+        }
+
+        // Warn on unrecognized top-level query keys (silently accepted Omeka
+        // standard keys are excluded). Helps diagnose typos in admin queries
+        // configured via settings (e.g. contribute_notify_recipients).
+        $knownKeys = [
+            'id', 'ids', 'page', 'per_page', 'limit', 'offset',
+            'sort_by', 'sort_order', 'search', 'return_scalar',
+            'resource_id', 'owner_id', 'email', 'patch', 'submitted',
+            'undertaken', 'validated', 'token_id', 'created', 'modified',
+            'resource_template_id', 'property', 'fulltext_search',
+        ];
+        $unknownKeys = array_diff(array_keys($query), $knownKeys);
+        if ($unknownKeys) {
+            $logger->warn((new PsrMessage(
+                'Contribute search: ignored unsupported query arguments: {keys}.', // @translate
+                ['keys' => implode(', ', $unknownKeys)]
+            ))->getMessage(), ['keys' => $unknownKeys]);
         }
     }
 

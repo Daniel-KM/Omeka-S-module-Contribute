@@ -1006,6 +1006,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
 
     /**
      * Check if the proposal matches a resource-like query.
+     *
+     * The query is evaluated against the contribution proposal (the JSON stored
+     * in column `proposal`), not against the underlying resource. Supports both
+     * legacy `property[]` and AdvancedSearch `filter[]` DSLs, normalized by
+     * ContributionAdapter::buildQuery().
      */
     public function match($query): bool
     {
@@ -1023,84 +1028,11 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             return true;
         }
 
-        /** @var \Common\Stdlib\EasyMeta $easyMeta */
-        $services = $this->getServiceLocator();
-        $easyMeta = $services->get('Common\EasyMeta');
-        $propertyIds = $easyMeta->propertyIds();
-
-        $resourceData = $this->proposalToResourceData();
-
-        foreach ($query as $field => $value) {
-            if ($value === '' || $value === null || $value === []) {
-                continue;
-            }
-
-            if ($field === 'resource_template_id') {
-                $current = $resourceData['o:resource_template']['o:id'] ?? null;
-                $vals = is_array($value) ? $value : [$value];
-                if (!in_array($current, $vals)) {
-                    return false;
-                }
-            }
-
-            if ($field === 'resource_class_id') {
-                $current = $resourceData['o:resource_class']['o:id'] ?? null;
-                $vals = is_array($value) ? $value : [$value];
-                if (!in_array($current, $vals)) {
-                    return false;
-                }
-            }
-
-            // TODO Currently, only "eq" is managed.
-            if ($field === 'property') {
-                if (!is_array($value)) {
-                    return false;
-                }
-                foreach ($value as $propertyQuery) {
-                    $prop = $propertyQuery['property'] ?? null;
-                    if (empty($prop)) {
-                        return false;
-                    }
-                    if (is_numeric($prop)) {
-                        $prop = array_search($prop, $propertyIds);
-                        if (!$prop) {
-                            return false;
-                        }
-                    } elseif (!isset($prop, $propertyIds)) {
-                        return false;
-                    }
-                    if (!isset($resourceData[$prop])) {
-                        return false;
-                    }
-                    $text = $propertyQuery['text'];
-                    if ($text === '' || $text === null || $text === []) {
-                        return false;
-                    }
-                    $texts = is_array($text) ? array_values($text) : [$text];
-                    $resourceDataValues = [];
-                    foreach ($resourceData[$prop] as $resourceDataValue) {
-                        if (isset($resourceDataValue['@value'])) {
-                            $resourceDataValues[] = $resourceDataValue['@value'];
-                        }
-                        if (isset($resourceDataValue['@id'])) {
-                            $resourceDataValues[] = $resourceDataValue['@id'];
-                        }
-                        if (isset($resourceDataValue['value_resource_id'])) {
-                            $resourceDataValues[] = $resourceDataValue['value_resource_id'];
-                        }
-                        if (isset($resourceDataValue['o:label'])) {
-                            $resourceDataValues[] = $resourceDataValue['o:label'];
-                        }
-                    }
-                    // TODO Manage "and".
-                    if (!array_intersect($texts, $resourceDataValues)) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
+        $query['id'] = $this->id();
+        $query['limit'] = 0;
+        $response = $this->getServiceLocator()->get('Omeka\ApiManager')
+            ->search('contributions', $query);
+        return $response->getTotalResults() > 0;
     }
 
     /**

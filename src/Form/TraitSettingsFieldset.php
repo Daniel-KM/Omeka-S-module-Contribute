@@ -171,7 +171,7 @@ trait TraitSettingsFieldset
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Emails to notify contributions', // @translate
-                    'info' => 'A query can be appended to limit notifications to specific contributions.', // @translate
+                    'info' => 'A query can be appended to limit notifications to specific contributions. The query supports resource_template_id, resource_class_id, property[] and the AdvancedSearch filter[] DSL (types eq, res, in), and operates on the contribution proposal (not the underlying resource). Coverage is partial but handles the most common cases; unsupported types or arguments are logged with a warning, so check the logs after configuring a query.', // @translate
                     'as_key_value' => true,
                 ],
                 'attributes' => [
