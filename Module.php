@@ -100,7 +100,7 @@ class Module extends AbstractModule
             ->groupBy('`resource_template`.`id`')
             ->orderBy('`resource_template`.`label`', 'asc')
         ;
-        $templateIdsByLabels = $connection->executeQuery($qb)->fetchAllKeyValue();
+        $templateIdsByLabels = $connection->executeQuery($qb->getSQL())->fetchAllKeyValue();
 
         $templateFileIds = array_intersect_key($templateIdsByLabels, ['Contribution File']);
         $templateItemIds = array_intersect_key($templateIdsByLabels, ['Contribution']);

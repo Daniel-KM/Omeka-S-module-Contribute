@@ -319,7 +319,7 @@ if (version_compare($oldVersion, '3.4.29', '<')) {
         ->select('id', 'data')
         ->from('resource_template_data', 'resource_template_data')
         ->orderBy('id', 'asc');
-    $templateDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    $templateDatas = $connection->executeQuery($qb->getSQL())->fetchAllKeyValue();
     foreach ($templateDatas as $id => $templateData) {
         $templateData = json_decode($templateData, true) ?: [];
         if (array_key_exists('contribute_template_media', $templateData)
