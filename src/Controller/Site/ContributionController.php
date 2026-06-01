@@ -134,6 +134,7 @@ class ContributionController extends AbstractActionController
             'item' => 'items',
             'media' => 'media',
             'item-set' => 'item_sets',
+            'digital-object' => 'digital_objects',
         ];
         // Useless, because managed by route, but the config may be overridden.
         if (!isset($resourceTypeMap[$resourceType])) {
@@ -491,6 +492,7 @@ class ContributionController extends AbstractActionController
             'item' => 'items',
             'media' => 'media',
             'item-set' => 'item_sets',
+            'digital-object' => 'digital_objects',
         ];
         // Useless, because managed by route, but the config may be overridden.
         if (!isset($resourceTypeMap[$resourceType])) {
@@ -841,6 +843,7 @@ class ContributionController extends AbstractActionController
             'item' => 'items',
             'media' => 'media',
             'item-set' => 'item_sets',
+            'digital-object' => 'digital_objects',
         ];
         // Useless, because managed by route, but the config may be overridden.
         if (!isset($resourceTypeMap[$resourceType])) {

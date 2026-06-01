@@ -83,6 +83,22 @@ class ContributionRepresentation extends AbstractEntityRepresentation
         ];
     }
 
+    public function primaryMedia()
+    {
+        $resource = $this->resource();
+        if (!$resource) {
+            return null;
+        }
+        $primary = $resource->primaryMedia();
+        if ($primary) {
+            return $primary;
+        }
+        $eventManager = $this->getEventManager();
+        $args = $eventManager->prepareArgs(['resource' => $resource, 'primary' => null]);
+        $eventManager->trigger('rep.resource.primary_media', $this, $args);
+        return $args['primary'];
+    }
+
     public function resource(): ?\Omeka\Api\Representation\AbstractResourceEntityRepresentation
     {
         if ($this->contributionResource === false) {
