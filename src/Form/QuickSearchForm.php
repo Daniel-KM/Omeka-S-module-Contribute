@@ -2,6 +2,7 @@
 
 namespace Contribute\Form;
 
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
 use Laminas\View\Helper\Url;
@@ -26,6 +27,7 @@ class QuickSearchForm extends Form
     public function init(): void
     {
         $this->setAttribute('method', 'get');
+        $this->setAttribute('id', 'quick-search-form');
 
         // No csrf: see main search form.
         $this->remove('csrf');
@@ -76,13 +78,16 @@ class QuickSearchForm extends Form
         if ($this->hasBothPatchTypes) {
             $this->add([
                 'name' => 'patch',
-                'type' => Element\Radio::class,
+                'type' => CommonElement\OptionalRadio::class,
                 'options' => [
                     'label' => 'Type of contribution', // @translate
+                    'label_attributes' => [
+                        'style' => 'display: inline; margin-right: 1em;',
+                    ],
                     'value_options' => [
-                        '' => 'Any', // @translate
+                        '' => 'All', // @translate
+                        '0' => 'Full contribution', // @translate
                         '1' => 'Correction', // @translate
-                        '00' => 'Full contribution', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -94,13 +99,16 @@ class QuickSearchForm extends Form
 
         $this->add([
                 'name' => 'submitted',
-                'type' => Element\Radio::class,
+                'type' => CommonElement\OptionalRadio::class,
                 'options' => [
                     'label' => 'Submitted', // @translate
+                    'label_attributes' => [
+                        'style' => 'display: inline; margin-right: 1em;',
+                    ],
                     'value_options' => [
-                        '' => 'Any', // @translate
+                        '' => 'All', // @translate
+                        '0' => 'No', // @translate
                         '1' => 'Yes', // @translate
-                        '00' => 'No', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -110,13 +118,16 @@ class QuickSearchForm extends Form
             ])
             ->add([
                 'name' => 'undertaken',
-                'type' => Element\Radio::class,
+                'type' => CommonElement\OptionalRadio::class,
                 'options' => [
                     'label' => 'Undertaken', // @translate
+                    'label_attributes' => [
+                        'style' => 'display: inline; margin-right: 1em;',
+                    ],
                     'value_options' => [
-                        '' => 'Any', // @translate
+                        '' => 'All', // @translate
+                        '0' => 'No', // @translate
                         '1' => 'Yes', // @translate
-                        '00' => 'No', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -126,14 +137,17 @@ class QuickSearchForm extends Form
             ])
             ->add([
                 'name' => 'validated',
-                'type' => Element\Radio::class,
+                'type' => CommonElement\OptionalRadio::class,
                 'options' => [
                     'label' => 'Validated', // @translate
+                    'label_attributes' => [
+                        'style' => 'display: inline; margin-right: 1em;',
+                    ],
                     'value_options' => [
-                        '' => 'Any', // @translate
-                        'null' => 'Undetermined', // @translate
+                        '' => 'All', // @translate
+                        '0' => 'No', // @translate
                         '1' => 'Yes', // @translate
-                        '00' => 'No', // @translate
+                        'null' => 'Undetermined', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -200,11 +214,14 @@ class QuickSearchForm extends Form
 
             ->add([
                 'name' => 'submit',
-                'type' => Element\Submit::class,
+                'type' => Element\Button::class,
+                'options' => [
+                    'label' => 'Search', // @translate
+                ],
                 'attributes' => [
                     'id' => 'submit',
-                    'value' => 'Search', // @translate
                     'type' => 'submit',
+                    'class' => 'button',
                 ],
             ]);
 

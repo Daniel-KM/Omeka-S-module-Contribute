@@ -263,24 +263,5 @@
             return re.test(email);
         }
 
-        /****
-         * Other.
-         */
-
-        /**
-         * Search sidebar.
-         */
-        $('#content').on('click', '.button-sidebar-search', function(e) {
-            e.preventDefault();
-            const sidebar = $('#sidebar-search');
-            Omeka.openSidebar(sidebar);
-
-            $('body').one('o:sidebar-opened', '.sidebar', function () {
-                if (!sidebar.is(this)) {
-                    Omeka.closeSidebar(sidebar);
-                }
-            });
-        });
-
     });
 })(jQuery);
