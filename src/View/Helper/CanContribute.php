@@ -60,7 +60,7 @@ class CanContribute extends AbstractHelper
          */
         $view = $this->getView();
         $user = $view->identity();
-        if ($resourceTemplate) {
+        if ($resourceTemplate && method_exists($resourceTemplate, 'dataValue')) {
             $contributable = $resourceTemplate->dataValue('contribute_template_contributable');
             if ($contributable !== 'global' && $contributable !== 'specific') {
                 return false;

@@ -62,7 +62,7 @@ class ContributionLink extends AbstractHelper
         if ($resource) {
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplate */
             $resourceTemplate = $resource->resourceTemplate();
-            if ($resourceTemplate) {
+            if ($resourceTemplate && method_exists($resourceTemplate, 'dataValue')) {
                 $contributable = $resourceTemplate->dataValue('contribute_template_contributable');
                 $isEditable = $contributable === 'global' || $contributable === 'specific';
             }

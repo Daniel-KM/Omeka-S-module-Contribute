@@ -599,7 +599,7 @@ class Module extends AbstractModule
         $resource = $view->resource;
 
         $template = $resource->resourceTemplate();
-        if (!$template) {
+        if (!$template || !method_exists($template, 'dataValue')) {
             return;
         }
 
@@ -935,6 +935,10 @@ class Module extends AbstractModule
      */
     protected function mergeMainAndTemplateSettings(): void
     {
+        if (!class_exists('AdvancedResourceTemplate\Module', false)) {
+            return;
+        }
+
         /**
          * @var \Omeka\Api\Manager $api
          * @var \Omeka\Settings\Settings $settings
