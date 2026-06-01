@@ -1,7 +1,13 @@
 @media all {
+    .section-nav {
+        height: initial;
+        min-height: 42px;
+    }
+
     header nav .contribution:before {
         content: "\f044"; /* fas fa-edit */
     }
+
     .contributions .no-resources:before,
     #contribution .no-contributions:before,
     .contribution .no-resources:before {
