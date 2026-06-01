@@ -184,6 +184,36 @@ class ContributionAdapter extends AbstractEntityAdapter
             ));
         }
 
+        // Resolve resource_class_id to the set of templates using that class,
+        // since the proposal JSON stores only the template id, not the class.
+        if (isset($query['resource_class_id']) && $query['resource_class_id'] !== '' && $query['resource_class_id'] !== []) {
+            $classIds = is_array($query['resource_class_id']) ? $query['resource_class_id'] : [$query['resource_class_id']];
+            $classIds = array_filter(array_map('intval', $classIds));
+            if ($classIds) {
+                $templateIds = $this->getServiceLocator()->get('Omeka\ApiManager')
+                    ->search('resource_templates', ['resource_class_id' => $classIds], ['returnScalar' => 'id'])
+                    ->getContent();
+                $templateIds = array_map('intval', array_values($templateIds));
+                if (!$templateIds) {
+                    $qb->andWhere($expr->eq(
+                        'omeka_root.id',
+                        $this->createNamedParameter($qb, 0)
+                    ));
+                } else {
+                    $existing = $query['resource_template_id'] ?? null;
+                    if ($existing === null || $existing === '' || $existing === []) {
+                        $query['resource_template_id'] = $templateIds;
+                    } else {
+                        $query['resource_template_id'] = array_values(array_intersect(
+                            is_array($existing) ? $existing : [$existing],
+                            $templateIds
+                        )) ?: [0];
+                    }
+                }
+            }
+            unset($query['resource_class_id']);
+        }
+
         if (isset($query['resource_template_id']) && $query['resource_template_id'] !== '' && $query['resource_template_id'] !== []) {
             $ids = $query['resource_template_id'];
             if (!is_array($ids)) {
@@ -243,14 +273,14 @@ class ContributionAdapter extends AbstractEntityAdapter
                         ['type' => $type]
                     ))->getMessage(), ['type' => $type]);
                 }
-                if ($fld === 'resource_template_id') {
+                if ($fld === 'resource_template_id' || $fld === 'resource_class_id') {
                     $vals = is_array($val) ? array_values($val) : [$val];
-                    $query['resource_template_id'] = array_merge(
-                        isset($query['resource_template_id']) && is_array($query['resource_template_id'])
-                        ? $query['resource_template_id']
-                        : (isset($query['resource_template_id']) ? [$query['resource_template_id']] : []),
+                    $query[$fld] = array_merge(
+                        isset($query[$fld]) && is_array($query[$fld])
+                            ? $query[$fld]
+                            : (isset($query[$fld]) ? [$query[$fld]] : []),
                         $vals
-                        );
+                    );
                     continue;
                 }
                 if (!preg_match('~^[\w-]+\:[\w-]+$~i', (string) $fld)) {
@@ -340,7 +370,7 @@ class ContributionAdapter extends AbstractEntityAdapter
             'sort_by', 'sort_order', 'search', 'return_scalar',
             'resource_id', 'owner_id', 'email', 'patch', 'submitted',
             'undertaken', 'validated', 'token_id', 'created', 'modified',
-            'resource_template_id', 'property', 'fulltext_search',
+            'resource_template_id', 'resource_class_id', 'property', 'fulltext_search',
         ];
         $unknownKeys = array_diff(array_keys($query), $knownKeys);
         if ($unknownKeys) {
