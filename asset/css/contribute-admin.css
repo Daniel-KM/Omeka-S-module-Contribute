@@ -91,27 +91,43 @@
         float: right;
     }
 
-    .contribution .actions {
+    tr.contribution .actions {
         float: right;
         display: flex;
-        li {
-            display: inline;
-            .no-action,
-            .single-action {
-                padding-left: initial;
-             }
-        }
+        align-items: center;
+        gap: 2px;
     }
-
-    .actions .no-action,
-    .actions .no-action::before {
-      width: 24px;
-      height: 24px;
-      line-height: 24px;
-      vertical-align: top;
-      border: 0;
-      box-shadow: none;
-      text-align: right;
+    tr.contribution .actions li {
+        display: flex;
+        margin: 0;
+        padding: 0;
+    }
+    /* Normalize every action (submitted flag span, toggle/dialog buttons,
+       edit/delete/more links) to the same square box so the icons align and the
+       spacing between them is even. */
+    tr.contribution .actions .no-action,
+    tr.contribution .actions .single-action,
+    tr.contribution .actions > li > a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        line-height: 24px;
+    }
+    /* Center the glyph whether it is on the element itself (links) or on a
+       nested span (buttons and the flag). */
+    tr.contribution .actions .no-action::before,
+    tr.contribution .actions .single-action::before,
+    tr.contribution .actions > li > a::before,
+    tr.contribution .actions .fas::before {
+        width: 100%;
+        text-align: center;
     }
 
     .contribution.meta-group span,
@@ -131,21 +147,21 @@
         content: ""; /* media */
     }
     .contribution .o-icon-not-submitted::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* bookmark */
         opacity: 0.5;
     }
     .contribution .o-icon-submitted::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* bookmark */
         opacity: 0.5;
     }
     .contribution .o-icon-not-undertaken::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* question */
     }
     .contribution .o-icon-undertaken::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* inbox */
     }
     .contribution .o-icon-undetermined::before {
@@ -153,11 +169,11 @@
         content: ""; /* question */
     }
     .contribution .o-icon-not-validated::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* cancel */
     }
     .contribution .o-icon-validated::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* check */
     }
     .contribution .o-icon-proposed::before {
@@ -165,11 +181,11 @@
         content: ""; /* question */
     }
     .contribution .o-icon-approve::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* check */
     }
     .contribution .o-icon-not-approve::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* cancel */
     }
     .contribution .o-icon-validate-value::before {
@@ -181,24 +197,24 @@
         content: "\f359"; /* arrow left */
     }
     .contribution .o-icon-validated-value::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* check */
     }
     .contribution .o-icon-not-validated-value::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* cancel */
     }
     .contribution .o-icon-expire-token::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* clock */
     }
     .contribution .o-icon-expired-token::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* clock */
         opacity: 0.4;
     }
     .contribution .o-icon-no-token::before {
-        color: #00FF00;
+        color: #2A7D2A;
         content: ""; /* infinity */
         opacity: 0.4;
     }
@@ -208,7 +224,7 @@
         content: ""; /* exclamation */
     }
     .contribution .o-icon-undefined::before {
-        color: #FF0000;
+        color: #A91919;
         content: ""; /* exclamation */
     }
     .contribution .o-icon-none::before {
@@ -303,23 +319,12 @@
         width: inherit;
     }
 
-    dialog.dialog-send-message {
-        width: inherit;
-    }
-    dialog button[name=submit],
-    dialog input[name=submit],
-    dialog .dialog-header-close-button {
-        float: right;
-    }
     dialog.dialog-send-message label.required::after {
         display: none;
     }
     form#contribute-send-message-form > div:last-child,
     form#contribute-send-message-form #submit_field {
         background-color: #fff;
-        .field-meta {
-            display: none;
-        }
     }
 }
 

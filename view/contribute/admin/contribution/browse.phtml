@@ -150,7 +150,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                         <li>
                             <button type="button"
                                 class="single-action button-dialog-common send-message"
-                                data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
+                                aria-haspopup="dialog" aria-controls="dialog-contribute-send" data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
                                 data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'send-message', 'id' => $contribution->id()], true)) ?>"
                                 aria-label="<?= $v = $escape($translate('Send a message to the author')) ?>"
                                 title="<?= $v ?>"><span class="fas o-icon- fa-envelope"></span></button>
@@ -166,7 +166,7 @@ $userIsAllowedToCreateResource = $this->userIsAllowed(\Omeka\Api\Adapter\ItemAda
                         <li>
                             <button type="button"
                                 class="single-action jsend-action create-resource"
-                                data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
+                                aria-haspopup="dialog" aria-controls="dialog-contribute-send" data-dialog-selector="dialog.dialog-send-message.dialog-contribute"
                                 data-url="<?= $escapeAttr($url('admin/contribution/id', ['action' => 'create-resource', 'id' => $contribution->id()], true)) ?>"
                                 aria-label="<?= $v = $escape($translate('Create resource to be validated')) ?>"
                                 title="<?= $v ?>"><span class="fas o-icon-add"></span></button>

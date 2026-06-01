@@ -13,16 +13,20 @@ $translate = $plugins->get('translate');
 $form->prepare();
 ?>
 
-<dialog class="popup popup-dialog dialog-send-message dialog-contribute">
+<dialog id="dialog-contribute-send" class="popup popup-dialog dialog-form dialog-send-message dialog-contribute" aria-labelledby="dialog-contribute-send-heading">
     <div class="dialog-background">
         <div class="dialog-panel">
             <div class="dialog-header">
-                <button type="button" class="dialog-header-close-button" title="<?= $translate('Close') ?>" autofocus="autofocus">
-                    <span class="dialog-close">🗙</span>
+                <button type="button" class="dialog-header-close-button">
+                    <span class="dialog-close" aria-hidden="true">🗙</span>
+                    <span class="dialog-close-label"><?= $this->translate('Close') ?></span>
                 </button>
             </div>
             <div class="dialog-contents">
-                <?= $this->form($form) ?>
+                <h2 id="dialog-contribute-send-heading" class="dialog-heading"><?= $translate('Send message to contributor') ?></h2>
+                <div class="dialog-body">
+                    <?= $this->form($form) ?>
+                </div>
             </div>
         </div>
     </div>
