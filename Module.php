@@ -10,6 +10,8 @@ if (!class_exists('Common\TraitModule', false)) {
 
 use Common\Stdlib\PsrMessage;
 use Common\TraitModule;
+use Contribute\Entity\Contribution;
+use Contribute\Entity\ContributionFile;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
@@ -348,6 +350,18 @@ class Module extends AbstractModule
             'api.hydrate.post',
             [$this, 'handleValidateContribution'],
             -1000
+        );
+
+        // Keep the table of the stored files synchronized with the proposals.
+        $sharedEventManager->attach(
+            \Contribute\Api\Adapter\ContributionAdapter::class,
+            'api.create.post',
+            [$this, 'handleContributionSaved']
+        );
+        $sharedEventManager->attach(
+            \Contribute\Api\Adapter\ContributionAdapter::class,
+            'api.update.post',
+            [$this, 'handleContributionSaved']
         );
 
         // Link to edit form on item/show page.
@@ -840,6 +854,121 @@ class Module extends AbstractModule
     /**
      * Delete all files associated with a removed Contribution entity.
      *
+     * Synchronize the table of the stored files with the saved proposal.
+     */
+    public function handleContributionSaved(Event $event): void
+    {
+        /** @var \Omeka\Api\Response $response */
+        $response = $event->getParam('response');
+        $contribution = $response ? $response->getContent() : null;
+        if (!$contribution instanceof \Contribute\Entity\Contribution || !$contribution->getId()) {
+            return;
+        }
+        $this->syncContributionFiles($contribution);
+        $this->getServiceLocator()->get('Omeka\EntityManager')->flush();
+    }
+
+    /**
+     * Synchronize the indexed files of a contribution from its proposal.
+     *
+     * The entity ContributionFile is a plain index of the files referenced by
+     * the proposal, used to clean the directory files/contribution safely and
+     * to check the integrity of the stored files. The proposal remains the
+     * source of truth. The collection is diffed to keep the existing rows
+     * (in particular their creation date) and to avoid useless churn.
+     *
+     * The caller must flush the entity manager.
+     */
+    public function syncContributionFiles(Contribution $contribution): void
+    {
+        $services = $this->getServiceLocator();
+        $entityManager = $services->get('Omeka\EntityManager');
+        $basePath = $services->get('Config')['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+
+        $desired = $this->contributionFileData($contribution->getProposal() ?: [], $basePath);
+
+        // Index the existing files by store.
+        $existing = [];
+        foreach ($contribution->getFiles() as $file) {
+            $existing[$file->getStore()] = $file;
+        }
+
+        // Remove the files no longer referenced by the proposal.
+        foreach ($existing as $store => $file) {
+            if (!isset($desired[$store])) {
+                $contribution->getFiles()->removeElement($file);
+            }
+        }
+
+        // Add or update the referenced files.
+        foreach ($desired as $store => $data) {
+            $file = $existing[$store] ?? null;
+            if (!$file) {
+                $file = new ContributionFile();
+                $file
+                    ->setContribution($contribution)
+                    ->setStore($store)
+                    ->setCreated(new \DateTime('now'));
+                $contribution->getFiles()->add($file);
+                $entityManager->persist($file);
+            }
+            $file
+                ->setSourceName($data['source_name'])
+                ->setSize($data['size'])
+                ->setSha256($data['sha256']);
+        }
+    }
+
+    /**
+     * Extract the data of the stored files from a proposal, keyed by store.
+     */
+    protected function contributionFileData(array $proposal, string $basePath): array
+    {
+        $files = [];
+        $extractFile = function (array $fileData) use (&$files, $basePath): void {
+            $store = $fileData['proposed']['store'] ?? null;
+            // Forbid path traversal for security.
+            if (!is_string($store)
+                || !strlen($store)
+                || strpos($store, '..') !== false
+                || strpos($store, '/') === 0
+            ) {
+                return;
+            }
+            $size = $fileData['proposed']['size'] ?? null;
+            $sha256 = $fileData['proposed']['sha256'] ?? null;
+            if ($sha256 === null) {
+                $path = $basePath . '/contribution/' . $store;
+                if (file_exists($path) && is_file($path)) {
+                    $size = filesize($path);
+                    $sha256 = hash_file('sha256', $path);
+                }
+            }
+            $sourceName = $fileData['proposed']['@value'] ?? null;
+            $files[$store] = [
+                'source_name' => is_string($sourceName) ? mb_substr($sourceName, 0, 1000) : null,
+                'size' => is_numeric($size) ? (int) $size : null,
+                'sha256' => is_string($sha256) ? $sha256 : null,
+            ];
+        };
+
+        foreach ($proposal['media'] ?? [] as $mediaFiles) {
+            foreach ($mediaFiles['file'] ?? [] as $fileData) {
+                if (is_array($fileData)) {
+                    $extractFile($fileData);
+                }
+            }
+        }
+        foreach ($proposal['file'] ?? [] as $fileData) {
+            if (is_array($fileData)) {
+                $extractFile($fileData);
+            }
+        }
+
+        return $files;
+    }
+
+    /**
      * Processed via an event to be sure that the contribution is removed.
      */
     public function deleteContributionFiles(Event $event): void
@@ -907,44 +1036,15 @@ class Module extends AbstractModule
         // The entity is flushed, so it is possible to remove all remaining
         // files (after update or deletion of a proposal). It is simpler to
         // manage globally than individually because the storage reference is
-        // removed currently.
-        // TODO Add a column for files.
-        // Files can be stored at two locations in the proposal:
-        // - $.media[*].file[*].proposed.store (nested in media for item
-        // contributions) - $.file[*].proposed.store (root level for media
-        // contributions) The keys of "media" and "file" may not be sequential,
-        // in which case they are encoded as json objects, not arrays, so the
-        // wildcard "[*]" does not match them and the wildcard ".*" is required.
-        // All variants are checked to avoid to remove files of valid
-        // contributions.
-        $jsonPaths = [
-            '$.media[*].file[*].proposed.store',
-            '$.media[*].file.*.proposed.store',
-            '$.media.*.file[*].proposed.store',
-            '$.media.*.file.*.proposed.store',
-            '$.file[*].proposed.store',
-            '$.file.*.proposed.store',
-        ];
+        // removed currently. The table contribution_file indexes the files
+        // referenced by the proposals, synchronized on each save, so the
+        // parsing of the json proposals is no longer needed. The rows of the
+        // removed contribution are already deleted in cascade.
         /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
-        $storeds = [];
-        foreach ($jsonPaths as $jsonPath) {
-            $sql = <<<SQL
-                SELECT
-                    JSON_EXTRACT( proposal, "$jsonPath" ) AS proposal_json
-                FROM contribution
-                HAVING proposal_json IS NOT NULL;
-                SQL;
-            $stored = $connection->executeQuery($sql)->fetchFirstColumn();
-            $stored = array_map('json_decode', $stored);
-            // A scalar may be returned instead of an array in some cases, so
-            // wrap it to keep the file protected in any case.
-            $stored = array_map(fn ($v) => is_array($v) ? $v : (is_string($v) ? [$v] : []), $stored);
-            if ($stored) {
-                $storeds = array_merge($storeds, ...array_values($stored));
-            }
-        }
-        $storeds = array_unique(array_filter($storeds, 'is_string'));
+        $storeds = $connection
+            ->executeQuery('SELECT DISTINCT `store` FROM `contribution_file`')
+            ->fetchFirstColumn();
 
         // TODO Scan dir is local store only for now.
         // Keep the files uploaded less than one hour ago: a concurrent

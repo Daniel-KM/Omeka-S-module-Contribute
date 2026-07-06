@@ -33,7 +33,21 @@ CREATE TABLE `contribution_token` (
     PRIMARY KEY(`id`)
 ) DEFAULT CHARACTER SET `utf8mb4` COLLATE `utf8mb4_unicode_ci` ENGINE = `InnoDB`;
 
+CREATE TABLE `contribution_file` (
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `contribution_id` INT NOT NULL,
+    `store` VARCHAR(190) NOT NULL,
+    `source_name` VARCHAR(1000) DEFAULT NULL,
+    `size` BIGINT DEFAULT NULL,
+    `sha256` CHAR(64) DEFAULT NULL,
+    `created` DATETIME NOT NULL,
+    INDEX `IDX_contribution_file_contribution` (`contribution_id`),
+    INDEX `contribution_file_store_idx` (`store`),
+    PRIMARY KEY(`id`)
+) DEFAULT CHARACTER SET `utf8mb4` COLLATE `utf8mb4_unicode_ci` ENGINE = `InnoDB`;
+
 ALTER TABLE `contribution` ADD CONSTRAINT `FK_EA351E1589329D25` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`) ON DELETE SET NULL;
 ALTER TABLE `contribution` ADD CONSTRAINT `FK_EA351E157E3C61F9` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
 ALTER TABLE `contribution` ADD CONSTRAINT `FK_EA351E1541DEE7B9` FOREIGN KEY (`token_id`) REFERENCES `contribution_token` (`id`) ON DELETE SET NULL;
 ALTER TABLE `contribution_token` ADD CONSTRAINT `FK_3A44AA8989329D25` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`) ON DELETE CASCADE;
+ALTER TABLE `contribution_file` ADD CONSTRAINT `FK_contribution_file_contribution` FOREIGN KEY (`contribution_id`) REFERENCES `contribution` (`id`) ON DELETE CASCADE;

@@ -30,6 +30,8 @@
 namespace Contribute\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\Resource;
 use Omeka\Entity\User;
@@ -176,6 +178,20 @@ class Contribution extends AbstractEntity
     protected $token;
 
     /**
+     * Index of the files referenced by the proposal, synchronized on each save.
+     *
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @OneToMany(
+     *     targetEntity="ContributionFile",
+     *     mappedBy="contribution",
+     *     cascade={"persist", "remove"},
+     *     orphanRemoval=true
+     * )
+     */
+    protected $files;
+
+    /**
      * @var DateTime
      *
      * @Column(
@@ -194,9 +210,19 @@ class Contribution extends AbstractEntity
      */
     protected $modified;
 
+    public function __construct()
+    {
+        $this->files = new ArrayCollection();
+    }
+
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getFiles(): Collection
+    {
+        return $this->files;
     }
 
     public function setResource(?Resource $resource): self
