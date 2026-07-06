@@ -621,3 +621,237 @@ if (version_compare($oldVersion, '3.4.36', '<')) {
     );
     $messenger->addNotice($message);
 }
+
+if (version_compare($oldVersion, '3.4.39', '<')) {
+    // Since 2022-03-21, two related issues may have broken files of pending
+    // contributions.
+    // First, on each submission, the files were copied inside files/original
+    // with a random name, but the resource was not persisted, so these copies
+    // are orphan files.
+    // Second, when any contribution was deleted, the cleaning of the directory
+    // files/contribution removed files of valid contributions whose proposal
+    // was encoded with a json object instead of a json array, because the
+    // wildcard "[*]" does not match json objects.
+    // So recover the missing files of the pending contributions from the orphan
+    // copies of files/original, then remove the remaining orphan files and
+    // their thumbnails.
+    $store = $services->get('Omeka\File\Store');
+    if (!$store instanceof \Omeka\File\Store\Local) {
+        $message = new PsrMessage(
+            'The file store is not local: the recovery of the files of pending contributions and the cleaning of orphan files inside files/original cannot be processed automatically. Check them manually.' // @translate
+        );
+        $messenger->addWarning($message);
+        $logger->warn((string) $message->setTranslator($translator));
+    } else {
+        $config = $services->get('Config');
+        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+        $originalPath = $basePath . '/original';
+        $contributionPath = $basePath . '/contribution';
+
+        // List the storage ids of all valid medias to determine orphan files.
+        // The storage id may contain a directory (module ArchiveRepertory), so
+        // compare full relative paths.
+        $referenceds = $connection
+            ->executeQuery('SELECT `storage_id` FROM `media` WHERE `storage_id` IS NOT NULL')
+            ->fetchFirstColumn();
+        $referenceds = array_fill_keys($referenceds, true);
+
+        // List the orphan files of files/original with their modification time,
+        // that is the time of the submission that created them.
+        $orphans = [];
+        if (file_exists($originalPath) && is_dir($originalPath)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($originalPath, \FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $fileinfo) {
+                if (!$fileinfo->isFile()) {
+                    continue;
+                }
+                $relativePath = ltrim(substr($fileinfo->getPathname(), strlen($originalPath)), '/');
+                $extension = strtolower(pathinfo($relativePath, PATHINFO_EXTENSION));
+                $storageId = strlen($extension)
+                    ? substr($relativePath, 0, -strlen($extension) - 1)
+                    : $relativePath;
+                if (!isset($referenceds[$storageId])) {
+                    $orphans[$relativePath] = [
+                        'path' => $fileinfo->getPathname(),
+                        'storage_id' => $storageId,
+                        'extension' => $extension,
+                        'mtime' => $fileinfo->getMTime(),
+                        'used' => false,
+                    ];
+                }
+            }
+        }
+
+        // Recover the missing files of the pending contributions: for each
+        // missing stored file, search the orphan files created during the last
+        // submission (same modification time) with the same extension. The
+        // match is done in order for multiple files with the same extension, so
+        // it may need a manual check.
+        $extractStores = function (array $proposal): array {
+            $stores = [];
+            foreach ($proposal['media'] ?? [] as $mediaFiles) {
+                foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
+                    if (!empty($mediaFile['proposed']['store'])) {
+                        $stores[] = (string) $mediaFile['proposed']['store'];
+                    }
+                }
+            }
+            foreach ($proposal['file'] ?? [] as $mediaFile) {
+                if (!empty($mediaFile['proposed']['store'])) {
+                    $stores[] = (string) $mediaFile['proposed']['store'];
+                }
+            }
+            return $stores;
+        };
+
+        // Depending on the installations, the datetimes may be stored in the
+        // database in utc or in another time zone, that may differ from the
+        // file system times. So calibrate the offset empirically: the date
+        // "created" of the existing medias matches the modification time of
+        // their original file, so the median of the differences gives the real
+        // offset, without hypothesis on time zones. The median is robust
+        // against files whose modification time was changed by a copy of the
+        // server or a restoration of a backup.
+        // The column "created" is on the parent table "resource", not on the
+        // table "media" (joined table inheritance).
+        $timeOffset = 0;
+        $medias = $connection
+            ->executeQuery('SELECT `media`.`storage_id`, `media`.`extension`, `resource`.`created` FROM `media` INNER JOIN `resource` ON `resource`.`id` = `media`.`id` WHERE `media`.`storage_id` IS NOT NULL AND `media`.`has_original` = 1 ORDER BY `media`.`id` DESC LIMIT 200')
+            ->fetchAllAssociative();
+        $timeOffsets = [];
+        foreach ($medias as $media) {
+            $mediaPath = $originalPath . '/' . $media['storage_id']
+                . (strlen((string) $media['extension']) ? '.' . $media['extension'] : '');
+            if (file_exists($mediaPath)) {
+                $timeOffsets[] = filemtime($mediaPath) - strtotime($media['created']);
+            }
+        }
+        if ($timeOffsets) {
+            sort($timeOffsets);
+            $timeOffset = $timeOffsets[intdiv(count($timeOffsets), 2)];
+        }
+
+        $recovereds = 0;
+        $contributionsToCheck = [];
+        $contributionsLost = [];
+        $contributions = $connection
+            ->executeQuery('SELECT `id`, `proposal`, `created`, `modified` FROM `contribution` WHERE `resource_id` IS NULL AND `proposal` LIKE \'%"store"%\' ORDER BY `id` ASC')
+            ->fetchAllAssociative();
+        foreach ($contributions as $contribution) {
+            $proposal = json_decode($contribution['proposal'], true) ?: [];
+            $stores = $extractStores($proposal);
+            $missings = [];
+            foreach ($stores as $storeName) {
+                // Forbid path traversal for security.
+                if (strpos($storeName, '..') !== false || strpos($storeName, '/') === 0) {
+                    continue;
+                }
+                if (!file_exists($contributionPath . '/' . $storeName)) {
+                    $missings[] = $storeName;
+                }
+            }
+            if (!$missings) {
+                continue;
+            }
+            // The orphan files were created on submission, so around the last
+            // modification of the contribution. Use a large window to manage
+            // slow submissions.
+            $reference = strtotime($contribution['modified'] ?? $contribution['created']) + $timeOffset;
+            $isAmbiguous = false;
+            foreach ($missings as $storeName) {
+                $extension = strtolower(pathinfo($storeName, PATHINFO_EXTENSION));
+                $candidates = array_filter($orphans, fn ($orphan) => !$orphan['used']
+                    && $orphan['extension'] === $extension
+                    && abs($orphan['mtime'] - $reference) <= 3600);
+                if (!$candidates) {
+                    $contributionsLost[$contribution['id']] = $contribution['id'];
+                    continue;
+                }
+                if (count($candidates) > 1) {
+                    $isAmbiguous = true;
+                }
+                // Match the oldest candidate first to keep the original order
+                // of the medias, that are ingested sequentially on submission.
+                uasort($candidates, fn ($a, $b) => $a['mtime'] <=> $b['mtime'] ?: strcmp($a['path'], $b['path']));
+                $candidateKey = array_key_first($candidates);
+                $candidate = $candidates[$candidateKey];
+                if (!is_dir($contributionPath)) {
+                    mkdir($contributionPath, 0775, true);
+                }
+                if (copy($candidate['path'], $contributionPath . '/' . $storeName)) {
+                    $orphans[$candidateKey]['used'] = true;
+                    ++$recovereds;
+                } else {
+                    $contributionsLost[$contribution['id']] = $contribution['id'];
+                }
+            }
+            if ($isAmbiguous) {
+                $contributionsToCheck[$contribution['id']] = $contribution['id'];
+            }
+        }
+
+        if ($recovereds) {
+            $message = new PsrMessage(
+                '{count} files of pending contributions were recovered inside files/contribution from the orphan files of files/original.', // @translate
+                ['count' => $recovereds]
+            );
+            $messenger->addSuccess($message);
+            $logger->notice((string) $message->setTranslator($translator));
+        }
+        if ($contributionsToCheck) {
+            $message = new PsrMessage(
+                'The files of the contributions {ids} were recovered, but multiple files with the same extension were submitted together, so the association between files and medias may be wrong and should be checked manually.', // @translate
+                ['ids' => implode(', ', $contributionsToCheck)]
+            );
+            $messenger->addWarning($message);
+            $logger->warn((string) $message->setTranslator($translator));
+        }
+        if ($contributionsLost) {
+            $message = new PsrMessage(
+                'Some files of the contributions {ids} are missing and could not be recovered. The contributors should be asked to submit their files again.', // @translate
+                ['ids' => implode(', ', $contributionsLost)]
+            );
+            $messenger->addWarning($message);
+            $logger->warn((string) $message->setTranslator($translator));
+        }
+
+        // Remove the remaining orphan files of files/original and their
+        // thumbnails. To avoid to remove files older than the module or created
+        // by another process, only the files created after the first
+        // contribution are removed.
+        $minCreated = $connection
+            ->executeQuery('SELECT MIN(`created`) FROM `contribution`')
+            ->fetchOne();
+        $removeds = 0;
+        if ($minCreated) {
+            $minCreated = strtotime($minCreated) + $timeOffset;
+            $thumbnailTypes = array_keys($config['thumbnails']['types'] ?? []) ?: ['large', 'medium', 'square'];
+            foreach ($orphans as $orphan) {
+                // The recovered files ("used") can be removed too: their
+                // content was copied inside files/contribution above.
+                if (!$orphan['used'] && $orphan['mtime'] < $minCreated) {
+                    continue;
+                }
+                if (@unlink($orphan['path'])) {
+                    ++$removeds;
+                    foreach ($thumbnailTypes as $type) {
+                        $thumbnailPath = $basePath . '/' . $type . '/' . $orphan['storage_id'] . '.jpg';
+                        if (file_exists($thumbnailPath)) {
+                            @unlink($thumbnailPath);
+                        }
+                    }
+                }
+            }
+        }
+        if ($removeds) {
+            $message = new PsrMessage(
+                '{count} orphan files created by submissions of contributions were removed from files/original with their thumbnails.', // @translate
+                ['count' => $removeds]
+            );
+            $messenger->addSuccess($message);
+            $logger->notice((string) $message->setTranslator($translator));
+        }
+    }
+}
