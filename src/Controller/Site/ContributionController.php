@@ -1316,18 +1316,29 @@ class ContributionController extends AbstractActionController
             'media' => [],
         ];
 
-        // File is specific: for media only, one value only, not updatable,
-        // not a property and not in resource template.
-        if (isset($proposal['file'][0]['@value']) && $proposal['file'][0]['@value'] !== '') {
-            $store = $proposal['file'][0]['store'] ?? null;
+        // File is specific: for media only, one value only, not updatable, not
+        // a property and not in resource template. Keep the file when it has a
+        // stored name ("store") even if the source name ("@value") is empty:
+        // the store is the random name generated at upload and the only
+        // reference to the stored file, so it must never be lost across the
+        // steps of the form. A tampered hidden field could inject a path, so
+        // only keep a store that is a safe flat filename.
+        $fileValue = $proposal['file'][0]['@value'] ?? '';
+        $store = $proposal['file'][0]['store'] ?? null;
+        if (is_string($store)
+            && (strpos($store, '..') !== false || strpos($store, '/') !== false)
+        ) {
+            $store = null;
+        }
+        if (($store !== null && $store !== '') || $fileValue !== '') {
             $result['file'] = [];
             $result['file'][0] = [
                 'original' => [
                     '@value' => null,
                 ],
                 'proposed' => [
-                    '@value' => $proposal['file'][0]['@value'],
-                    $store ? 'store' : 'file' => $store ?? $proposal['file'][0]['file'],
+                    '@value' => $fileValue,
+                    $store ? 'store' : 'file' => $store ?? ($proposal['file'][0]['file'] ?? null),
                 ],
             ];
         }
