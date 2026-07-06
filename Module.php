@@ -973,48 +973,10 @@ class Module extends AbstractModule
      */
     public function deleteContributionFiles(Event $event): void
     {
-        $services = $this->getServiceLocator();
+        [$dirPath, $trashPath] = $this->contributionDirectories();
 
-        // Fix issue when there is no path.
-        $config = $services->get('Config');
-        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
-        $dirPath = rtrim($basePath, '/') . '/contribution';
-        if (!$this->checkDestinationDir($dirPath)) {
-            $translator = $services->get('MvcTranslator');
-            $message = new PsrMessage(
-                'The directory "{directory}" is not writeable.', // @translate
-                ['directory' => $basePath . '/contribution']
-            );
-            throw new \Omeka\File\Exception\RuntimeException((string) $message->setTranslator($translator));
-        }
-
-        // The files are not removed directly, but moved to a trash directory,
-        // purged after 30 days, so any issue in the cleaning logic can be fixed
-        // without loss.
-        $trashPath = rtrim($basePath, '/') . '/contribution_trash';
-        if (!$this->checkDestinationDir($trashPath)) {
-            $translator = $services->get('MvcTranslator');
-            $message = new PsrMessage(
-                'The directory "{directory}" is not writeable.', // @translate
-                ['directory' => $trashPath]
-            );
-            throw new \Omeka\File\Exception\RuntimeException((string) $message->setTranslator($translator));
-        }
-
-        $trashFile = function (string $path) use ($dirPath, $trashPath): void {
-            $relativePath = ltrim(substr($path, strlen($dirPath)), '/');
-            $target = $trashPath . '/' . $relativePath;
-            if (file_exists($target)) {
-                @unlink($path);
-            } elseif (@rename($path, $target)) {
-                // The rename keeps the original modification time, so touch the
-                // file to date the trashing itself for the purge.
-                @touch($target);
-            } else {
-                @unlink($path);
-            }
-        };
-
+        // First responsibility: move the files of the removed contribution to
+        // the trash. This is the only part tied to the event.
         $entity = $event->getTarget();
         $proposal = $entity->getProposal();
         foreach ($proposal['media'] ?? [] as $mediaFiles) {
@@ -1027,21 +989,34 @@ class Module extends AbstractModule
                     }
                     $path = $dirPath . '/' . $storeName;
                     if (is_file($path)) {
-                        $trashFile($path);
+                        $this->trashContributionFile($path, $dirPath, $trashPath);
                     }
                 }
             }
         }
 
-        // The entity is flushed, so it is possible to remove all remaining
-        // files (after update or deletion of a proposal). It is simpler to
-        // manage globally than individually because the storage reference is
-        // removed currently. The table contribution_file indexes the files
-        // referenced by the proposals, synchronized on each save, so the
-        // parsing of the json proposals is no longer needed. The rows of the
-        // removed contribution are already deleted in cascade.
+        // Second responsibility: collect the orphan files globally. It is
+        // unrelated to the removed contribution, but there is no periodic task
+        // for now, so it is processed here.
+        // TODO Move the global cleaning to a periodic task (module EasyAdmin).
+        $this->cleanContributionDirectory();
+    }
+
+    /**
+     * Move the orphan files of the directory files/contribution to the trash
+     * and purge the files trashed more than 30 days ago.
+     *
+     * A file is orphan when it is not referenced by any contribution in the
+     * table contribution_file, that is synchronized on each save. The rows of a
+     * removed contribution are deleted in cascade, so its files are collected
+     * here too.
+     */
+    public function cleanContributionDirectory(): void
+    {
+        [$dirPath, $trashPath] = $this->contributionDirectories();
+
         /** @var \Doctrine\DBAL\Connection $connection */
-        $connection = $services->get('Omeka\Connection');
+        $connection = $this->getServiceLocator()->get('Omeka\Connection');
         $storeds = $connection
             ->executeQuery('SELECT DISTINCT `store` FROM `contribution_file`')
             ->fetchFirstColumn();
@@ -1060,7 +1035,7 @@ class Module extends AbstractModule
                 && !in_array($file, $storeds)
                 && filemtime($path) < $oneHourAgo
             ) {
-                $trashFile($path);
+                $this->trashContributionFile($path, $dirPath, $trashPath);
             }
         }
 
@@ -1076,6 +1051,54 @@ class Module extends AbstractModule
             ) {
                 @unlink($path);
             }
+        }
+    }
+
+    /**
+     * Get the checked directories for the contribution files and their trash.
+     *
+     * The files are not removed directly, but moved to a trash directory,
+     * purged after 30 days, so any issue in the cleaning logic can be fixed
+     * without loss.
+     *
+     * @return string[] The directory of the contribution files and the trash.
+     * @throws \Omeka\File\Exception\RuntimeException
+     */
+    protected function contributionDirectories(): array
+    {
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+        $dirPath = rtrim($basePath, '/') . '/contribution';
+        $trashPath = rtrim($basePath, '/') . '/contribution_trash';
+        foreach ([$dirPath, $trashPath] as $path) {
+            if (!$this->checkDestinationDir($path)) {
+                $translator = $services->get('MvcTranslator');
+                $message = new PsrMessage(
+                    'The directory "{directory}" is not writeable.', // @translate
+                    ['directory' => $path]
+                );
+                throw new \Omeka\File\Exception\RuntimeException((string) $message->setTranslator($translator));
+            }
+        }
+        return [$dirPath, $trashPath];
+    }
+
+    /**
+     * Move a file of the directory files/contribution to the trash.
+     */
+    protected function trashContributionFile(string $path, string $dirPath, string $trashPath): void
+    {
+        $relativePath = ltrim(substr($path, strlen($dirPath)), '/');
+        $target = $trashPath . '/' . $relativePath;
+        if (file_exists($target)) {
+            @unlink($path);
+        } elseif (@rename($path, $target)) {
+            // The rename keeps the original modification time, so touch the
+            // file to date the trashing itself for the purge.
+            @touch($target);
+        } else {
+            @unlink($path);
         }
     }
 
