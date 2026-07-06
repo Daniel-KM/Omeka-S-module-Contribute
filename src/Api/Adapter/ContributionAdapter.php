@@ -517,10 +517,22 @@ class ContributionAdapter extends AbstractEntityAdapter
      */
     protected function uploadProposedFiles(array $proposal): array
     {
+        $services = $this->getServiceLocator();
+        $basePath = $services->get('Config')['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
         foreach ($proposal['media'] ?? [] as $key => $mediaFiles) {
             $proposal['media'][$key]['file'] = empty($mediaFiles['file']) ? [] : array_values($mediaFiles['file']);
-            foreach ($proposal['media'][$key]['file'] as $mediaFile) {
+            foreach ($proposal['media'][$key]['file'] as $fileKey => $mediaFile) {
                 if (!empty($mediaFile['proposed']['store'])) {
+                    // Complete the size and the hash from the stored file when
+                    // they are missing, in particular when the store is kept
+                    // from a previous step of the form.
+                    if (!isset($mediaFile['proposed']['sha256'])) {
+                        $storePath = $basePath . '/contribution/' . $mediaFile['proposed']['store'];
+                        if (strpos($mediaFile['proposed']['store'], '..') === false && file_exists($storePath)) {
+                            $proposal['media'][$key]['file'][$fileKey]['proposed']['size'] = filesize($storePath);
+                            $proposal['media'][$key]['file'][$fileKey]['proposed']['sha256'] = hash_file('sha256', $storePath);
+                        }
+                    }
                     continue;
                 }
                 $uploaded = $mediaFile['proposed']['file'] ?? [];
@@ -544,8 +556,12 @@ class ContributionAdapter extends AbstractEntityAdapter
                             $extension = $tempFile->getExtension();
                             $filename = $tempFile->getStorageId()
                                 . (strlen((string) $extension) ? '.' . $extension : '');
+                            // Store the size and the hash to check integrity
+                            // and to recover files in case of an issue.
                             $proposal['media'][$key]['file'][0]['proposed']['@value'] = $uploaded['name'];
                             $proposal['media'][$key]['file'][0]['proposed']['store'] = $filename;
+                            $proposal['media'][$key]['file'][0]['proposed']['size'] = $tempFile->getSize();
+                            $proposal['media'][$key]['file'][0]['proposed']['sha256'] = $tempFile->getSha256();
                             unset($proposal['media'][$key]['file'][0]['proposed']['file']);
                             $tempFile->store('contribution');
                             $tempFile->delete();
