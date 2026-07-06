@@ -1,38 +1,35 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
-#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version:  \n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-08 11:29+0200\n"
-"PO-Revision-Date: 2026-06-08 11:39+0200\n"
+"POT-Creation-Date: 2026-07-06 00:00+0000\n"
+"PO-Revision-Date: 2026-07-06 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
-"Language: br\n"
 "Language-Team: br <LL@li.org>\n"
-"Plural-Forms: nplurals=6; plural=(n==1 ? 0 : n%10==1 && n%100!=11 && "
-"n%100!=71 && n%100!=91 ? 1 : n%10==2 && n%100!=12 && n%100!=72 && n%100!=92 ?"
-" 2 : (n%10==3 || n%10==4 || n%10==9) && n%100!=13 && n%100!=14 && n%100!=19 "
-"&& n%100!=73 && n%100!=74 && n%100!=79 && n%100!=93 && n%100!=94 && n%100!=99"
-" ? 3 : n%1000000==0 ? 4 : 5);\n"
+"Language: br\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==1 ? 0 : n%10==1 && n%100!=11 && n%100!"
+"=71 && n%100!=91 ? 1 : n%10==2 && n%100!=12 && n%100!=72 && n%100!=92 ? 2 : "
+"(n%10==3 || n%10==4 || n%10==9) && n%100!=13 && n%100!=14 && n%100!=19 && "
+"n%100!=73 && n%100!=74 && n%100!=79 && n%100!=93 && n%100!=94 && n%100!=99 ? "
+"3 : n%1000000==0 ? 4 : 5);\n"
 "Generated-By: Babel 2.18.0\n"
+"X-Generator: Poedit 3.6\n"
 
-#: Module.php:58 data/scripts/upgrade.php:39
+#: data/scripts/upgrade.php:94 Module.php:60
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
-msgstr "Ar modul %1$s a zlefe bezañ hizivaet d'ar stumm %2$s pe unan nevesoc'h."
+msgstr ""
+"Ar modul %1$s a zlefe bezañ hizivaet d'ar stumm %2$s pe unan nevesoc'h."
 
-#: data/scripts/upgrade.php:43 data/scripts/upgrade.php:58
+#: data/scripts/upgrade.php:98 data/scripts/upgrade.php:113
 msgid "Missing requirement. Unable to upgrade."
 msgstr "Rekizadenn a vank. N'haller ket hizivaat."
 
-#: data/scripts/upgrade.php:617
+#: data/scripts/upgrade.php:672
 msgid ""
 "By checking this box, you accept the conditions of deposit and reuse of your "
 "work."
@@ -40,24 +37,25 @@ msgstr ""
 "En ur valizañ ar voest-mañ e asantit da zivizoù mirerezh hag adimplij ho "
 "labour."
 
-#: Module.php:555 Module.php:736 view/contribute/admin/contribution/browse.phtml:55
+#: Module.php:569 Module.php:750
+#: view/contribute/admin/contribution/browse.phtml:55
 #: view/guest/site/guest/contribution-browse.phtml:41
 msgid "Contributions"
 msgstr "Perzhioù"
 
-#: Module.php:633
+#: Module.php:647
 msgid "Create contribution token"
 msgstr "Krouiñ un toкен degasadenn"
 
-#: Module.php:637 view/common/contribution-link.phtml:20
+#: Module.php:651 view/common/contribution-link.phtml:20
 msgid "Contribute"
 msgstr "Kemerit perzh"
 
-#: Module.php:638
+#: Module.php:652
 msgid "Please input optional email…"
 msgstr "Mar plij, lakait ur postel diret…"
 
-#: Module.php:639
+#: Module.php:653
 msgid "Create token"
 msgstr "Krouiñ un toкен"
 
@@ -202,7 +200,8 @@ msgstr "Postel ebet termenet evit ar skod-mañ."
 
 #: src/Controller/Admin/ContributionController.php:1113
 msgid "Sorry, the message cannot be sent. Contact the administrator."
-msgstr "Digarezit, n'haller ket kas ar gemennadenn. Kit e darempred gant ar merour."
+msgstr ""
+"Digarezit, n'haller ket kas ar gemennadenn. Kit e darempred gant ar merour."
 
 #: src/Controller/Site/ContributionController.php:1049
 msgid "prepare"
@@ -217,7 +216,7 @@ msgid "submit"
 msgstr "kas"
 
 #: src/Controller/Site/ContributionController.php:1059
-#, php-format, python-format
+#, php-format
 msgid "[Omeka] Contribution %s"
 msgstr "[Omeka] Perzh %s"
 
@@ -233,39 +232,39 @@ msgstr "[Mammenn dianav]"
 msgid "[Anonymous]"
 msgstr "Dianav"
 
-#: src/Controller/Site/ContributionController.php:1659
+#: src/Controller/Site/ContributionController.php:1670
 msgid "File successfuly uploaded."
 msgstr "Savet ar restr gant berzh."
 
-#: src/Controller/Site/ContributionController.php:1660
+#: src/Controller/Site/ContributionController.php:1671
 msgid "The total of file sizes exceeds the the server limit directive."
 msgstr "Sammad ment ar restroù a dremen dreist da renerenn vevenn ar servijer."
 
-#: src/Controller/Site/ContributionController.php:1661
+#: src/Controller/Site/ContributionController.php:1672
 msgid "The file size exceeds the specified limit."
 msgstr "Muioc'h eget ar vevenn spisaet eo ment ar restr."
 
-#: src/Controller/Site/ContributionController.php:1662
+#: src/Controller/Site/ContributionController.php:1673
 msgid "The file was only partially uploaded."
 msgstr "N'eo bet karget ar restr nemet evit un darn."
 
-#: src/Controller/Site/ContributionController.php:1663
+#: src/Controller/Site/ContributionController.php:1674
 msgid "No file was uploaded."
 msgstr "N'eus bet pellgarget restr ebet."
 
-#: src/Controller/Site/ContributionController.php:1664
+#: src/Controller/Site/ContributionController.php:1675
 msgid "The temporary folder to store the file is missing."
 msgstr "Mankout a ra ar folezad da c'hortoz evit stokañ ar restr."
 
-#: src/Controller/Site/ContributionController.php:1665
+#: src/Controller/Site/ContributionController.php:1676
 msgid "Failed to write file to disk."
 msgstr "C'hwitet war enrollañ ar restr war an pladenn."
 
-#: src/Controller/Site/ContributionController.php:1666
+#: src/Controller/Site/ContributionController.php:1677
 msgid "A PHP extension stopped the file upload."
 msgstr "Un astenn PHP he deus paouezet kargadenn ar restr."
 
-#: src/Media/Ingester/Contribution.php:81
+#: src/Media/Ingester/Contribution.php:86
 msgid "Used only for internal contribution process."
 msgstr "Implijet nemetken evit ar prosesus degasadennoù diabarzh."
 
@@ -304,7 +303,7 @@ msgid "Is validated"
 msgstr "Gwiriet eo"
 
 #: view/common/admin/contribute-list-part.phtml:33
-#, php-format, python-format
+#, php-format
 msgid "Media %s"
 msgstr "Media %s"
 
@@ -329,18 +328,19 @@ msgstr "N'eus gwir ebet da skrivañ"
 #: view/common/admin/contribute-list-part.phtml:143
 #: view/common/admin/contribute-list-part.phtml:199
 #: view/common/admin/contribute-list-part.phtml:248
-#, php-format, python-format
+#, php-format
 msgid "Validate this value (%s)"
 msgstr "Gwiriañ an talvoud-mañ (%s)"
 
 #: view/common/admin/contribute-list.phtml:28
-msgid "There are no tokens for this resource or contribution mode doesn’t use token."
+msgid ""
+"There are no tokens for this resource or contribution mode doesn’t use token."
 msgstr ""
 "N'eus jeton ebet evit ar vammenn-mañ pe ne ra ket ar mod degasadenn gant "
 "jetonoù."
 
 #: view/common/admin/contribute-list.phtml:39
-#, php-format, python-format
+#, php-format
 msgid "There are %d tokens for this resource (%d expired)."
 msgstr "%d unanennoù zo evit ar vammenn-mañ (%d aet da get)."
 
@@ -417,7 +417,8 @@ msgstr "Klikit war ho liamm testenn evit kemmañ ar rekord-mañ."
 #: view/common/contribution-link.phtml:30
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to edit this record."
-msgstr "%1$sLogin%2$s pe klikit war ho liamm toкен evit kemmañ an enrolladenn-mañ."
+msgstr ""
+"%1$sLogin%2$s pe klikit war ho liamm toкен evit kemmañ an enrolladenn-mañ."
 
 #: view/common/contribution-link.phtml:34
 #: view/guest/site/guest/widget/contribution.phtml:23
@@ -440,23 +441,23 @@ msgid ""
 "A template with fields is required to edit this resource. Ask the "
 "administrator for more information."
 msgstr ""
-"Ezhomm zo eus ur patrom gant maeziennoù evit kemmañ ar vammenn-mañ. Goulennit"
-" muioc'h a ditouroù digant ar merour."
+"Ezhomm zo eus ur patrom gant maeziennoù evit kemmañ ar vammenn-mañ. "
+"Goulennit muioc'h a ditouroù digant ar merour."
 
 #: view/common/contribution-values-part.phtml:27
-#, php-format, python-format
+#, php-format
 msgid "File #%s"
 msgstr "Restr #%s"
 
 #: view/common/contribution-values-part.phtml:27
-#, php-format, python-format
+#, php-format
 msgid "Media #%s"
 msgstr "Mediaoù #%s"
 
 #: view/common/contribution-values-part.phtml:73
 #: view/common/contribution-values-part.phtml:93
 #: view/common/contribution-values-part.phtml:107
-#, php-format, python-format
+#, php-format
 msgid "%s [unavailable]"
 msgstr "%s [n'eo ket hegerz]"
 
@@ -544,7 +545,8 @@ msgstr "Ha sur oc'h e fell deoc'h diverkañ ar perzhioù dibabet?"
 msgid ""
 "%1$s: this action will permanently delete %2$s contributions and cannot be "
 "undone."
-msgstr "%1$s: an ober-mañ a ziverko da viken perzh %2$s ha ne c'haller ket e zizober."
+msgstr ""
+"%1$s: an ober-mañ a ziverko da viken perzh %2$s ha ne c'haller ket e zizober."
 
 #: view/contribute/admin/contribution/browse.phtml:245
 msgid ""
@@ -589,17 +591,17 @@ msgid "Missing files"
 msgstr "Restoù a vank"
 
 #: view/contribute/site/contribution/edit.phtml:39
-#, php-format, python-format
+#, php-format
 msgid "Add %s"
 msgstr "Ouzhpennañ %s"
 
 #: view/contribute/site/contribution/edit.phtml:40
-#, php-format, python-format
+#, php-format
 msgid "Edit %s"
 msgstr "Kemmañ %s"
 
 #: view/contribute/site/contribution/edit.phtml:40
-#, php-format, python-format
+#, php-format
 msgid "New %s"
 msgstr "Nevez %s"
 
@@ -608,8 +610,8 @@ msgid ""
 "A template with fields is required to submit a document. Ask the "
 "administrator for more information."
 msgstr ""
-"Ret eo kaout ur patrom gant maeziennoù evit kas ur skrid. Goulennit muioc'h a"
-" ditouroù digant ar merour."
+"Ret eo kaout ur patrom gant maeziennoù evit kas ur skrid. Goulennit muioc'h "
+"a ditouroù digant ar merour."
 
 #: view/contribute/site/contribution/form-input-custom-vocab.phtml:103
 #: view/contribute/site/contribution/form-value-more.phtml:122
@@ -658,7 +660,7 @@ msgid "Add linked data"
 msgstr "Ouzhpennañ roadennoù liammet"
 
 #: view/contribute/site/contribution/form.phtml:229
-#, php-format, python-format
+#, php-format
 msgid "File %s"
 msgstr "Restr %s"
 
@@ -682,7 +684,7 @@ msgid "Are you sure to remove this contribution?"
 msgstr "Ha sur oc'h da dennañ ar skodadenn-mañ?"
 
 #: view/guest/site/guest/contribution-browse.phtml:44
-#, php-format, python-format
+#, php-format
 msgid "%d contributions"
 msgstr "%d degasadenn"
 
@@ -694,21 +696,28 @@ msgstr "N'eus kemennadenn ebet."
 msgid "See contributions"
 msgstr "Gwelet ar c'hendivizoù"
 
-#: data/scripts/upgrade.php:50
-#, python-brace-format
+#: data/scripts/upgrade.php:77
+msgid ""
+"The job #{job_id} is still starting after the sleep delay. It may need to be "
+"relaunched manually."
+msgstr ""
+"An trevell #{job_id} a zo c'hoazh o kregiñ goude an dale 'sleep'. Marteze e "
+"vo ret hec'h adlañsañ gant an dorn."
+
+#: data/scripts/upgrade.php:105
 msgid "The module {module} should be upgraded to version {version} or later."
 msgstr ""
 "Ar modul {module} a rank bezañ hizivaet d'ar stumm {version} pe d'ur stumm "
 "nevesoc'h."
 
-#: data/scripts/upgrade.php:98
-#, python-brace-format
-msgid "This module requires the module \"{module}\", version {version} or above."
+#: data/scripts/upgrade.php:153
+msgid ""
+"This module requires the module \"{module}\", version {version} or above."
 msgstr ""
 "Ezhomm en deus ar modul-mañ eus ar modul \"{module}\", stumm {version} pe "
 "unan uheloc'h."
 
-#: data/scripts/upgrade.php:180
+#: data/scripts/upgrade.php:235
 msgid ""
 "At least one configured template is required to contribute. Default options "
 "were removed. Edit the resource template directly."
@@ -716,8 +725,7 @@ msgstr ""
 "Ret eo kaout da nebeutañ ur patrom kefluniet evit kemer perzh. Lamet eo bet "
 "an dibarzhioù dre ziouer. Kemmit patrom ar vammenn war-eeun."
 
-#: data/scripts/upgrade.php:184
-#, python-brace-format
+#: data/scripts/upgrade.php:239
 msgid ""
 "For information, the removed options to reuse in a template, eventually with "
 "module Advanced Resource Template, are: {json}."
@@ -725,16 +733,15 @@ msgstr ""
 "Evit ho titouriñ, an dibarzhioù tennet da adimplijout en ur patrom, gant ar "
 "modul Advanced Resource Template a-benn ar fin, eo : {json}."
 
-#: Module.php:68 Module.php:856 data/scripts/upgrade.php:216
-#, python-brace-format
+#: data/scripts/upgrade.php:271 Module.php:70 Module.php:1098
 msgid "The directory \"{directory}\" is not writeable."
 msgstr "Ar c'havlec'h \"{directory}\" n'eo ket"
 
-#: data/scripts/upgrade.php:254
+#: data/scripts/upgrade.php:309
 msgid "It’s now possible for the user to select a resource template."
 msgstr "Bremañ e c'hall an implijer dibab ur patrom danvez."
 
-#: data/scripts/upgrade.php:258
+#: data/scripts/upgrade.php:313
 msgid ""
 "It’s now possible to create a template with a sub-template for one or more "
 "media."
@@ -742,19 +749,19 @@ msgstr ""
 "Bremañ eo posupl krouiñ ur patrom gant un is-patrom evit ur media pe meur a "
 "hini."
 
-#: data/scripts/upgrade.php:262
+#: data/scripts/upgrade.php:317
 msgid ""
-"It’s now possible to create a template with file, custom vocab, value suggest"
-" or numeric fields."
+"It’s now possible to create a template with file, custom vocab, value "
+"suggest or numeric fields."
 msgstr ""
-"Bremañ e c'haller krouiñ ur patrom gant un teul, ur geriaoueg personelaet, ur"
-" c'hinnig talvoudegezh pe maeziennoù niverel."
+"Bremañ e c'haller krouiñ ur patrom gant un teul, ur geriaoueg personelaet, "
+"ur c'hinnig talvoudegezh pe maeziennoù niverel."
 
-#: data/scripts/upgrade.php:266
+#: data/scripts/upgrade.php:321
 msgid "It’s now possible to edit a contribution until it is submitted."
 msgstr "Bremañ e c'haller kemmañ ur skridkennadenn a-raok hec'h erbediñ."
 
-#: data/scripts/upgrade.php:270
+#: data/scripts/upgrade.php:325
 msgid ""
 "This version does not allow to correct resources. The feature will be "
 "reincluded in version 3.3.0.18."
@@ -762,29 +769,30 @@ msgstr ""
 "Ne aotre ket ar stumm-mañ da reizhañ ar peadra. Adlakaet e vo an arc'hwel e "
 "stumm 3.3.0.18."
 
-#: data/scripts/upgrade.php:277
+#: data/scripts/upgrade.php:332
 msgid "It’s now possible for admin to search contributions."
 msgstr "Bremañ e c'hall ar merour klask er skodennoù."
 
-#: data/scripts/upgrade.php:286
+#: data/scripts/upgrade.php:341
 msgid "It’s now possible to correct and fill existing resources."
 msgstr "Bremañ eo posupl reizhañ ha leuniañ ar mammennoù a zo."
 
-#: data/scripts/upgrade.php:290
-msgid "A new option was added to allow to update a contribution until validation."
+#: data/scripts/upgrade.php:345
+msgid ""
+"A new option was added to allow to update a contribution until validation."
 msgstr ""
 "Ouzhpennet ez eus bet un dibab nevez a aotre hizivaat ur c'hendestenn betek "
 "he gwiriekadur."
 
-#: data/scripts/upgrade.php:294
+#: data/scripts/upgrade.php:349
 msgid ""
-"The events \"view.add.before/after\" are used in place of "
-"\"view.edit.before/after\" in template contribution/add."
+"The events \"view.add.before/after\" are used in place of \"view.edit.before/"
+"after\" in template contribution/add."
 msgstr ""
 "Implijet e vez an darvoudoù \"view.add.before/after\" e-lec'h "
 "\"view.edit.before/after\" e patrom contribution/add."
 
-#: data/scripts/upgrade.php:298
+#: data/scripts/upgrade.php:353
 msgid ""
 "Warning: the variable \"$resource\" is now the edited resource in the theme "
 "and no more the contribution. Check your theme if you edited templates, "
@@ -794,43 +802,44 @@ msgstr ""
 "ket ken ar ginnigadenn. Gwiriit ho tem ma hoc'h eus kemmet patromoù, dreist-"
 "holl \"show\" ha \"edit\"."
 
-#: data/scripts/upgrade.php:305
+#: data/scripts/upgrade.php:360
 msgid "It’s now possible to submit a contribution in one step."
 msgstr "Bremañ e c'haller kinnig ur perzh en ur gammedenn hepken."
 
-#: data/scripts/upgrade.php:312
+#: data/scripts/upgrade.php:367
 msgid ""
-"It’s now possible to allow contribution only for selected authenticated users"
-" or via a regex on email."
+"It’s now possible to allow contribution only for selected authenticated "
+"users or via a regex on email."
 msgstr ""
 "Bremañ eo posupl aotren an degasadennoù nemetken evit implijerien wiriet "
 "dibabet pe dre ur regex war ar posteloù."
 
-#: data/scripts/upgrade.php:338
+#: data/scripts/upgrade.php:393
 msgid "It’s now possible to set a minimum number of files."
 msgstr "Posupl eo bremañ termeniñ un niver bihanañ a restroù."
 
-#: data/scripts/upgrade.php:369
+#: data/scripts/upgrade.php:424
 msgid ""
 "It’s now possible to allow contribution based on a user setting, for example "
 "an attribute set by an IdP."
 msgstr ""
-"Posupl eo bremañ aotren ur c'henlagad diazezet war ur reizhadenn implijer, da"
-" skouer un perzh lakaet gant un IdP."
+"Posupl eo bremañ aotren ur c'henlagad diazezet war ur reizhadenn implijer, "
+"da skouer un perzh lakaet gant un IdP."
 
-#: data/scripts/upgrade.php:374
+#: data/scripts/upgrade.php:429
 msgid "It’s now possible to allow contribution based on different modes."
 msgstr "Posupl eo bremañ aotren perzhioù diazezet war zoareoù disheñvel."
 
-#: data/scripts/upgrade.php:379
+#: data/scripts/upgrade.php:434
 msgid "New navigation links are available to add resources and to list them."
-msgstr "Liammoù merdeiñ nevez zo hegerz evit ouzhpennañ danvezioù hag evit o rollañ."
+msgstr ""
+"Liammoù merdeiñ nevez zo hegerz evit ouzhpennañ danvezioù hag evit o rollañ."
 
-#: data/scripts/upgrade.php:415
+#: data/scripts/upgrade.php:470
 msgid "It’s now possible to define multiple emails to check."
 msgstr "Bremañ e c'haller termeniñ meur a bostel da wiriañ."
 
-#: data/scripts/upgrade.php:433
+#: data/scripts/upgrade.php:488
 msgid ""
 "There is now a flag to indicate that a contribution is taken in charge. "
 "Furthermore, the flag \"reviewed\" was renamed \"validated\" and its value "
@@ -840,12 +849,11 @@ msgstr ""
 "Ouzhpenn-se, anvet eo bet \"gwiriet\" ar banniel \"adwelet\" ha gallout a ra "
 "e dalvoudegezh bezañ dianav."
 
-#: data/scripts/upgrade.php:443
+#: data/scripts/upgrade.php:498
 msgid "New options were added to send email to contributors."
 msgstr "Ouzhpennet ez eus bet dibaboù nevez evit kas posteloù d'ar berzhidi."
 
-#: data/scripts/upgrade.php:497
-#, python-brace-format
+#: data/scripts/upgrade.php:552
 msgid ""
 "The option to specify the media template was removed. Only the options in "
 "templates will be used. You should check the options in the templates used "
@@ -855,7 +863,7 @@ msgstr ""
 "dibarzhioù a zo er patromoù. Gwiriekait an dibarzhioù er patromoù implijet "
 "evit ar c'hendalc'h : {template_ids}."
 
-#: data/scripts/upgrade.php:524
+#: data/scripts/upgrade.php:579
 msgid ""
 "It is now possible to define contribute settings by template and not "
 "globally. It allows to limit contribution to one template to some users, for "
@@ -865,22 +873,20 @@ msgstr ""
 "Bremañ eo posupl termeniñ arventennoù ar c'henlabour dre dalvoud ha n'eo ket "
 "en un doare hollek. Kement-se a ro an tu da vevenniñ ar c'henlabour da "
 "dalvoudoù zo evit implijerien zo, da skouer un talvoud \"Tezenn\" evit "
-"studierien gwiriet gant reolennoù SSO zo, pe evit posteloù zo, hag un talvoud"
-" \"Master\" evit ar studierien all."
+"studierien gwiriet gant reolennoù SSO zo, pe evit posteloù zo, hag un "
+"talvoud \"Master\" evit ar studierien all."
 
-#: data/scripts/upgrade.php:577
-#, python-brace-format
+#: data/scripts/upgrade.php:632
 msgid "{count} resource templates were re-enabled for contribution."
 msgstr "{count} patromoù danvezioù a zo bet adweredekaet evit ar c'henlabour."
 
-#: data/scripts/upgrade.php:611
-#, python-brace-format
+#: data/scripts/upgrade.php:666
 msgid "{count} media-only templates were removed from contributable templates."
 msgstr ""
 "{count} patrom media-only a zo bet tennet diouzh ar patromoù a c'haller "
 "kenstagañ."
 
-#: data/scripts/upgrade.php:620
+#: data/scripts/upgrade.php:675
 msgid ""
 "An option allows to set a specific message for acceptation, at start or end "
 "of contribution."
@@ -888,24 +894,34 @@ msgstr ""
 "Un dibab a ro an tu da lakaat ur gemennadenn resis evit an degemer, e penn-"
 "kentañ pe e fin ar skodenn."
 
-#: Module.php:739
-#, python-brace-format
+#: data/scripts/upgrade.php:711
+msgid ""
+"A background job #{job_id} was dispatched to recover missing files of "
+"pending contributions and fill the new \"contribution_file\" index. Watch "
+"its status in the Jobs list; the upgrade itself is done."
+msgstr ""
+"Ur gefridi a-dreñv #{job_id} zo bet lañset evit adtapout ar restroù a vanke "
+"d'ar c'hendalc'hioù o c'hortoz ha leuniañ an meneger nevez "
+"\"contribution_file\". Taolit evezh ouzh e stad e listenn ar c'hefridioù ; "
+"echu eo an hizivadur e-unan."
+
+#: Module.php:753
 msgid "{total} contributions ({count} not validated)"
 msgstr "{total} degasadennoù ({count} n'eo ket bet gwiriet)"
 
-#: Module.php:742
+#: Module.php:756
 msgid "No contribution"
 msgstr "Kein degasadenn"
 
-#: Module.php:779
+#: Module.php:793
 msgid "Contribution modes"
 msgstr "Modoù degasadenn"
 
-#: Module.php:801
+#: Module.php:815
 msgid "Contribute: Editable by contributor"
 msgstr "Kemerit perzh : A c'hall bezañ kemmet gant ar perzhidi"
 
-#: Module.php:813
+#: Module.php:827
 msgid "Contribute: Fillable by contributor"
 msgstr "Kemerit perzh : da leuniañ gant ar perzhidi"
 
@@ -920,40 +936,114 @@ msgid "The module Advanced Resource Template is not available."
 msgstr "N'eo ket hegerz ar modul Patrom Danvezioù Araokaet."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:96
-#, python-brace-format
 msgid ""
-"A resource template for media must be set to allow to contribute for template"
-" #{template_id}."
+"A resource template for media must be set to allow to contribute for "
+"template #{template_id}."
 msgstr ""
 "Ret eo lakaat ur patrom danvez evit ar mediaoù evit aotren an degasadennoù "
 "d'ar patrom #{template_id}."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:143
-#, python-brace-format
 msgid ""
-"The resource template #{template_id} used for media in template {template} is"
-" not available."
+"The resource template #{template_id} used for media in template {template} "
+"is not available."
 msgstr ""
 "N'eo ket hegerz ar patrom danvez #{template_id} implijet evit ar mediaoù er "
 "patrom {template}."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:372
-#, python-brace-format
 msgid ""
 "The template #{template_id} does not exist and cannot be used for "
 "contribution."
 msgstr ""
-"N'eus ket eus ar patrom #{template_id} ha ne c'haller ket ober gantañ evit ur"
-" c'hendalc'h."
+"N'eus ket eus ar patrom #{template_id} ha ne c'haller ket ober gantañ evit "
+"ur c'hendalc'h."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:377
-#, python-brace-format
 msgid ""
 "The template \"{template}\" does not exist and cannot be used for "
 "contribution."
 msgstr ""
-"N'eus ket eus ar patrom \"{template}\" ha ne c'haller ket ober gantañ evit ur"
-" c'hendalc'h."
+"N'eus ket eus ar patrom \"{template}\" ha ne c'haller ket ober gantañ evit "
+"ur c'hendalc'h."
+
+#: src/Job/RecoverContributionFiles.php:44
+msgid ""
+"The file store is not local: the recovery of the files of pending "
+"contributions and the cleaning of orphan files inside files/original cannot "
+"be processed automatically. Check them manually."
+msgstr ""
+"N'eo ket lec'hel ar stokva teuliadoù : ne c'haller ket ober ent emgefreek "
+"adtapout teuliadoù ar c'hendalc'hioù o c'hortoz hag naetaat an teuliadoù "
+"emzivad e-barzh files/original. Gwiriit anezho gant an dorn."
+
+#: src/Job/RecoverContributionFiles.php:175
+msgid ""
+"Job stopped before completion. Recovery may be incomplete; relaunch it "
+"manually to resume."
+msgstr ""
+"Paouezet eo bet ar prosesus a-raok bezañ echuet. Gallout a ra bezañ diglok "
+"an adtapout ; adloc'hit anezhañ gant an dorn evit kenderc'hel."
+
+#: src/Job/RecoverContributionFiles.php:227
+msgid ""
+"{count} files of pending contributions were recovered inside files/"
+"contribution from the orphan files of files/original."
+msgstr ""
+"{count} restroù a zegasadennoù da zont a zo bet adtapet e-barzh files/"
+"contribution, o tont eus restroù emzivaded files/original."
+
+#: src/Job/RecoverContributionFiles.php:233
+msgid ""
+"The files of the contributions {ids} were recovered, but multiple files with "
+"the same extension were submitted together, so the association between files "
+"and medias may be wrong and should be checked manually."
+msgstr ""
+"Adkavet eo bet restroù ar c'hendalc'hioù {ids}, met meur a restr gant an "
+"hevelep astenn a zo bet kaset a-gevret, setu e c'hall ar c'hevreadur etre ar "
+"restroù hag ar mediaoù bezañ faziek ha rankout a ra bezañ gwiriet gant an "
+"dorn."
+
+#: src/Job/RecoverContributionFiles.php:239
+msgid ""
+"Some files of the contributions {ids} are missing and could not be "
+"recovered. The contributors should be asked to submit their files again."
+msgstr ""
+"Mankout a ra restroù zo eus ar perzhidi {ids} ha n'o deus ket gallet bezañ "
+"adtapet. Goulennet e tlefe bezañ digant ar berzhidi kas o restroù en-dro."
+
+#: src/Job/RecoverContributionFiles.php:298
+msgid ""
+"{count} orphan files were removed from files/original with their thumbnails: "
+"{duplicates} were duplicates whose content is preserved in files/"
+"contribution, {recovered} were sources copied into files/contribution during "
+"the recovery, and {unmatched} were unmatched leftovers of interrupted "
+"submissions (post-first-contribution files that could not be linked to any "
+"pending contribution). No file attached to a media (item) was touched."
+msgstr ""
+"{count} restroù emzivaded a zo bet lamet eus files/original gant o bikoù-"
+"skramm : An {duplicates} a oa eiladoù a zo miret o endalc'had e files/"
+"contribution, an {recovered} a oa mammennoù eiladet e files/contribution e-"
+"pad an adtapout, hag an {unmatched} a oa restachoù dizereat eus kasadennoù "
+"troc'het (restachoù rest a oa goude ar c'hentañ degasadenn na c'halled ket "
+"liammañ gant degasadenn ebet o c'hortoz). N'eus bet stoket restr ebet stag "
+"ouzh ur media (un elfenn)."
+
+#: src/Job/RecoverContributionFiles.php:336
+msgid ""
+"Job stopped before the contribution_file index was fully populated; relaunch "
+"it manually to resume."
+msgstr ""
+"Paouezet eo job a-raok ma vije bet leuniet penn-da-benn indeks ar file-skrid-"
+"perzh ; adlañsit anezhañ gant an dorn evit kenderc'hel."
+
+#: src/Job/RecoverContributionFiles.php:356
+msgid ""
+"The files of {count} contributions were indexed in the new table "
+"\"contribution_file\"."
+msgstr ""
+"Dosyeoù {count} a zegasadennoù zo bet menegeret en daolenn nevez "
+"\"contribution_file\"."
 
 #: src/Form/SettingsFieldset.php:32
 msgid "Redirection after submission"
@@ -981,7 +1071,6 @@ msgid "Default message to the author"
 msgstr "Kemenadenn dre ziouer d'an aozer"
 
 #: src/Form/SettingsFieldset.php:66
-#, python-brace-format
 msgid "Placeholders: {main_title}, {main_url}."
 msgstr "Plasdermennoù: {main_title}, {main_url}."
 
@@ -989,15 +1078,15 @@ msgstr "Plasdermennoù: {main_title}, {main_url}."
 msgid "Default options to send a message: myself as recipient"
 msgstr "Dibaboù dre ziouer evit kas ur gemennadenn : me evel resever"
 
-#: src/Form/SendMessageForm.php:67 src/Form/SettingsFieldset.php:81
+#: src/Form/SettingsFieldset.php:81 src/Form/SendMessageForm.php:67
 msgid "No copy"
 msgstr "N'eus eilskrid ebet"
 
-#: src/Form/SendMessageForm.php:68 src/Form/SettingsFieldset.php:82
+#: src/Form/SettingsFieldset.php:82 src/Form/SendMessageForm.php:68
 msgid "Copy (cc)"
 msgstr "Eilañ (skridenn)"
 
-#: src/Form/SendMessageForm.php:69 src/Form/SettingsFieldset.php:83
+#: src/Form/SettingsFieldset.php:83 src/Form/SendMessageForm.php:69
 msgid "Hidden copy (bcc)"
 msgstr "Eilskrid kuzh (bcc)"
 
@@ -1005,7 +1094,7 @@ msgstr "Eilskrid kuzh (bcc)"
 msgid "Default options to send a message: cc emails"
 msgstr "Dibaboù dre ziouer evit kas ur gemennadenn : skouerennata posteloù"
 
-#: src/Form/SendMessageForm.php:82 src/Form/SettingsFieldset.php:97
+#: src/Form/SettingsFieldset.php:97 src/Form/SendMessageForm.php:82
 msgid "Use \"=\" to separate multiple emails."
 msgstr "Implijit \"=\" evit dispartiañ meur a chomlec'h postel."
 
@@ -1025,7 +1114,7 @@ msgstr "Diuzit ur patrom…"
 msgid "Set a date with optional comparator…"
 msgstr "Termeniñ un deiziad gant ur geñverier dibarek…"
 
-#: config/module.config.php:258 src/Form/QuickSearchForm.php:104
+#: src/Form/QuickSearchForm.php:104 config/module.config.php:258
 msgid "Submitted"
 msgstr "Kaset"
 
@@ -1100,8 +1189,8 @@ msgstr ""
 "En un argerzh labour kemplezh, patrom an implijer a c'hall bezañ disheñvel "
 "diouzh patrom an elfenn, da skouer evit krouiñ ur furmskrid gant etikedennoù "
 "perzhioù disheñvel, pe en un urzh disheñvel, pe reolennoù strishoc'h evit "
-"gwiriañ ar perzhioù, pe patromoù disheñvel evit implijerien disheñvel. Neuze,"
-" an dibab-mañ a cheñch ar patrom pa vez gwiriet ar c'hendestenn."
+"gwiriañ ar perzhioù, pe patromoù disheñvel evit implijerien disheñvel. "
+"Neuze, an dibab-mañ a cheñch ar patrom pa vez gwiriet ar c'hendestenn."
 
 #: src/Form/TemplateContributeFieldset.php:68
 msgid "Media templates for contribution"
@@ -1179,7 +1268,8 @@ msgstr "Diuzit rolioù…"
 
 #: src/Form/TraitSettingsFieldset.php:67
 msgid "Filter on emails of users allowed to contribute (option above)"
-msgstr "Silit hervez posteloù an implijerien aotreet da gemer perzh (diuz a-us)"
+msgstr ""
+"Silit hervez posteloù an implijerien aotreet da gemer perzh (diuz a-us)"
 
 #: src/Form/TraitSettingsFieldset.php:68
 msgid ""
@@ -1192,7 +1282,8 @@ msgstr ""
 
 #: src/Form/TraitSettingsFieldset.php:86
 msgid "Filters on settings of users allowed to contribute (option above)"
-msgstr "Siloù war arventennoù an implijerien aotreet da gemer perzh (diuzell a-us)"
+msgstr ""
+"Siloù war arventennoù an implijerien aotreet da gemer perzh (diuzell a-us)"
 
 #: src/Form/TraitSettingsFieldset.php:87
 msgid ""
@@ -1211,8 +1302,8 @@ msgid ""
 "Allow to set the default expiration date of a token. Let empty to remove "
 "expiration."
 msgstr ""
-"Aotren lakaat deiziad termen dre ziouer un token. Lezel goullo evit tennañ an"
-" termen."
+"Aotren lakaat deiziad termen dre ziouer un token. Lezel goullo evit tennañ "
+"an termen."
 
 #: src/Form/TraitSettingsFieldset.php:115
 msgid "90"
@@ -1256,20 +1347,20 @@ msgstr "Posteloù evit kelaouiñ diwar-benn ar c'henlabouradennoù"
 
 #: src/Form/TraitSettingsFieldset.php:174
 msgid ""
-"A query can be appended to limit notifications to specific contributions. The"
-" query supports resource_template_id, resource_class_id, property[] and the "
-"AdvancedSearch filter[] DSL (types eq, res, in), and operates on the "
+"A query can be appended to limit notifications to specific contributions. "
+"The query supports resource_template_id, resource_class_id, property[] and "
+"the AdvancedSearch filter[] DSL (types eq, res, in), and operates on the "
 "contribution proposal (not the underlying resource). Coverage is partial but "
-"handles the most common cases; unsupported types or arguments are logged with"
-" a warning, so check the logs after configuring a query."
+"handles the most common cases; unsupported types or arguments are logged "
+"with a warning, so check the logs after configuring a query."
 msgstr ""
 "Gallout a reer ouzhpennañ ur reked evit bevenniñ ar c'hemennadennoù da "
 "zegasadennoù resis. Ar reked a zegemer resource_template_id, "
 "resource_class_id, property[] hag an DSL filter[] eus AdvancedSearch (an "
 "doareoù eq, res, in), hag e labour war kinnig an degasadenn (ha n'eo ket war "
 "ar mammenn ziazez). N'eo ket klok ar golo met merañ a ra an degouezhioù "
-"stankañ ; an doareoù pe an arguzennoù n'int ket harpet a vez enrollet gant ur"
-" c'hemenn-diwall, neuze gwiriit an enrolladennoù goude bezañ kefluniet."
+"stankañ ; an doareoù pe an arguzennoù n'int ket harpet a vez enrollet gant "
+"ur c'hemenn-diwall, neuze gwiriit an enrolladennoù goude bezañ kefluniet."
 
 #: src/Form/TraitSettingsFieldset.php:193
 msgid "Emails of the author"
@@ -1319,7 +1410,8 @@ msgstr "Kemenadenn diskwelet pa vez kemmet ur c'hendalc'h"
 msgid "Subject of the email of confirmation to the author"
 msgstr "Danvez postel kadarnaat an aozer"
 
-#: src/Form/TraitSettingsFieldset.php:302 src/Form/TraitSettingsFieldset.php:330
+#: src/Form/TraitSettingsFieldset.php:302
+#: src/Form/TraitSettingsFieldset.php:330
 msgid "May be overridden by a specific subject set in the resource template"
 msgstr ""
 "Gallout a ra bezañ dreistskrivet gant un danvez resis lakaet e patrom ar "
@@ -1329,10 +1421,12 @@ msgstr ""
 msgid "Message of confirmation to the author"
 msgstr "Kemenadenn a gadarnadenn d'an aozer"
 
-#: src/Form/TraitSettingsFieldset.php:315 src/Form/TraitSettingsFieldset.php:343
-#, python-brace-format
-msgid "Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
-msgstr "Lec'hieroù: enklozit ar perzhioù gant \"{}\", da skouer \"{dcterms:title}\"."
+#: src/Form/TraitSettingsFieldset.php:315
+#: src/Form/TraitSettingsFieldset.php:343
+msgid ""
+"Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
+msgstr ""
+"Lec'hieroù: enklozit ar perzhioù gant \"{}\", da skouer \"{dcterms:title}\"."
 
 #: src/Form/TraitSettingsFieldset.php:329
 msgid "Subject of the email of confirmation to the reviewers"
@@ -1343,7 +1437,6 @@ msgid "Message of confirmation to the reviewers"
 msgstr "Kemenadenn a gadarnadenn"
 
 #: src/Api/Adapter/ContributionAdapter.php:272
-#, python-brace-format
 msgid ""
 "Contribute search: filter type \"{type}\" is not supported and is treated as "
 "\"eq\"."
@@ -1352,7 +1445,6 @@ msgstr ""
 "vez outañ evel \"eq\"."
 
 #: src/Api/Adapter/ContributionAdapter.php:288
-#, python-brace-format
 msgid ""
 "Contribute search: filter field \"{field}\" is not a valid term and is "
 "ignored."
@@ -1361,7 +1453,6 @@ msgstr ""
 "ha lezet e vez a-gostez."
 
 #: src/Api/Adapter/ContributionAdapter.php:318
-#, python-brace-format
 msgid ""
 "Contribute search: property type \"{type}\" is not supported and is treated "
 "as \"eq\"."
@@ -1370,17 +1461,15 @@ msgstr ""
 "e vez outañ evel \"eq\"."
 
 #: src/Api/Adapter/ContributionAdapter.php:378
-#, python-brace-format
 msgid "Contribute search: ignored unsupported query arguments: {keys}."
-msgstr "Kemer perzh er c'hlask: arguzennoù reked dizañjoret ha dizañjoret : {keys}."
+msgstr ""
+"Kemer perzh er c'hlask: arguzennoù reked dizañjoret ha dizañjoret : {keys}."
 
 #: src/Api/Adapter/ContributionAdapter.php:493
-#, python-brace-format
 msgid "Invalid or empty file for key {key}."
 msgstr "Restell direizh pe goullo evit an alc'hwez {key}."
 
 #: src/Api/Adapter/ContributionAdapter.php:505
-#, python-brace-format
 msgid "Invalid file type for key {key}."
 msgstr "Seurt restr direizh evit an alc'hwez {key}."
 
@@ -1418,7 +1507,6 @@ msgid "The store for file is not set."
 msgstr "N'eo ket lakaet ar stok evit ar restr."
 
 #: src/Controller/Admin/ContributionController.php:152
-#, python-brace-format
 msgid ""
 "{count} contribution(s) without resource have missing files. They are "
 "highlighted in orange and can be filtered via the sidebar."
@@ -1447,13 +1535,12 @@ msgid "Contributions successfully deleted"
 msgstr "Ar skodennoù a zo bet diverket gant berzh"
 
 #: src/Controller/Admin/ContributionController.php:309
-#, python-brace-format
 msgid ""
-"Deleting contributions. This may take a while (job "
-"{link_job}#{job_id}{link_end}, {link_log}logs{link_end})."
+"Deleting contributions. This may take a while (job {link_job}#{job_id}"
+"{link_end}, {link_log}logs{link_end})."
 msgstr ""
-"Dilemel an degasadennoù. Gallout a ra padout ur pennadig (labour "
-"{link_job}#{job_id}{link_end}, {link_log}logs{link_end})."
+"Dilemel an degasadennoù. Gallout a ra padout ur pennadig (labour {link_job}"
+"#{job_id}{link_end}, {link_log}logs{link_end})."
 
 #: src/Controller/Admin/ContributionController.php:356
 msgid "You can create token only for items, media and item sets."
@@ -1466,27 +1553,25 @@ msgid "You must select at least one resource to create a token."
 msgstr "Ret eo deoc'h dibab da nebeutañ ur vammenn evit krouiñ un toкен."
 
 #: src/Controller/Admin/ContributionController.php:404
-#, python-brace-format
 msgid ""
-"You set the optional email \"{email}\" to create a contribution token, but it"
-" is not well-formed."
+"You set the optional email \"{email}\" to create a contribution token, but "
+"it is not well-formed."
 msgstr ""
 "Lakaet hoc'h eus ar postel \"{email}\" da zibab evit krouiñ un toкен "
 "degasadenn, met n'eo ket frammet mat."
 
 #: src/Controller/Admin/ContributionController.php:446
-#, python-brace-format
 msgid ""
 "Created {total} contribution tokens (email: {email}, duration: {duration}): "
 "{urls}"
-msgstr "Krouet {total} bilhedoù degasadenn (postel: {email}, pad: {duration}): {urls}"
+msgstr ""
+"Krouet {total} bilhedoù degasadenn (postel: {email}, pad: {duration}): {urls}"
 
 #: src/Controller/Admin/ContributionController.php:449
 msgid "none"
 msgstr "hini ebet"
 
 #: src/Controller/Admin/ContributionController.php:451
-#, python-brace-format
 msgid "{days} days"
 msgstr "{days} deiz"
 
@@ -1495,7 +1580,6 @@ msgid "unlimited"
 msgstr "didermen"
 
 #: src/Controller/Admin/ContributionController.php:490
-#, python-brace-format
 msgid "Resource #{resource_id} has no tokens to expire."
 msgstr "N'eus jeton ebet da vervel evit ar vammenn #{resource_id}."
 
@@ -1504,7 +1588,6 @@ msgid "All tokens of the resource were expired."
 msgstr "Dizruet e oa an holl bilhedoù eus ar vammenn."
 
 #: src/Controller/Admin/ContributionController.php:801
-#, python-brace-format
 msgid ""
 "The template \"{val}\" to convert into from template {template_id} does not "
 "exist or is not valid. The conversion is skipped"
@@ -1513,32 +1596,28 @@ msgstr ""
 "anezhañ pe n'eo ket reizh. An treuzfurm"
 
 #: src/Controller/Admin/ContributionController.php:809
-#, python-brace-format
 msgid ""
 "The template \"{val}\" should be converted to the same template. Check the "
 "template settings."
 msgstr ""
-"Ar patrom \"{val}\" a rank bezañ troet d'ar memes patrom. Gwiriit arventennoù"
-" ar patrom."
+"Ar patrom \"{val}\" a rank bezañ troet d'ar memes patrom. Gwiriit "
+"arventennoù ar patrom."
 
 #: src/Controller/Admin/ContributionController.php:832
-#, python-brace-format
 msgid ""
 "The template \"{template_id}\" to convert into from template {template_id_2} "
 "does not validate the resource. Check the consistency between the two "
 "termplates or missing required values in the second template."
 msgstr ""
 "N'eo ket gwiriekaet ar vammenn gant ar patrom \"{template_id}\" da "
-"dreuzfurmiñ diwar ar patrom {template_id_2}. Gwiriit ar c'henglotadur etre an"
-" daou batrom pe an talvoudoù rekis a vank er patrom eil."
+"dreuzfurmiñ diwar ar patrom {template_id_2}. Gwiriit ar c'henglotadur etre "
+"an daou batrom pe an talvoudoù rekis a vank er patrom eil."
 
 #: src/Controller/Admin/ContributionController.php:1133
-#, python-brace-format
 msgid "Message successfully sent to {email}."
 msgstr "Kelaouenn kaset gant berzh da {email}."
 
-#: src/Controller/ContributionTrait.php:171
-#, python-brace-format
+#: src/Controller/ContributionTrait.php:180
 msgid "Unable to store the resource of the contribution: {message}"
 msgstr "N'haller ket enrollañ danvez ar skodenn : {message}"
 
@@ -1658,10 +1737,11 @@ msgstr "Ne c'haller ket hizivaat ar skrid-mañ."
 
 #: src/Controller/Site/ContributionController.php:910
 msgid "An error occurred: check your submission or ask an administrator."
-msgstr "Ur fazi zo c'hoarvezet : gwiriekait ho kasadenn pe goulennit digant ur merour."
+msgstr ""
+"Ur fazi zo c'hoarvezet : gwiriekait ho kasadenn pe goulennit digant ur "
+"merour."
 
 #: src/Controller/Site/ContributionController.php:1080
-#, python-brace-format
 msgid ""
 "User {user} has made a contribution for resource #{resource} ({title}) "
 "(action: {action})."
@@ -1670,7 +1750,6 @@ msgstr ""
 "({title}) (ober: {action})."
 
 #: src/Controller/Site/ContributionController.php:1091
-#, python-brace-format
 msgid ""
 "An anonymous user has made a contribution for resource {resource} ({title}) "
 "(action: {action})."
@@ -1679,12 +1758,10 @@ msgstr ""
 "({action})."
 
 #: src/Controller/Site/ContributionController.php:1101
-#, python-brace-format
 msgid "User {user} has made a contribution (action: {action})."
 msgstr "An implijer {user} en deus graet ur skoazell (ober: {action})."
 
 #: src/Controller/Site/ContributionController.php:1110
-#, python-brace-format
 msgid "An anonymous user has made a contribution (action: {action})."
 msgstr "Un implijer dizanv en deus graet ur skodadenn (ober: {action})."
 
@@ -1712,22 +1789,19 @@ msgstr ""
 "\n"
 "A-youl-vat,"
 
-#: src/Controller/Site/ContributionController.php:1694
-#, python-brace-format
+#: src/Controller/Site/ContributionController.php:1705
 msgid "File {key}: {error}"
 msgstr "Restroll {key}: {error}"
 
-#: src/Controller/Site/ContributionController.php:1705
-#, python-brace-format
+#: src/Controller/Site/ContributionController.php:1716
 msgid "Empty file for key {key}"
 msgstr "Restr goullo evit an alc'hwez {key}"
 
-#: src/Controller/Site/ContributionController.php:1722
-#, python-brace-format
+#: src/Controller/Site/ContributionController.php:1733
 msgid "Invalid file type for key {key}"
 msgstr "Seurt restr direizh evit an alc'hwez {key}"
 
-#: src/Controller/Site/ContributionController.php:1784
+#: src/Controller/Site/ContributionController.php:1795
 msgid "Forbidden access."
 msgstr "Moned difennet."
 
@@ -1772,12 +1846,10 @@ msgid "Not submitted"
 msgstr "N'eo ket bet kaset"
 
 #: config/module.config.php:313
-#, python-brace-format
 msgid "Your contribution on {main_title}"
 msgstr "Ho perzh war {main_title}"
 
 #: config/module.config.php:314
-#, python-brace-format
 msgid ""
 "Hello,\n"
 "\n"
@@ -1799,6 +1871,13 @@ msgstr ""
 "\n"
 "A-youl-vat,"
 
+#~ msgid ""
+#~ "{count} orphan files created by submissions of contributions were removed "
+#~ "from files/original with their thumbnails."
+#~ msgstr ""
+#~ "{count} restroù emzivaded krouet gant an enkasadennoù a zo bet lamet kuit "
+#~ "eus files/original gant o bihan-skeudennoù."
+
 #~ msgid "cc"
 #~ msgstr "e-kichen"
 
@@ -1810,4 +1889,3 @@ msgstr ""
 
 #~ msgid "Add myself as"
 #~ msgstr "Ouzhpennañ ma-unan evel"
-

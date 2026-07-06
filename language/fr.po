@@ -1,10 +1,8 @@
-# Daniel Berthereau <Daniel.github@Berthereau.net>, 2020.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-08 11:29+0200\n"
+"POT-Creation-Date: 2026-07-06 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
@@ -15,42 +13,38 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.6\n"
 
-#: data/scripts/upgrade.php:39 Module.php:58
+#: data/scripts/upgrade.php:94 Module.php:60
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
 
-#: data/scripts/upgrade.php:43 data/scripts/upgrade.php:58
+#: data/scripts/upgrade.php:98 data/scripts/upgrade.php:113
 msgid "Missing requirement. Unable to upgrade."
 msgstr "Pré-requis absent. Impossible de mettre à jour."
 
-#: data/scripts/upgrade.php:617
-msgid ""
-"By checking this box, you accept the conditions of deposit and reuse of your "
-"work."
-msgstr ""
-"En cochant cette case, vous acceptez les conditions du dépôt et de "
-"réutilisation de votre travail."
+#: data/scripts/upgrade.php:672
+msgid "By checking this box, you accept the conditions of deposit and reuse of your work."
+msgstr "En cochant cette case, vous acceptez les conditions du dépôt et de réutilisation de votre travail."
 
-#: Module.php:555 Module.php:736
+#: Module.php:569 Module.php:750
 #: view/contribute/admin/contribution/browse.phtml:55
 #: view/guest/site/guest/contribution-browse.phtml:41
 msgid "Contributions"
 msgstr "Contributions"
 
-#: Module.php:633
+#: Module.php:647
 msgid "Create contribution token"
 msgstr "Créer un jeton pour la contribution"
 
-#: Module.php:637 view/common/contribution-link.phtml:20
+#: Module.php:651 view/common/contribution-link.phtml:20
 msgid "Contribute"
 msgstr "Contribuer"
 
-#: Module.php:638
+#: Module.php:652
 msgid "Please input optional email…"
 msgstr "Ajouter un email si besoin…"
 
-#: Module.php:639
+#: Module.php:653
 msgid "Create token"
 msgstr "Créer un jeton"
 
@@ -195,8 +189,7 @@ msgstr "Aucun mail défini pour cette contribution."
 
 #: src/Controller/Admin/ContributionController.php:1113
 msgid "Sorry, the message cannot be sent. Contact the administrator."
-msgstr ""
-"Désolé, le message ne peut pas être envoyé. Contactez l’administrateur."
+msgstr "Désolé, le message ne peut pas être envoyé. Contactez l’administrateur."
 
 #: src/Controller/Site/ContributionController.php:1049
 msgid "prepare"
@@ -227,39 +220,39 @@ msgstr "[Ressource inconnue]"
 msgid "[Anonymous]"
 msgstr "[Anonyme]"
 
-#: src/Controller/Site/ContributionController.php:1659
+#: src/Controller/Site/ContributionController.php:1670
 msgid "File successfuly uploaded."
 msgstr "Fichier téléversé avec succès."
 
-#: src/Controller/Site/ContributionController.php:1660
+#: src/Controller/Site/ContributionController.php:1671
 msgid "The total of file sizes exceeds the the server limit directive."
 msgstr "La taille des fichiers excède la valeur limite du serveur."
 
-#: src/Controller/Site/ContributionController.php:1661
+#: src/Controller/Site/ContributionController.php:1672
 msgid "The file size exceeds the specified limit."
 msgstr "La taille du fichier excède la taille maximale."
 
-#: src/Controller/Site/ContributionController.php:1662
+#: src/Controller/Site/ContributionController.php:1673
 msgid "The file was only partially uploaded."
 msgstr "Le fichier a été partiellement chargé."
 
-#: src/Controller/Site/ContributionController.php:1663
+#: src/Controller/Site/ContributionController.php:1674
 msgid "No file was uploaded."
 msgstr "Aucun fichier n’a été téléchargé."
 
-#: src/Controller/Site/ContributionController.php:1664
+#: src/Controller/Site/ContributionController.php:1675
 msgid "The temporary folder to store the file is missing."
 msgstr "Le dossier temporaire pour les fichiers est absent."
 
-#: src/Controller/Site/ContributionController.php:1665
+#: src/Controller/Site/ContributionController.php:1676
 msgid "Failed to write file to disk."
 msgstr "Impossible d’écrire le fichier sur le disque."
 
-#: src/Controller/Site/ContributionController.php:1666
+#: src/Controller/Site/ContributionController.php:1677
 msgid "A PHP extension stopped the file upload."
 msgstr "Une extension php a arrêté le téléchargement du fichier."
 
-#: src/Media/Ingester/Contribution.php:81
+#: src/Media/Ingester/Contribution.php:86
 msgid "Used only for internal contribution process."
 msgstr "Utilisé seulement pour le process interne des contributions."
 
@@ -328,11 +321,8 @@ msgid "Validate this value (%s)"
 msgstr "Valider cette valeur (%s)"
 
 #: view/common/admin/contribute-list.phtml:28
-msgid ""
-"There are no tokens for this resource or contribution mode doesn’t use token."
-msgstr ""
-"Aucun jeton pour cette ressource ou le mode de contribution n’utilise pas de "
-"jeton."
+msgid "There are no tokens for this resource or contribution mode doesn’t use token."
+msgstr "Aucun jeton pour cette ressource ou le mode de contribution n’utilise pas de jeton."
 
 #: view/common/admin/contribute-list.phtml:39
 #, php-format
@@ -412,8 +402,7 @@ msgstr "Cliquez sur votre lien pour éditer cette notice."
 #: view/common/contribution-link.phtml:30
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to edit this record."
-msgstr ""
-"%1$sConnectez-vous%2$s ou cliquez sur votre lien pour éditer cette notice."
+msgstr "%1$sConnectez-vous%2$s ou cliquez sur votre lien pour éditer cette notice."
 
 #: view/common/contribution-link.phtml:34
 #: view/guest/site/guest/widget/contribution.phtml:23
@@ -427,17 +416,11 @@ msgstr "Cliquez sur votre lien pour ajouter une nouvelle notice."
 #: view/common/contribution-link.phtml:39
 #, php-format
 msgid "%1$sLogin%2$s or click your token link to add a new record."
-msgstr ""
-"%1$sConnectez-vous%2$s ou cliquez sur votre lien pour ajouter une nouvelle "
-"notice."
+msgstr "%1$sConnectez-vous%2$s ou cliquez sur votre lien pour ajouter une nouvelle notice."
 
 #: view/common/contribution-link.phtml:44
-msgid ""
-"A template with fields is required to edit this resource. Ask the "
-"administrator for more information."
-msgstr ""
-"Un modèle avec des champs est nécessaire pour éditer cette ressource. Merci "
-"de contacter l’administrateur pour plus d’information."
+msgid "A template with fields is required to edit this resource. Ask the administrator for more information."
+msgstr "Un modèle avec des champs est nécessaire pour éditer cette ressource. Merci de contacter l’administrateur pour plus d’information."
 
 #: view/common/contribution-values-part.phtml:27
 #, php-format
@@ -532,27 +515,17 @@ msgstr "Supprimer les contributions"
 
 #: view/contribute/admin/contribution/browse.phtml:227
 msgid "Are you sure you would like to delete the selected contributions?"
-msgstr ""
-"Êtes-vous certain de vouloir supprimer toutes les contributions "
-"sélectionnées ?"
+msgstr "Êtes-vous certain de vouloir supprimer toutes les contributions sélectionnées ?"
 
 #: view/contribute/admin/contribution/browse.phtml:229
 #: view/contribute/admin/contribution/browse.phtml:247
 #, php-format
-msgid ""
-"%1$s: this action will permanently delete %2$s contributions and cannot be "
-"undone."
-msgstr ""
-"%1$s : cette action supprimera %2$s contributions de manière définitive et "
-"ne pourra pas être annulée.."
+msgid "%1$s: this action will permanently delete %2$s contributions and cannot be undone."
+msgstr "%1$s : cette action supprimera %2$s contributions de manière définitive et ne pourra pas être annulée.."
 
 #: view/contribute/admin/contribution/browse.phtml:245
-msgid ""
-"Are you sure you would like to delete all contributions on all pages of this "
-"result?"
-msgstr ""
-"Êtes-vous certain de vouloir supprimer toutes les contributions de toutes "
-"les pages de ce résultat ?"
+msgid "Are you sure you would like to delete all contributions on all pages of this result?"
+msgstr "Êtes-vous certain de vouloir supprimer toutes les contributions de toutes les pages de ce résultat ?"
 
 #: view/contribute/admin/contribution/browse.phtml:287
 msgid "Omeka could not find any contributions."
@@ -604,12 +577,8 @@ msgid "New %s"
 msgstr "Nouveau %s"
 
 #: view/contribute/site/contribution/edit.phtml:107
-msgid ""
-"A template with fields is required to submit a document. Ask the "
-"administrator for more information."
-msgstr ""
-"Un modèle avec des champs est nécessaire pour ajouter une ressource. Merci "
-"de contacter l’administrateur pour plus d’informations."
+msgid "A template with fields is required to submit a document. Ask the administrator for more information."
+msgstr "Un modèle avec des champs est nécessaire pour ajouter une ressource. Merci de contacter l’administrateur pour plus d’informations."
 
 #: view/contribute/site/contribution/form-input-custom-vocab.phtml:103
 #: view/contribute/site/contribution/form-value-more.phtml:122
@@ -694,223 +663,147 @@ msgstr "Il n’y a pas de contribution."
 msgid "See contributions"
 msgstr "Voir les contributions"
 
-#: data/scripts/upgrade.php:50
+#: data/scripts/upgrade.php:77
+msgid "The job #{job_id} is still starting after the sleep delay. It may need to be relaunched manually."
+msgstr "La tâche #{job_id} est toujours en cours de démarrage après le délai d’attente. Il faudra peut-être la relancer manuellement."
+
+#: data/scripts/upgrade.php:105
 msgid "The module {module} should be upgraded to version {version} or later."
-msgstr ""
-"Le module {module} doit être mis à niveau à la version {version} ou "
-"supérieure."
+msgstr "Le module {module} doit être mis à niveau à la version {version} ou supérieure."
 
-#: data/scripts/upgrade.php:98
-msgid ""
-"This module requires the module \"{module}\", version {version} or above."
-msgstr ""
-"Ce module requiert le module « {module} », version {version} ou supérieure."
+#: data/scripts/upgrade.php:153
+msgid "This module requires the module \"{module}\", version {version} or above."
+msgstr "Ce module requiert le module « {module} », version {version} ou supérieure."
 
-#: data/scripts/upgrade.php:180
-msgid ""
-"At least one configured template is required to contribute. Default options "
-"were removed. Edit the resource template directly."
-msgstr ""
-"Au moins un modèle doit être configuré pour contribuer. Les options par "
-"défaut ont été supprimées. Modifier le modèle directement."
+#: data/scripts/upgrade.php:235
+msgid "At least one configured template is required to contribute. Default options were removed. Edit the resource template directly."
+msgstr "Au moins un modèle doit être configuré pour contribuer. Les options par défaut ont été supprimées. Modifier le modèle directement."
 
-#: data/scripts/upgrade.php:184
-msgid ""
-"For information, the removed options to reuse in a template, eventually with "
-"module Advanced Resource Template, are: {json}."
-msgstr ""
-"Pour information, les options supprimées à réutiliser dans le modèle, "
-"éventuellement avec le module Advanced Resource Template, sont : {json}"
+#: data/scripts/upgrade.php:239
+msgid "For information, the removed options to reuse in a template, eventually with module Advanced Resource Template, are: {json}."
+msgstr "Pour information, les options supprimées à réutiliser dans le modèle, éventuellement avec le module Advanced Resource Template, sont : {json}"
 
-#: data/scripts/upgrade.php:216 Module.php:68 Module.php:856
+#: data/scripts/upgrade.php:271 Module.php:70 Module.php:1098
 msgid "The directory \"{directory}\" is not writeable."
 msgstr "Le répertoire « {directory} » n’est pas accessible en écriture."
 
-#: data/scripts/upgrade.php:254
+#: data/scripts/upgrade.php:309
 msgid "It’s now possible for the user to select a resource template."
-msgstr ""
-"Il est désormais possible pour l’ utilisateur de choisir un modèle de "
-"ressource."
+msgstr "Il est désormais possible pour l’ utilisateur de choisir un modèle de ressource."
 
-#: data/scripts/upgrade.php:258
-msgid ""
-"It’s now possible to create a template with a sub-template for one or more "
-"media."
-msgstr ""
-"Il est désormais possible de créer un modèle avec un sous-modèle pour un ou "
-"plusieurs média."
+#: data/scripts/upgrade.php:313
+msgid "It’s now possible to create a template with a sub-template for one or more media."
+msgstr "Il est désormais possible de créer un modèle avec un sous-modèle pour un ou plusieurs média."
 
-#: data/scripts/upgrade.php:262
-msgid ""
-"It’s now possible to create a template with file, custom vocab, value "
-"suggest or numeric fields."
-msgstr ""
-"Il est désormais possible de créer un modèle avec un fichier, un vocabulaire "
-"personnalisé, des valeurs suggérées ou des champs numériques."
+#: data/scripts/upgrade.php:317
+msgid "It’s now possible to create a template with file, custom vocab, value suggest or numeric fields."
+msgstr "Il est désormais possible de créer un modèle avec un fichier, un vocabulaire personnalisé, des valeurs suggérées ou des champs numériques."
 
-#: data/scripts/upgrade.php:266
+#: data/scripts/upgrade.php:321
 msgid "It’s now possible to edit a contribution until it is submitted."
-msgstr ""
-"Il est désormais possible d’éditer une contribution tant qu’elle n’a pas été "
-"soumise."
+msgstr "Il est désormais possible d’éditer une contribution tant qu’elle n’a pas été soumise."
 
-#: data/scripts/upgrade.php:270
-msgid ""
-"This version does not allow to correct resources. The feature will be "
-"reincluded in version 3.3.0.18."
-msgstr ""
-"Cette version ne permet pas de corriger les ressources. Cette fonctionnalité "
-"sera réintroduite dans la version 3.3.0.18."
+#: data/scripts/upgrade.php:325
+msgid "This version does not allow to correct resources. The feature will be reincluded in version 3.3.0.18."
+msgstr "Cette version ne permet pas de corriger les ressources. Cette fonctionnalité sera réintroduite dans la version 3.3.0.18."
 
-#: data/scripts/upgrade.php:277
+#: data/scripts/upgrade.php:332
 msgid "It’s now possible for admin to search contributions."
 msgstr "Il est désormais possible de rechercher des contributions en admin."
 
-#: data/scripts/upgrade.php:286
+#: data/scripts/upgrade.php:341
 msgid "It’s now possible to correct and fill existing resources."
-msgstr ""
-"Il est désormais possible de corriger et de remplir des ressources "
-"existantes."
+msgstr "Il est désormais possible de corriger et de remplir des ressources existantes."
 
-#: data/scripts/upgrade.php:290
-msgid ""
-"A new option was added to allow to update a contribution until validation."
-msgstr ""
-"Une nouvelle option a été ajoutée pour autoriser à modifier une contribution "
-"jusqu’à la validation."
+#: data/scripts/upgrade.php:345
+msgid "A new option was added to allow to update a contribution until validation."
+msgstr "Une nouvelle option a été ajoutée pour autoriser à modifier une contribution jusqu’à la validation."
 
-#: data/scripts/upgrade.php:294
-msgid ""
-"The events \"view.add.before/after\" are used in place of \"view.edit.before/"
-"after\" in template contribution/add."
-msgstr ""
-"Les événements \"view.add.before/after\" sont utilisés à la place de "
-"\"view.edit.before/after\" dans le gabarit contribution/add."
+#: data/scripts/upgrade.php:349
+msgid "The events \"view.add.before/after\" are used in place of \"view.edit.before/after\" in template contribution/add."
+msgstr "Les événements \"view.add.before/after\" sont utilisés à la place de \"view.edit.before/after\" dans le gabarit contribution/add."
 
-#: data/scripts/upgrade.php:298
-msgid ""
-"Warning: the variable \"$resource\" is now the edited resource in the theme "
-"and no more the contribution. Check your theme if you edited templates, "
-"mainly \"show\" and \"edit\"."
-msgstr ""
-"Attention : la variable « $resource » correspond désormais la ressource "
-"éditée dans le thème et non plus à la contribution. Vérifiez le thème si "
-"vous avez modifier les gabarits, principalement « show » et « edit »."
+#: data/scripts/upgrade.php:353
+msgid "Warning: the variable \"$resource\" is now the edited resource in the theme and no more the contribution. Check your theme if you edited templates, mainly \"show\" and \"edit\"."
+msgstr "Attention : la variable « $resource » correspond désormais la ressource éditée dans le thème et non plus à la contribution. Vérifiez le thème si vous avez modifier les gabarits, principalement « show » et « edit »."
 
-#: data/scripts/upgrade.php:305
+#: data/scripts/upgrade.php:360
 msgid "It’s now possible to submit a contribution in one step."
-msgstr ""
-"Il est désormais possible de soumettre une contribution en une seule étape."
+msgstr "Il est désormais possible de soumettre une contribution en une seule étape."
 
-#: data/scripts/upgrade.php:312
-msgid ""
-"It’s now possible to allow contribution only for selected authenticated "
-"users or via a regex on email."
-msgstr ""
-"Il est désormais possible d’autoriser les contributions seulement pour "
-"certains utilisateurs ou via une regex sur leur mail."
+#: data/scripts/upgrade.php:367
+msgid "It’s now possible to allow contribution only for selected authenticated users or via a regex on email."
+msgstr "Il est désormais possible d’autoriser les contributions seulement pour certains utilisateurs ou via une regex sur leur mail."
 
-#: data/scripts/upgrade.php:338
+#: data/scripts/upgrade.php:393
 msgid "It’s now possible to set a minimum number of files."
 msgstr "Il est désormais possible de définir un nombre de fichier minimum."
 
-#: data/scripts/upgrade.php:369
-msgid ""
-"It’s now possible to allow contribution based on a user setting, for example "
-"an attribute set by an IdP."
-msgstr ""
-"Il est désormais possible d’autoriser les contributions selon les valeurs "
-"utilisateurs, en particulier les attributs définis par un IdP."
+#: data/scripts/upgrade.php:424
+msgid "It’s now possible to allow contribution based on a user setting, for example an attribute set by an IdP."
+msgstr "Il est désormais possible d’autoriser les contributions selon les valeurs utilisateurs, en particulier les attributs définis par un IdP."
 
-#: data/scripts/upgrade.php:374
+#: data/scripts/upgrade.php:429
 msgid "It’s now possible to allow contribution based on different modes."
-msgstr ""
-"Il est désormais de définir plusieurs modes d’autorisation des contributions."
+msgstr "Il est désormais de définir plusieurs modes d’autorisation des contributions."
 
-#: data/scripts/upgrade.php:379
+#: data/scripts/upgrade.php:434
 msgid "New navigation links are available to add resources and to list them."
-msgstr ""
-"De nouveaux liens de navigation sont disponibles pour ajouter une ressource "
-"ou les lister."
+msgstr "De nouveaux liens de navigation sont disponibles pour ajouter une ressource ou les lister."
 
-#: data/scripts/upgrade.php:415
+#: data/scripts/upgrade.php:470
 msgid "It’s now possible to define multiple emails to check."
 msgstr "Il est désormais possible de définir plusieurs mails à vérifier."
 
-#: data/scripts/upgrade.php:433
-msgid ""
-"There is now a flag to indicate that a contribution is taken in charge. "
-"Furthermore, the flag \"reviewed\" was renamed \"validated\" and its value "
-"can be undetermined."
-msgstr ""
-"Il y a maintenant un drapeau pour indiquer qu’une contribution est prise en "
-"charge. En outre, le drapeau \"relu\" a été renommé \"validé\" et sa valeur "
-"peut être indéterminée."
+#: data/scripts/upgrade.php:488
+msgid "There is now a flag to indicate that a contribution is taken in charge. Furthermore, the flag \"reviewed\" was renamed \"validated\" and its value can be undetermined."
+msgstr "Il y a maintenant un drapeau pour indiquer qu’une contribution est prise en charge. En outre, le drapeau \"relu\" a été renommé \"validé\" et sa valeur peut être indéterminée."
 
-#: data/scripts/upgrade.php:443
+#: data/scripts/upgrade.php:498
 msgid "New options were added to send email to contributors."
-msgstr ""
-"De nouvelles options ont été ajoutées pour envoyer des mails aux "
-"contributeurs."
+msgstr "De nouvelles options ont été ajoutées pour envoyer des mails aux contributeurs."
 
-#: data/scripts/upgrade.php:497
-msgid ""
-"The option to specify the media template was removed. Only the options in "
-"templates will be used. You should check the options in the templates used "
-"for contribution: {template_ids}."
-msgstr ""
-"L’option permettant de spécifier le modèle de média a été supprimée. Seules "
-"les options des modèles seront utilisées. Vous devez vérifier les options "
-"des modèles utilisés pour la contribution : {template_ids}."
+#: data/scripts/upgrade.php:552
+msgid "The option to specify the media template was removed. Only the options in templates will be used. You should check the options in the templates used for contribution: {template_ids}."
+msgstr "L’option permettant de spécifier le modèle de média a été supprimée. Seules les options des modèles seront utilisées. Vous devez vérifier les options des modèles utilisés pour la contribution : {template_ids}."
 
-#: data/scripts/upgrade.php:524
-msgid ""
-"It is now possible to define contribute settings by template and not "
-"globally. It allows to limit contribution to one template to some users, for "
-"example a template \"Thesis\" for student authenticated by some sso rules or "
-"for some mails and a template \"Master\" for other students."
-msgstr ""
-"Il est désormais possible de définir les paramètres de contribution par "
-"modèle et non plus globalement. Cela permet de limiter la contribution à un "
-"modèle pour certains utilisateurs, par exemple un modèle \"Thèse\" pour les "
-"étudiants authentifiés par certaines règles sso ou pour certains courriels "
-"et un modèle \"Master\" pour les autres étudiants."
+#: data/scripts/upgrade.php:579
+msgid "It is now possible to define contribute settings by template and not globally. It allows to limit contribution to one template to some users, for example a template \"Thesis\" for student authenticated by some sso rules or for some mails and a template \"Master\" for other students."
+msgstr "Il est désormais possible de définir les paramètres de contribution par modèle et non plus globalement. Cela permet de limiter la contribution à un modèle pour certains utilisateurs, par exemple un modèle \"Thèse\" pour les étudiants authentifiés par certaines règles sso ou pour certains courriels et un modèle \"Master\" pour les autres étudiants."
 
-#: data/scripts/upgrade.php:577
+#: data/scripts/upgrade.php:632
 msgid "{count} resource templates were re-enabled for contribution."
 msgstr "{count} modèles ont été réactivés pour la contribution."
 
-#: data/scripts/upgrade.php:611
+#: data/scripts/upgrade.php:666
 msgid "{count} media-only templates were removed from contributable templates."
-msgstr ""
-"{count} modèles spécifiques aux médias ont été supprimés des modèles "
-"contribuables."
+msgstr "{count} modèles spécifiques aux médias ont été supprimés des modèles contribuables."
 
-#: data/scripts/upgrade.php:620
-msgid ""
-"An option allows to set a specific message for acceptation, at start or end "
-"of contribution."
-msgstr ""
-"Une option permet de définir un message spécifique pour l’acceptation, au "
-"début ou à la fin de la contribution."
+#: data/scripts/upgrade.php:675
+msgid "An option allows to set a specific message for acceptation, at start or end of contribution."
+msgstr "Une option permet de définir un message spécifique pour l’acceptation, au début ou à la fin de la contribution."
 
-#: Module.php:739
+#: data/scripts/upgrade.php:711
+msgid "A background job #{job_id} was dispatched to recover missing files of pending contributions and fill the new \"contribution_file\" index. Watch its status in the Jobs list; the upgrade itself is done."
+msgstr "Une tâche en arrière-plan n° {job_id} a été lancée pour récupérer les fichiers manquants des contributions en attente et alimenter le nouvel index « contribution_file ». Vous pouvez suivre son état dans la liste des tâches ; la mise à jour proprement dite est terminée."
+
+#: Module.php:753
 msgid "{total} contributions ({count} not validated)"
 msgstr "{total} contributions ({count} non validées)"
 
-#: Module.php:742
+#: Module.php:756
 msgid "No contribution"
 msgstr "Pas de contribution"
 
-#: Module.php:779
+#: Module.php:793
 msgid "Contribution modes"
 msgstr "Modes de contribution"
 
-#: Module.php:801
+#: Module.php:815
 msgid "Contribute: Editable by contributor"
 msgstr "Contribute : Éditable par un contributeur"
 
-#: Module.php:813
+#: Module.php:827
 msgid "Contribute: Fillable by contributor"
 msgstr "Contribute : Remplissable par un contributeur"
 
@@ -925,54 +818,60 @@ msgid "The module Advanced Resource Template is not available."
 msgstr "Le module Advanced Resource Template n’est pas disponible."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:96
-msgid ""
-"A resource template for media must be set to allow to contribute for "
-"template #{template_id}."
-msgstr ""
-"Un modèle de ressource doit être défini pour les médias pour permettre de "
-"contribuer pour le modèle #{template_id}."
+msgid "A resource template for media must be set to allow to contribute for template #{template_id}."
+msgstr "Un modèle de ressource doit être défini pour les médias pour permettre de contribuer pour le modèle #{template_id}."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:143
-msgid ""
-"The resource template #{template_id} used for media in template {template} "
-"is not available."
-msgstr ""
-"Le modèle de ressource #{template_id} utilisé pour les médias dans le modèle "
-"{template} n’est pas disponible."
+msgid "The resource template #{template_id} used for media in template {template} is not available."
+msgstr "Le modèle de ressource #{template_id} utilisé pour les médias dans le modèle {template} n’est pas disponible."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:372
-msgid ""
-"The template #{template_id} does not exist and cannot be used for "
-"contribution."
-msgstr ""
-"Le modèle « {template_id} » n’existe pas et ne peut pas être utilisé pour "
-"une contribution."
+msgid "The template #{template_id} does not exist and cannot be used for contribution."
+msgstr "Le modèle « {template_id} » n’existe pas et ne peut pas être utilisé pour une contribution."
 
 #: src/Mvc/Controller/Plugin/ContributiveData.php:377
-msgid ""
-"The template \"{template}\" does not exist and cannot be used for "
-"contribution."
-msgstr ""
-"Le modèle « {template} » n’existe pas et ne peut pas être utilisé pour une "
-"contribution."
+msgid "The template \"{template}\" does not exist and cannot be used for contribution."
+msgstr "Le modèle « {template} » n’existe pas et ne peut pas être utilisé pour une contribution."
+
+#: src/Job/RecoverContributionFiles.php:44
+msgid "The file store is not local: the recovery of the files of pending contributions and the cleaning of orphan files inside files/original cannot be processed automatically. Check them manually."
+msgstr "Le répertoire de stockage des fichiers n’est pas local : la récupération des fichiers des contributions en attente et le nettoyage des fichiers orphelins dans le répertoire « files/original » ne peuvent pas être effectués automatiquement. Vérifiez-les manuellement."
+
+#: src/Job/RecoverContributionFiles.php:175
+msgid "Job stopped before completion. Recovery may be incomplete; relaunch it manually to resume."
+msgstr "La tâche a été interrompue avant son achèvement. La récupération risque d’être incomplète ; relancez-la manuellement pour la reprendre."
+
+#: src/Job/RecoverContributionFiles.php:227
+msgid "{count} files of pending contributions were recovered inside files/contribution from the orphan files of files/original."
+msgstr "{count} fichiers de contributions en attente ont été récupérés dans le répertoire « files/contribution » à partir des fichiers orphelins du répertoire « files/original »."
+
+#: src/Job/RecoverContributionFiles.php:233
+msgid "The files of the contributions {ids} were recovered, but multiple files with the same extension were submitted together, so the association between files and medias may be wrong and should be checked manually."
+msgstr "Les fichiers des contributions {ids} ont été récupérés, mais plusieurs fichiers portant la même extension ont été envoyés ensemble ; il se peut donc que l'association entre les fichiers et les médias soit erronée et qu'il faille la vérifier manuellement."
+
+#: src/Job/RecoverContributionFiles.php:239
+msgid "Some files of the contributions {ids} are missing and could not be recovered. The contributors should be asked to submit their files again."
+msgstr "Certains fichiers des contributions {ids} sont manquants et n'ont pas pu être récupérés. Il faudrait demander aux contributeurs de renvoyer leurs fichiers."
+
+#: src/Job/RecoverContributionFiles.php:298
+msgid "{count} orphan files were removed from files/original with their thumbnails: {duplicates} were duplicates whose content is preserved in files/contribution, {recovered} were sources copied into files/contribution during the recovery, and {unmatched} were unmatched leftovers of interrupted submissions (post-first-contribution files that could not be linked to any pending contribution). No file attached to a media (item) was touched."
+msgstr "{count} fichiers orphelins ont été supprimés du dossier files/original avec leurs vignettes : {duplicates} correspondaient à des doublons dont le contenu a été conservé dans le dossier files/contribution, {recovered} correspondaient à des sources copiées dans le dossier files/contribution lors de la récupération, et {unmatched} correspondaient à des résidus de soumissions interrompues (fichiers qui n’ont pu être associés à aucune contribution en attente). Aucun fichier associé à un média (contenu) n’a été modifié."
+
+#: src/Job/RecoverContributionFiles.php:336
+msgid "Job stopped before the contribution_file index was fully populated; relaunch it manually to resume."
+msgstr "La tâche s’est arrêtée avant que l’index du fichier de contribution ne soit entièrement rempli ; relancez-la manuellement pour la reprendre."
+
+#: src/Job/RecoverContributionFiles.php:356
+msgid "The files of {count} contributions were indexed in the new table \"contribution_file\"."
+msgstr "Les fichiers correspondant à {count} contributions ont été indexés dans la nouvelle table « contribution_file »."
 
 #: src/Form/SettingsFieldset.php:32
 msgid "Redirection after submission"
 msgstr "Redirection après soumission"
 
 #: src/Form/SettingsFieldset.php:33
-msgid ""
-"Default is the page of contributions for guest users. Set \"home\" for home "
-"page (admin or public), \"site\" for the current site home, \"top\" for main "
-"public page, \"me\" for guest account, or any path starting with \"/\", "
-"including \"/\" itself for main home page."
-msgstr ""
-"Par défaut, l’utilisateur invité est redirigé vers la page des "
-"contributions. Indiquez « home » pour la page d’accueil (admin ou public), "
-"« site » pour la page d’accueil du site en cours, « top » pour la page "
-"d’accueil principale, « me » pour la page d’accueil du compte invité ou tout "
-"chemin commençant par « / », y compris « / » pour la page d’accueil "
-"principale."
+msgid "Default is the page of contributions for guest users. Set \"home\" for home page (admin or public), \"site\" for the current site home, \"top\" for main public page, \"me\" for guest account, or any path starting with \"/\", including \"/\" itself for main home page."
+msgstr "Par défaut, l’utilisateur invité est redirigé vers la page des contributions. Indiquez « home » pour la page d’accueil (admin ou public), « site » pour la page d’accueil du site en cours, « top » pour la page d’accueil principale, « me » pour la page d’accueil du compte invité ou tout chemin commençant par « / », y compris « / » pour la page d’accueil principale."
 
 #: src/Form/SettingsFieldset.php:54
 msgid "Subject of the default email to the author"
@@ -1091,33 +990,16 @@ msgid "Convert template when the contribution is validated"
 msgstr "Convertir le modèle quand la contribution est validée"
 
 #: src/Form/TemplateContributeFieldset.php:49
-msgid ""
-"In complex workflow, the template for the user may be different from the "
-"template of the item, for example to create a form with different property "
-"labels, or a different order, or more restrictive rules of property "
-"validation, or different templates for different users. So this option "
-"changes the template when the contribution is validated."
-msgstr ""
-"Dans les organisations complexes, le modèle pour l’utilisateur peut être "
-"différent du modèle du contenu, par exemple pour créer un formulaire avec "
-"des libellés de propriétés différents, ou un ordre différent, ou des règles "
-"de validation des propriétés plus restrictives, ou des modèles différents "
-"pour des utilisateurs différents. Cette option convertit donc le modèle "
-"lorsque la contribution est validée."
+msgid "In complex workflow, the template for the user may be different from the template of the item, for example to create a form with different property labels, or a different order, or more restrictive rules of property validation, or different templates for different users. So this option changes the template when the contribution is validated."
+msgstr "Dans les organisations complexes, le modèle pour l’utilisateur peut être différent du modèle du contenu, par exemple pour créer un formulaire avec des libellés de propriétés différents, ou un ordre différent, ou des règles de validation des propriétés plus restrictives, ou des modèles différents pour des utilisateurs différents. Cette option convertit donc le modèle lorsque la contribution est validée."
 
 #: src/Form/TemplateContributeFieldset.php:68
 msgid "Media templates for contribution"
 msgstr "Modèle de média pour la contribution"
 
 #: src/Form/TemplateContributeFieldset.php:69
-msgid ""
-"If any, the templates should be in the list of allowed templates for "
-"contribution of a media. Warning: to use multiple media is supported only "
-"with specific themes for now."
-msgstr ""
-"Si disponible, les modèles doivent être dans la liste des modèles autorisés "
-"pour la contribution d’un média. Attention : utiliser plusieurs médias "
-"nécessite actuellement un thème spécifique."
+msgid "If any, the templates should be in the list of allowed templates for contribution of a media. Warning: to use multiple media is supported only with specific themes for now."
+msgstr "Si disponible, les modèles doivent être dans la liste des modèles autorisés pour la contribution d’un média. Attention : utiliser plusieurs médias nécessite actuellement un thème spécifique."
 
 #: src/Form/TemplateContributeFieldset.php:77
 msgid "Select templates for media…"
@@ -1164,12 +1046,8 @@ msgid "Authenticated users with defined emails below"
 msgstr "Utilisateurs authentifiés avec un mail défini ci-dessous"
 
 #: src/Form/TraitSettingsFieldset.php:32
-msgid ""
-"Users filtered on their settings, in particular IdP attributes mapped via "
-"Single Sign-On"
-msgstr ""
-"Utilisateurs filtrés selon leurs valeurs, en particulier les attributs IdP "
-"alignés via Single Sign-On"
+msgid "Users filtered on their settings, in particular IdP attributes mapped via Single Sign-On"
+msgstr "Utilisateurs filtrés selon leurs valeurs, en particulier les attributs IdP alignés via Single Sign-On"
 
 #: src/Form/TraitSettingsFieldset.php:49
 msgid "Roles allowed to contribute (option \"Roles\" above)"
@@ -1181,43 +1059,27 @@ msgstr "Choisir des rôles…"
 
 #: src/Form/TraitSettingsFieldset.php:67
 msgid "Filter on emails of users allowed to contribute (option above)"
-msgstr ""
-"Filtres sur les mails des utilisateurs autorisés à contribuer (option ci-"
-"dessus)"
+msgstr "Filtres sur les mails des utilisateurs autorisés à contribuer (option ci-dessus)"
 
 #: src/Form/TraitSettingsFieldset.php:68
-msgid ""
-"The filters may be a raw email or a regex wrapped with \"~\". They are "
-"independant: a single rule should be true to allow contribution."
-msgstr ""
-"Les filtres peuvent être un mail ou une regex entourée de « ~ ». Ils sont "
-"indépendants : une règle doit être vraie pour autoriser les contributions."
+msgid "The filters may be a raw email or a regex wrapped with \"~\". They are independant: a single rule should be true to allow contribution."
+msgstr "Les filtres peuvent être un mail ou une regex entourée de « ~ ». Ils sont indépendants : une règle doit être vraie pour autoriser les contributions."
 
 #: src/Form/TraitSettingsFieldset.php:86
 msgid "Filters on settings of users allowed to contribute (option above)"
-msgstr ""
-"Filtres sur les paramètres des utilisateurs autorisés à contribuer (option "
-"ci-dessus)"
+msgstr "Filtres sur les paramètres des utilisateurs autorisés à contribuer (option ci-dessus)"
 
 #: src/Form/TraitSettingsFieldset.php:87
-msgid ""
-"The filters may be a raw string or a regex wrapped with \"~\". They are "
-"cumulative: all filters should be true."
-msgstr ""
-"Les filtres peuvent être une chaîne ou une regex entourée de « ~ ». Ils sont "
-"cumulatifs : tous les filtres doivent être vrais."
+msgid "The filters may be a raw string or a regex wrapped with \"~\". They are cumulative: all filters should be true."
+msgstr "Les filtres peuvent être une chaîne ou une regex entourée de « ~ ». Ils sont cumulatifs : tous les filtres doivent être vrais."
 
 #: src/Form/TraitSettingsFieldset.php:107
 msgid "Days for token to expire"
 msgstr "Nombre de jours avant que le jeton n’expire"
 
 #: src/Form/TraitSettingsFieldset.php:108
-msgid ""
-"Allow to set the default expiration date of a token. Let empty to remove "
-"expiration."
-msgstr ""
-"Permet de définir une durée avant expiration automatique du jeton. Laisser "
-"vide pour supprimer l’expiration."
+msgid "Allow to set the default expiration date of a token. Let empty to remove expiration."
+msgstr "Permet de définir une durée avant expiration automatique du jeton. Laisser vide pour supprimer l’expiration."
 
 #: src/Form/TraitSettingsFieldset.php:115
 msgid "90"
@@ -1241,16 +1103,11 @@ msgstr "Jusqu’à la validation"
 
 #: src/Form/TraitSettingsFieldset.php:145
 msgid "Email of the sender (else no-reply user or administrator)"
-msgstr ""
-"Mail de l’expéditeur (sinon le mail « ne pas répondre » ou l’administrateur)"
+msgstr "Mail de l’expéditeur (sinon le mail « ne pas répondre » ou l’administrateur)"
 
 #: src/Form/TraitSettingsFieldset.php:146
-msgid ""
-"The no-reply email can be set via module EasyAdmin. The administrator email "
-"can be set above."
-msgstr ""
-"Le mail ne-pas-répondre est défini via le module EasyAdmin. Le mail "
-"administrateur peut être défini plus haut."
+msgid "The no-reply email can be set via module EasyAdmin. The administrator email can be set above."
+msgstr "Le mail ne-pas-répondre est défini via le module EasyAdmin. Le mail administrateur peut être défini plus haut."
 
 #: src/Form/TraitSettingsFieldset.php:159
 msgid "Name of the sender when email above is set"
@@ -1261,22 +1118,8 @@ msgid "Emails to notify contributions"
 msgstr "Adresses mails pour notifier des contributions"
 
 #: src/Form/TraitSettingsFieldset.php:174
-msgid ""
-"A query can be appended to limit notifications to specific contributions. "
-"The query supports resource_template_id, resource_class_id, property[] and "
-"the AdvancedSearch filter[] DSL (types eq, res, in), and operates on the "
-"contribution proposal (not the underlying resource). Coverage is partial but "
-"handles the most common cases; unsupported types or arguments are logged "
-"with a warning, so check the logs after configuring a query."
-msgstr ""
-"Il est possible d’ajouter une requête pour limiter les notifications à des "
-"contributions spécifiques. La requête prend en charge resource_template_id, "
-"resource_class_id, property[] ainsi que filter[] d’AdvancedSearch (types eq, "
-"res, in). La requête porte sur la proposition de contribution (et non sur la "
-"ressource sous-jacente). La couverture est partielle mais couvre les cas les "
-"plus courants ; les types ou arguments non pris en charge sont consignés "
-"dans les journaux avec un avertissement. Il est donc recommandé de vérifier "
-"les journaux après avoir configuré une requête."
+msgid "A query can be appended to limit notifications to specific contributions. The query supports resource_template_id, resource_class_id, property[] and the AdvancedSearch filter[] DSL (types eq, res, in), and operates on the contribution proposal (not the underlying resource). Coverage is partial but handles the most common cases; unsupported types or arguments are logged with a warning, so check the logs after configuring a query."
+msgstr "Il est possible d’ajouter une requête pour limiter les notifications à des contributions spécifiques. La requête prend en charge resource_template_id, resource_class_id, property[] ainsi que filter[] d’AdvancedSearch (types eq, res, in). La requête porte sur la proposition de contribution (et non sur la ressource sous-jacente). La couverture est partielle mais couvre les cas les plus courants ; les types ou arguments non pris en charge sont consignés dans les journaux avec un avertissement. Il est donc recommandé de vérifier les journaux après avoir configuré une requête."
 
 #: src/Form/TraitSettingsFieldset.php:193
 msgid "Emails of the author"
@@ -1337,11 +1180,8 @@ msgstr "Message de confirmation à l’auteur"
 
 #: src/Form/TraitSettingsFieldset.php:315
 #: src/Form/TraitSettingsFieldset.php:343
-msgid ""
-"Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
-msgstr ""
-"Jokers : entourer les propriétés avec des « {} », par exemple "
-"« {dcterms:title} »."
+msgid "Placeholders: wrap properties with \"{}\", for example \"{dcterms:title}\"."
+msgstr "Jokers : entourer les propriétés avec des « {} », par exemple « {dcterms:title} »."
 
 #: src/Form/TraitSettingsFieldset.php:329
 msgid "Subject of the email of confirmation to the reviewers"
@@ -1352,33 +1192,20 @@ msgid "Message of confirmation to the reviewers"
 msgstr "Message de confirmation aux relecteurs"
 
 #: src/Api/Adapter/ContributionAdapter.php:272
-msgid ""
-"Contribute search: filter type \"{type}\" is not supported and is treated as "
-"\"eq\"."
-msgstr ""
-"Contribution (recherche) : le type de filtre \"{type}\" n’est pas pris en "
-"charge et traité comme \"eq\"."
+msgid "Contribute search: filter type \"{type}\" is not supported and is treated as \"eq\"."
+msgstr "Contribution (recherche) : le type de filtre \"{type}\" n’est pas pris en charge et traité comme \"eq\"."
 
 #: src/Api/Adapter/ContributionAdapter.php:288
-msgid ""
-"Contribute search: filter field \"{field}\" is not a valid term and is "
-"ignored."
-msgstr ""
-"Contribution (recherche) : le filtre du champ \"{field}\" n’est pas un terme "
-"correct et ignoré."
+msgid "Contribute search: filter field \"{field}\" is not a valid term and is ignored."
+msgstr "Contribution (recherche) : le filtre du champ \"{field}\" n’est pas un terme correct et ignoré."
 
 #: src/Api/Adapter/ContributionAdapter.php:318
-msgid ""
-"Contribute search: property type \"{type}\" is not supported and is treated "
-"as \"eq\"."
-msgstr ""
-"Contribution (recherche) : le type de propriété \"{type}\" n’est pas pris en "
-"charge et traité comme \"eq\"."
+msgid "Contribute search: property type \"{type}\" is not supported and is treated as \"eq\"."
+msgstr "Contribution (recherche) : le type de propriété \"{type}\" n’est pas pris en charge et traité comme \"eq\"."
 
 #: src/Api/Adapter/ContributionAdapter.php:378
 msgid "Contribute search: ignored unsupported query arguments: {keys}."
-msgstr ""
-"Contribution (recherche) : les arguments inconnus sont ignorés : {keys}."
+msgstr "Contribution (recherche) : les arguments inconnus sont ignorés : {keys}."
 
 #: src/Api/Adapter/ContributionAdapter.php:493
 msgid "Invalid or empty file for key {key}."
@@ -1422,17 +1249,12 @@ msgid "The store for file is not set."
 msgstr "L’emplacement de stockage du fichier n’est pas défini."
 
 #: src/Controller/Admin/ContributionController.php:152
-msgid ""
-"{count} contribution(s) without resource have missing files. They are "
-"highlighted in orange and can be filtered via the sidebar."
-msgstr ""
-"{count} contributions sans ressource ont des fichiers manquants. Ils sont "
-"surlignés en orange et peuvent être filtrés dans la barre."
+msgid "{count} contribution(s) without resource have missing files. They are highlighted in orange and can be filtered via the sidebar."
+msgstr "{count} contributions sans ressource ont des fichiers manquants. Ils sont surlignés en orange et peuvent être filtrés dans la barre."
 
 #: src/Controller/Admin/ContributionController.php:176
 msgid "This contribution is a new resource or has no more resource."
-msgstr ""
-"Cette contribution est une nouvelle ressource ou n’a plus de ressource."
+msgstr "Cette contribution est une nouvelle ressource ou n’a plus de ressource."
 
 #: src/Controller/Admin/ContributionController.php:233
 msgid "contribution"
@@ -1451,38 +1273,24 @@ msgid "Contributions successfully deleted"
 msgstr "Les contributions ont été correctement supprimées"
 
 #: src/Controller/Admin/ContributionController.php:309
-msgid ""
-"Deleting contributions. This may take a while (job {link_job}#{job_id}"
-"{link_end}, {link_log}logs{link_end})."
-msgstr ""
-"Suppression des contributions. Cela peut prendre un moment (tâche {link_job}"
-"#{job_id}{link_end}, {link_log}journaux{link_end})."
+msgid "Deleting contributions. This may take a while (job {link_job}#{job_id}{link_end}, {link_log}logs{link_end})."
+msgstr "Suppression des contributions. Cela peut prendre un moment (tâche {link_job}#{job_id}{link_end}, {link_log}journaux{link_end})."
 
 #: src/Controller/Admin/ContributionController.php:356
 msgid "You can create token only for items, media and item sets."
-msgstr ""
-"Vous pouvez créer un jeton seulement pour les contenus, les médias et les "
-"collections."
+msgstr "Vous pouvez créer un jeton seulement pour les contenus, les médias et les collections."
 
 #: src/Controller/Admin/ContributionController.php:395
 msgid "You must select at least one resource to create a token."
 msgstr "Vous devez choisir au moins une ressource pour créer un jeton."
 
 #: src/Controller/Admin/ContributionController.php:404
-msgid ""
-"You set the optional email \"{email}\" to create a contribution token, but "
-"it is not well-formed."
-msgstr ""
-"Vous avez saisi « {email} » comme mail optionnel pour le jeton de "
-"contribution, mais il n’est pas correctement écrit."
+msgid "You set the optional email \"{email}\" to create a contribution token, but it is not well-formed."
+msgstr "Vous avez saisi « {email} » comme mail optionnel pour le jeton de contribution, mais il n’est pas correctement écrit."
 
 #: src/Controller/Admin/ContributionController.php:446
-msgid ""
-"Created {total} contribution tokens (email: {email}, duration: {duration}): "
-"{urls}"
-msgstr ""
-"Création de {total} jetons de contribution (email : {email}, durée : "
-"{duration}) : {urls}"
+msgid "Created {total} contribution tokens (email: {email}, duration: {duration}): {urls}"
+msgstr "Création de {total} jetons de contribution (email : {email}, durée : {duration}) : {urls}"
 
 #: src/Controller/Admin/ContributionController.php:449
 msgid "none"
@@ -1505,46 +1313,28 @@ msgid "All tokens of the resource were expired."
 msgstr "Tous les jetons de la ressource ont été expirés."
 
 #: src/Controller/Admin/ContributionController.php:801
-msgid ""
-"The template \"{val}\" to convert into from template {template_id} does not "
-"exist or is not valid. The conversion is skipped"
-msgstr ""
-"Le modèle \"{val}\" à convertir à partir du modèle {template_id} n’existe "
-"pas ou n’est pas valide. La conversion est ignorée"
+msgid "The template \"{val}\" to convert into from template {template_id} does not exist or is not valid. The conversion is skipped"
+msgstr "Le modèle \"{val}\" à convertir à partir du modèle {template_id} n’existe pas ou n’est pas valide. La conversion est ignorée"
 
 #: src/Controller/Admin/ContributionController.php:809
-msgid ""
-"The template \"{val}\" should be converted to the same template. Check the "
-"template settings."
-msgstr ""
-"Le modèle \"{val}\" devrait être converti dans le même modèle. Vérifiez les "
-"paramètres du modèle."
+msgid "The template \"{val}\" should be converted to the same template. Check the template settings."
+msgstr "Le modèle \"{val}\" devrait être converti dans le même modèle. Vérifiez les paramètres du modèle."
 
 #: src/Controller/Admin/ContributionController.php:832
-msgid ""
-"The template \"{template_id}\" to convert into from template {template_id_2} "
-"does not validate the resource. Check the consistency between the two "
-"termplates or missing required values in the second template."
-msgstr ""
-"Le modèle \"{template_id}\" à convertir à partir du modèle {template_id_2} "
-"ne valide pas la ressource. Vérifier la cohérence entre les deux modèles ou "
-"les valeurs requises manquantes dans le second modèle."
+msgid "The template \"{template_id}\" to convert into from template {template_id_2} does not validate the resource. Check the consistency between the two termplates or missing required values in the second template."
+msgstr "Le modèle \"{template_id}\" à convertir à partir du modèle {template_id_2} ne valide pas la ressource. Vérifier la cohérence entre les deux modèles ou les valeurs requises manquantes dans le second modèle."
 
 #: src/Controller/Admin/ContributionController.php:1133
 msgid "Message successfully sent to {email}."
 msgstr "Message envoyé avec succès à {email}."
 
-#: src/Controller/ContributionTrait.php:171
+#: src/Controller/ContributionTrait.php:180
 msgid "Unable to store the resource of the contribution: {message}"
 msgstr "Impossible d’enregistrer la ressource pour la contribution : {message}"
 
 #: src/Controller/Site/ContributionController.php:217
-msgid ""
-"A template is required to add a resource. Ask the administrator for more "
-"information."
-msgstr ""
-"Un modèle est nécessaire pour ajouter une ressource. Merci de contacter "
-"l’administrateur pour plus d’information."
+msgid "A template is required to add a resource. Ask the administrator for more information."
+msgstr "Un modèle est nécessaire pour ajouter une ressource. Merci de contacter l’administrateur pour plus d’information."
 
 #: src/Controller/Site/ContributionController.php:378
 msgid "Contribution successfully saved!"
@@ -1560,12 +1350,8 @@ msgid "An error occurred: check your input."
 msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie."
 
 #: src/Controller/Site/ContributionController.php:564
-msgid ""
-"This resource cannot be edited: no resource template, no fields, or not "
-"allowed."
-msgstr ""
-"Cette ressource ne peut pas être modifiée. Merci de contacter "
-"l’administrateur pour plus d’information."
+msgid "This resource cannot be edited: no resource template, no fields, or not allowed."
+msgstr "Cette ressource ne peut pas être modifiée. Merci de contacter l’administrateur pour plus d’information."
 
 #: src/Controller/Site/ContributionController.php:618
 msgid "This contribution has been submitted and cannot be edited."
@@ -1590,8 +1376,7 @@ msgstr "La contribution a été correctement mise à jour !"
 
 #: src/Controller/Site/ContributionController.php:771
 msgid "The delete confirm action is currently unavailable"
-msgstr ""
-"L’action de confirmation de suppression n’est pas disponible actuellement"
+msgstr "L’action de confirmation de suppression n’est pas disponible actuellement"
 
 #: src/Controller/Site/ContributionController.php:780
 msgid "Deletion can be processed only with a post."
@@ -1611,8 +1396,7 @@ msgstr "Cette contribution a été validée et ne peut pas être supprimée."
 
 #: src/Controller/Site/ContributionController.php:804
 msgid "This contribution has been taken in charge and cannot be deleted."
-msgstr ""
-"Cette contribution a été prise en charge et ne peut pas être supprimée."
+msgstr "Cette contribution a été prise en charge et ne peut pas être supprimée."
 
 #: src/Controller/Site/ContributionController.php:806
 msgid "This contribution has been submitted and cannot be deleted."
@@ -1656,25 +1440,15 @@ msgstr "La contribution ne peut pas être mise à jour."
 
 #: src/Controller/Site/ContributionController.php:910
 msgid "An error occurred: check your submission or ask an administrator."
-msgstr ""
-"Une erreur interne s’est produite : merci de vérifier votre saisie ou de "
-"contacter l’administrateur."
+msgstr "Une erreur interne s’est produite : merci de vérifier votre saisie ou de contacter l’administrateur."
 
 #: src/Controller/Site/ContributionController.php:1080
-msgid ""
-"User {user} has made a contribution for resource #{resource} ({title}) "
-"(action: {action})."
-msgstr ""
-"L’utilisateur {user} a fait une contribution pour la ressource #{resource} "
-"({title}) (action : {action})."
+msgid "User {user} has made a contribution for resource #{resource} ({title}) (action: {action})."
+msgstr "L’utilisateur {user} a fait une contribution pour la ressource #{resource} ({title}) (action : {action})."
 
 #: src/Controller/Site/ContributionController.php:1091
-msgid ""
-"An anonymous user has made a contribution for resource {resource} ({title}) "
-"(action: {action})."
-msgstr ""
-"Un utilisateur anonyme a fait une contribution pour la ressource {resource} "
-"({title}) (action : {action})."
+msgid "An anonymous user has made a contribution for resource {resource} ({title}) (action: {action})."
+msgstr "Un utilisateur anonyme a fait une contribution pour la ressource {resource} ({title}) (action : {action})."
 
 #: src/Controller/Site/ContributionController.php:1101
 msgid "User {user} has made a contribution (action: {action})."
@@ -1685,12 +1459,8 @@ msgid "An anonymous user has made a contribution (action: {action})."
 msgstr "Un utilisateur anonyme a fait une contribution (action : {action})."
 
 #: src/Controller/Site/ContributionController.php:1129
-msgid ""
-"The author of this contribution has no valid email. Check it or check the "
-"config."
-msgstr ""
-"L’auteur de la contribution n’a pas un mail correct. Vérifiez-le ou vérifier "
-"la configuration."
+msgid "The author of this contribution has no valid email. Check it or check the config."
+msgstr "L’auteur de la contribution n’a pas un mail correct. Vérifiez-le ou vérifier la configuration."
 
 #: src/Controller/Site/ContributionController.php:1138
 msgid ""
@@ -1708,19 +1478,19 @@ msgstr ""
 "\n"
 "Cordialement,"
 
-#: src/Controller/Site/ContributionController.php:1694
+#: src/Controller/Site/ContributionController.php:1705
 msgid "File {key}: {error}"
 msgstr "Fichier {key} : {error}"
 
-#: src/Controller/Site/ContributionController.php:1705
+#: src/Controller/Site/ContributionController.php:1716
 msgid "Empty file for key {key}"
 msgstr "Fichier vide pour l’index {key}"
 
-#: src/Controller/Site/ContributionController.php:1722
+#: src/Controller/Site/ContributionController.php:1733
 msgid "Invalid file type for key {key}"
 msgstr "Type de fichier incorrect pour l’index {key}"
 
-#: src/Controller/Site/ContributionController.php:1784
+#: src/Controller/Site/ContributionController.php:1795
 msgid "Forbidden access."
 msgstr "Accès interdit."
 
@@ -1790,6 +1560,9 @@ msgstr ""
 "\n"
 "Cordialement,"
 
+#~ msgid "{count} orphan files created by submissions of contributions were removed from files/original with their thumbnails."
+#~ msgstr "{count} fichiers orphelins créés à la suite de l’envoi de contributions ont été supprimés du répertoire « files/original » avec leurs vignettes."
+
 #~ msgid "cc"
 #~ msgstr "cc"
 
@@ -1811,15 +1584,11 @@ msgstr ""
 #~ msgid "Advanced settings"
 #~ msgstr "Paramètres avancés"
 
-#~ msgid ""
-#~ "A query can be appended to limit notifications to specific contributions."
-#~ msgstr ""
-#~ "Une requête peut être ajoutée pour limiter les notifications à des "
-#~ "contributions spécifiques."
+#~ msgid "A query can be appended to limit notifications to specific contributions."
+#~ msgstr "Une requête peut être ajoutée pour limiter les notifications à des contributions spécifiques."
 
 #~ msgid "Deleting contributions. This may take a while."
-#~ msgstr ""
-#~ "Suppression des contributions en cours. Cela peut prendre un moment."
+#~ msgstr "Suppression des contributions en cours. Cela peut prendre un moment."
 
 #~ msgid "Is not validated"
 #~ msgstr "Est rejeté"
@@ -1848,19 +1617,11 @@ msgstr ""
 #~ msgid "Specific confirmation message to the reviewer"
 #~ msgstr "Message spécifique pour la confirmation au relecteur"
 
-#~ msgid ""
-#~ "The resource template #{template_id} is not in the list of allowed "
-#~ "contribution templates for media."
-#~ msgstr ""
-#~ "Le modèle de ressource #{template_id} n’est pas dans la liste des modèles "
-#~ "de contribution autorisés pour les médias."
+#~ msgid "The resource template #{template_id} is not in the list of allowed contribution templates for media."
+#~ msgstr "Le modèle de ressource #{template_id} n’est pas dans la liste des modèles de contribution autorisés pour les médias."
 
-#~ msgid ""
-#~ "The resource template #{template_id} is not in the list of allowed "
-#~ "contribution templates."
-#~ msgstr ""
-#~ "Le modèle de ressource #{template_id} n’est pas dans la liste des modèles "
-#~ "de contribution autorisés."
+#~ msgid "The resource template #{template_id} is not in the list of allowed contribution templates."
+#~ msgstr "Le modèle de ressource #{template_id} n’est pas dans la liste des modèles de contribution autorisés."
 
 #~ msgid "Select resources templates…"
 #~ msgstr "Choisir un modèle de ressource…"
@@ -1875,9 +1636,7 @@ msgstr ""
 #~ msgstr "La contribution a déjà été relue."
 
 #~ msgid "Regex on email of users allowed to contribute (option above)"
-#~ msgstr ""
-#~ "Regex sur le mail des utilisateurs autorisés à contribuer (option ci-"
-#~ "dessus)"
+#~ msgstr "Regex sur le mail des utilisateurs autorisés à contribuer (option ci-dessus)"
 
 #~ msgid "Email not sent: the subject is missing."
 #~ msgstr "Mail non envoyé : pas de sujet."
@@ -1914,31 +1673,19 @@ msgstr ""
 #~ msgid "This module has resources that cannot be installed."
 #~ msgstr "Ce module a des ressources qui ne peuvent pas être installées."
 
-#~ msgid ""
-#~ "This module cannot install its tables, because they exist already. Try to "
-#~ "remove them first."
-#~ msgstr ""
-#~ "Ce module ne peut pas installer ses tables car elles existent déjà. "
-#~ "Essayez de les supprimer manuellement."
+#~ msgid "This module cannot install its tables, because they exist already. Try to remove them first."
+#~ msgstr "Ce module ne peut pas installer ses tables car elles existent déjà. Essayez de les supprimer manuellement."
 
 #, php-format
 #~ msgid "The module removed tables \"%s\" from a previous broken install."
-#~ msgstr ""
-#~ "Le module a supprimé les tables « %s » depuis une installation échouée."
+#~ msgstr "Le module a supprimé les tables « %s » depuis une installation échouée."
 
 #, php-format
-#~ msgid ""
-#~ "The module \"%s\" was automatically deactivated because the dependencies "
-#~ "are unavailable."
-#~ msgstr ""
-#~ "Le module « %s » a été automatiquement désactivé car ses dépendances ne "
-#~ "sont plus disponibles."
+#~ msgid "The module \"%s\" was automatically deactivated because the dependencies are unavailable."
+#~ msgstr "Le module « %s » a été automatiquement désactivé car ses dépendances ne sont plus disponibles."
 
-#~ msgid ""
-#~ "The module Correction was upgraded by module Contribute and uninstalled."
-#~ msgstr ""
-#~ "Le module Correction a été mis à jour par le module Contribuer et "
-#~ "désinstallé."
+#~ msgid "The module Correction was upgraded by module Contribute and uninstalled."
+#~ msgstr "Le module Correction a été mis à jour par le module Contribuer et désinstallé."
 
 #, php-format
 #~ msgid "The directory \"%s\" is not writeable: %s."
@@ -1949,84 +1696,47 @@ msgstr ""
 #~ msgstr "Fichier %s : %s"
 
 #, php-format
-#~ msgid ""
-#~ "An error occured when loading vocabulary \"%s\": file has no json content."
-#~ msgstr ""
-#~ "Une erreur est survenue en chargeant le vocabulaire « %s » : le fichier "
-#~ "n’a pas de contenu json."
+#~ msgid "An error occured when loading vocabulary \"%s\": file has no json content."
+#~ msgstr "Une erreur est survenue en chargeant le vocabulaire « %s » : le fichier n’a pas de contenu json."
 
 #, php-format
-#~ msgid ""
-#~ "An error occured when adding the prefix \"%s\": another vocabulary "
-#~ "exists. Resolve the conflict before installing this module."
-#~ msgstr ""
-#~ "Une erreur est survenue en ajoutant le préfixe « %s » : un autre "
-#~ "vocabulaire existe. Merci de résoudre le conflit avant d’installer ce "
-#~ "module."
+#~ msgid "An error occured when adding the prefix \"%s\": another vocabulary exists. Resolve the conflict before installing this module."
+#~ msgstr "Une erreur est survenue en ajoutant le préfixe « %s » : un autre vocabulaire existe. Merci de résoudre le conflit avant d’installer ce module."
 
 #, php-format
-#~ msgid ""
-#~ "A custom vocab exists for \"%s\". Remove it or rename it before "
-#~ "installing this module."
-#~ msgstr ""
-#~ "Un vocabulaire personnalisé existe pour « %s » : renommez-le ou supprimez-"
-#~ "le avant d’installer ce module."
+#~ msgid "A custom vocab exists for \"%s\". Remove it or rename it before installing this module."
+#~ msgstr "Un vocabulaire personnalisé existe pour « %s » : renommez-le ou supprimez-le avant d’installer ce module."
 
 #, php-format
-#~ msgid ""
-#~ "A resource template exists for %s. Rename it or remove it before "
-#~ "installing this module."
-#~ msgstr ""
-#~ "Un modèle de ressource nommé « %s » existe : merci de le renommer ou de "
-#~ "le supprimer avant d’installer ce module."
+#~ msgid "A resource template exists for %s. Rename it or remove it before installing this module."
+#~ msgstr "Un modèle de ressource nommé « %s » existe : merci de le renommer ou de le supprimer avant d’installer ce module."
 
 #, php-format
 #~ msgid "The vocabulary \"%s\" was already installed and was kept."
 #~ msgstr "Le vocabulaire « %s » a déjà été installé et a été conservé."
 
 #, php-format
-#~ msgid ""
-#~ "An error occured when adding the prefix \"%s\": another vocabulary exists "
-#~ "with the same prefix. Resolve the conflict before installing this module."
-#~ msgstr ""
-#~ "Une erreur est survenue lors de l’ajout du préfixe \"%s\" : un autre "
-#~ "vocabulaire existe avec le même préfixe. Merci de résoudre le conflit "
-#~ "avant d’installer ce module."
+#~ msgid "An error occured when adding the prefix \"%s\": another vocabulary exists with the same prefix. Resolve the conflict before installing this module."
+#~ msgstr "Une erreur est survenue lors de l’ajout du préfixe \"%s\" : un autre vocabulaire existe avec le même préfixe. Merci de résoudre le conflit avant d’installer ce module."
 
 #, php-format
-#~ msgid ""
-#~ "An error occured when adding the prefix \"%s\" and the associated "
-#~ "properties: %s"
-#~ msgstr ""
-#~ "Une erreur est survenue en ajoutant le préfixe \"%s\" et les propriétés "
-#~ "associées : %s"
+#~ msgid "An error occured when adding the prefix \"%s\" and the associated properties: %s"
+#~ msgstr "Une erreur est survenue en ajoutant le préfixe \"%s\" et les propriétés associées : %s"
 
 #, php-format
-#~ msgid ""
-#~ "An error occured when updating vocabulary \"%s\" and the associated "
-#~ "properties: %s"
-#~ msgstr ""
-#~ "Une erreur est survenue lors de la mise à jour du vocabulaire « %s » et "
-#~ "des propriétés associées : %s"
+#~ msgid "An error occured when updating vocabulary \"%s\" and the associated properties: %s"
+#~ msgstr "Une erreur est survenue lors de la mise à jour du vocabulaire « %s » et des propriétés associées : %s"
 
 #, php-format
-#~ msgid ""
-#~ "The following \"%1$s\" of the vocabulary \"%2$s\" were replaced: %3$s"
-#~ msgstr ""
-#~ "Les « %1$s » suivantes du vocabulaire « %2$s » ont été remplacées : %3$s"
+#~ msgid "The following \"%1$s\" of the vocabulary \"%2$s\" were replaced: %3$s"
+#~ msgstr "Les « %1$s » suivantes du vocabulaire « %2$s » ont été remplacées : %3$s"
 
-#~ msgid ""
-#~ "Resources, values and templates were updated, but you may check settings "
-#~ "where the old ones were used."
-#~ msgstr ""
-#~ "Les ressources, valeurs et modèles ont été mis à jour, mais vous pouvez "
-#~ "vérifier les paramètres où les anciennes valeurs étaient utilisées."
+#~ msgid "Resources, values and templates were updated, but you may check settings where the old ones were used."
+#~ msgstr "Les ressources, valeurs et modèles ont été mis à jour, mais vous pouvez vérifier les paramètres où les anciennes valeurs étaient utilisées."
 
 #, php-format
-#~ msgid ""
-#~ "The resource template named \"%s\" is already available and is skipped."
-#~ msgstr ""
-#~ "Le modèle de ressource nommé « %s » est déjà disponible et a été conservé."
+#~ msgid "The resource template named \"%s\" is already available and is skipped."
+#~ msgstr "Le modèle de ressource nommé « %s » est déjà disponible et a été conservé."
 
 #~ msgid "No file or url set for the vocabulary."
 #~ msgstr "Pas de fichier ou d’url pour le vocabulaire."
@@ -2037,12 +1747,10 @@ msgstr ""
 
 #, php-format
 #~ msgid "The file \"%s\" cannot be read. Check the file."
-#~ msgstr ""
-#~ "Le fichier « %s » ne peut pas être lu. Merci de vérifier le fichier."
+#~ msgstr "Le fichier « %s » ne peut pas être lu. Merci de vérifier le fichier."
 
 #~ msgid "A vocabulary must have a namespace uri and a prefix."
-#~ msgstr ""
-#~ "Un vocabulaire doit avoir une uri pour l’espace de nom et un préfixe."
+#~ msgstr "Un vocabulaire doit avoir une uri pour l’espace de nom et un préfixe."
 
 #~ msgid "New resource"
 #~ msgstr "Nouvelle ressource"
@@ -2059,29 +1767,20 @@ msgstr ""
 #~ msgid "New resource or no more resource."
 #~ msgstr "Nouvelle ressource ou plus de ressource."
 
-#~ msgid ""
-#~ "The list of emails to notify when a user edits a resource, one by row."
-#~ msgstr ""
-#~ "La liste d’adresses mail à notifier quand un visiteur édite une "
-#~ "ressource, une par ligne."
+#~ msgid "The list of emails to notify when a user edits a resource, one by row."
+#~ msgstr "La liste d’adresses mail à notifier quand un visiteur édite une ressource, une par ligne."
 
 #~ msgid "Template to use for default edit form"
 #~ msgstr "Modèle à utiliser pour le formulaire d’édition par défaut"
 
-#~ msgid ""
-#~ "This template is used only when the current resource has no template or a "
-#~ "template without config. If not set, the properties below will be used."
-#~ msgstr ""
-#~ "Ce modèle est utilisé seulement quand la ressource en cours n’utilise pas "
-#~ "de modèle, ou que ce modèle n’est pas configuré. Si aucun modèle n’est "
-#~ "disponible, les propriétés ci-dessous seront utilisées."
+#~ msgid "This template is used only when the current resource has no template or a template without config. If not set, the properties below will be used."
+#~ msgstr "Ce modèle est utilisé seulement quand la ressource en cours n’utilise pas de modèle, ou que ce modèle n’est pas configuré. Si aucun modèle n’est disponible, les propriétés ci-dessous seront utilisées."
 
 #~ msgid "Default contribute mode"
 #~ msgstr "Mode de contribution par défaut"
 
 #~ msgid "This option is used only when the template is not configured."
-#~ msgstr ""
-#~ "Cette option est utilisée seulement quand le modèle n’est pas configuré."
+#~ msgstr "Cette option est utilisée seulement quand le modèle n’est pas configuré."
 
 #~ msgid "Allow to edit all values"
 #~ msgstr "Autoriser la contribution de toutes les valeurs"
@@ -2095,13 +1794,8 @@ msgstr ""
 #~ msgid "Properties to edit or not when no template is available"
 #~ msgstr "Les propriétés à éditer ou non quand le modèle n’est pas disponible"
 
-#~ msgid ""
-#~ "Only the selected properties will be proposed for public contribute. This "
-#~ "list is used only when the resource template is not configured."
-#~ msgstr ""
-#~ "Seules les propriétés sélectionnées seront proposées au public pour la "
-#~ "contribution. Cette option est utilisée seulement quand le modèle n’est "
-#~ "pas configuré."
+#~ msgid "Only the selected properties will be proposed for public contribute. This list is used only when the resource template is not configured."
+#~ msgstr "Seules les propriétés sélectionnées seront proposées au public pour la contribution. Cette option est utilisée seulement quand le modèle n’est pas configuré."
 
 #~ msgid "Default fillable mode"
 #~ msgstr "Mode d’ajout par défaut"
@@ -2115,13 +1809,8 @@ msgstr ""
 #~ msgid "Properties to fill or not when no template is available"
 #~ msgstr "Propriétés à ajouter ou non lorsque aucun modèle n’est disponible"
 
-#~ msgid ""
-#~ "Allow user to append new values for the selected properties. This list is "
-#~ "used only when the resource template is not configured."
-#~ msgstr ""
-#~ "Autoriser l’utilisateur à ajouter de nouvelles valeurs pour les "
-#~ "propriétés choisies. Cette option est utilisée seulement quand le modèle "
-#~ "n’est pas configuré."
+#~ msgid "Allow user to append new values for the selected properties. This list is used only when the resource template is not configured."
+#~ msgstr "Autoriser l’utilisateur à ajouter de nouvelles valeurs pour les propriétés choisies. Cette option est utilisée seulement quand le modèle n’est pas configuré."
 
 #~ msgid "Other datatypes are not editable."
 #~ msgstr "Les autres types de données ne sont pas éditables."
@@ -2149,13 +1838,8 @@ msgstr ""
 #~ msgstr "Cette version du module requiert le module Custom Vocab."
 
 #, php-format
-#~ msgid ""
-#~ "A custom vocab named \"%s\" exists and has not the needed language "
-#~ "(\"%s\"): check it or remove it before installing this module."
-#~ msgstr ""
-#~ "Un vocabulaire personnalisé nommé \"%s\" existe et n’utilise pas la même "
-#~ "langue (\"%s\") : merci de vérifier ou de le supprimer avant d’installer "
-#~ "ce module."
+#~ msgid "A custom vocab named \"%s\" exists and has not the needed language (\"%s\"): check it or remove it before installing this module."
+#~ msgstr "Un vocabulaire personnalisé nommé \"%s\" existe et n’utilise pas la même langue (\"%s\") : merci de vérifier ou de le supprimer avant d’installer ce module."
 
 #~ msgid "Allow contribute of resources without a token"
 #~ msgstr "Autoriser la contribution des ressources sans jeton"
