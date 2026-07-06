@@ -975,6 +975,16 @@ class Module extends AbstractModule
     {
         [$dirPath, $trashPath] = $this->contributionDirectories();
 
+        // The rows of the removed contribution are already deleted in cascade
+        // when this event is processed (foreign key "on delete cascade"), so a
+        // store still present in the table is referenced by another
+        // contribution and its file must be kept.
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $this->getServiceLocator()->get('Omeka\Connection');
+        $storeds = $connection
+            ->executeQuery('SELECT DISTINCT `store` FROM `contribution_file`')
+            ->fetchFirstColumn();
+
         // First responsibility: move the files of the removed contribution to
         // the trash. This is the only part tied to the event.
         $entity = $event->getTarget();
@@ -985,6 +995,11 @@ class Module extends AbstractModule
                     $storeName = (string) $mediaFile['proposed']['store'];
                     // Forbid path traversal for security.
                     if (strpos($storeName, '..') !== false || strpos($storeName, '/') === 0) {
+                        continue;
+                    }
+                    // Keep the file when it is still attached to another
+                    // contribution.
+                    if (in_array($storeName, $storeds)) {
                         continue;
                     }
                     $path = $dirPath . '/' . $storeName;
@@ -1039,7 +1054,8 @@ class Module extends AbstractModule
             }
         }
 
-        // Purge the files trashed more than 30 days ago.
+        // Purge the files trashed more than 30 days ago, except the ones that
+        // were attached again to a contribution in the meantime.
         $purgeTime = time() - 30 * 86400;
         $files = array_diff(scandir($trashPath) ?: [], ['.', '..']);
         foreach ($files as $file) {
@@ -1047,6 +1063,7 @@ class Module extends AbstractModule
             if (!is_dir($path)
                 && is_file($path)
                 && is_writeable($path)
+                && !in_array($file, $storeds)
                 && filemtime($path) < $purgeTime
             ) {
                 @unlink($path);
