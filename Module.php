@@ -904,14 +904,20 @@ class Module extends AbstractModule
                 SQL;
             $stored = $connection->executeQuery($sql)->fetchFirstColumn();
             $stored = array_map('json_decode', $stored);
-            $stored = array_filter($stored, 'is_array');
+            // A scalar may be returned instead of an array in some cases, so
+            // wrap it to keep the file protected in any case.
+            $stored = array_map(fn ($v) => is_array($v) ? $v : (is_string($v) ? [$v] : []), $stored);
             if ($stored) {
                 $storeds = array_merge($storeds, ...array_values($stored));
             }
         }
-        $storeds = array_unique($storeds);
+        $storeds = array_unique(array_filter($storeds, 'is_string'));
 
         // TODO Scan dir is local store only for now.
+        // Keep the files uploaded less than one hour ago: a concurrent
+        // contribution may have stored its files before its proposal is flushed
+        // in the database, so they look orphan during a short time.
+        $oneHourAgo = time() - 3600;
         $files = array_diff(scandir($dirPath) ?: [], ['.', '..']);
         foreach ($files as $file) {
             $path = $dirPath . '/' . $file;
@@ -919,6 +925,7 @@ class Module extends AbstractModule
                 && is_file($path)
                 && is_writeable($path)
                 && !in_array($file, $storeds)
+                && filemtime($path) < $oneHourAgo
             ) {
                 @unlink($path);
             }
