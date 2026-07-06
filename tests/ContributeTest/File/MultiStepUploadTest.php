@@ -367,13 +367,103 @@ class MultiStepUploadTest extends AbstractHttpControllerTestCase
             'Root file should be found by file query'
         );
 
-        // IMPORTANT: The current cleanup implementation ONLY uses the nested query,
-        // which means root-level files would be incorrectly marked as orphans!
-        // This is a potential bug.
+        // IMPORTANT: The current cleanup implementation ONLY uses the nested
+        // query, which means root-level files would be incorrectly marked as
+        // orphans! This is a potential bug.
         $this->assertNotContains(
             $rootFilename,
             $nestedStoredFiles,
             'Root file should NOT be found by media-only query (this is the bug!)'
+        );
+    }
+
+    /**
+     * Test cleanup queries find files when media keys are not sequential.
+     *
+     * When a media of the form is empty, it is skipped, so the keys of the
+     * medias may not be sequential and the proposal is encoded as a json object
+     * instead of a json array. The wildcard "[*]" does not match json objects,
+     * so the cleanup queries must check the wildcard ".*" too, else the files
+     * of these contributions are seen as orphans and removed.
+     *
+     * @group file
+     * @group cleanup
+     */
+    public function testCleanupQueryFindsFilesWithNonSequentialMediaKeys(): void
+    {
+        $template = $this->createContributiveTemplate('Cleanup Object Keys Test');
+
+        $objectFilename = 'query-object-' . uniqid() . '.txt';
+        $this->createTestFile($objectFilename, 'Object');
+
+        // The key "1" without key "0" makes json_encode() create an object.
+        $proposalObject = [
+            'template' => $template->id(),
+            'media' => [
+                1 => [
+                    'file' => [
+                        0 => [
+                            'original' => ['@value' => null],
+                            'proposed' => ['@value' => 'object.txt', 'store' => $objectFilename],
+                        ],
+                    ],
+                ],
+            ],
+            'dcterms:title' => [
+                ['original' => ['@value' => null], 'proposed' => ['@value' => 'Object Keys Test']],
+            ],
+        ];
+        $this->createContribution(null, $proposalObject);
+
+        $connection = $this->getServiceLocator()->get('Omeka\Connection');
+
+        // The legacy array-only query must not find the file (regression
+        // witness).
+        $sqlArrayOnly = <<<SQL
+            SELECT
+                JSON_EXTRACT(proposal, "$.media[*].file[*].proposed.store") AS proposal_json
+            FROM contribution
+            HAVING proposal_json IS NOT NULL;
+            SQL;
+        $arrayResults = $connection->executeQuery($sqlArrayOnly)->fetchFirstColumn();
+        $arrayResults = array_map('json_decode', $arrayResults);
+        $arrayResults = array_filter($arrayResults, 'is_array');
+        $arrayStoredFiles = $arrayResults ? array_unique(array_merge(...array_values($arrayResults))) : [];
+        $this->assertNotContains(
+            $objectFilename,
+            $arrayStoredFiles,
+            'Array-only query should not find the file of an object-keyed proposal (the fixed bug)'
+        );
+
+        // The full set of queries used by deleteContributionFiles() must find
+        // it.
+        $jsonPaths = [
+            '$.media[*].file[*].proposed.store',
+            '$.media[*].file.*.proposed.store',
+            '$.media.*.file[*].proposed.store',
+            '$.media.*.file.*.proposed.store',
+            '$.file[*].proposed.store',
+            '$.file.*.proposed.store',
+        ];
+        $storedFiles = [];
+        foreach ($jsonPaths as $jsonPath) {
+            $sql = <<<SQL
+                SELECT
+                    JSON_EXTRACT(proposal, "$jsonPath") AS proposal_json
+                FROM contribution
+                HAVING proposal_json IS NOT NULL;
+                SQL;
+            $results = $connection->executeQuery($sql)->fetchFirstColumn();
+            $results = array_map('json_decode', $results);
+            $results = array_map(fn ($v) => is_array($v) ? $v : (is_string($v) ? [$v] : []), $results);
+            if ($results) {
+                $storedFiles = array_merge($storedFiles, ...array_values($results));
+            }
+        }
+        $this->assertContains(
+            $objectFilename,
+            $storedFiles,
+            'Object-keyed file should be found by the fixed cleanup queries'
         );
     }
 
