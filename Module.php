@@ -55,10 +55,10 @@ class Module extends AbstractModule
 
         $errors = [];
 
-        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.51')) {
+        if (!$this->checkModuleActiveVersion('AdvancedResourceTemplate', '3.4.54')) {
             $errors[] = (string) new \Omeka\Stdlib\Message(
                 $translator->translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-                'Advanced Resource Template', '3.4.51'
+                'Advanced Resource Template', '3.4.54'
             );
         }
 
