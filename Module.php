@@ -872,34 +872,44 @@ class Module extends AbstractModule
         }
 
         // The entity is flushed, so it is possible to remove all remaining
-        // files (after update or deletion of a proposal).
-        // It is simpler to manage globally than individually because the
-        // storage reference is removed currently.
+        // files (after update or deletion of a proposal). It is simpler to
+        // manage globally than individually because the storage reference is
+        // removed currently.
         // TODO Add a column for files.
         // Files can be stored at two locations in the proposal:
-        // - $.media[*].file[*].proposed.store (nested in media for item contributions)
-        // - $.file[*].proposed.store (root level for media contributions)
-        $sqlNested = <<<SQL
-            SELECT
-                JSON_EXTRACT( proposal, "$.media[*].file[*].proposed.store" ) AS proposal_json
-            FROM contribution
-            HAVING proposal_json IS NOT NULL;
-            SQL;
-        $sqlRoot = <<<SQL
-            SELECT
-                JSON_EXTRACT( proposal, "$.file[*].proposed.store" ) AS proposal_json
-            FROM contribution
-            HAVING proposal_json IS NOT NULL;
-            SQL;
+        // - $.media[*].file[*].proposed.store (nested in media for item
+        // contributions) - $.file[*].proposed.store (root level for media
+        // contributions) The keys of "media" and "file" may not be sequential,
+        // in which case they are encoded as json objects, not arrays, so the
+        // wildcard "[*]" does not match them and the wildcard ".*" is required.
+        // All variants are checked to avoid to remove files of valid
+        // contributions.
+        $jsonPaths = [
+            '$.media[*].file[*].proposed.store',
+            '$.media[*].file.*.proposed.store',
+            '$.media.*.file[*].proposed.store',
+            '$.media.*.file.*.proposed.store',
+            '$.file[*].proposed.store',
+            '$.file.*.proposed.store',
+        ];
         /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
-        $storedsNested = $connection->executeQuery($sqlNested)->fetchFirstColumn();
-        $storedsNested = array_map('json_decode', $storedsNested);
-        $storedsNested = $storedsNested ? array_merge(...array_values($storedsNested)) : [];
-        $storedsRoot = $connection->executeQuery($sqlRoot)->fetchFirstColumn();
-        $storedsRoot = array_map('json_decode', $storedsRoot);
-        $storedsRoot = $storedsRoot ? array_merge(...array_values($storedsRoot)) : [];
-        $storeds = array_unique(array_merge($storedsNested, $storedsRoot));
+        $storeds = [];
+        foreach ($jsonPaths as $jsonPath) {
+            $sql = <<<SQL
+                SELECT
+                    JSON_EXTRACT( proposal, "$jsonPath" ) AS proposal_json
+                FROM contribution
+                HAVING proposal_json IS NOT NULL;
+                SQL;
+            $stored = $connection->executeQuery($sql)->fetchFirstColumn();
+            $stored = array_map('json_decode', $stored);
+            $stored = array_filter($stored, 'is_array');
+            if ($stored) {
+                $storeds = array_merge($storeds, ...array_values($stored));
+            }
+        }
+        $storeds = array_unique($storeds);
 
         // TODO Scan dir is local store only for now.
         $files = array_diff(scandir($dirPath) ?: [], ['.', '..']);

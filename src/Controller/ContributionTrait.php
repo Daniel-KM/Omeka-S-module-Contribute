@@ -89,6 +89,15 @@ trait ContributionTrait
                 'validateOnly' => true,
                 'isContribution' => true,
             ];
+            // The api options are not passed to the subrequests used to create
+            // medias, so mark each media to avoid to store the original file
+            // and the thumbnails during hydration: the resource is not
+            // persisted, so the stored files would be orphans.
+            foreach ($resourceData['o:media'] ?? [] as $key => $mediaData) {
+                if (($mediaData['o:ingester'] ?? null) === 'contribution') {
+                    $resourceData['o:media'][$key]['validateOnly'] = true;
+                }
+            }
         } else {
             $apiOptions = [];
         }

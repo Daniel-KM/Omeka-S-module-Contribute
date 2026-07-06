@@ -59,8 +59,13 @@ class Contribution implements IngesterInterface
             $media->setSource($tempFile->getSourceName());
         }
 
-        $storeOriginal = true;
-        $storeThumbnails = true;
+        // When the contribution is only validated (on submission), the resource
+        // is not persisted, so don't store the original file and the
+        // thumbnails, that would be orphan files. The file metadata are still
+        // hydrated to process the full validation.
+        $validateOnly = !empty($data['validateOnly']);
+        $storeOriginal = !$validateOnly;
+        $storeThumbnails = !$validateOnly;
         // Keep temp files to avoid losses when contribution is validated.
         // TODO The file will be removed later (after hydration: see Module).
         $deleteTempFile = false;
