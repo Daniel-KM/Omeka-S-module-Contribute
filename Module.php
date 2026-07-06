@@ -946,7 +946,10 @@ class Module extends AbstractModule
             }
             $sourceName = $fileData['proposed']['@value'] ?? null;
             $files[$store] = [
-                'source_name' => is_string($sourceName) ? mb_substr($sourceName, 0, 1000) : null,
+                // Truncate on characters (not bytes) to fit the column and to
+                // never cut a multibyte character of an accented or unicode
+                // filename.
+                'source_name' => is_string($sourceName) ? mb_substr($sourceName, 0, 1000, 'UTF-8') : null,
                 'size' => is_numeric($size) ? (int) $size : null,
                 'sha256' => is_string($sha256) ? $sha256 : null,
             ];
