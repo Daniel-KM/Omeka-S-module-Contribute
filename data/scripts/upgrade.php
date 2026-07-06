@@ -684,11 +684,39 @@ if (version_compare($oldVersion, '3.4.39', '<')) {
             }
         }
 
+        // Exclude from the recovery candidates the orphan files that are exact
+        // copies (same size, then same hash) of a file still present inside
+        // files/contribution: they are duplicates created by a previous
+        // submission of a file that is not missing, so they should not be
+        // matched with a missing file. They are marked "used" so they are
+        // removed with their thumbnails below in any case, because their
+        // content is still available inside files/contribution.
+        $contributionSizes = [];
+        if (file_exists($contributionPath) && is_dir($contributionPath)) {
+            foreach (new \DirectoryIterator($contributionPath) as $fileinfo) {
+                if ($fileinfo->isFile()) {
+                    $contributionSizes[$fileinfo->getSize()][] = $fileinfo->getPathname();
+                }
+            }
+        }
+        foreach ($orphans as $key => $orphan) {
+            $size = filesize($orphan['path']);
+            $orphans[$key]['size'] = $size;
+            foreach ($contributionSizes[$size] ?? [] as $contributionFile) {
+                if (hash_file('sha256', $contributionFile) === hash_file('sha256', $orphan['path'])) {
+                    $orphans[$key]['used'] = true;
+                    break;
+                }
+            }
+        }
+
         // Recover the missing files of the pending contributions: for each
         // missing stored file, search the orphan files created during the last
-        // submission (same modification time) with the same extension. The
-        // match is done in order for multiple files with the same extension, so
-        // it may need a manual check.
+        // submission with the same extension, excluding the duplicates checked
+        // by content above. The modification time is used only in a second
+        // step, to select the candidates around the submission and to keep the
+        // original order for multiple files with the same extension, so it may
+        // need a manual check.
         $extractStores = function (array $proposal): array {
             $stores = [];
             foreach ($proposal['media'] ?? [] as $mediaFiles) {
