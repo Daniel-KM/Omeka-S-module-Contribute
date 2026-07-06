@@ -859,14 +859,47 @@ class Module extends AbstractModule
             throw new \Omeka\File\Exception\RuntimeException((string) $message->setTranslator($translator));
         }
 
-        $store = $services->get('Omeka\File\Store');
+        // The files are not removed directly, but moved to a trash directory,
+        // purged after 30 days, so any issue in the cleaning logic can be fixed
+        // without loss.
+        $trashPath = rtrim($basePath, '/') . '/contribution_trash';
+        if (!$this->checkDestinationDir($trashPath)) {
+            $translator = $services->get('MvcTranslator');
+            $message = new PsrMessage(
+                'The directory "{directory}" is not writeable.', // @translate
+                ['directory' => $trashPath]
+            );
+            throw new \Omeka\File\Exception\RuntimeException((string) $message->setTranslator($translator));
+        }
+
+        $trashFile = function (string $path) use ($dirPath, $trashPath): void {
+            $relativePath = ltrim(substr($path, strlen($dirPath)), '/');
+            $target = $trashPath . '/' . $relativePath;
+            if (file_exists($target)) {
+                @unlink($path);
+            } elseif (@rename($path, $target)) {
+                // The rename keeps the original modification time, so touch the
+                // file to date the trashing itself for the purge.
+                @touch($target);
+            } else {
+                @unlink($path);
+            }
+        };
+
         $entity = $event->getTarget();
         $proposal = $entity->getProposal();
         foreach ($proposal['media'] ?? [] as $mediaFiles) {
             foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
                 if (isset($mediaFile['proposed']['store'])) {
-                    $storagePath = 'contribution/' . $mediaFile['proposed']['store'];
-                    $store->delete($storagePath);
+                    $storeName = (string) $mediaFile['proposed']['store'];
+                    // Forbid path traversal for security.
+                    if (strpos($storeName, '..') !== false || strpos($storeName, '/') === 0) {
+                        continue;
+                    }
+                    $path = $dirPath . '/' . $storeName;
+                    if (is_file($path)) {
+                        $trashFile($path);
+                    }
                 }
             }
         }
@@ -926,6 +959,20 @@ class Module extends AbstractModule
                 && is_writeable($path)
                 && !in_array($file, $storeds)
                 && filemtime($path) < $oneHourAgo
+            ) {
+                $trashFile($path);
+            }
+        }
+
+        // Purge the files trashed more than 30 days ago.
+        $purgeTime = time() - 30 * 86400;
+        $files = array_diff(scandir($trashPath) ?: [], ['.', '..']);
+        foreach ($files as $file) {
+            $path = $trashPath . '/' . $file;
+            if (!is_dir($path)
+                && is_file($path)
+                && is_writeable($path)
+                && filemtime($path) < $purgeTime
             ) {
                 @unlink($path);
             }
