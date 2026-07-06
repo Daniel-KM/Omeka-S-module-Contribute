@@ -73,7 +73,7 @@ class SettingsFieldset extends Fieldset
 
             ->add([
                 'name' => 'contribute_send_message_recipient_myself',
-                'type' => Element\Radio::class,
+                'type' => CommonElement\OptionalRadio::class,
                 'options' => [
                     'element_group' => 'contribution',
                     'label' => 'Default options to send a message: myself as recipient', // @translate
