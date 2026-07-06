@@ -984,9 +984,14 @@ class ContributionRepresentation extends AbstractEntityRepresentation
             foreach ($proposalMedias ? array_keys($proposalMedias) : [] as $indexProposalMedia) {
                 $indexProposalMedia = (int) $indexProposalMedia;
                 // TODO Currently, only new media are managed as sub-resource: contribution for new resource, not contribution for existing item with media at the same time.
-                $data['o:media'][$indexProposalMedia] = $this->proposalToResourceData($proposedTerm, $proposedKey, $resourceTemplate, $indexProposalMedia);
-                unset($data['o:media'][$indexProposalMedia]['o:media']);
-                unset($data['o:media'][$indexProposalMedia]['file']);
+                $mediaData = $this->proposalToResourceData($proposedTerm, $proposedKey, $resourceTemplate, $indexProposalMedia);
+                // May be null when the media template is not contributive.
+                // Skip to avoid null entry in "o:media", that breaks hydration.
+                if ($mediaData === null) {
+                    continue;
+                }
+                unset($mediaData['o:media'], $mediaData['file']);
+                $data['o:media'][$indexProposalMedia] = $mediaData;
             }
         }
 
