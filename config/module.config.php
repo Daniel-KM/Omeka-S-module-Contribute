@@ -50,7 +50,6 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
-            Form\Element\ArrayQueryTextarea::class => Form\Element\ArrayQueryTextarea::class,
             Form\ContributeForm::class => Form\ContributeForm::class,
             Form\SendMessageForm::class => Form\SendMessageForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,

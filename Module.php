@@ -82,7 +82,7 @@ class Module extends AbstractModule
         $config = $services->get('Config');
         $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
 
-        if (!$this->checkDestinationDir($basePath . '/contribution')) {
+        if (!$this->checkDestinationDir($basePath . '/contribution', true)) {
             $errors[] = (string) (new PsrMessage(
                 'The directory "{directory}" is not writeable.', // @translate
                 ['directory' => $basePath . '/contribution']
