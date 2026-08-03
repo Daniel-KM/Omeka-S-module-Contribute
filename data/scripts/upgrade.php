@@ -34,69 +34,21 @@ $messenger = $plugins->get('messenger');
 $siteSettings = $services->get('Omeka\Settings\Site');
 $entityManager = $services->get('Omeka\EntityManager');
 
-/**
- * Dispatch a background job during module upgrade.
- *
- * During upgrade the module state in the database is "needs_upgrade", so a
- * spawned background process would refuse to bootstrap the module. Set the
- * module version and active flag temporarily so the spawned worker can
- * bootstrap, wait for the job to start, then restore the original state. The
- * Module Manager sets the real version and state once upgrade() returns.
- */
-$dispatchJobDuringUpgrade = function (string $jobClass, array $args = [])
-    use ($services, $connection, $newVersion, $messenger): \Omeka\Entity\Job {
-    $moduleId = 'Contribute';
-
-    $shortClass = substr(strrchr('\\' . $jobClass, '\\'), 1);
-    $jobDir = dirname(__DIR__, 2) . '/src/Job/';
-    require_once $jobDir . $shortClass . '.php';
-
-    $moduleRow = $connection->executeQuery(
-        'SELECT is_active FROM module WHERE id = :id',
-        ['id' => $moduleId]
-    )->fetchAssociative();
-    $wasActive = (bool) ($moduleRow['is_active'] ?? false);
-
-    $connection->executeStatement(
-        'UPDATE module SET version = :version, is_active = 1 WHERE id = :id',
-        ['version' => $newVersion, 'id' => $moduleId]
-    );
-
-    $dispatcher = $services->get(\Omeka\Job\Dispatcher::class);
-    $job = $dispatcher->dispatch($jobClass, $args);
-
-    sleep(5);
-
-    $jobId = $job->getId();
-    $status = $connection->executeQuery(
-        'SELECT status FROM job WHERE id = :id',
-        ['id' => $jobId]
-    )->fetchOne();
-    if ($status === \Omeka\Entity\Job::STATUS_STARTING) {
-        $messenger->addWarning(new PsrMessage(
-            'The job #{job_id} is still starting after the sleep delay. It may need to be relaunched manually.', // @translate
-            ['job_id' => $jobId]
-        ));
-    }
-
-    if (!$wasActive) {
-        $connection->executeStatement(
-            'UPDATE module SET is_active = 0 WHERE id = :id',
-            ['id' => $moduleId]
-        );
-    }
-
-    return $job;
-};
-
-if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.86')) {
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.90')) {
     $message = new \Omeka\Stdlib\Message(
         $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-        'Common', '3.4.86'
+        'Common', '3.4.90'
     );
     $messenger->addError($message);
     throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
 }
+
+$upgradeJobDispatch = $services->get('Common\UpgradeJobDispatch');
+$jobDir = dirname(__DIR__, 2) . '/src/Job/';
+$dispatchJobDuringUpgrade = fn (string $jobClass, array $args = []): \Omeka\Entity\Job =>
+    $upgradeJobDispatch($jobClass, $args, [
+        $jobDir . substr(strrchr('\\' . $jobClass, '\\'), 1) . '.php',
+    ]);
 
 $hasError = false;
 
