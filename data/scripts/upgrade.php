@@ -28,6 +28,7 @@ $api = $plugins->get('api');
 $logger = $services->get('Omeka\Logger');
 $settings = $services->get('Omeka\Settings');
 $translate = $plugins->get('translate');
+$urlPlugin = $plugins->get('url');
 $translator = $services->get('MvcTranslator');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
@@ -218,7 +219,7 @@ if (version_compare($oldVersion, '3.3.0.17', '<')) {
 
     $config = $services->get('Config');
     $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
-    if (!$this->checkDestinationDir($basePath . '/contribution')) {
+    if (!$this->checkDestinationDir($basePath . '/contribution', true)) {
         $message = new PsrMessage(
             'The directory "{directory}" is not writeable.', // @translate
             ['directory' => $basePath . '/contribution']
@@ -659,9 +660,31 @@ if (version_compare($oldVersion, '3.4.39', '<')) {
     // background job, RecoverContributionFiles, so the upgrade returns
     // immediately and the heavy work runs under a proper worker.
     $job = $dispatchJobDuringUpgrade(\Contribute\Job\RecoverContributionFiles::class);
-    $messenger->addSuccess(new PsrMessage(
-        'A background job #{job_id} was dispatched to recover missing files of pending contributions and fill the new "contribution_file" index. Watch its status in the Jobs list; the upgrade itself is done.', // @translate
-        ['job_id' => $job->getId()]
-    ));
-
+    $message = new PsrMessage(
+        'A background job was dispatched to recover missing files of pending contributions and fill the new "contribution_file" index ({link}job #{job_id}{link_end}, {link_log}logs{link_end}).', // @translate
+        [
+            'link' => sprintf('<a href="%s">', htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))),
+            'job_id' => $job->getId(),
+            'link_end' => '</a>',
+            'link_log' => class_exists('Log\Module', false)
+                ? sprintf('<a href="%1$s">', htmlspecialchars($urlPlugin->fromRoute('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]])))
+                : sprintf('<a href="%1$s" target="_blank" rel="noopener noreferrer">', htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]))),
+        ]
+    );
+    $message->setEscapeHtml(false);
+    $messenger->addSuccess($message);
 }
+
+// Re-assert the protection of the contribution directory on each upgrade.
+// An existing .htaccess is never overwritten.
+$contributionDir = ($services->get('Config')['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files')) . '/contribution';
+if (!$this->checkDestinationDir($contributionDir, true)) {
+    $messenger->addWarning(new PsrMessage(
+        'The directory "{directory}" is not writeable: contribution files cannot be protected against direct web access.', // @translate
+        ['directory' => $contributionDir]
+    ));
+}
+
+// Recommend SpamGuard on each upgrade: Contribute has no built-in spam engine,
+// so anonymous contributions are unprotected without it.
+$this->recommendSpamGuard();

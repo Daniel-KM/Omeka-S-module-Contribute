@@ -137,6 +137,40 @@ class Module extends AbstractModule
         }
 
         $this->mergeMainAndTemplateSettings();
+
+        $this->recommendSpamGuard();
+    }
+
+    /**
+     * Recommend the module SpamGuard, that protects anonymous contributions.
+     *
+     * Contribute has no built-in spam engine: when the mode "open" is enabled,
+     * anyone can post a contribution, so SpamGuard is the only protection.
+     */
+    public function recommendSpamGuard(): void
+    {
+        $services = $this->getServiceLocator();
+
+        $spamGuard = $services->get('Omeka\ModuleManager')->getModule('SpamGuard');
+        if ($spamGuard && $spamGuard->getState() === \Omeka\Module\Manager::STATE_ACTIVE) {
+            return;
+        }
+
+        $contributeConfig = $services->get('Omeka\Settings')->get('contribute_config') ?: [];
+        $isOpenContribution = in_array('open', $contributeConfig['modes'] ?? []);
+
+        $message = $isOpenContribution
+            ? new PsrMessage(
+                'Contributions are open to any visitor, but no anti-spam protection is available. Install and enable the module SpamGuard to protect anonymous contributions.' // @translate
+            )
+            : new PsrMessage(
+                'To open contributions to any visitor, install the module SpamGuard first: it is the only anti-spam protection for anonymous contributions.' // @translate
+            );
+
+        $messenger = $services->get('ControllerPluginManager')->get('messenger');
+        $isOpenContribution
+            ? $messenger->addWarning($message)
+            : $messenger->addNotice($message);
     }
 
     protected function postUninstall(): void
