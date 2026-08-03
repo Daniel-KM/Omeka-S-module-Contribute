@@ -272,4 +272,63 @@ trait ContributionTrait
             return $val;
         }
     }
+
+    /**
+     * Stream a contribution file, confined to the protected directory.
+     *
+     * The directory "files/contribution/" is protected by a .htaccess, so the
+     * proposed files are streamed through this action instead of a public url.
+     * The access is limited to a logged-in user (anonymous or token access is
+     * not allowed for now): the api read of the contribution enforces the owner
+     * or an administrator, and the requested store is checked to belong to the
+     * contribution, so no file of another contribution can be reached.
+     */
+    protected function sendContributionFile($id, string $store)
+    {
+        // A logged-in user is required: no anonymous nor token download for
+        // now.
+        if (!$this->identity()) {
+            throw new \Omeka\Mvc\Exception\PermissionDeniedException();
+        }
+
+        // The api read enforces the owner or an administrator.
+        try {
+            $contribution = $this->api()->read('contributions', ['id' => $id])->getContent();
+        } catch (\Throwable $e) {
+            throw new \Omeka\Mvc\Exception\NotFoundException();
+        }
+
+        // The store must belong to this contribution (no cross-contribution
+        // read, no path traversal).
+        $store = basename($store);
+        if (!strlen($store) || !$this->contributionHasStore($contribution, $store)) {
+            throw new \Omeka\Mvc\Exception\NotFoundException();
+        }
+
+        $config = $this->getEvent()->getApplication()->getServiceManager()->get('Config');
+        $basePath = $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files');
+        $baseDir = $basePath . '/contribution';
+
+        $response = $this->sendFilePrivate($baseDir . '/' . $store, $baseDir);
+        if (!$response) {
+            throw new \Omeka\Mvc\Exception\NotFoundException();
+        }
+
+        return $response;
+    }
+
+    /**
+     * Whether a store filename belongs to the proposed media of a contribution.
+     */
+    protected function contributionHasStore(ContributionRepresentation $contribution, string $store): bool
+    {
+        foreach ($contribution->proposalMedias() as $mediaFiles) {
+            foreach ($mediaFiles['file'] ?? [] as $mediaFile) {
+                if (($mediaFile['proposed']['store'] ?? null) === $store) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

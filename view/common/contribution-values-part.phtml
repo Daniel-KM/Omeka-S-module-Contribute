@@ -73,8 +73,13 @@
                             echo sprintf($translate('%s [unavailable]'), $contributionData['proposed']['@resource']);
                         }
                     elseif ($term === 'file'): // File is always a new value.
-                        echo isset($contributionData['proposed']['store'])
-                            ? '<a href="' . $escapeAttr($baseUrlFiles . '/contribution/' . $contributionData['proposed']['store']) . '" download="' . $escapeAttr($contributionData['proposed']['@value']) . '" target="_self">' . $escape($contributionData['proposed']['@value']) . '</a>'
+                        $fileUrl = isset($contributionData['proposed']['store'])
+                            ? ($isSiteRequest
+                                ? $this->url('site/contribution-id', ['resource' => 'contribution', 'id' => $contribution->id(), 'action' => 'download'], ['query' => ['store' => $contributionData['proposed']['store']]])
+                                : $this->url('admin/contribution/id', ['id' => $contribution->id(), 'action' => 'download'], ['query' => ['store' => $contributionData['proposed']['store']]]))
+                            : null;
+                        echo $fileUrl
+                            ? '<a href="' . $escapeAttr($fileUrl) . '" download="' . $escapeAttr($contributionData['proposed']['@value']) . '" target="_self">' . $escape($contributionData['proposed']['@value']) . '</a>'
                             : sprintf('%s [missing file]', $escape($contributionData['proposed']['@value']));
                     else:
                         echo $escape($contributionData['proposed']['@value']);

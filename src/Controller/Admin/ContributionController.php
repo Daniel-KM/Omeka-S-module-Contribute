@@ -1165,4 +1165,12 @@ class ContributionController extends AbstractActionController
 
         return strtr($message, $replace);
     }
+
+    /**
+     * Download a proposed file of a contribution through the protected dir.
+     */
+    public function downloadAction()
+    {
+        return $this->sendContributionFile($this->params('id'), (string) $this->params()->fromQuery('store'));
+    }
 }
