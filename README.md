@@ -42,6 +42,10 @@ installed first.
 If you want to open contribution only to authenticated users, it is recommended
 to install the module [Guest] and [Blocks Disposition] (unless you edit theme).
 
+If you want to open contribution to any visitor, install the module [SpamGuard]
+first: it is the only anti-spam protection of the anonymous contributions (see
+below).
+
 * From the zip
 
 Download the last release [Contribute.zip] from the list of releases (the
@@ -110,6 +114,49 @@ templates used for contribution.
   and apply changes, or decline them. A page lists all contributions too.
   Contribution can be marked as undertaken and validated and token can be made
   expired.
+
+### Anonymous contributions and spam
+
+With the mode "open", any visitor can submit a contribution without being
+identified, so the form is exposed to bots.
+
+The module has no anti-spam engine of its own: install and enable the module
+[SpamGuard]. Its checks (dnsbl, banned ips, keywords, count of urls, mx records
+of the domain of the email…) are then applied automatically to the anonymous
+submissions, when adding and when editing. A submission detected as spam is
+refused and is not stored, and the reason is logged.
+
+**Without SpamGuard, no check is done at all.** The install and each upgrade
+display a reminder when the mode "open" is enabled.
+
+The contributions of identified users and the ones done with a token are never
+checked: the identification is the protection.
+
+### Files of the contributions
+
+The files attached to a contribution are stored in `files/contribution`, that is
+outside of the public directories: a contribution is not validated yet, so its
+files must not be reachable by their url.
+
+The directory is protected by a `.htaccess` denying any direct web access, added
+at install and checked again at each upgrade, so a file lost during a backup or
+a deployment is restored. An existing `.htaccess` is never overwritten.
+
+The files are streamed by the module itself, and only for an identified user:
+the api checks that the contribution belongs to the user, or that the user is an
+admin, and the requested file must belong to the contribution.
+
+**This protection is for Apache only.** With Nginx, add an equivalent rule in
+the config of the server: the module cannot write it.
+
+### Thesaurus
+
+A property whose data type is a thesaurus (module [Thesaurus]) is displayed in
+the contribution form as a hierarchical select, indented to show the levels, and
+searchable when the list is long.
+
+A theme that overrides the contribution form should copy the file
+`contribute/site/contribution/form-input-thesaurus.phtml` too.
 
 
 TODO
@@ -203,6 +250,8 @@ the digital archiving of student works ([Dante]) of the [Université de Toulouse
 [Blocks Disposition]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlocksDisposition
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
+[SpamGuard]: https://gitlab.com/Daniel-KM/Omeka-S-module-SpamGuard
+[Thesaurus]: https://gitlab.com/Daniel-KM/Omeka-S-module-Thesaurus
 [Contribute.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/releases
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Contribute/-/issues
