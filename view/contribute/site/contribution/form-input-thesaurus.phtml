@@ -1,42 +1,22 @@
 <?php
 /**
+ * Input for a data type "thesaurus:{schemeId}" (module Thesaurus).
+ *
+ * Unlike the data type of a custom vocab, the module CustomVocab and an item
+ * set are not required: the concepts are read directly from the scheme.
+ *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SiteRepresentation $site
- * @var \Omeka\Entity\User|null $user
  * @var \Contribute\Form\ContributeForm $form
- * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation|null $resourceTemplate
  * @var \Contribute\Api\Representation\ContributionRepresentation|null $contribution
  * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
- * @var array $fields
- * @var \Omeka\Api\Representation\ResourceTemplateRepresentation|null $templateMedia A sub template for media may have no fields.
- * @var array $fieldsByMedia
- * @var array $fieldsMediaBase
- * @var string $action "add" or "edit" or "show"
- * @var string $mode "read" (for template select or for show readonly form before submit) or "write"
- * @var string $space "default" or "guest"
- *
- * @var string $submitLabel
- * @var string $cancelLabel
  * @var bool $isMainForm
- * @var bool $skipContributeCss
- *
- * When called recursively for sub-fields (media):
  * @var int|null $indexMedia
- * @var array $fieldsMedia
  *
  * @var \Laminas\View\HelperPluginManager $plugins
- * @var \Laminas\View\Helper\Url $url
- * @var \Laminas\View\Helper\Partial $partial
  * @var \Laminas\View\Helper\EscapeHtml $escape
  * @var \Laminas\I18n\View\Helper\Translate $translate
  * @var \Laminas\View\Helper\EscapeHtmlAttr $escapeAttr
- * @var \Omeka\Api\Manager $apiManager
- * @var \Common\Stdlib\EasyMeta $easyMeta
- * @var array $valueResourceTypes
- * @var array $valueResourceQueries
- * @var callable $shortResourceTitle
- * @var string $baseUrlFiles
- * @var string $mode
  *
  * @var array $field
  * @var string $term
@@ -47,9 +27,8 @@
  * @var array|null $fieldContribution
  * @var int|null $indexContribution
  * @var bool $readonly
- * @var string|null $baseType
  *
- * @uses \CustomVocab\DataType\CustomVocab
+ * @uses \Thesaurus\Mvc\Controller\Plugin\Thesaurus
  */
 
 $original = $fieldContribution['original'];
@@ -57,41 +36,30 @@ $proposed = $fieldContribution['proposed'];
 $isPrivate = $value ? !$value->isPublic() : (isset($templateProperty) ? $templateProperty->isPrivate() : false);
 $isRequired = !empty($field['required']) && (($indexContribution ?? null) === 0);
 
-$class = ['value', 'custom_vocab'];
+$class = ['value', 'thesaurus'];
 if ($isPrivate) {
     $class[] = 'private';
 }
 $language = isset($proposed['@value']) ? null : (isset($original['value']) ? $original['value']->lang() : null);
 
-// Use the standard select, except for thesaurus.
-// Manage hierarchical list (via module Thesaurus).
-$mainType = $easyMeta->dataTypeMainCustomVocab($fieldContribution['type']);
-$customVocabId = (int) substr($fieldContribution['type'], 12);
-$customVocab = $customVocabId ? $apiManager->read('custom_vocabs', ['id' => $customVocabId])->getContent() : null;
-$customVocabType = $baseType ?? $mainType ?? 'literal';
-$typeName = $customVocabType === 'literal' ? 'value' : $customVocabType;
-// The item set of a thesaurus is a standard collection since Thesaurus 3.4.26,
-// so it is identified via the scheme it contains, not via a skos class.
-$thesaurus = $customVocab
-    && $mainType === 'resource'
-    && $plugins->has('thesaurus')
-    && ($itemSet = $customVocab->itemSet())
-    ? $plugins->get('thesaurus')($itemSet)
+// A concept is stored as a linked resource.
+$typeName = 'resource';
+
+$schemeId = (int) substr((string) $fieldContribution['type'], 10);
+$thesaurus = $schemeId && $plugins->has('thesaurus')
+    ? $plugins->get('thesaurus')($schemeId)
     : null;
-$isCustomVocabThesaurus = $thesaurus && $thesaurus->isSkos();
-if ($isCustomVocabThesaurus) {
+
+if ($thesaurus && $thesaurus->isSkos()) {
     $select = $thesaurus->asSelect(['output_type' => 'listTree', 'indent' => '– ', 'empty_option' => ''])
-        ->setName('customvocab')
+        ->setName('thesaurus')
         ->setAttributes([
             'data-value-key' => 'value_resource_id',
             'class' => 'terms to-require',
         ]);
     $selectHtml = $this->formSelect($select);
-} elseif ($mainType) {
-    $selectHtml = (new \CustomVocab\DataType\CustomVocab($customVocab))->form($this);
 } else {
-    $customVocab = null;
-    $selectHtml = '<select name="' . $fieldContribution['type'] . '"></select>';
+    $selectHtml = '<select name="thesaurus"></select>';
 }
 
 $name = $isMainForm
@@ -99,14 +67,13 @@ $name = $isMainForm
     : sprintf('media[%s][%s][%s][@%s]', $indexMedia, $term, $indexFieldInput, $typeName);
 
 $replace = [
-    'name="customvocab"' => 'name="' . $name . '"',
-    'class="terms&#x20;to-require"' => 'class="form-control customvocab-input chosen-select"'
+    'name="thesaurus"' => 'name="' . $name . '"',
+    'class="terms&#x20;to-require"' => 'class="form-control thesaurus-input chosen-select"'
         . ' aria-labelledby="property-' . ($property ? $property->id() : '__PROPERTYID__') . '-label"'
         . ' data-placeholder="' . $escapeAttr($translate('Select a value…')) . '"'
         . ($isRequired ? ' required="required"' : '')
         . (empty($readonly) ? '' : ' readonly="readonly"'),
     '"value_resource_id"' => '"@resource"',
-    '"@id"' => '"@uri"',
 ];
 
 $val = $proposed['@' . $typeName] ?? $original['@' . $typeName] ?? '';
@@ -115,14 +82,9 @@ if (strlen((string) $val)) {
     $escapedVal = $escapeAttr($val);
     $replace['<option value="' . $escapedVal . '"'] = '<option value="' . $escapedVal . '" selected="selected"';
 }
-
-// Remove the trailing "(#id)" added by CustomVocab\DataType\CustomVocab
-// on resource selects: in a public contribution form the internal id is
-// noise for the end user.
-$selectHtml = preg_replace('/ \(#\d+\)(<\/option>)/', '$1', $selectHtml);
 ?>
 
-<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>" data-basetype="<?= $customVocabType ?>">
+<div class="<?= implode(' ', $class) ?>" lang="<?= $escape($language) ?>" data-basetype="resource">
     <?php if ($language): ?>
     <span class="language"><?= $language ?></span>
     <?php endif; ?>

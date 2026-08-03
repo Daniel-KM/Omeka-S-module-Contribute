@@ -108,13 +108,16 @@ $addForMedia = $isMainForm ? '' : ' add-value-media';
                     // Managed via js.
                     // ['v' => '', 't' => $translate('Select a value')],
                 ];
-                // Manage hierarchical list (via module Thesaurus).
-                $isCustomVocabThesaurus = $customVocab && $mainType === 'resource' && $plugins->has('thesaurus') && ($itemSet = $customVocab->itemSet()) && ($itemSetClass = $itemSet->resourceClass()) && in_array($itemSetClass->term(), ['skos:Collection', 'skos:OrderedCollection']);
-                if ($isCustomVocabThesaurus) {
-                    $result = $plugins->get('thesaurus')($itemSet)->listTree(['indent' => '– ']);
-                } else {
-                    $result = $customVocab->listValues();
-                }
+                // Manage hierarchical list (via module Thesaurus). The item set
+                // of a thesaurus is a standard collection since Thesaurus
+                // 3.4.26, so it is identified via the scheme it contains, not
+                // via a skos class.
+                $thesaurus = $customVocab && $mainType === 'resource' && $plugins->has('thesaurus') && ($itemSet = $customVocab->itemSet())
+                    ? $plugins->get('thesaurus')($itemSet)
+                    : null;
+                $result = $thesaurus && $thesaurus->isSkos()
+                    ? $thesaurus->listTree(['indent' => '– '])
+                    : $customVocab->listValues();
                 foreach ($result as $value => $label) {
                     $valueOptions[] = ['v' => $value, 't' => $label];
                 }

@@ -171,6 +171,9 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                                 case $typeColon === 'customvocab':
                                     echo $partial('contribute/site/contribution/form-input-custom-vocab');
                                     break;
+                                case $typeColon === 'thesaurus':
+                                    echo $partial('contribute/site/contribution/form-input-thesaurus');
+                                    break;
                                 case $typeColon === 'valuesuggest':
                                 case $typeColon === 'valuesuggestall':
                                     echo $partial('contribute/site/contribution/form-input-value-suggest');
@@ -188,6 +191,7 @@ $disabled = $mode === 'read' ? ' disabled="disabled"' : '';
                                 case 'resource:item':
                                 case 'resource:media':
                                 case 'resource:itemset':
+                                case 'resource:concept':
                                     echo $partial('contribute/site/contribution/form-input-resource');
                                     break;
                                 case 'uri':
