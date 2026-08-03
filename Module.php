@@ -812,7 +812,8 @@ class Module extends AbstractModule
                 'name' => 'editable',
                 'type' => \Laminas\Form\Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Contribute: Editable by contributor', // @translate
+                    'element_group' => 'Contribute',
+                    'label' => 'Editable by contributor', // @translate
                 ],
                 'attributes' => [
                     // 'id' => 'editable',
@@ -824,7 +825,8 @@ class Module extends AbstractModule
                 'name' => 'fillable',
                 'type' => \Laminas\Form\Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Contribute: Fillable by contributor', // @translate
+                    'element_group' => 'Contribute',
+                    'label' => 'Fillable by contributor', // @translate
                 ],
                 'attributes' => [
                     // 'id' => 'fillable',
