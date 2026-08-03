@@ -6,7 +6,9 @@ use Common\Stdlib\PsrMessage;
 use Contribute\Api\Representation\ContributionRepresentation;
 use Contribute\Controller\ContributionTrait;
 use Contribute\Form\ContributeForm;
+use Contribute\Spam\SpamCheckerInterface;
 use Doctrine\ORM\EntityManager;
+use Laminas\Http\PhpEnvironment\RemoteAddress;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 // TODO Use the admin resource form, but there are some differences in features (validation by field, possibility to update the item before validate correction, anonymous, fields is more end user friendly and enough in most of the cases), themes and security issues, so not sure it is simpler.
@@ -51,18 +53,25 @@ class ContributionController extends AbstractActionController
      */
     protected $string;
 
+    /**
+     * @var \Contribute\Spam\SpamCheckerInterface
+     */
+    protected $spamChecker;
+
     public function __construct(
         EntityManager $entityManager,
         TempFileFactory $tempFileFactory,
         Uploader $uploader,
         ?string $basePath,
-        array $config
+        array $config,
+        SpamCheckerInterface $spamChecker
     ) {
         $this->entityManager = $entityManager;
         $this->tempFileFactory = $tempFileFactory;
         $this->uploader = $uploader;
         $this->basePath = $basePath;
         $this->config = $config;
+        $this->spamChecker = $spamChecker;
     }
 
     public function showAction()
@@ -320,6 +329,14 @@ class ContributionController extends AbstractActionController
             // The template cannot be changed once set.
             $post['template'] = $resourceTemplate->id();
             $form->setData($post);
+            // Anonymous submissions are the spam surface: run the spam check
+            // (SpamGuard when active, no-op otherwise) before any processing.
+            if (!$user && $this->checkSpam($post)) {
+                $this->messenger()->addError(
+                    'Your contribution was detected as spam and was not saved. Please retry or contact us.' // @translate
+                );
+                return $this->redirect()->toUrl($this->getRequest()->getRequestUri());
+            }
             // TODO There is no check currently (html form), except the csrf.
             if ($form->isValid()) {
                 // TODO There is no validation by the form, except csrf, since elements are added through views. So use form (but includes non-updatable values, etc.).
@@ -632,6 +649,14 @@ class ContributionController extends AbstractActionController
             // The template cannot be changed once set.
             $post['template'] = $resourceTemplate->id();
             $form->setData($post);
+            // Anonymous submissions are the spam surface: run the spam check
+            // (SpamGuard when active, no-op otherwise) before any processing.
+            if (!$user && $this->checkSpam($post)) {
+                $this->messenger()->addError(
+                    'Your contribution was detected as spam and was not saved. Please retry or contact us.' // @translate
+                );
+                return $this->redirect()->toUrl($this->getRequest()->getRequestUri());
+            }
             // TODO There is no check currently (html form), except the csrf.
             if ($isModeWrite && $form->isValid()) {
                 // $data = $form->getData();
@@ -1035,6 +1060,42 @@ class ContributionController extends AbstractActionController
         $entity->setProposal($proposal);
 
         return new ContributionRepresentation($entity, $contributionAdapter);
+    }
+
+    /**
+     * Run the spam check on an anonymous submission and log the matched
+     * reasons.
+     *
+     * @return string[] Reason keys, empty when the submission is not spam.
+     */
+    protected function checkSpam(array $post): array
+    {
+        $reasons = $this->spamChecker->check($this->spamContext($post));
+        if ($reasons) {
+            $this->logger()->warn(
+                'A contribution was blocked as spam ({reasons}).', // @translate
+                ['reasons' => implode(', ', $reasons)]
+            );
+        }
+        return $reasons;
+    }
+
+    /**
+     * Build the spam check context from the request and the posted values.
+     */
+    protected function spamContext(array $post): array
+    {
+        $texts = [];
+        array_walk_recursive($post, function ($value) use (&$texts): void {
+            if (is_string($value) && $value !== '') {
+                $texts[] = $value;
+            }
+        });
+        return [
+            'ip' => (new RemoteAddress())->getIpAddress(),
+            'userAgent' => (string) $this->getRequest()->getServer('HTTP_USER_AGENT', ''),
+            'body' => implode("\n", $texts),
+        ];
     }
 
     protected function notifyContribution(ContributionRepresentation $contribution, string $action = 'update'): self

@@ -6,6 +6,7 @@ return [
     'service_manager' => [
         'factories' => [
             File\Contribution::class => Service\File\ContributionFactory::class,
+            'Contribute\SpamChecker' => Service\SpamCheckerFactory::class,
         ],
     ],
     'api_adapters' => [

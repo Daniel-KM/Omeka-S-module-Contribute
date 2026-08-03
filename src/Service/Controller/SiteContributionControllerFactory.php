@@ -16,7 +16,8 @@ class SiteContributionControllerFactory implements FactoryInterface
             $services->get(\Omeka\File\TempFileFactory::class),
             $services->get(\Omeka\File\Uploader::class),
             $config['file_store']['local']['base_path'] ?: (OMEKA_PATH . '/files'),
-            $config
+            $config,
+            $services->get('Contribute\SpamChecker')
         );
     }
 }
